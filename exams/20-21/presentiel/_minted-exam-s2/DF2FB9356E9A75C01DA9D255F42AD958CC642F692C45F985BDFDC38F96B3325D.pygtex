@@ -1,0 +1,6 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{function} fonctionReduce \PYG{o}{(}\PYG{n+nv}{\PYGZdl{}cl}é, \PYG{n+nv}{\PYGZdl{}valeurs}\PYG{o}{)}
+\PYG{o}{\PYGZob{}}
+  \PYG{k}{return} \PYG{o}{(}\PYG{n+nv}{\PYGZdl{}cl}é, count\PYG{o}{(}\PYG{n+nv}{\PYGZdl{}valeurs}\PYG{o}{))}
+\PYG{o}{\PYGZcb{}}
+\end{Verbatim}

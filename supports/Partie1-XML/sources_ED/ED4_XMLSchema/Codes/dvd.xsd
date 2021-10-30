@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  
+  <xs:complexType name="DVDType">
+    <xs:attribute name="id" type="xs:string" use="required" />
+    <xs:attribute name="cb" type="xs:string" use="required" />
+    <xs:attribute name="iddis" type="xs:string" use="required" />
+  </xs:complexType>
+  
+  <xs:simpleType name="genreType">
+    <xs:restriction base="xs:NMTOKEN">
+      <xs:enumeration value="Drame"/>
+      <xs:enumeration value="Comedie"/>
+      <xs:enumeration value="Action"/>
+      <xs:enumeration value="Jeunesse"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="dispoType">
+    <xs:restriction base="xs:NMTOKEN">
+      <xs:enumeration value="Y"/>
+      <xs:enumeration value="N"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:complexType name="DVDdescrType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="cb" type="xs:string"/>
+        <xs:attribute name="real" type="xs:string"/>
+        <xs:attribute name="genre" type="genreType"/>
+        <xs:attribute name="disponibilite" type="dispoType"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="DistribType">
+    <xs:sequence>
+      <xs:element name="Adresse">
+	<xs:complexType>
+	  <xs:sequence>
+	    <xs:element name="Num" type="xs:string"/>
+	    <xs:element name="Rue" type="xs:string"/>
+	    <xs:element name="Ville" type="xs:string"/>
+	    <xs:element name="CP" type="xs:integer"/>
+	  </xs:sequence>
+	</xs:complexType>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:string"/>
+  </xs:complexType>
+  
+  <xs:element name="BD">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element name="DVD" type="DVDType" minOccurs="1" maxOccurs="unbounded"/>
+	<xs:element name="DVDdescr" type="DVDdescrType" minOccurs="1" maxOccurs="unbounded"/>
+	<xs:element name="Distrib" type="DistribType" minOccurs="1" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+</xs:schema>

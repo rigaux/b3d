@@ -1,0 +1,17 @@
+
+\subsection{P2P, DHT, Chord}
+
+Lorsque l'index prend encore trop de place, il est utile de le répartir sur un ensemble de serveur qui répartiront ainsi la charge. Chaque terme, associé à sa \textit{posting list} est envoyé sur un serveur. Pour cela, nous utiliserons un réseau P2P Chord avec une DHT.
+
+Notre DHT utilisera comme fonction de hachage, sur le $docId$, \textbf{modulo (N)}. N étant le nombre de noeuds du réseau pair-à-pair. Chaque noeud relié à deux autres noeuds, formant un anneau complet. Afin de parcourir l'anneau, chaque noeud $N_i$ a une partie de la table de hachage globale (d'où le $D$istributed $H$ash $T$able). La table de $N_i$ contient un certain nombre de pointeurs vers des noeuds suivants dont les identifiants sont :\\
+ $N_i$+2$^0$, $N_i$+2$^1$, $N_i$+2$^0$, $N_i$+2$^2$, $N_i$+2$^3$, $N_i$+2$^4$, $N_i$+2$^5$.
+
+Ainsi, lorqu'à un noeud  $N_i$ on cherche une clé $j$ (recherche ou insertion), si $j$ est supérieure à $N_i$+2$^5$ on sautera les 2$^5$ noeuds suivants. S'il est inférieur, on test $N_i$+2$^4$. Et ceci récursivement jusqu'à atteindre le noeud $N_j$.
+
+\begin{enumerate}
+	\item Construire un réseau Chord de 18 noeuds.
+	\item Placer les \textit{Postings List} de la section~\ref{LI}, question~\ref{LI_q} dans le réseau. Le $termId$ de chaque terme correspond à son ordre d'apparition.\\
+France : 1, Récession : 2, Ralentie : 3, INSEE : 4, USA : 5, Finance : 6, Paulson : 7, Crise : 8, Gouvernement : 9, PIB : 10
+	\item Le noeud 1 souhaite ajouter le document 5 contenant les mots suivants (Récession, Gouvernement). Décrire le déroulement de l'insertion.
+	\item Une requête est posée au niveau du noeud 14. Décrire les étapes de l'évaluation de la requête suivante : $crise \land ralentie$.
+\end{enumerate}

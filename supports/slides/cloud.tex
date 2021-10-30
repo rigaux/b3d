@@ -1,0 +1,314 @@
+
+\section{Introduction}
+
+
+\begin{frame}
+\frametitle{Infrastructures \textit{cloud}}
+
+Les données sont massives quand elles dépassent les capacités d'une
+seule machine.
+
+\begin{redbullet}
+  \item en mémoire RAM: quelques dizaines de GOs;
+  \item en mémoire persistante: quelques TOs.
+\end{redbullet}
+
+\vfill
+
+Qui dit \alert{données massives} dit donc \alert{système distribué}. Point communs (le seul?) des 
+systèmes dits NoSQL.
+
+\vfill
+
+De fait: l'infrastructure est constituée de grappes de serveurs, avec
+\begin{redbullet}
+  \item des machines à bas coût (\textit{commodity servers}),
+  \item la possibilité d'en ajouter/retirer en quelques minutes (\alert{élasticité}),
+  \item des environnements logiciels spécialisés.
+\end{redbullet}
+
+Nous appellerons l'ensemble un \textit{cloud} (un peu réducteur).
+
+
+\end{frame}
+
+
+\section{Cloud et données massives}
+
+\begin{frame}{Vision générale}
+
+\figSlideWithSize{cloud}{12cm}
+
+\end{frame}
+
+\begin{frame}{Serveurs et baies}
+
+Dans un centre de données, les serveurs sont empilés dans des baies.
+\vfill
+
+\figSlideWithSize{rack-and-server}{11cm}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Infrastructures \textit{cloud}}
+
+
+
+% A two-columns presentation
+\begin{tabular}{l|p{6cm}}
+   \parbox{5cm}{
+
+Une baie contient environ 40 serveurs.
+
+\smallskip
+
+Un centre de données contient quelques centaines de baies.
+
+\smallskip
+
+Ordre de grandeur: quelques milliers de serveurs par centre.
+
+\smallskip
+
+Combien des centres chez Google, Facebook, Amazon ...? Des millions
+de serveurs.
+
+
+   }  % Inclusion of an XML file
+  & 
+  \parbox{6cm}{\figSlideWithSize{google-datacenter}{6cm} }
+\end{tabular}
+\vfill
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{La virtualisation}
+
+Prenez une machine avec 64GOs de mémoire, 12 disques de 3 TO chacun.
+
+\medskip
+
+Découpez-là en sous-machines ``virtuelles''.
+
+\begin{redbullet}
+  \item 18 serveurs virtuels avec 4 GO de RAM chacun (2 TO de disques)\,;
+  \item 8 serveurs virtuels avec 8 GO de RAM chacun (3 TO de disques)\,;
+
+    \item etc...
+\end{redbullet}
+
+Permet d'attribuer des serveurs à la demande, optimise l'utilisation des machines.
+
+\medskip
+
+Pour le client\,: 0 coût installation, maintenance, amortissement.
+
+\medskip
+
+Cf. Amazon EC2, OVH, Gandi (français), etc.
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Les pannes}
+
+Choix essentiel: \alert{on augmente la puissance du système par ajout de machines
+à bas coût (scalabilité horizontale)}, et pas par l'augmentation des capacités
+d'une machine (scalabilité verticale).
+
+\vfill
+
+Conséquence essentielle: des pannes tout le temps!
+
+\begin{redbullet}
+  \item panne de disque;
+  \item redémarrage serveur (panne logicielle/matérielle)
+  \item coupure réseau.
+\end{redbullet}
+
+Méthode générale: réplication des données; redondance des services.
+
+\vfill
+
+Les systèmes (NoSQL) disposent d'une reprise sur panne (\textit{failover}) \alert{automatique}.
+
+\end{frame}
+
+\section{Systèmes distribués}
+
+
+
+\begin{frame}
+\frametitle{Systèmes distribués}
+
+Système distribué = ensemble de composants logiciels, ou \alert{nœuds}, répartis sur une \alert{grappe de serveurs},
+coopérant pour une tâche précise.
+
+\vfill
+
+Ces nœuds communiquent par \alert{envoi de messages} (aucun partage de mémoire). 
+
+
+\vfill
+
+Chaque nœud est en écoute sur un port réseau (ex., le 80 pour le Web, 27017 pour Mongodb).
+
+\vfill
+
+On peut avoir un système distribué (mais pas scalable) sur une seule machine! 
+
+\vfill
+ En général,
+un nœud par machine.
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Le client, les maîtres et les esclaves}
+
+Deux organisations principales. La première (plus courante) est
+dite \alert{maître-esclave}.
+
+\vfill
+
+
+\figSlideWithSize{client-master-slave}{11cm}
+
+\vfill
+
+Rôle essentiel du maître (mais aussi \textit{single point of failure}).
+
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Autre topologie}
+
+C'est la démocratie! Il n'y a que des maîtres (\textit{master-master}, ou aussi multi-nœuds).
+
+\vfill
+
+
+\figSlideWithSize{client-master}{11cm}
+
+\vfill
+
+Plus robuste en théorie, mais soulève des problèmes compliqués (donc, moins courant).
+
+\end{frame}
+
+
+\begin{frame}{Gestion des pannes, ou \textit{failover}}
+
+Un système distribué peut s'appuyer  des centaines, des milliers de serveurs: \alert{il y a des pannes
+tout le temps}.
+
+\vfill
+
+Caractéristique d'un bon système: tolérant aux pannes, assure une disponibilité 24/7.
+
+\begin{redbullet}
+  \item surveillance automatisée de tous les nœuds participants (\textit{heartbeat}, messages toutes les $n$ secondes).
+  \item \alert{méthode de reprise sur panne} (\textit{failover}) basée sur la redondance/réplication.
+\end{redbullet}
+
+\vfill
+
+Un cas particulièrement épineux: le \alert{partitionnement réseau}.
+
+\end{frame}
+
+\section{Le NoSQL}
+
+
+\begin{frame}{Le NoSQL, qu'est-ce que c'est}
+
+\begin{defblock}{Systèmes NoSQL (Ma définition)}
+Un système NoSQL est un système distribué dont la tâche est la gestion de données persistantes
+dans un environnement \textit{cloud}. Il fournit les fonctionnalités suivantes:
+
+\begin{redbullet}
+  \item Recherche et mise à jour de données 
+  \item Adaptation automatique aux ressources matérielles: équilibrage, élasticité.
+  \item Performances ``scalables'' (voir plus loin).
+  \item Reprise sur panne automatisée.
+\end{redbullet}
+\end{defblock}
+
+Beaucoup de modèles différents (``documents'', clé-valeur, graphes ...). Deux
+types principaux:
+
+\begin{redbullet}
+  \item Systèmes \alert{temps réel}: accès en millisecondes aux unités d'information.
+  \item Systèmes \alert{analytiques}: traitements appliqués à tout ou partie d'une collection.
+\end{redbullet}
+
+\end{frame}
+
+
+\begin{frame}{Petit historique: systèmes analytiques}
+
+Quelques publications de Google: \textit{Google File System} (2003),
+MapReduce (2004), BigTable (2006).
+
+\vfill
+
+Clonés par des systèmes Open Source dans l'environnement Hadoop: HDFS, MapReduce, HBase.
+
+\vfill
+
+Autres successeurs: Cassandra, maintenant Spark, Flink, etc.
+
+\vfill
+Applications: construction d'index, analyses de données massives.
+ 
+\end{frame}
+
+\begin{frame}{Petit historique: systèmes temps réels}
+
+Publication majeure d'Amazon: le système Dynamo (2007).
+
+\vfill
+
+Application: gestion robuste, distribuée, scalable de centaines de millions de comptes
+client, produits, transactions.
+
+\vfill
+
+Cloné par le système Voldemort; principes repris par Mongodb, CouchDB, Riak, beaucoup d'autres
+
+\vfill
+
+NB: précédé par beaucoup de recherche et de systèmes distribués bien sûr.
+
+\end{frame}
+
+\begin{frame}{Ce qu'il faut retenir}
+
+Environnement dit \textit{cloud} = grappes de serveurs à bas coût, stockés dans des centres de données.
+
+\vfill
+
+Très ``élastique'' car facile d'ajouter/supprimer une ressource = \alert{scalabilité horizontale}.
+
+\vfill
+
+Très sujet aux \alert{pannes}, de disque, de réseau, de logiciels.
+
+\vfill
+
+Système distribué (NoSQL): système exploitant au mieux les ressources du \textit{cloud}, tolérant aux pannes.
+
+ 
+\end{frame}
+
+\end{document}
+
+

@@ -1,0 +1,17 @@
+Pig Stack Trace
+---------------
+ERROR 1003: Unable to find an operator for alias join
+
+org.apache.pig.impl.logicalLayer.FrontendException: ERROR 1003: Unable to find an operator for alias join
+	at org.apache.pig.PigServer$Graph.buildPlan(PigServer.java:1513)
+	at org.apache.pig.PigServer.storeEx(PigServer.java:973)
+	at org.apache.pig.PigServer.store(PigServer.java:942)
+	at org.apache.pig.PigServer.openIterator(PigServer.java:855)
+	at org.apache.pig.tools.grunt.GruntParser.processDump(GruntParser.java:774)
+	at org.apache.pig.tools.pigscript.parser.PigScriptParser.parse(PigScriptParser.java:372)
+	at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:198)
+	at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:173)
+	at org.apache.pig.tools.grunt.Grunt.run(Grunt.java:69)
+	at org.apache.pig.Main.run(Main.java:541)
+	at org.apache.pig.Main.main(Main.java:156)
+================================================================================

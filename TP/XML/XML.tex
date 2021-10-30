@@ -1,0 +1,200 @@
+\chapter{XML}
+
+\section{Syntaxe XML}
+Corrigez le document XML suivant. Vérifiez que votre document corrigé est bien formé. Pour cela, utilisez un éditeur de documents XML (Sera, Aquamacs, Xemacs, ... à vous de choisir) ou ouvrez tout simplement le document avec votre navigateur web qui intègre un parser XML.
+
+\begin{lstlisting}
+<?xml version="3.0" encoding="utf-8" standalone="yes"?> 
+ <logiciel Comptabilité>
+   <version>1<version/> 
+   <user>
+     <uid>bgirot</uid>
+   </user>
+   <contact>
+     <lastName>Girot</lastName>
+     <firstName>Bernadette</FirstName>
+     <email>ggirot@petites.fleurs.com</email>
+   </contact>
+   <author autId="ghuret" lastName="Huret" firstName="George" organism="AIDI">
+     <company>
+       <labId>3987</labId>
+       <name>Analyse Informatique des Données & Information</name>
+       <shortName>AIDI</shortName>
+     </company>
+   </author>
+   <author autId="mgirard" lastName="Girard" firstName="Matin" firstName="Matin">
+     <company>
+       <labId>6670</labId>
+       <name>La compta en vogue</name>
+       <shortName>Vogu'la compta</shortName>
+     </company>
+     <company>
+       <labId>4621</labId>
+       <name>En avant les chiffres</name>
+       <shortName>EAC</shortName>
+   </author>  
+     </company>
+</logiciel Comptabilité>
+ <date_mise_en_service> 
+   2007-09-17
+ </date_mise_en_service>
+\end{lstlisting}
+
+\begin{correction}
+\clearpage
+\begin{lstlisting}
+<?xml version="1.0" encoding="utf-8"?>
+<logicielComptabilite>
+        <version>1</version>
+        <user>
+                <uid>bgirot</uid>
+        </user>
+        <contact>
+                <lastName>Girot</lastName>
+                <firstName>Bernadette</firstName>
+                <email>ggirot@petites.fleurs.com</email>
+        </contact>
+        <author autId="ghuret" lastName="Huret" firstName="George" organism="">
+                <company>
+                        <labId>3987</labId>
+                        <name>Analyse Informatique des Donne#es Information</name>
+                        <shortName></shortName>
+                </company>
+        </author>
+        <author autId="mgirard" lastName="Girard" firstName="Matin" organism="">
+                <company>
+                        <labId>6670</labId>
+                        <name>La compta en vogue</name>
+                        <shortName>Vogu'la compta</shortName>
+                </company>
+                <company>
+                        <labId>4621</labId>
+                        <name>En avant les chiffres</name>
+                        <shortName>EAC</shortName>
+                </company>
+        </author>
+		<date_mise_en_service> 
+			2007-09-17
+		</date_mise_en_service>
+</logicielComptabilite>
+\end{lstlisting}
+\end{correction}
+
+\section{Arbre XML}
+(Sur papier) Représentez l'arbre XML du document corrigé.
+\begin{correction}
+Arbre XML : balises dans des ovales et texte dans des carrés. Attributs attachés aux ovales.
+
+Sous la plupart des éditeurs (pe. Emacs), un parseur intégré ``souligne'' les erreurs au fur et à mesure de l'écriture du fichier XML.
+\end{correction}
+
+\section{Schéma DTD}
+
+\begin{enumerate}
+  \item Créer une DTD permettant de valider ce document XML.
+
+\begin{correction}
+\clearpage
+\begin{lstlisting}
+<!DOCTYPE logicielComptabilite [
+<!ELEMENT logicielComptabilite (version, user, contact, author*, date_mise_en_service)>
+<!ELEMENT version (#PCDATA)>
+<!ELEMENT user (uid)>
+<!ELEMENT uid (#PCDATA)>
+<!ELEMENT contact (lastname, firstname, email)>
+<!ELEMENT lastname (#PCDATA)>
+<!ELEMENT firstname (#PCDATA)>
+<!ELEMENT email (#PCDATA)>
+<!ELEMENT author (company)>
+<!ELEMENT note (#PCDATA)>
+<!ATTLIST author autId CDATA #REQUIRED>
+<!ATTLIST author lastName CDATA #REQUIRED>
+<!ATTLIST author firstName CDATA #REQUIRED>
+<!ATTLIST author organism CDATA>
+<!ELEMENT company (labId, name, shortName)>
+<!ELEMENT labId (#PCDATA)>
+<!ELEMENT name (#PCDATA)>
+<!ELEMENT shortName (#PCDATA)> ]>
+\end{lstlisting}
+\end{correction}
+
+	\item Trouvez dans la DTD suivante les erreurs :
+\begin{lstlisting}
+<!DOCTYPE mon_annuaire [
+<!ELEMENT annuaire (personne*)>
+<!ELEMENT personne (nom, ?prenom, email+, equipe)>
+<!ATTLIST personne type (etudiant | enseignant-chercheur | chercheur) "etudiant">
+<!ATTLIST annee_naissance CDATA #REQUIRED>
+<!ELEMENT nom (#CDATA)>
+<!ELEMENT prenom (#PCDATA)>
+<!ELEMENT equipe (nom, responsable)>
+<!ELEMENT responsable (personne)>
+<!ELEMENT note (#PCDATA)>
+]>
+\end{lstlisting}
+\begin{correction}
+le ``?'' est placé devant le prénom alors qu'il devrait être après.\\
+Il manque le nom de l'élément pour l'attribut annee\_naissance.\\
+Le CDATA pour l'élément nom n'est pas correct (utilisable que pour les attributs).\\
+note ``tout seule'' ne pose pas de soucis. Il ne sera simplement pas utilisé.\\
+Le ``bouclage'' personne $\rightarrow$ equipe $\rightarrow$ personne ne pose de pb du point de vue de la syntaxe de la DTD, mais le bouclage ne satisfaira aucun document XML.
+\end{correction}
+\end{enumerate}
+
+\section{XML et DTD}
+
+Pour le texte suivant, proposez un document XML et la DTD associée correspondant, et ce, sans redondance.
+\begin{lstlisting}
+Le LRI, dont le directeur est Michel Beaudouin-Lafon, dispose de plusieurs équipes de recherche. Parmis elles, on trouve l'équipe Programmation (directeur Marie-Claude Gaudel), l'équipe Demonstration (directeur Christine Paulin), l'équipe Intelligence Artificielle et Systemes d'Inference (directeur Chantal Reynaud), l'équipe Inference et Apprentissage (directeur Michele Sebag) et l'équipe Bases de données (directeur Nicolas Spyratos). Ces équipes participent à différents projets avec l'INRIA. Le projet GEMO (directeur Serge Abiteboul) implique l'équipe Intelligence Artificielle et Systemes d'Inference et l'équipe Bases de données, le projet TAO (directeur Marc Shoenauer) implique l'équipe Inference et Apprentissage, le projet InSitu (directeur Wendy Mackay) implique l'équipe Programmation et les projets Proval et Logical (directeur Gilles Dowek) impliquent l'équipe Demonstration.
+\end{lstlisting}
+\begin{correction}
+\begin{lstlisting}
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE laboratoire [
+	<!ELEMENT laboratoire (directeur,equipe+,projet*)>
+	<!ELEMENT directeur (#PCDATA)>
+	<!ELEMENT equipe (directeur)>
+	<!ATTLIST equipe
+  		nom CDATA #REQUIRED
+  		ref_projets IDREFS #REQUIRED
+	>
+	<!ELEMENT projet (directeur)>
+	<!ATTLIST projet
+		nom ID #REQUIRED
+	>
+]>
+<laboratoire>
+  <directeur>Michel Beaudouin-Lafon</directeur>
+  <equipe nom="Programmation" ref_projets="InSitu">
+    <directeur>Marie-Claude Gaudel</directeur>
+  </equipe>
+  <equipe nom="Demonstration" ref_projets="Logical Proval">
+    <directeur>Christine Paulin</directeur>
+  </equipe>
+  <equipe nom="Intelligence Artificielle et Systemes d'Inference" ref_projets="GEMO">
+    <directeur>Marie-Christine Rousset</directeur>
+  </equipe>
+  <equipe nom="Inference et Apprentissage" ref_projets="TAO">
+    <directeur>Michele Sebag</directeur>
+  </equipe>
+  <equipe nom="Bases de données" ref_projets="GEMO">
+    <directeur>Nicolas Spyratos</directeur>
+  </equipe>
+  <projet nom="GEMO">
+    <directeur>Serge Abiteboul</directeur>
+  </projet>
+  <projet nom="TAO">
+    <directeur>Marc Shoenauer</directeur>
+  </projet>
+  <projet nom="InSitu">
+    <directeur>Wendy Mackay</directeur>
+  </projet>
+  <projet nom="Logical">
+    <directeur>Gilles Dowek</directeur>
+  </projet>
+  <projet nom="Proval">
+    <directeur>Christine Paulin</directeur>
+  </projet>
+</laboratoire>
+\end{lstlisting}
+\end{correction}

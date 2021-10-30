@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="feuilleproduits.xsl" ?>
+<Produits>
+  <Magasin>
+    <name>Theo et Louise</name>
+    <Produit ID="7-9997-B">
+      <lib>Mc Traveler - Poussette</lib>
+      <Quantity>57</Quantity>
+      <Marque>Jojo et Marjolaine</Marque>
+    </Produit>
+    <Produit ID="3-5670-C">
+      <lib>Dady Mam - biberon</lib>
+      <Quantity>91</Quantity>
+      <Marque>Les grignottes</Marque>
+    </Produit>
+    <Produit ID="2-3478-A">
+      <lib>BB trop confort - Table a langer</lib>
+      <Quantity>27</Quantity>
+      <Marque>Jojo et Marjolaine</Marque>
+    </Produit>
+  </Magasin>
+  <Magasin>
+    <name>Chez BB</name>
+    <Produit ID="5-6767-A">
+      <lib>BB Naturel - Set bain</lib>
+      <Quantity>28</Quantity>
+      <Marque>Mariette la Chouette</Marque>
+    </Produit>
+    <Produit ID="5-6867-A">
+      <lib>BB Naturel - Set 3 bodies</lib>
+      <Quantity>23</Quantity>
+      <Marque>Mariette la Chouette</Marque>
+    </Produit>
+  </Magasin>
+  <Magasin>
+    <name>Autour du bebe</name>
+    <Produit ID="5-6755-A">
+      <lib>BB Naturel - Ensemble chaussettes antidérapantes</lib>
+      <Quantity>28</Quantity>
+      <Marque>Mariette la Chouette</Marque>
+    </Produit>
+    <Produit ID="5-6868-A">
+      <lib>BB Naturel - set 3 bodies</lib>
+      <Quantity>23</Quantity>
+      <Marque>Jojo et Marjolaine</Marque>
+    </Produit>
+  </Magasin>
+</Produits>

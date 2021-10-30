@@ -1,0 +1,143 @@
+\begin{frame}{JSON, Javascript Object Notation}
+
+\begin{itemize}
+\item JavaScript Object Notation;
+\item Initialement créé pour la sérialisation et l'échange d'objets JavaScript;
+\item Langage pour l'échange de données semi-structurées (et éventuellement structurées);
+\item Format texte indépendant du language de programmation utilisé pour le manipuler.
+\end{itemize}
+
+\vfill 
+
+Utilisation première : échange de données dans un environnement Web (par exemple applications Ajax)\\
+
+\vfill
+
+Extension : sérialisation\prof{ pour échange évidemment} et stockage de données \prof{semi-structurées plut\^ot mais aussi structurées si besoin}
+
+\end{frame}
+
+\definecolor{lightgray}{rgb}{.9,.9,.9}
+\definecolor{darkgray}{rgb}{.4,.4,.4}
+\definecolor{purple}{rgb}{0.65, 0.12, 0.82}
+
+
+\begin{frame}[containsverbatim,fragile,allowframebreaks]{Les bases de JSON}
+
+Structure de base: paire \prof{ordonnée} \textit{clef-valeur} (\textit{key-value})
+
+
+\begin{lstlisting}[language=JavaScript,basicstyle=\small]
+"title": "The Social network"
+\end{lstlisting}
+
+\bigskip
+
+\alert{Qu'est-ce qu'une valeur?} On distingue les
+ valeurs \alert{atomiques} et les valeurs \alert{complexes} (construites)
+
+\medskip
+Valeurs atomiques\,: cha\^ines de caractères (entourées 
+par les classiques guillemets anglais (droits)), nombres (entiers, flottants) 
+et valeurs booléennes (\texttt{true} ou \texttt{false}).
+
+\begin{lstlisting}[language=JavaScript,basicstyle=\small]
+"year": 2010
+\end{lstlisting}
+
+
+\begin{lstlisting}[language=JavaScript,basicstyle=\small]
+"oscar": false
+\end{lstlisting}
+
+\framebreak
+
+Valeurs complexes\,: les \alert{objets}.
+
+\bigskip
+
+Un \textit{objet} est un ensemble de paires clef-valeur.
+
+\bigskip
+
+Au sein d'un ensemble de paires, une clef apparait au plus une fois 
+(NB : les types de valeurs peuvent être distincts).
+
+\begin{lstlisting}[language=JavaScript,basicstyle=\small]
+{"last_name": "Fincher", "first_name": "David"}
+\end{lstlisting}
+
+\bigskip
+
+Un objet peut être utilisé comme valeur (dite \textit{complexe}) dans une paire clef-valeur.
+
+\begin{lstlisting}[language=JavaScript,basicstyle=\small]
+"director": { 
+  "last_name": "Fincher",
+  "first_name": "David", 
+  "birth_date": 1962
+}
+\end{lstlisting}
+
+\framebreak
+
+Valeurs complexes\,: les \alert{tableaux}.
+
+\bigskip
+
+Un \textit{tableau} (\textit{array}) est une liste 
+ de valeurs (dont le type n'est pas forcément le même).
+
+\begin{lstlisting}[language=JavaScript,basicstyle=\small]
+"actors": ["Eisenberg", "Mara", "Garfield", "Timberlake"]
+\end{lstlisting}
+
+\bigskip
+
+Imbrication sans limite (vous vous souvenez d'XML?): tableaux de tableaux, tableaux d'objets contenant eux-mêmes des tableaux, etc.
+\framebreak
+
+Un \textit{document} est un objet. Il peut être défini par des objets et tableaux imbriqu\' es autant de fois que nécessaire.
+
+\begin{lstlisting}[language=JavaScript,basicstyle=\small]
+{
+  "title": "The Social network", 
+  "summary": "On a fall night in 2003, Harvard undergrad and \n
+         programming genius Mark Zuckerberg sits down at his \n 
+         computer and heatedly begins working on a new idea. (...)",
+  "year": 2010, 
+  "director": {"last_name": "Fincher",
+                    "first_name": "David"},
+  "actors": [ 
+        {"first_name": "Jesse", "last_name": "Eisenberg"}, 
+        {"first_name": "Rooney", "last_name": "Mara"}
+    ]
+}
+\end{lstlisting}
+
+\end{frame}
+
+
+\begin{frame}{JSON vs. XML}
+\begin{itemize}
+\item JSON plus léger et intuitif que XML,
+\item Facile à parser pour n'importe quel langage de programmation,
+\item JSON n'a pas (encore) de langage de spécification de schéma associé,
+\item JSON n'a pas (encore) de langage de requête associé. \prof{moins mature en quelque sortes}
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}{Quelques sites pour aler plus loin}
+\begin{itemize}
+\item Tout sur JSON\,: \url{http://json.org/}
+\item Un validateur de documents JSON\,: \url{http://jsonlint.com/}
+\item Une proposition de \alert{schéma} pour JSON\,: \url{http://json-schema.org/}
+\item Un langage de requêtes  JSON\,: JAQL, \url{http://code.google.com/p/jaql/}
+
+
+\end{itemize}
+\end{frame}
+
+

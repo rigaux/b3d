@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE laboratoire [
+<!ELEMENT laboratoire (directeur,equipe+,projet*)>
+<!ELEMENT directeur (#PCDATA)>
+<!ELEMENT equipe (directeur)>
+<!ATTLIST equipe
+  nom CDATA #REQUIRED
+  ref_projets IDREFS #REQUIRED
+>
+<!ELEMENT projet (directeur)>
+<!ATTLIST projet
+  nom ID #REQUIRED
+>
+]>
+<laboratoire>
+  <directeur>Michel Beaudouin-Lafon</directeur>
+  <equipe nom="Programmation" ref_projets="InSitu">
+    <directeur>Marie-Claude Gaudel</directeur>
+  </equipe>
+  <equipe nom="Demonstration" ref_projets="Logical Proval">
+    <directeur>Christine Paulin</directeur>
+  </equipe>
+  <equipe nom="Intelligence Artificielle et Systemes d'Inference" ref_projets="GEMO">
+    <directeur>Marie-Christine Rousset</directeur>
+  </equipe>
+  <equipe nom="Inference et Apprentissage" ref_projets="TAO">
+    <directeur>Michele Sebag</directeur>
+  </equipe>
+  <equipe nom="Bases de données" ref_projets="GEMO">
+    <directeur>Nicolas Spyratos</directeur>
+  </equipe>
+  <projet nom="GEMO">
+    <directeur>Serge Abiteboul</directeur>
+  </projet>
+  <projet nom="TAO">
+    <directeur>Marc Shoenauer</directeur>
+  </projet>
+  <projet nom="InSitu">
+    <directeur>Wendy Mackay</directeur>
+  </projet>
+  <projet nom="Logical">
+    <directeur>Gilles Dowek</directeur>
+  </projet>
+  <projet nom="Proval">
+    <directeur>Christine Paulin</directeur>
+  </projet>
+</laboratoire>

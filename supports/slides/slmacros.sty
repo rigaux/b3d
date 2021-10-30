@@ -1,0 +1,53 @@
+\usepackage{./all_macros}
+
+%\usepackage{synttree}
+\usepackage{color}
+
+%% Define the presentation options for slides
+\lstset{emphstyle=\color{alert},basicstyle=\small\ttfamily,stringstyle=\color{mygreen},keywordstyle=\color{structure},commentstyle=\color{maroon}\itshape,inputencoding=latin1,backgroundcolor=\color{mygray},showstringspaces=false}
+
+%%% New commands
+%\newcommand*{\xmlfile}[2][]{\lstinputlisting[emph={#1},%
+%frame=lines,language=myXML]{../xml_examples/#2.xml}}
+\newcommand*{\xmlfile}[1]{\lstinputlisting[frame=lines,language=myXML]{../data/#1.xml}}
+
+\newcommand*{\xsltfile}[2][]{\lstinputlisting[emph={#1},%
+frame=lines,language=myXSLT]{../data/xslt/#2.xsl}}
+\newcommand*{\xmlinline}[2][]{\colorbox{mygray}{\lstinline[emph={#1},%
+language=myXML]{#2}}}
+\newcommand*{\xsltinline}[2][]{\colorbox{mygray}{\lstinline[emph={#1},%
+language=myXSLT]{#2}}}
+\newcommand*{\xqueryinline}[2][]{\colorbox{mygray}{\lstinline[emph={#1},%
+language=myXQuery]{#2}}}
+
+%% Inclusion of a PiP example
+
+\newcommand{\pipfile}[3]{%
+{\small
+\lstinputlisting[frame=lines,language=#3]{../PiP-examples/#1}
+}
+}
+
+% File inclusion
+\def\testFile#1#2{%
+\typeout{File: #1}
+\IfFileExists{#1}{#2}}
+
+\newcommand{\FileInSlide}[1]{%
+\testFile{#1}{%
+{\small\verbatiminput{#1}}}{\errorlog{File '#1' does not exist!}}
+}
+
+% Used to show the context node of an XPath evaluation
+\newcommand{\contextNode}[1]{%
+\MySolidShadowBox{\textcolor{red}{#1}}{}
+}
+
+\setbeamertemplate{navigation symbols}{}
+
+%
+% @brief Used to print the front page of slides
+% @param Title of the class
+% @param Subtitle
+%
+

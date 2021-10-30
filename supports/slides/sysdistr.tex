@@ -1,0 +1,191 @@
+
+\section{Quelques généralités}
+
+
+\begin{frame}
+\frametitle{Systèmes distribués}
+
+Un \alert{système distribué} est une application qui coordonne les
+actions de plusieurs ordinateurs connectés par un réseau.
+
+  
+  \vfill
+  La coordination consiste à échanger des \alert{messages}, codés selon un certain
+    \alert{protocole}.
+      
+   $\Rightarrow$ on se limite ici aux architectures ``\textit{shared-nothing}''  -> 
+       pas de mémoire partagée, pas de disque partagé, etc.
+ 
+   
+   \vfill 
+   
+   Le réseau se charge de la transmission des messages, selon un mode qui dépend
+      de l'infrastructure sous-jacente.
+    
+   $\Rightarrow$ Local area networks (LAN), Peer to peer (P2P) networks, \ldots
+    
+    \vfill
+    
+    Le système est constitué de \alert{n{\oe}uds}\,: des composants logiciels
+      capables d'émettre/recevoir des messages selon le protocole.
+      
+\begin{remark}
+C'est la présence d'un \alert{composant logiciel} qui définit le rôle d'une machine.
+Une même machine peut être simultanément (multi-)serveur(s) et (multi-)client(s)
+\end{remark}
+\end{frame}
+
+\begin{frame}
+\frametitle{Un exemple de système distribué\,: le Web}
+
+Il obéit à un protocole\,: lequel\,?
+
+\vfill
+
+Il s'appuie sur un réseau\,: lequel?
+
+\vfill
+
+Il donne accès à des resources, grâce à des \alert{clients web}. Par exemple\,:?
+
+\vfill
+
+Les ressources sont gérées par des \alert{serveurs}. Par exemple\,: ?
+
+\vfill
+
+Basé sur un système d'adressage des ressources\,: ?
+
+\vfill
+
+Connaissez vous une machine qui  est multi-serveurs et multi-clients
+(regardez bien autour de vous!)\,,
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Applications analytiques (par lot) distribuées}
+
+Exemple d'une \alert{application analytique} (lecture de masses de données).
+
+\smallskip
+
+% A two-columns presentation
+\begin{tabular}{l|p{6cm}}
+   \parbox{5cm}{
+
+  \textbf{Lecture séquentielles.}  Il faut 166 minutes (plus de deux heures et demi) pour lire un Téra-octet 
+  
+  \vfill
+  \textbf{Lecture parallèle} Avec 100 disques, en supposant une lecture séquentielle et en parallèle: environ 1mn 30s.
+ \vfill
+ 
+ \textbf{Lecture distribuée} Avec 100 machines, chacune dotée d'un disque, d'un CPU et d'un fragment des données (partitionnement),
+     1 mn 30s, sans goulot d'étrangement pour le traitement. 
+   }  % Inclusion of an XML file
+  & 
+  \parbox{6cm}{\figSlideWithSize{bigpic-distrstorage}{5.5cm} }
+\end{tabular}
+\vfill
+
+% A Beamer box
+\begin{beamerboxesrounded}{Scalabilité horizontale}
+La distribution augmente le débit en proportion du nombre de disques.
+\end{beamerboxesrounded}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Applications transactionnelles (temps réel) distribuées}
+
+Exemple d'une \alert{application transactionnelle} (100 lectures aléatoires).
+
+\smallskip
+
+
+% A two-columns presentation
+\begin{tabular}{l|p{6cm}}
+   \parbox{5cm}{
+
+  \textbf{Une seule machine, données sur disque}. 100 lectures, 10 ms par lecture, env. 1 s.
+  
+  \vfill
+  \textbf{Partionnement sur disque}. Dans le meilleur des cas, chaque lecture sur un disque\,:
+     10 ms.
+ \vfill
+ 
+ \textbf{Partitionnement en mémoire}. 100 lectures en RAM: quelques micro-secondes. 
+   }  % Inclusion of an XML file
+  & 
+  \parbox{6cm}{\figSlideWithSize{bigpic-transaction}{5.5cm} }
+\end{tabular}
+\vfill
+
+% A Beamer box
+\begin{beamerboxesrounded}{Scalabilité horizontale}
+La distribution vise à placer les données en mémoire, au moins pour les lectures.
+\end{beamerboxesrounded}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Caractéristiques des systèmes distribués}
+
+Sujet complexe... On va se concentrer sur les aspects essentiels suivants.
+
+\begin{itemize}
+  \item la \alert{réplication des données}, indispensable pour assurer
+     
+  \begin{itemize}
+    \item  la \alert{tolérance aux pannes}. Plus il y a de serveurs, plus le risque de panne est élevé\,;
+         il faut donc maintenir les données disponibles dans tous les cas.
+     \item les \alert{performances}. La réplication peut \alert{aussi} assurer 
+      (partiellemnt) le passage à l'échelle.
+  \end{itemize}
+ 
+ \item le \alert{partionnement} (\textit{sharding}), autre outil, plus puissant, du passage à l'échelle
+  \begin{itemize}
+    \item  vous avez dix fois plus de documents\,? mettez 10 fois plus de machines, et 1/10ème des
+        documents sur chaque machine.
+     \item comment trouver la machine qui héberge la donnée qui vous intéresse\,?
+  \end{itemize}
+
+\item les \alert{traitements par lot}, typique des opérations analytiques (OLAP).
+  \begin{itemize}
+    \item  la distribution doit bénéficier aux \alert{accès aux données} (cf. ci-dessus)
+     \item les \alert{traitements} doivent eux-aussi être distribués.
+  \end{itemize}
+   
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Caractérisation des applications (et des systèmes qui vont bien)}
+
+\alert{Applications transactionnelles}. Exemple\,: e-commerce.
+
+ \begin{itemize}
+    \item  contraintes temps réel\,: les requêtes doivent être très rapides (quelques ms).
+    \item une transaction accède à une proportion très faible des données.
+    \item lectures/écritures équilibrées (dépend de l'appli.)
+    \item besoins d'une \alert{cohérence} plus ou moins forte.
+     \item \alert{Systèmes NoSQL}\,: \mongodb/, \couchdb/, Voldemort, Amazon S3, et beaucoup d'autres.
+  \end{itemize}
+
+\alert{Applications analytiques} Exemple\,: classification, \textit{clustering}, stats.
+
+ \begin{itemize}
+    \item pas de contrainte temps réel (certains traitements durent des semaines!)
+    \item une transaction peut accèder à \alert{toutes} les données.
+    \item beaucoup de lectures, très peu d'écritures.
+    \item pas de notion de  \alert{cohérence} (transactionnelle).
+     \item \alert{Systèmes}\,: \textsc{Hadoop}, \mapreduce/
+  \end{itemize}
+\end{frame}
+
+\end{document}
+
+

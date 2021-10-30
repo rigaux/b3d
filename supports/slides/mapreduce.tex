@@ -1,0 +1,300 @@
+
+
+\section{Généralités sur MapReduce}
+
+\begin{frame}
+\frametitle{Qu'est-ce que MapReduce}
+
+C'est un \emph{framework} d'exécution.
+
+\begin{itemize}
+  \item Processus en deux phases (devinez?)  appliqué à une collection d'items.
+  \item À chaque phase, on applique une fonction fournie par le développeur.
+\end{itemize}
+
+\vfill
+
+Quel intérêt?
+
+\begin{itemize}
+  \item Implante de manière \emph{générique} une exécution de type "group-by" à la SQL.
+  \item \alert{Scalable car facilement exécutable en parallèle}. 
+\end{itemize}
+
+\vfill
+
+\alert{Ce n'est pas l'idéal\,!} Très contraint, très peu expressif, lent.
+
+\vfill
+
+Cas particulier d'une \alert{chaîne de traitement} scalable. Principe très ancien
+(prog. fonctionnelle), remis au goût du jour par Google (2004) pour traitements massivement distribués. 
+
+\vfill
+
+Les systèmes modernes ont étendu le principe: nous en reparlerons.
+
+\end{frame}
+
+
+\section{MapReduce, c'est simple}
+
+
+
+\begin{frame}[fragile]
+\frametitle{Faisons du jus de pomme avec MapReduce}
+
+Vous savez comment on fait du jus de pomme? Voici comment
+on fait  avec MapReduce (sans le dire).
+
+\figSlideWithSize{juspommeMR}{10cm}
+
+\begin{defblock}{À retenir}
+
+\begin{itemize}
+  \item \alert{L'atelier de préparation}: on transforme les items en entrée, un par un.
+        \alert{Traitement individuel, ordre indifférent.}
+        
+  \item \alert{L'atelier d'assemblage}: on a \alert{groupé} les items, on leur applique
+   un \alert{traitement collectif}.
+\end{itemize}
+\end{defblock}
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+\frametitle{Une petite extension}
+
+Rien n'impose d'avoir du 1 pour 1 dans l'atelier de préparation. On peut
+rejeter des pommes pourries, et couper les autres en quartiers.
+
+\figSlideWithSize{juspommeMR+}{11cm}
+
+\begin{defblock}{À retenir}
+L'atelier de préparation n'est pas limité à une transformation un pour un des produits consommés.
+   Il peut prendre en entrée des produits d'une certaine nature, et sortir
+   des produits d'une autre nature.
+\end{defblock}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Passons au BigData}
+
+Si on veut faire beaucoup de jus de pomme: on parallélise.
+
+
+\figSlideWithSize{BigjuspommeMR}{9cm}
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+\frametitle{Des remarques importantes}
+
+\alert{Parallélisation = indépendance des données et des transformations}
+
+\medskip
+Si l'ordre d'épluchage était important, ce ne serait pas si simple;
+
+\smallskip
+
+Idem si l'épluchage d'une pomme dépendait de l'épluchage des autres. 
+
+\vfill
+
+\alert{Qu'est-ce qu'on gagne?}
+
+\medskip
+
+$n$ fois plus de ressources (cuisinier, matériel),  $n$ fois plus de jus de pomme !
+
+\medskip
+
+\begin{defblock}{Scalabilité}
+La production de jus de pomme est parallélisable et proportionnelle aux ressources
+   (humaines et matérielles) affectées.
+\end{defblock}
+
+\smallskip
+
+Mon processus est robuste!
+
+\begin{defblock}{Robustesse}
+Une panne affectant la production de jus de pomme n'a qu'un effet \alert{local}
+   et ne remet pas en cause \alert{l'ensemble} de la production.
+\end{defblock}
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+\frametitle{Encore mieux: je peux faire des jus de fruit}
+
+Jus de pomme, d'orange ou d'ananas: même procédé + un \alert{tri}.
+
+\figSlideWithSize{jusfruits}{9cm}
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+\frametitle{Encore des remarques importantes}
+
+\alert{Je dois trier et regrouper dans l'atelier d'assemblage}
+
+\medskip
+
+Ma transformation s'applique à des groupes distincts: ils sont
+constitués quand on initialise la phase d'assemblage.
+
+\vfill
+
+
+\alert{Pour être capable de trier, je dois étiqueter les items}
+
+\medskip
+
+C'est le rôle de l'atelier de préparation: on met une étiquette
+sur chaque item avant de le transmettre à l'assemblage.
+
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+\frametitle{Bouquet final: je parallélise aussi l'assemblage}
+
+Et voici du Map Reduce complet.
+
+\figSlideWithSize{jusfruits+}{9cm}
+
+Maintenant, je dois aussi \alert{distribuer} les items: pommes et oranges en
+haut, ananas en bas.
+
+\end{frame}
+
+
+\section{MapReduce, le modèle}
+
+
+\begin{frame}[fragile]
+\frametitle{Résumé (version basique)}
+
+La phase de \texttt{map} (préparation). Elle prend en paramètre une fonction $F_{map}()$.
+
+\begin{itemize}
+  \item Le \textit{framework} parcourt la collection en entrée, document par document.
+  \item Le \textit{framework} applique à chaque document $d_i$ la fonction  $F_{map}()$.
+  \item Le \textit{framework} obtient une valeur $v_i$ qu'il place dans un \alert{accumulateur} $A$.
+\end{itemize}
+
+\medskip
+
+La phase de \texttt{reduce} (assemblage). Elle prend en paramètre une fonction $F_{red}()$.
+
+
+\begin{itemize}
+  \item Le \textit{framework} applique $F_{red}()$ aux valeurs contenues  dans l'accumulateur $A$.
+  \item Le \textit{framework} obtient une valeur qui est le résultat du processus. 
+\end{itemize}
+
+\begin{defblock}{Essentiel}
+Les fonctions $F_{map}()$ et $F_{red}()$ sont \alert{la partie "métier", fonctionnelle}. Le reste
+est une \alert{infrastructure générique} prise en charge par un \alert{framework}.
+\end{defblock}
+
+Dans notre schéma: le cuisinier est $F_{map}()$, le pressoir est $F_{red}()$ 
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Notions et vocabulaire}
+
+À retenir:
+
+\begin{itemize}
+  \item \alert{Item (entrée)}, \alert{document} en ce qui nous concerne.
+  
+  \item \alert{Fonction de Map}, implante la transformation appliquée à un item pendant la phase de Map.
+
+  \item \alert{Paire intermédiaire}, c'est le résultat de la fonction de Map. 
+  
+  Une paire intermédiaire $(k, v)$ comprend l'identifiant (étiquette) du groupe auquel
+  $v$ appartient.
+
+  \item \alert{Groupe intermédiaire}, ensemble des valeurs produites par la fonction
+  de Map et partageant le même identifiant de groupe.
+  
+    \item \alert{Fonction de Reduce}, implante la transformation appliquée à un groupe
+    pendant la phase de Reduce.
+    
+\end{itemize}
+
+\alert{Ne pas retenir (pour l'instant)}: comment tout cela s'exécute en distribué, avec
+parallélisation et reprise sur panne.
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Vision d'ensemble (en centralisé)}
+
+
+\figSlideWithSize{mapreduce-mongo}{11cm}
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+\frametitle{Conception d'un processus Map/Reduce: les questions}
+
+Questions pour la phase de Map:
+\begin{itemize}
+  \item  Documents en entrée. D'où viennent-ils,
+    quelle est leur structure? Un traitement MapReduce s'applique à un flux de documents, on
+    ne peut rien faire si on ne sait pas en quoi ils consistent.
+
+  \item Groupes ? Combien y en a-t-il? Comment les
+    identifier (valeur de clé identifiant un groupe, l'étiquette)? Comment déterminer 
+    le ou les étiquettes  dans un document en entrée?
+
+  \item Quelles sont les valeurs intermédiaires que je veux produire à partir d'un document et
+    placer dans des groupes? Comment les produire à partir d'un document?
+\end{itemize}
+
+Pour la fonction de Reduce, c'est encore plus simple:
+\begin{itemize}
+  \item Quelle est la nature de l'agrégation qui va prendre un groupe et produire une valeur finale?
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+\frametitle{Conception d'un processus Map/Reduce: les fonctions}
+
+
+Un traitement MapReduce se spécifie sous la forme de deux fonctions
+
+\begin{itemize}
+
+  \item La fonction de Map prend \alert{toujours} en entrée \alert{un} (un seul) document;
+   elle produit \alert{toujours} des paires $(k, v)$ où $k$ est l'étiquette (la clé) du groupe
+   et $v$ la valeur intermédiaire.
+ \item La fonction de Reduce prend \alert{toujours} en entrée une paire $(k, list(v))$,
+   où $k$ est l'étiquette (la clé) du groupe
+   et $list(v)$ la liste des valeurs du groupe.
+\end{itemize}
+   
+\vfill
+
+À vous de jouer! Exercices.
+
+\end{frame}

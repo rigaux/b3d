@@ -1,0 +1,287 @@
+
+
+\section{Basics}
+
+\begin{frame}{Qu'est-ce que Cassandra\,?}
+
+Cassandra, conçu à l'origine par Facebook, maintenant un projet de la fondation Apache,
+distribué par la société Datastax.
+
+\begin{redbullet}
+  \item Initialement basé sur le système BigTable de Google (stockage orienté colonnes)
+   \item A fortement évolué vers un \textit{modèle relationnel étendu}
+  \item Un des rares systèmes NoSQL à proposer un typage fort
+  \item Un langage de définition de schéma et de requêtes, CQL (pas de jointure)
+    \end{redbullet}
+   \vfill
+   
+Construit dès l'origine comme un système \alert{scalable} et \alert{distribué}.
+
+\begin{redbullet}
+    \item Propose des méthodes de passage à l'échelle inspirées du système Dynamo
+ \item Distribution par hachage (\textit{consistent hashing})
+  \item Tolérance aux pannes par réplication en mode multi-nœuds
+\end{redbullet}   
+
+\alert{Dans ce cours, nous étudions le modèle de données.}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Installation}
+
+\alert{Serveur}: en deux clics avec Docker.
+
+\vfill
+
+Sinon, plus douloureux...
+
+
+\vfill
+
+\alert{Clients}.
+
+\begin{redbullet}
+\item Interpréteur de commandes (\texttt{cqlsh}).
+  \item DevCenter (Datastax), le plus agréable, mais il faut s'inscrire...
+  \item DBeaver, interface générique basée sur JDBC.
+  \item Quelques autres, non testés...
+\end{redbullet}
+
+\end{frame}
+
+
+\section{le modèle de données}
+
+
+\begin{frame}
+\frametitle{Modèle = relationnel + types complexes}
+
+Cassandra gère des \alert{bases} (\textit{keyspaces}), contenant des \alert{tables} (a.k.a.
+\textit{column families}).
+
+\vfill
+
+Une table contient des \alert{lignes} (\textit{rows}) constituées de \alert{valeurs simples}
+ou \alert{complexes}.
+
+\vfill
+
+\alert{Perspective A}: c'est du relationnel étendu en rompant la première règle de normalisation (type atomique).
+
+\vfill
+
+\alert{Perspective B}: chaque ligne est un document structuré au sens où nous l'avons vu jusqu'ici.
+
+\vfill
+
+\begin{remblock}{Attention}
+Vocabulaire confus et parfois déroutant: \textit{columns}, \textit{column families}, etc.
+\end{remblock}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Paires et documents}
+
+La structure de base est la paire (clé, valeur)
+
+\begin{redbullet}
+ \item Clé\,: un identifiant
+ \item Valeu,:  atomique (entier, chaîne de caractères), ou complexe (dictionnaire, ensemble, liste)
+\end{redbullet}
+
+\vfill
+
+Une ligne (\textit{row}, document) est un identifiant (\textit{row key}) associé à un ensemble de paires (clé, valeur).
+
+\vfill
+
+Les lignes sont \alert{typées} par un schéma, y compris les données imbriquées.
+
+\vfill
+
+Cassandra n'autorise pas (au moins avec CQL) l'insertion de données ne respectant pas le schéma.
+
+\vfill
+
+\alert{Quelques aspects ignorés ici}, le versionnement notamment.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Tables et base de données}
+
+Une \alert{table} (anciennement \textit{column family}) est un ensemble de \textit{rows} conformes
+au schéma de la table.
+
+\vfill
+
+Des notions de colonnes et super-colonnes sont (semble-t-il) en voie de disparition.
+
+\vfill
+
+Une \alert{base} est un ensemble de tables. On l'appelle \textit{keyspace}. Explication? Plus tard.
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Conception d'un schéma}
+
+\alert{Cassandra ne propose pas de jointure}. C'est du NoSQL après tout.
+
+\vfill
+
+Il est donc préférable de \alert{regrouper} les données le plus possible dans des lignes
+(notion de document autonome, déjà vue).
+
+\vfill
+
+La conception devrait se baser sur les requêtes les plus fréquentes de l'application (cf. 
+la session consacrée à la modélisation de données NoSQL).
+
+\vfill
+
+Au pire, on représente les mêmes données sous plusieurs formes (redondance).
+
+\begin{redbullet}
+  \item Tous les films, avec leurs réalisateurs et acteurs.
+  \item Tous les artistes, avec les films qu'ils ont tournés ou dans lesquels ils ont joué.
+\end{redbullet}
+
+\end{frame}
+
+\section{Session découverte\,!}
+
+
+\begin{frame}[fragile]
+\frametitle{Application !}
+
+Création d'un \textit{keyspace}.
+
+\begin{minted}{sql}
+create keyspace if not exists Movies 
+       with replication = { 'class' : 'SimpleStrategy',
+               'replication_factor': 3 };
+\end{minted}
+
+\vfill
+
+Création d'une table (sans imbrication).
+
+
+\begin{minted}{sql}
+ create table artists (id text, 
+                last_name text, first_name text, 
+                birth_date int, primary key (id) 
+             );
+\end{minted}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Insertions}
+
+A la SQL
+
+\begin{minted}{sql}
+insert into artists (id, last_name, first_name, birth_date)  
+      values ('artist1', 'Depardieu', 'Gerard', 1948);
+insert into artists (id, last_name, first_name, birth_date)  
+          values ('artist2', 'Baye', 'Nathalie', 1948);
+insert into artists (id, last_name, first_name)  
+          values ('artist3', 'Marceau', 'Sophie');
+\end{minted}
+
+\vfill
+
+Avec JSON
+
+\begin{minted}{sql}
+    insert into artists JSON '{
+         "id": 1,
+         "last_name": "Coppola",
+         "first_name": "Sofia",
+         "birth_date": "1971"
+       }' 
+\end{minted}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Avec imbrication}
+
+Création d'un type
+\begin{minted}{sql}
+create type artist (id text,
+                    last_name text,
+                    first_name text,
+                    birth_date int,
+                    role text);\end{minted}
+
+\vfill
+
+Table des films, avec imbrication.
+
+\begin{minted}{sql}
+create table movies (id text,
+                     title text,
+                     year int,
+                     genre text,
+                     country text,
+                     director frozen<artist>,
+                     primary key (id) );
+\end{minted}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Insertion de documents}
+
+À partir d'un document JSON
+
+\begin{minted}{sql}
+insert into movies JSON '{
+    "id": "movie:1",
+    "title": "Vertigo",
+    "year": 1958,
+    "genre": "drama",
+    "country": "USA",
+    "director": {
+        "id": "artist:3",
+        "last_name": "Hitchcock",
+        "first_name": "Alfred",
+    "   birth_date": "1899"
+    },
+}';
+\end{minted}
+
+\end{frame}
+
+\vfill
+
+\begin{frame}[fragile]
+\frametitle{Table des films, complète}
+
+
+
+\begin{minted}{sql}
+create table movies (id text,
+              title text,
+              year int,
+              genre text,
+              country text,
+              director frozen<artist>,
+              actors set< frozen<artist>>,
+           primary key (id) );
+\end{minted}
+
+\vfill
+
+Données à récupérer sur http://webscope.bdpedia.fr
+
+\end{frame}
+

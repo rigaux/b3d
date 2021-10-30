@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<movies>
+  <movie>
+    <title>A History of Violence</title>
+    <year>2005</year>
+    <country>USA</country>
+    <genre>Crime</genre>
+    <summary>Tom Stall, a humble family man and owner of a 
+	popular neighborhood restaurant, lives a quiet but 
+	fulfilling existence in the Midwest. One night Tom 
+	foils a crime at his place of business and, to his 
+	chagrin, is plastered all over the news for his 
+	heroics. Following this, mysterious people follow 
+	the Stalls' every move, concerning Tom more than 
+	anyone else. As this situation is confronted, more 
+	lurks out over where all these occurrences have 
+	stemmed from compromising his marriage, family 
+	relationship and the main characters' former 
+	relations in the process.</summary>
+ 	<director id="1"/>
+ 	<actor id="2" role="Tom Stall"/>
+	<actor id="3" role="Eddie Stall"/>
+	<actor id="4" role="Carl Fogarty"/>
+	<actor id="5" role="Richie Cusack"/>
+ </movie>
+  <movie>
+    <title>Heat</title>
+    <year>1995</year>
+    <country>USA</country>
+    <genre>Crime</genre>
+    <summary>Hunters and their prey--Neil and his professional 
+	criminal crew hunt to score big money targets 
+	(banks, vaults, armored cars) and are, in turn, 
+	hunted by Lt. Vincent Hanna and his team of cops 
+	in the Robbery/Homicide police division. A botched 
+	job puts Hanna onto their trail while they regroup 
+	and try to put together one last big 'retirement' 
+	score. Neil and Vincent are similar in many ways, 
+	including their troubled personal lives. At a 
+	crucial moment in his life, Neil disobeys the 
+	dictum taught to him long ago by his criminal 
+	mentor--'Never have anything in your life that you 
+	can't walk out on in thirty seconds flat, if you 
+	spot the heat coming around the corner'--as he 
+	falls in love. Thus the stage is set for the 
+	suspenseful ending.... </summary>
+ 	<director id="6"/>
+ 	<actor id="7" role="Lt. Vincent Hanna"/>
+	<actor id="8" role="Neil McCauley"/>
+	<actor id="9" role="Chris Shiherlis"/>
+	<actor id="10" role="Nate"/>
+ </movie>
+  <movie>
+    <title>Unforgiven</title>
+    <year>1992</year>
+    <country>USA</country>
+    <genre>Western</genre>
+    <summary>The town of Big Whisky is full of normal people 
+	trying to lead quiet lives. Cowboys try to make a 
+	living. Sheriff 'Little Bill' tries to build a 
+	house and keep a heavy-handed order. The town 
+	whores just try to get by.Then a couple of cowboys 
+	cut up a whore. Unsatisfied with Bill's justice, 
+	the prostitutes put a bounty on the cowboys. The 
+	bounty attracts a young gun billing himself as 
+	'The Schofield Kid', and aging killer William 
+	Munny. Munny reformed for his young wife, and has 
+	been raising crops and two children in peace. But 
+	his wife is gone. Farm life is hard. And Munny is 
+	no good at it. So he calls his old partner Ned, 
+	saddles his ornery nag, and rides off to kill one 
+	more time, blurring the lines between heroism and 
+	villainy, man and myth.</summary>
+ 	<director id="11"/>
+ 	<actor id="11" role="William 'Bill' Munny"/>
+	<actor id="12" role="Little Bill Daggett"/>
+	<actor id="13" role="Ned Logan"/>
+ </movie>
+  <movie>
+    <title>Match Point</title>
+    <year>2005</year>
+    <country>USA</country>
+    <genre>Crime</genre>
+    <summary>Chris Wilton is a former tennis pro, looking to 
+	find work as an instructor. He meets Tom Hewett, a 
+	well-off pretty boy. Tom's sister Chloe falls in 
+	love with Chris but Chris has his eyes on Tom's 
+	fiancée, the luscious Nola. Both Chris and Nola 
+	know it's wrong but what could be more right than 
+	love? Chris tries to juggle both women but at some 
+	point, he must choose between them...</summary>
+ 	<director id="14"/>
+ 	<actor id="15" role="Chris Wilton"/>
+	<actor id="16" role="Nola Rice"/>
+ </movie>
+  <movie>
+    <title>Lost in Translation</title>
+    <year>2003</year>
+    <country>USA</country>
+    <genre>Drama</genre>
+ 	<director id="17"/>
+ 	<actor id="16" role="Charlotte"/>
+	<actor id="18" role="Bob Harris"/>
+ </movie>
+  <movie>
+    <title>Marie Antoinette</title>
+    <year>2006</year>
+    <country>USA</country>
+    <genre>Drama</genre>
+    <summary>Based on Antonia Fraser's book about the ill-fated 
+	Archduchess of Austria and later Queen of France, 
+	'Marie Antoinette' tells the story of the most 
+	misunderstood and abused woman in history, from 
+	her birth in Imperial Austria to her later life in 
+	France. </summary>
+ 	<director id="17"/>
+ 	<actor id="19" role="Marie Antoinette"/>
+	<actor id="20" role="Louis XVI"/>
+ </movie>
+  <movie>
+    <title>Spider-Man</title>
+    <year>2002</year>
+    <country>USA</country>
+    <genre>Action</genre>
+    <summary>On a school field trip, Peter Parker (Maguire) is 
+	bitten by a genetically modified spider. He wakes 
+	up the next morning with incredible powers. After 
+	witnessing the death of his uncle (Robertson), 
+	Parkers decides to put his new skills to use in 
+	order to rid the city of evil, but someone else 
+	has other plans. The Green Goblin (Dafoe) sees 
+	Spider-Man as a threat and must dispose of him. 
+	Even if it means the Goblin has to target Parker's 
+	Aunt (Harris) and the girl he secretly pines for 
+	(Dunst) </summary>
+ 	<director id="21"/>
+ 	<actor id="19" role="Mary Jane Watson"/>
+	<actor id="22" role="Spider-Man / Peter Parker"/>
+	<actor id="23" role="Green Goblin / Norman Osborn"/>
+ </movie>
+</movies>

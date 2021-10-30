@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  
+  <xs:simpleType name="mailType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="(.)+@(.)+"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:complexType name="headerType">
+    <xs:sequence>
+      <xs:element name="from" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="to" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+      <xs:element name="cuc" type="mailType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="cc" type="mailType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="subject" type="xs:string" minOccurs="1" maxOccurs="1"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="mail">
+    <xs:complexType>
+      <xs:all>
+	<xs:element name="header" type="headerType"/>
+	<xs:element name="body" type="xs:string"/>
+      </xs:all>
+    </xs:complexType>
+  </xs:element>
+  
+</xs:schema>

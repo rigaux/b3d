@@ -1,0 +1,232 @@
+
+\begin{frame}{Qu'est-ce que Spark?}
+
+Un \alert{moteur d'exécution} basé sur des opérateurs de haut niveau, comme Pig.
+
+\vfill
+
+Comprend des opérateurs Map/Reduce, et d'autres opérateurs de second ordre.
+
+\vfill
+
+\alert{Introduit un concept de collection résidente en mémoire} (RDD) 
+qui améliore considérablement certains traitements, dont ceux basés sur des itérations.
+
+\vfill
+\begin{blocgauche}
+De nombreuses librairies pour la fouille de données (MLib), le traitement des graphes,
+le traitement de flux (\textit{streaming}).
+\end{blocgauche}
+\end{frame}
+
+\section{Les RDD}
+
+\begin{frame}{Les \textit{Resilient Distributed Datasets} (RDD)}
+
+C'est le concept central : \alert{Un RDD est une collection (pour en rester à notre vocabulaire) calculée
+à partir d'une source de données} (MongoDB, un flux, un autre RDD) .
+
+\vfill
+
+Un RDD peut être marqué comme \alert{persistant}: il est alors placé en mémoire RAM et conservé par Spark.
+\vfill
+
+Spark conserve
+\alert{l'historique des opérations} qui a permis de constituer un RDD, et la reprise sur panne s'appuie
+sur  cet historique afin de reconstituer  le RDD en cas de panne.
+
+\vfill
+\begin{blocgauche}
+Un RDD est un "bloc" \alert{non modifiable}. Si nécessaire il est \alert{entièrement recaculé}.
+\end{blocgauche}
+\end{frame}
+
+
+\begin{frame}{Un \textit{workflow} avec RDD dans Spark}
+
+Des \alert{transformations} (opérateurs comme dans Pig) créent des RDD à partir d'une ou deux sources
+de données.
+
+\vfill
+
+\figSlideWithSize{spark-rdd}{10cm}
+
+\vfill
+\begin{blocgauche}
+Les RDD persistants sont en préservés en mémoire RAM, et peuvent être réutilisés par plusieurs 
+traitements.
+\end{blocgauche}
+\end{frame}
+
+\begin{frame}{Exemple: analyse de fichiers log}
+ 
+On veut analyser le fichier journal (*log*) d'une application dont un des modules (M) est suspect.
+
+\vfill
+
+On construit  un programme qui charge le  *log*, ne conserve
+que les messsages produits par le module *M* et les analyse.
+
+\vfill
+
+On peut analyser par produit, par utilisateur, par période, etc.
+
+
+\vfill
+
+\figSlideWithSize{spark-log}{9cm}
+
+\end{frame}
+
+
+\begin{frame}[fragile]{Spécification avec Spark}
+
+Première phase pour construire \texttt{logM}
+
+\begin{minted}{scala}
+    // Chargement de la collection
+    log = load ("app.log") as (...)
+    // Filtrage des messages du module M
+    logM = filter log with log.message.contains ("M")    
+    // On rend logM persistant !
+    logM.persist();
+\end{minted}
+
+\vfill
+
+Analyse à partir de \texttt{logM}
+
+\begin{minted}{scala}
+   // Filtrage par produit
+    logProduit = filter logM 
+       with log.message.contains ("product P")   
+    // .. analyse du contenu de logProduit     
+\end{minted}
+
+\end{frame}
+
+\section{Reprise sur panne}
+
+\begin{frame}{Reprise sur panne dans Spark}
+
+Un RDD est une collection \alert{partitionnée}.
+
+\vfill
+
+\figSlideWithSize{spark-failover}{8cm}
+
+\vfill
+
+\begin{blocgauche}
+Panne affecte un calcul basé sur un fragment $F$  persistant:  on relance à partir de $F$.
+
+\medskip
+
+Panne  affecte le fragment $F$  persistant, Spark re-calcule $F$
+\end{blocgauche}
+\end{frame}
+
+\section{Une session introductive}
+
+\begin{frame}[fragile]{Installation}
+
+Très simple: récupérez la version courante à \url{http://spark.apache.org}.
+
+\vfill
+
+Décompressez dans un répertoire \texttt{spark}.
+
+\vfill
+
+Lancez l'intepréteur.
+
+
+\begin{minted}{bash}
+./bin/spark-shell
+
+scala>
+\end{minted}
+
+\vfill
+
+C'est un interpréteur Scala: apprenez le langage Scala! 
+
+\vfill
+ 
+On va implanter le compteur de termes: récupérer un fichier texte quelconque (ou \texttt{loups.txt}
+sur le site.)
+\end{frame}
+
+
+\begin{frame}[fragile]{Commandes de base}
+
+Chargement d'un fichier texte dans un RDD (un document par ligne).
+
+\begin{minted}{scala}
+val loupsEtMoutons = sc.textFile("loups.txt")
+\end{minted}
+
+\vfill
+
+Quelques \alert{actions} appliquées au RDD.
+
+\begin{minted}{scala}
+loupsEtMoutons.count() // Nombre de documents dans ce RDD
+loupsEtMoutons.first() // Le premier document
+loupsEtMoutons.collect() // Tous les documents du RDD
+\end{minted}
+
+\vfill
+
+Les \alert{transformations} (presque comme Pig).
+
+
+\begin{minted}{scala}
+val bergerie = loupsEtMoutons.filter(line => line.contains("bergerie"))
+loupsEtMoutons.filter(line => line.contains("loup")).count() // Combinaison transf./action
+\end{minted}
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]{Le compteur de mots}
+
+Comme promis, le compteur de mot Spark. D'abord on prend tous les termes
+(\texttt{flatMap}).
+
+
+\begin{minted}{scala}
+val termes = loupsEtMoutons.flatMap(line => line.split(" "))
+\end{minted}
+
+\vfill
+
+Initialisation du comptage: chaque terme compte pour 1 (\texttt{map}).
+
+
+\begin{minted}{scala}
+val termeUnit = termes.map(word => (word, 1))
+\end{minted}
+
+\vfill
+
+Je regroupe les termes, et je compte (\texttt{reduce}).
+
+
+\begin{minted}{scala}
+val compteurTermes = termeUnit.reduceByKey((a, b) => a + b)
+\end{minted}
+
+\vfill
+
+Et je peux rendre \alert{persistant} les compteurs de termes.
+
+
+\begin{minted}{scala}
+compteurTermes.persist()
+\end{minted}
+
+
+
+\end{frame}

@@ -1,0 +1,69 @@
+{
+    "title": "Pulp fiction",
+    "year": "1994",
+    "genre": "Action",
+    "summary": "Jules Winnfield and Vincent Vega are two hitmen who are out to retrieve a suitcase stolen from their employer, mob boss Marsellus Wallace. Wallace has also asked Vincent to take his wife Mia out a few days later when Wallace himself will be out of town. Butch Coolidge is an aging boxer who is paid by Wallace to lose his next fight. The lives of these seemingly unrelated people are woven together comprising of a series of funny, bizarre and uncalled-for incidents.",
+    "country": "USA",
+
+  "director": {
+      "last_name": "Tarantino",
+      "first_name": "Quentin",
+      "birth_date": "1963"
+  },
+  "actors": [
+    {
+        "first_name": "John",
+        "last_name": "Travolta",
+        "birth_date": "1954",
+        "role": "Vincent Vega"
+    },
+    {
+        "first_name": "Bruce",
+        "last_name": "Willis",
+        "birth_date": "1955",
+        "role": "Butch Coolidge"
+    },
+    {
+        "first_name": "Quentin",
+        "last_name": "Tarantino",
+        "birth_date": "1963",
+        "role": "Jimmy Dimmick"
+    },
+    {
+        "first_name": "Samuel L.",
+        "last_name": "Jackson",
+        "birth_date": "1948",
+        "role": "Jules Winnfield"
+    },
+    {
+        "first_name": "Rosanna",
+        "last_name": "Arquette",
+        "birth_date": "1959",
+        "role": "Jody"
+    },
+    {
+        "first_name": "Uma",
+        "last_name": "Thurman",
+        "birth_date": "1970",
+        "role": "Mia Wallace"
+    },
+    {
+        "first_name": "Christopher",
+        "last_name": "Walken",
+        "birth_date": "1943",
+        "role": "Capt. Koons"
+    },
+    {
+        "first_name": "Harvey",
+        "last_name": "Keitel",
+        "birth_date": "1939",
+        "role": "Winston &quot;The Wolf&quot; Wolfe"
+    },
+    {
+        "first_name": "Tim",
+        "last_name": "Roth",
+        "birth_date": "1961",
+        "role": "Pumpkin (Ringo)"
+    }
+  ]
+}

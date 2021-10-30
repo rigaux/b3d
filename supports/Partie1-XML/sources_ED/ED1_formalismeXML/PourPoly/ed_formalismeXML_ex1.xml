@@ -1,0 +1,16 @@
+<table_personne>
+  <person>
+    <name>alan</name>
+    <phone>3127786</phone>
+    <email>alan@abc.com </email>
+  </person>
+  <person>
+    <name> sara </name>
+    <phone>2136877</phone>
+    <email> sara@xyz.edu </email>
+  </person>
+<person>
+    <name> fred </name>
+    <phone>7786312</phone>
+    <email>"fd@ac.uk </email>
+</person>

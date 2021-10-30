@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+  <movie>
+    <title>Lost in Translation</title>
+    <year>2003</year>
+    <country>USA</country>
+    <genre>romance</genre>
+    <summary>Bob Harris is an American film actor, far past his 
+	prime. He visits Tokyo to appear in commercials, 
+	and he meets Charlotte, the young wife of a 
+	visiting photographer. Bored and weary, Bob and 
+	Charlotte make ideal if improbable traveling 
+	companions. Charlotte is looking for &quot;her place in 
+	life,&quot; and Bob is tolerating a mediocre stateside 
+	marriage. Both separately and together, they live 
+	the experience of the American in Tokyo. Bob and 
+	Charlotte suffer both confusion and hilarity due 
+	to the cultural and language differences between 
+	themselves and the Japanese. As the relationship 
+	between Bob and Charlotte deepens, they come to 
+	the realization that their visits to Japan, and 
+	one another, must soon end. Or must they?</summary>
+	<director  id='17' >
+	    <last_name>Coppola</last_name>
+	    <first_name>Sofia</first_name>
+	    <birth_date>1971</birth_date>
+	</director>
+	<actor  id='16' >
+	    <first_name>Scarlett </first_name>
+	    <last_name>Johansson</last_name>
+	    <birth_date>1984</birth_date>
+	    <role>Charlotte</role>
+	</actor>
+	<actor  id='18' >
+	    <first_name>Bill</first_name>
+	    <last_name>Murray</last_name>
+	    <birth_date>1950</birth_date>
+	    <role>Bob Harris</role>
+	</actor>
+
+  </movie>
+

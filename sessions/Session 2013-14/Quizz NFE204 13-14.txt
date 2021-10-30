@@ -1,0 +1,15 @@
+Partitionnement
+
+Boris Guarisma, Raphael Blondeau, Pascal Bouttement, Patrice Hodé, 
+Dominique Sorbier, Nathalie Ling, Axel Rousseau, Stéphane Ly, Frédéric Simon,
+Guillaume Moquet, Thibault Coupart
+
+Hadoop
+
+Thibault Coupart, D. Sorbier, F. Simon, G. Moquet, N. Ling, B. Guarisma, R. Blondeau,
+A. Rousseau
+
+
+RI
+
+Mocquet, Ling, Hodé, Rousseau, Blondeau

@@ -1,0 +1,721 @@
+/*
+ * Copyright 2002 by the contributors.
+ *   
+ * Permission is granted to copy, distribute and/or modify this
+ * document under the terms of the GNU Free Documentation License,
+ * Version 1.1 or any later version published by the Free Software
+ * Foundation; with the Invariant Sections being no Invariant Sections,
+ * and with no Front-Cover Texts or Back-Cover Texts.
+ *
+ * A copy of the license is avaliable at http://www.gnu.org/licenses/fdl.html
+ *
+ * Contributors:
+ *
+ *  Steve Muench, Building Oracle XML Applications
+ *   (http://www.oreilly.com/catalog/orxmlapp/)
+ *
+ *  Micah Dubinko, XForms
+ *
+ *  Peter G., with inspiration from Brian Lalonde.
+ */
+
+/*
+ * This stylesheet was designed to be used by the O'Reilly DocBook
+ * lite (dblite) XML vocabulary, specifically within SoftQuad XMetaL,
+ * although it should work with any application that supports CSS.
+ *
+ * The dblite dtd is available at ftp://ftp.ora.com/pub/dblite/
+ *
+ * It has then been considerably cleaned up and extended for use with
+ * Simplified DocBook and display using Mozilla's Gecko engine by
+ * Peter G.. It is not quite complete yet.
+ */
+
+/*
+ * Updated: 2004-06-03
+ */
+   
+/*
+$DOCUMENT		{ font-family: Georgia, Times, serif;
+			  font-size: 10pt; font-style: normal;
+			  margin-top: 5px; margin-left: 5px; }
+$COMMENT		{ display: block; color: purple; white-space: pre; }
+$PROCINS		{ color: black; background-color: #c0c0c0; }
+$MARKSEC		{ display: inline; }
+
+*::comment,
+*::processing-instruction
+			{ display: block; padding: 2px; margin: 2px;
+			  white-space: pre; text-align: left;
+			  font-family: monospace; font-style: normal;
+			  font-weight: normal; font-size: .83em; }
+
+*::comment		{ border: thin solid; background-color: #ffffc0; }
+*::processing-instruction
+			{ border: thin solid; background-color: #c0ffc0; }
+*/
+
+/*
+ * General classes
+ */
+
+*[class~="h"]		{ font-weight: bold;
+			  font-family: Arial, Helvetica, sans-serif; }
+*[class~="h"],
+*[class~="monospaced"]	{ font-family: "Andale Mono", Courier, monospace; }
+
+[LANG|=fr] > *		{ quotes: "?" "?" "\2039" "\203A" }
+[LANG|=en] > *		{ quotes: "\201C" "\201D" "\2018" "\2019" }
+
+/*
+ * Top level metadata.
+ */
+
+article, book		{ display: block; margin-left: 5%; margin-right: 5%; }
+articleinfo, bookinfo	{ margin-left: 10%; margin-right: 10%;
+			  margin-top: 1cm; margin-bottom: 0.2cm;
+			  font-family: Verdana, Arial, Helvetica, sans-serif;
+			  text-align: center; font-size: 120%; }
+articleinfo > title,
+bookinfo > title	{ font-weight: bold; font-size: 180%;
+			  margin-left: 10%; margin-right: 10%;
+			  margin-top: 0.4cm; margin-bottom: 0.2cm; }
+articleinfo subtitle,
+bookinfo subtitle	{ font-weight: bold; font-size: 140%;
+			  margin-left: 10%; margin-right: 10%; }
+
+affiliation		{ display: block; font-size 90%; }
+affiliation jobtitle,
+affiliation orgname	{ display: inline; font-size: 90%; }
+
+copyright		{ display: block; background: #e4e4e4; }
+copyright year:before	{ content: "Copyright "; }
+copyright year		{ display: inline; }
+copyright holder	{ display: inline; }
+
+legalnotice		{ display: block; background: #e4e4e4; }
+
+orgname:before		{ content: "("; }
+orgname:after		{ content: ")"; }
+author firstname,
+author surname		{ font-size: 120%; }
+corpauthor		{ font-size: 120%; }
+
+articleinfo pubdate:before { content: "Date: "; font-weight: bold; }
+articleinfo pubdate:after  { content: ""; }
+
+pubdate:before		{ content: "("; }
+pubdate			{ display: inline; }
+pubdate:after		{ content: ")"; }
+
+keywordset:before	{ content: "Keywords:"; font-weight: bold; }
+keyword			{ display: inline; font-size: 90%; }
+
+abstract:before		{ content: "Abstract"; font-weight: bold; }
+abstract		{ display: block; text-align: left;
+			  margin-left: 15%; margin-right: 15%;
+			  background: #e0e0e0; }
+
+/*
+ * Bottom metadata like glossaries, indexes, TOC, bibliography, ...
+ */
+
+glossdiv, glosslist,
+glosssee, glossseealso	{ display: block}
+
+bibliodiv		{ display: block; }
+bibliography		{ display: block; }
+bibliography > title	{ display: block; color: blue;
+			  text-align: center; margin-top: 1cm;
+			  font-size: 150%; font-weight: bold; }
+
+bibliomixed,
+  biblioentry		{ display: block; margin-top: 0.2cm;
+			  margin-left: 5%; margin-right: 5%; }
+
+biblioentry > abbrev,
+  bibliomixed > abbrev	{ display: block; margin-left: -5%;
+			  font-family: Arial, Helvetica, sans-serif;
+			  font-weight: bold; font-size: 110%; }
+bibliomixed *,
+  biblioentry *		{ display: inline; }
+
+bibliomixed > citetitle,
+  biblioentry > title	{ display: inline;
+			  font-style: italic; font-size: 110%; }
+
+biblioentry > title,
+  citetitle:before	{ content: "\""; }
+biblioentry> title:after,
+  citetitle:after	{ content: "\""; }
+
+publishername		{ display: inline; font-style: bold; font-size: 90%; }
+
+biblioentry > authorgroup { display: block; }
+biblioentry author,
+  biblioentry editor,
+  bibliomixed author,
+  bibliomixed editor	{ display: inline; }
+biblioentry copyright	{ display: inline; }
+
+releaseinfo		{ display: inline; }
+isbn			{ display: inline; }
+issn			{ display: inline; }
+pubdate			{ display: inline; }
+publisher		{ display: inline; }
+publishername		{ display: inline; }
+pubsnumber		{ display: inline; }
+bibliomisc		{ display: block; margin-left: 5%; margin-right: 5%; }
+
+glossary		{  }
+glossary > title	{ display: block; color: blue;
+			  text-align: center; margin-top: 1cm;
+			  font-size: 150%; font-weight: bold; }
+glossentry		{ display: block; margin-top: 0.2cm; }
+glossterm		{ font-family: Arial, Helvetica, sans-serif;
+			  font-weight: bold; font-size: 110%; }
+glossdef		{ display: inline; }
+glossdef para		{ display: block; margin-left: 5%; }
+
+replaceable		{ display: inline;
+			  font-style: italic; font-family: monospace; }
+
+/*
+ * Chapters, sections and appendixes.
+ */
+
+part			{ }
+part > title		{ font-weight: bold; color: blue; font-size: 180%;
+			  margin-top: 30pt; margin-bottom: 10pt; }
+
+chapter			{ }
+chapter > title		{ font-weight: bold; color: blue; font-size: 160%;
+			  margin-top: 30pt; margin-bottom: 10pt; }
+
+simplesect		{ margin: 1em; }
+
+
+sect1,
+section			{ margin-left: 25pt; }
+sect1 > title,
+section > title		{ font-weight: bold; font-size: 150%; color: blue;
+			  margin-top: 20pt; margin-bottom: 2pt; }
+sect1info		{ display: block; }
+sectioninfo		{ display: block; }
+
+sect2,
+section section		{ margin-left: 25pt; }
+sect2 > title,
+section section > title	{ font-weight: bold; font-size: 120%; color: blue;
+			  margin-top: 15pt; margin-bottom: 2pt; }
+sect2info		{ display: block; }
+
+sect3,
+section section section { margin-left: 25pt; }
+sect3 > title,
+section section
+section > title		{ font-weight: bold; font-size: 110%;
+			  margin-top: 10pt; margin-bottom: 2pt; }
+sect3info		{ display: block; }
+
+sect4,
+section section
+  section section	{ margin-left: 20pt; }
+sect4 > title,
+section section section
+  section > title	{ font-weight: bold;
+			  margin-top: 5pt; margin-bottom: 2pt; }
+sect4info		{ display: block; }
+
+sect5,
+section section section
+  section section	{ margin-left: 20pt; }
+sect5 > title,
+section section section
+  section section > title
+			{ font-weight: bold;
+			  margin-top: 5pt; margin-bottom: 2pt; }
+sect5info		{ display: block; }
+
+/*
+ * Chapter and appendix.
+ */
+
+appendix		{  }
+appendix > title:before { content: "Appendix: "; }
+appendix > title	{ display: block; color: blue;
+			  text-align: center; margin-top: 1cm;
+			  font-size: 140%; font-weight: bold; }
+
+/*
+ * Mainline text
+ */
+
+title			{ display: block; font-size: 120%; }
+
+para			{ display: block; text-indent: 1em;
+			  margin-top: 0.1cm; margin-bottom: 0; }
+
+footnote		{ display: inline; }
+footnote > para		{ display: inline;
+			  font-size: 90%; font-style: italic; }
+footnote:before		{ content: "[" attr(id) "]" "{"; }
+footnote:after		{ content: "}"; }
+
+/*
+ * Lists
+ */
+
+itemizedlist		{ display: block; list-style: disc outside;
+			  margin-left: 20pt; }
+orderedlist		{ display: block; list-style: decimal outside;
+			  margin-left: 20pt;
+			  counter-reset: listitemno; }
+
+listitem:before		{ content: counter(listitemno) "."; }
+listitem		{ display: list-item; counter-increment: listitemno; }
+
+varlistentry		{ display: block; margin-top: 0.2cm; }
+varlist term		{ font-family: "Andale Mono", Courier, monospace;
+			  font-weight: bold; font-size: 110%; }
+varlistentry>listitem	{ display: inline; }
+varlistentry
+  >listitem>para	{ display: block; margin-left: 5%; }
+
+literallayout		{ display: block; white-space: pre; }
+
+qandaset		{ display: block; list-style-type: disc; }
+qandaentry		{ display: list-item; margin-left: 40pt; }
+question:before		{ content: "Q:"; font-weight: bold;
+			  border: thin navy inset; } 
+question		{ display: block; }
+answer:before		{ content: "A:"; font-weight: bold;
+			  border: thin navy inset; } 
+answer			{ display: block; }
+
+/*
+ * Figures, examples, tables, equations, and other illustrations.
+ */
+
+blockquote		{ display: block; }
+blockquote:before	{ content: open-quote; }
+blockquote:after	{ content: close-quote; }
+blockquote para		{ background-color: #EBFED6; }
+
+figure > title:before	{ content: "Figure: "; color: blue; }
+figure > title		{ margin-top: 3pt;
+			  font-family: Tahoma, Arial, sans-serif;
+			  font-size: 110%; color: red; }
+figure			{ display: block; }
+
+informalexample		{ display: block; }
+
+example > title:before	{ content: "Example: "; color: blue; }
+example > title		{ margin-top: 10px;
+			  font-family: Tahoma, Arial, sans-serif;
+			  font-size: 110%; color: red; }
+example			{ display: block; border-left: none; }
+
+table > title:before	{ content: "Table: "; color: blue; }
+table > title		{ margin-top: 3pt; margin-bottom: 1pt;
+			  font-family: Verdana, Arial, sans-serif;
+			  font-size: 110%; color: red; }
+table,
+informaltable		{ display: table;
+			  margin-left: 10%; margin-right: 10%; }
+
+tgroup			{ display: table-row-group;
+			  border-style: solid none solid none;
+			  border-width: 1; }
+colspec			{ display: table-column; }
+thead,tbody		{ display: table-row-group; }
+thead			{ border-style: none none solid none;
+			  border-width: 1; }
+thead row		{ display: table-row;
+			  font-weight: bold; text-align: center}
+tbody row		{ display: table-row; }
+row entry		{ display: table-cell; }
+
+note:before		{ content: "Note";
+			  font-weight: bold; color: navy;
+note			{ display: block;
+			  margin-left: 30pt;
+			  margin-top: 10pt; margin-bottom: 10pt;
+			  border: thin black solid;
+			  /* Cascade for things that don't understand
+			     border-XXXX */
+			  border-top: thin black solid;
+			  border-bottom: thin black solid;
+			  border-left: none; border-right: none; }
+			  margin-top: 10pt; margin-bottom: 10pt; }
+note para		{ background-color: #EBFED6; }
+
+note[role="tip"]	{ display: block;
+			  margin-left: 30pt; margin-top: 10pt;
+			  margin-bottom: 10pt; }
+
+note[role="tip"]:before { content: "Tip";
+			  font-weight: bold; color: red;
+			  text-decoration: underline;
+			  margin-top: 10pt; margin-bottom: 10pt; }
+
+note[role="todo"]	{ background-color: red; }
+
+warning			{ margin-top: 10pt; border: thin black solid;
+			  /* Cascade for things that don't
+			     understand border-XXXX */
+			  border-top: thin black solid;
+			  border-bottom: thin black solid;
+			  border-left: none; border-right: none; }
+warning:before		{ content: "WARNING";
+			  font-weight: bold; color: red;
+			  text-decoration: underline;
+			  margin-top: 10pt; margin-bottom: 10pt; }
+warning para		{ background-color: yellow; }
+
+
+systemitem[role="url"]	{ text-decoration: underline; color: blue; }
+
+tip:before		{ content: "Tip";
+			  font-weight: bold; color: red;
+			  text-decoration: underline;
+			  margin-top: 10pt; margin-bottom: 10pt; }
+
+tip			{ margin-top: 10pt; }
+tip para		{ background-color: #EBFED6; }
+
+sidebar			{ border: thin black dashed;
+			  background-color: #EEEEEE; }
+
+programlisting,
+programlistingco	{ display: block; white-space: pre;
+			  margin-left: 10%; margin-right: 10%;
+			  font-size: 90%; font-style: normal;
+			  font-family: "Andale Mono", Courier, monospace;
+			  background-color: #e8e8e8; }
+
+funcsynopsis		{ display: block;
+			  background: #e8e8e8;
+			  margin-top: 5pt; margin-bottom: 2pt;
+			  margin-left: 20%; margin-right: 20%;
+			  font-family: monospace;
+			  font-weight: normal; font-size: 90%; }
+funcsynopsisinfo	{ display: block; white-space: pre; color: black;
+			  margin-top: 2pt; margin-bottom: 1pt; }
+funcprototype		{ display: block; }
+funcprototype:after	{ content: ");"; }
+funcdef			{ display: block;  font-size: 90%; }
+funcdef:after		{ content: "("; }
+funcparams:before	{ content: "("; }
+funcparams:after	{ content: ")"; }
+paramdef		{ display: block; font-size: 90%; margin-left: 0.5cm; }
+paramdef:after		{ content: ","; }
+parameter		{ font-style: italic; }
+
+
+/*
+ * Types of speech.
+ */
+
+superscript		{ font-size: 80%; vertical-align: top; }
+acronym			{ display: inline; }
+
+date			{ font-style: normal; font-variant: normal;
+			  font-weight: bold; font-size: small;
+			  color: purple; text-decoration: none; }
+
+honorific		{ font-size: 90%; }
+firstname		{  }
+surname			{  }
+email			{ display: inline; font-weight: bold;
+			  font-family: "Andale Mono", Courier, monospace; }
+
+emphasis		{ font-style: italic; }
+
+sgmltag:before		{ content: "<"; }
+sgmltag			{ font-family: monospace; color: purple;
+			  font-size: 90%; }
+sgmltag:after		{ content: ">"; }
+
+function, funcparams,
+parameter, filename,
+structname, structfield,
+constant, type, literal { font-family: monospace;
+			  font-weight: normal; font-size: 100%; }
+type			{ font-weight: bold; }
+
+command			{ display: inline; }
+
+/*
+ * Links and references.
+ */
+
+/*
+xref:before		{ prefix-format:
+			  "(Ref: [ %attribute linkend; ])"; }
+*/
+
+link, ulink, xref	{ display: inline;
+			  text-decoration: underline; color: blue; }
+link:active,
+ ulink:active,
+ xref:active		{ background: teal; }
+link:hover,
+ ulink:hover,
+ xref:hover		{ background: yellow; }
+
+xref:before		{ content: "[" attr(linkend) "]"; }
+
+/*
+ * External objects
+ */
+
+audioobject		{ display: block; }
+imageobject		{ content: image(attr(fileref),-400,-200); }
+imagedata		{ content: image(attr(fileref),-400,-200); }
+imageobjectco		{ display: block; }
+inlinemediaobject	{ display: block; }
+mediaobject		{ display: block; }
+mediaobjectco		{ display: block; }
+objectinfo		{ display: block; }
+textobject		{ display: block; }
+videoobject		{ display: block; }
+
+/*
+ * Not yet defined properly.
+ */
+
+abbrev			{ display: block; }
+ackno			{ display: block; }
+address			{ display: block; }
+affiliation		{ display: block; }
+alt			{ display: block; }
+areaset			{ display: block; }
+areaspec		{ display: block; }
+arg			{ display: block; }
+artheader		{ display: block; }
+artpagenums		{ display: block; }
+attribution		{ display: block; }
+
+author			{ display: block; }
+authorblurb		{ display: block; }
+authorgroup		{ display: block; }
+authorinitials		{ display: block; }
+
+
+biblioset		{ display: block; }
+
+bookbiblio		{ display: block; }
+bridgehead		{ display: block; }
+callout			{ display: block; }
+calloutlist		{ display: block; }
+caption			{ display: block; }
+caution			{ display: block; }
+citerefentry		{ display: block; }
+citetitle		{ display: block; }
+cmdsynopsis		{ display: block; }
+collab			{ display: block; }
+collabname		{ display: block; }
+colophon		{ display: block; }
+comment			{ display: block; }
+
+confdates		{ display: block; }
+confgroup		{ display: block; }
+confnum			{ display: block; }
+confsponsor		{ display: block; }
+conftitle		{ display: block; }
+
+contractnum		{ display: block; }
+contractsponsor		{ display: block; }
+
+contrib			{ display: block; }
+copyright		{ display: block; }
+corpauthor		{ display: block; }
+corpname		{ display: block; }
+dedication		{ display: block; }
+docinfo			{ display: block; }
+edition			{ display: block; }
+editor			{ display: block; }
+entry			{ display: block; }
+entrytbl		{ display: block; }
+epigraph		{ display: block; }
+equation		{ display: block; }
+example			{ display: block; }
+figure			{ display: block; }
+formalpara		{ display: block; }
+graphic			{ display: block; }
+graphicco		{ display: block; }
+group			{ display: block; }
+guibutton		{ display: block; }
+guiicon			{ display: block; }
+guilabel		{ display: block; }
+guimenu			{ display: block; }
+guimenuitem		{ display: block; }
+guisubmenu		{ display: block; }
+highlights		{ display: block; }
+holder			{ display: block; }
+important		{ display: block; }
+
+index			{ display: block; }
+indexdiv		{ display: block; }
+indexentry		{ display: block; }
+indexterm		{ display: block; }
+
+informalequation	{ display: block; }
+informalexample		{ display: block; }
+informalfigure		{ display: block; }
+informaltable		{ display: block; }
+inlineequation		{ display: block; }
+
+interface		{ display: block; }
+invpartnumber		{ display: block; }
+issuenum		{ display: block; }
+itemizedlist		{ display: block; }
+itermset		{ display: block; }
+jobtitle		{ display: block; }
+
+keycap			{ display: block; }
+keycombo		{ display: block; }
+keysym			{ display: block; }
+
+label			{ display: block; }
+lineage			{ display: block; }
+lot			{ display: block; }
+lotentry		{ display: block; }
+manvolnum		{ display: block; }
+member			{ display: block; }
+menuchoice		{ display: block; }
+modespec		{ display: block; }
+mousebutton		{ display: block; }
+
+msg			{ display: block; }
+msgaud			{ display: block; }
+msgentry		{ display: block; }
+msgexplan		{ display: block; }
+msginfo			{ display: block; }
+msglevel		{ display: block; }
+msgmain			{ display: block; }
+msgorig			{ display: block; }
+msgrel			{ display: block; }
+msgset			{ display: block; }
+msgsub			{ display: block; }
+msgtext			{ display: block; }
+
+olink			{ display: block; }
+option			{ display: block; }
+orgdiv			{ display: block; }
+orgname			{ display: block; }
+othercredit		{ display: block; }
+othername		{ display: block; }
+pagenums		{ display: block; }
+paramdef		{ display: block; }
+
+part			{ display: block; }
+partintro		{ display: block; }
+
+phrase			{ display: block; }
+preface			{ display: block; }
+primary			{ display: block; }
+primaryie		{ display: block; }
+printhistory		{ display: block; }
+procedure		{ display: block; }
+
+productname		{ display: block; }
+productnumber		{ display: block; }
+
+programlisting		{ display: block; }
+programlistingco	{ display: block; }
+
+
+qandadiv		{ display: block; }
+qandaentry		{ display: block; }
+qandaset		{ display: block; }
+question		{ display: block; }
+
+refclass		{ display: block; }
+refdescriptor		{ display: block; }
+refentry		{ display: block; }
+refentrytitle		{ display: block; }
+reference		{ display: block; }
+refmeta			{ display: block; }
+refmiscinfo		{ display: block; }
+refname			{ display: block; }
+refnamediv		{ display: block; }
+refpurpose		{ display: block; }
+refsect1		{ display: block; }
+refsect1info		{ display: block; }
+refsect2		{ display: block; }
+refsect2info		{ display: block; }
+refsect3		{ display: block; }
+refsect3info		{ display: block; }
+refsynopsisdiv		{ display: block; }
+refsynopsisdivinfo	{ display: block; }
+
+replaceable		{ display: block; }
+revhistory		{ display: block; }
+revision		{ display: block; }
+revnumber		{ display: block; }
+revremark		{ display: block; }
+row			{ display: block; }
+screen			{ display: block; }
+screenco		{ display: block; }
+screeninfo		{ display: block; }
+screenshot		{ display: block; }
+secondary		{ display: block; }
+secondaryie		{ display: block; }
+
+see			{ display: block; }
+seealso			{ display: block; }
+seealsoie		{ display: block; }
+seeie			{ display: block; }
+
+seg			{ display: block; }
+seglistitem		{ display: block; }
+segmentedlist		{ display: block; }
+segtitle		{ display: block; }
+
+seriesinfo		{ display: block; }
+seriesvolnums		{ display: block; }
+
+set			{ display: block; }
+setindex		{ display: block; }
+setinfo			{ display: block; }
+
+shortaffil		{ display: block; }
+shortcut		{ display: block; }
+
+simpara			{ display: block; }
+simplelist		{ display: block; }
+simplesect		{ display: block; }
+
+step			{ display: block; }
+subject			{ display: block; }
+subjectset		{ display: block; }
+subjectterm		{ display: block; }
+substeps		{ display: block; }
+subtitle		{ display: block; }
+synopfragment		{ display: block; }
+synopfragmentref	{ display: block; }
+synopsis		{ display: block; }
+tbody			{ display: block; }
+term			{ display: block; }
+tertiary		{ display: block; }
+tertiaryie		{ display: block; }
+tfoot			{ display: block; }
+tgroup			{ display: block; }
+thead			{ display: block; }
+titleabbrev		{ display: block; }
+
+toc			{ display: block; }
+tocback			{ display: block; }
+tocchap			{ display: block; }
+tocentry		{ display: block; }
+tocfront		{ display: block; }
+toclevel1		{ display: block; }
+toclevel2		{ display: block; }
+toclevel3		{ display: block; }
+toclevel4		{ display: block; }
+toclevel5		{ display: block; }
+tocpart			{ display: block; }
+
+volumenum		{ display: block; }

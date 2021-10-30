@@ -1,0 +1,401 @@
+\begin{frame}{Schéma de l'index }
+
+
+ Le schéma donne la liste de tous les champs d'un document 
+
+\vfill
+
+Nombreuses options : 
+      \begin{itemize}
+        \item type (numérique, entier)
+        \item possibilité de calcul de la valeur du champ à partir d'un autre
+        \item traitements divers sur les valeurs du champ
+      \end{itemize}
+
+\end{frame} % ending frame Schéma de l'index 
+
+\begin{frame}[fragile]{Reprenons un  document bien connu}
+  \begin{minted}[baselinestretch=.9, fontsize=\footnotesize]{json}
+{
+  "title": "Vertigo",
+  "year": 1958,
+  "genre": "drama",
+  "summary": "Scottie Ferguson, ancien inspecteur de police... ",
+  "director": 	{
+    "_id": "artist:3",
+    "last_name": "Hitchcock",
+    "first_name": "Alfred",
+    "birth_date": "1899"	
+  },
+  "actors": [
+     {
+       "_id": "artist:15",
+       "first_name": "James",
+       "last_name": "Stewart",
+       "birth_date": "1908",
+       "role": "John Ferguson"	
+     }
+  ]
+}
+\end{minted} 
+\end{frame}
+
+\begin{frame}[fragile]{Son schéma}
+	\begin{minted}[baselinestretch=1.0, fontsize=\footnotesize]{json}
+{ "mappings": {
+    "movie": {
+      "_all":       { "enabled": true  },
+      "properties": {
+        "title":    { "type": "string"  },
+        "year":     { "type":   "date", "format": "yyyy" },
+        "genre":      { "type": "string" },
+        "summary": { "type": "string"},
+        "director":     {
+          "properties": {
+            "_id": { "type":"string" },
+            "last_name": { "type":"string"},
+            "first_name": { "type":"string"},
+            "birth_date": { "type": "date", "format":"yyyy"}
+          }},
+        "actors": { 
+          "type": "nested",
+          "properties": {"..."}
+        }
+      }
+    }
+  }
+}
+  \end{minted}
+\end{frame}
+
+\begin{comment}
+\begin{frame}[fragile]{Détaillons le schéma}
+  \begin{itemize}
+    \item la liste des champs, dans l'élement ``mappings`` 
+    \item le champ \verb+_all+ est spécial, tout y est par défaut concaténé, de
+      façon à permettre une recherche sur tous les champs
+    \item la liste des {\bf types de champ}, dans l'élément ``properties``.
+  \end{itemize}
+\end{frame}
+\end{comment}
+
+\begin{frame}{Définition des types et de la clé}
+
+Chaque champ utilisé dans un document doit apparaître dans un
+des éléments. Sinon, ElasticSearch propose un
+      "Dynamic Mapping"
+      
+      \vfill
+   ElasticSearch fournit tout un ensemble de types pré-définis pour      
+      les besoins courants; 
+
+\vfill
+
+Les options indiquent d'éventuels traitements à appliquer                      
+ à chaque valeur du type avant son insertion dans l'index
+ 
+ \vfill
+ 
+ \begin{blocgauche}
+Ex: type \variable{string} (remplacé par \variable{text} depuis 5.0)
+      \begin{itemize}
+        \item on lui définit un ``analyzer''  ``standard''
+        \item traite le texte pour une recherche
+          plein-texte
+        \item retenir :  permet d'indexer chaque  mot, et donc de faire
+          des recherches sur toutes les combinaisons de mots
+      \end{itemize}
+\end{blocgauche}
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]{Définition des champs}
+Le {\bf nom} et le {\bf type} sont les informations de base
+\begin{minted}[frame=lines, baselinestretch=.9, fontsize=\footnotesize, framesep=2mm]{json} 
+{
+  "genre": { 
+		"type": "string",
+		"index": "no",
+		"store": "true",
+		"index_options": "offsets"
+     }
+}
+\end{minted}
+
+\vfill
+Ensuite, divers attributs (souvent optionnels) :
+    \begin{itemize}
+      \item \variable{index} indique simplement si le champ peut être utilisé dans une recherche;  
+      \item \variable{store} indique si la \alert{valeur} du champ est \alert{stockée} dans l'index,
+         
+\begin{comment}
+          \item remarquez la structure pour le réalisateur (\variable{directors})
+          \item enfin, \variable{nested} pour les champs ayant plusieurs
+       
+    valeurs, soit, concrètement, un {\bf tableau} en JSON; c'est le
+    cas par exemple pour le nom des acteurs.
+\end{comment}
+    \end{itemize}
+\vfill
+   
+\begin{blocgauche}
+ L'option \variable{store} permet de considérer ElasticSearch comme une base de données
+ indexées.  
+\end{blocgauche}
+\end{frame}
+
+\begin{frame}[fragile]{Définition des champs}
+ Les attributs \variable{index}  et \variable{store} sont très importants
+\vfill
+    \begin{itemize}
+      \item \variable{index=true}, \variable{store=false}: on pourra interroger
+      le champ, mais il faudra accéder au document principal dans la  base documentaire si on veut sa valeur;
+    \item \variable{index=true}, \variable{store=true}: on pourra interroger
+      le champ, \alert{et} accéder à sa valeur dans l'index;
+    \item \variable{index=false}, \variable{store=true}: on ne peut pas interroger le champ, mais
+      on peut récupérer sa valeur dans l'index.
+    \end{itemize}
+
+\begin{blocgauche}
+\variable{index=false}, \variable{store=false}: n'a pas de sens à priori.
+\end{blocgauche}
+\end{frame}
+
+
+
+
+\begin{frame}[fragile]{Définition des champs (suite)}
+Comment peut-on indexer un champ sans le stocker ?
+  \begin{itemize}
+    \item c'est notamment le cas pour les textes qui sont décomposés en
+      {\bf termes}: chaque terme est indexé indépendamment
+    \item très difficile pour l'index de reconstituer le texte
+  \end{itemize}
+
+\vfill
+
+Doit-on stocker les documents dans l'index? Question de compromis: 
+\begin{itemize}
+  \item (-) {\bf stocker} une valeur prend plus d'espace que {\bf l'indexer}; 
+  À l'extrême,  la base documentaire
+    est dupliquée dans l'index
+  \item (+) Peut considérablement simplifier l'architecture
+\end{itemize}
+
+\vfill
+
+\begin{blocgauche}
+Attention aux autres facteurs, comme la latence pour les insertions
+et mises à jour.
+\end{blocgauche}
+
+\end{frame}
+
+\begin{frame}[fragile]{Champ par défaut, document original}
+
+Le champ \variable{\_source} contient le document, mais n'est pas indexé. Il est
+possible ainsi de récupérer la totalité du document passé à l'indexation. 
+
+\vfill
+
+Le champ \variable{\_all} contient la concaténation de tous les autres champs; il
+est indexé, pas stocké.
+      
+\vfill
+\begin{blocgauche}
+Permet de
+retrouver les documents contenant une valeur, sans savoir dans quel champ elle
+se trouve. 
+\end{blocgauche}
+\end{frame}
+
+\begin{comment}
+\begin{frame}[fragile]{Champ calculé}
+ Il est possible de créer des champs \verb+all+ spécifiques, correspondants à
+ des besoins précis, à l'aide d'une instruction \verb+copy_to+
+      
+\vfill
+      
+  \begin{itemize}
+    \item Ainsi, le nom et le prénom peuvent être regroupés au sein d'un champ ``nom
+complet``. 
+    \item Cela permet aussi d'indexer certains champs plusieurs fois, de différentes
+façons.
+    \item par exemple le contenu d'un titre
+    est indexé comme une chaîne de caractères dans le champ \variable{title}, et comme un texte
+    "tokenisé" quand on le copie dans le champ \variable{text};
+  \end{itemize}
+\end{frame}
+
+
+
+
+\begin{frame}[fragile]{Exemple de champ calculé}
+
+\begin{minted}[ baselinestretch=1.2, fontsize=\footnotesize,]{json}
+{
+  "mappings": {
+    "my_type": {
+      "properties": {
+        "first_name": {
+          "type": "text",
+          "copy_to": "full_name" 
+        },
+        "last_name": {
+          "type": "text",
+          "copy_to": "full_name" 
+        },
+        "full_name": {
+          "type": "text"
+        }
+      }
+    }
+  }
+}
+\end{minted}
+\end{frame}
+
+\end{comment}
+
+
+\begin{frame}[fragile]{Configuration des pré-traitements}
+
+Analyseur = une chaîne de traitement constituée de tokeniseurs et de filtres
+
+\begin{minted}[fontsize=\footnotesize]{bash}
+curl -XPUT '<url>/monindex' -H 'Content-Type: application/json' -d @settings.json
+\end{minted}
+\vfill
+
+Contenu de \texttt{settings.json}:
+
+\begin{minted}[fontsize=\footnotesize]{json}
+{"settings": {
+    "analysis": {
+      "analyzer": {
+        "custom_lowercase_stemmed": {
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "custom_english_stemmer"
+          ]
+        } 
+     } 
+   } 
+}
+\end{minted}
+
+\end{frame}
+
+\begin{frame}[fragile]{Test d'un analyseur}
+
+On peut tester un analyseur en lui soumettant un texte-test.
+
+\begin{minted}[fontsize=\footnotesize]{bash}
+curl -XPUT '<url>/monindex/_analyze' -H 'Content-Type: application/json' -d @test.json
+\end{minted}
+\vfill
+
+Contenu de \texttt{test.json}:
+
+\begin{minted}[fontsize=\footnotesize]{json}
+{
+        "analyzer": "custom_lowercase_stemmed",
+        "text":"Finiras-tu ces analyses demain ?"
+}
+\end{minted}
+
+\end{frame}
+
+\begin{frame}[fragile]{Résultat d'un test}
+
+
+\begin{minted}[fontsize=\footnotesize]{json}
+{
+  "tokens" : [ {
+    "token" : "finira",
+    "start_offset" : 0,
+    "end_offset" : 7,
+    "type" : "<ALPHANUM>",
+    "position" : 0
+  }, {
+    "token" : "tu",
+    "start_offset" : 8,
+    "end_offset" : 10,
+    "type" : "<ALPHANUM>",
+    "position" : 1
+  }, 
+  "...": "..."
+}
+\end{minted}
+
+\end{frame}
+
+
+\begin{frame}{Résumé}
+
+La configuration d'un moteur de recherche, c'est:
+
+\begin{itemize}
+ \item Définir le schéma des champs indexés (stockage / indexation / les deux)
+ \item Définir les chaînes de traitement.
+\end{itemize}
+
+\vfill
+
+C'est \alert{aussi} beaucoup d'autres choses.
+
+\begin{itemize}
+ \item Définir les synonymes
+ \item Définir les mots protégés (acronymes)
+ \item Définir les mots vides
+ \item Acquérir et exploiter les actions utilisateurs
+\end{itemize}
+
+
+\vfill
+\begin{blocgauche}
+À pratiquer et approfondir (projet). 
+\end{blocgauche}
+
+\end{frame}
+
+\end{document}
+
+\begin{comment}
+\begin{frame}[fragile]{Schéma}
+On peut stocker le schéma dans un fichier json et créer l'index dans
+ElasticSearch comme ceci : 
+\begin{minted}[ baselinestretch=1.2, fontsize=\footnotesize,]{bash}
+    curl -XPUT '<url>/monindex' -H 'Content-Type: application/json' -d movie-schema.json
+  \end{minted}
+\end{frame}
+
+
+\begin{frame}[fragile]{Mise à jour de l'index}
+\begin{itemize}
+  \item Avec ElasticSearch, il est (plus) difficile de faire évoluer un schéma (qu'avec BDD classique)
+\item Sauf rares exceptions, il faut en général créer un nouvel index et réindexer les données
+\item ElasticSearch permet la copie d'un index vers l'autre avec l'API \verb+reindex+
+\end{itemize}
+
+\begin{minted}[frame=lines,
+               baselinestretch=.9,
+               fontsize=\footnotesize,
+               framesep=2mm]{bash}
+ curl -XPOST 'localhost:9200/_reindex?pretty' -H 'Content-Type: application/json' -d'
+{
+  "source": {
+    "index": "nfe204"
+  },
+  "dest": {
+    "index": "new_nfe204"
+  }
+}'
+
+\end{minted}
+\end{frame}
+
+\end{comment}

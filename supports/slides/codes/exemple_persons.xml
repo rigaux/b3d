@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE people_list [
+<!ELEMENT people_list (person*)>
+<!ELEMENT person (name, birthdate?, gender?, socialsecuritynumber?)>
+<!ELEMENT name (#PCDATA)>
+<!ELEMENT birthdate (#PCDATA)>
+<!ELEMENT gender (#PCDATA)>
+<!ELEMENT socialsecuritynumber (#PCDATA)>]>
+
+<people_list>
+  <person>
+    <name>Martin Lodges</name>
+    <birthdate>09/07/1965</birthdate>
+    <gender>Male</gender>
+  </person>
+  <person>
+    <name>Mary Logging</name>
+    <birthdate>27/11/1957</birthdate>
+    <gender>Female</gender>
+  </person>
+</people_list>

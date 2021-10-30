@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!DOCTYPE mon_annuaire [
+<!ELEMENT annuaire (personne*)>
+<!ELEMENT personne (nom, prenom, email+, equipe)>
+<!ATTLIST personne type (etudiant | enseignant-chercheur | chercheur) "etudiant">
+<!ATTLIST personne annee_naissance CDATA #REQUIRED>
+<!ELEMENT nom (#PCDATA)>
+<!ELEMENT prenom (#PCDATA)>
+<!ELEMENT equipe (nom, responsable)>
+<!ELEMENT responsable (personne)>
+<!ELEMENT note (#PCDATA)>
+]>
+
+<annuaire>
+ </annuaire>

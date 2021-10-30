@@ -1,0 +1,8 @@
+{
+  "index_patterns": ["*"],
+  "order": -1,
+  "settings": {
+    "number_of_shards": "5",
+    "number_of_replicas": "1"
+  }
+}

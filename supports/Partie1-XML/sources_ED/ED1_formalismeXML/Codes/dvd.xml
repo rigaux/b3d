@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE BD SYSTEM "http://www.lri.fr/~goasdoue/dvd.dtd">
+<BD>
+<DVD id="dvd0" cb="_5414474401006" iddis="dis0"/>
+<DVD id="dvd1" cb="_5414474401006" iddis="dis1"/>
+<DVD id="dvd2" cb="_3259119658825" iddis="dis0"/>
+<DVD id="dvd3" cb="_5414474401006" iddis="dis1"/>
+<DVD id="dvd4" cb="_1234567891234" iddis="dis0"/>
+<DVD id="dvd5" cb="_5414474401006" iddis="dis0"/>
+<DVD id="dvd6" cb="_1234567891234" iddis="dis1"/>
+<DVD id="dvd7" cb="_5414474401006" iddis="dis0"/>
+<DVD id="dvd8" cb="_5414474401006" iddis="dis1"/>
+<DVD id="dvd9" cb="_3259119658825" iddis="dis0"/>
+
+<DVDdescr cb="_5414474401006" titre="Kill Bill" real="Tarantino" genre="Action" uri="http://..."/>
+<DVDdescr cb="_3259119658825" titre="Mulholland Drive" real="Lynch" genre="Drame" uri="http://..."/>
+<DVDdescr cb="_1234567891234" titre="Le lit a deux places" real="Dellanoy" genre="Comedie"/>
+
+<Distrib id="dis0">
+<Adresse>
+<Num>3</Num>
+<Rue>Rue de Paris</Rue>
+<Ville>Orsay</Ville>
+<CP>91400</CP>
+</Adresse>
+</Distrib>
+<Distrib id="dis1">
+<Adresse>
+<Num>38</Num>
+<Rue>Boulevard Dubreuil</Rue>
+<Ville>Orsay</Ville>
+<CP>91400</CP>
+</Adresse>
+</Distrib>
+
+</BD>

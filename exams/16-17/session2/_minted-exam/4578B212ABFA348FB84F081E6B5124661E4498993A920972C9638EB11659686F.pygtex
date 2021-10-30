@@ -1,0 +1,15 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{p}{\PYGZob{}}
+  \PYG{n+nt}{\PYGZdq{}\PYGZus{}id\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mi}{978}\PYG{p}{,}
+  \PYG{n+nt}{\PYGZdq{}noCaisse\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mi}{12}\PYG{p}{,}
+  \PYG{n+nt}{\PYGZdq{}date\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}01/01/2017\PYGZdq{}}\PYG{p}{,}
+  \PYG{n+nt}{\PYGZdq{}heure\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}13:30\PYGZdq{}}\PYG{p}{,}
+  \PYG{n+nt}{\PYGZdq{}prixTotal\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mf}{58.47}\PYG{p}{,}
+  \PYG{n+nt}{\PYGZdq{}idClient\PYGZdq{}}\PYG{p}{:} \PYG{k+kc}{null}\PYG{p}{,}
+  \PYG{n+nt}{\PYGZdq{}articles\PYGZdq{}}\PYG{p}{:} \PYG{p}{[}
+     \PYG{p}{\PYGZob{}}\PYG{n+nt}{\PYGZdq{}idArticle\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mi}{1982}\PYG{p}{,} \PYG{n+nt}{\PYGZdq{}quantité\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mi}{5}\PYG{p}{,}   \PYG{n+nt}{\PYGZdq{}prix\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mf}{10.45}\PYG{p}{\PYGZcb{},}
+     \PYG{p}{\PYGZob{}}\PYG{n+nt}{\PYGZdq{}idArticle\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mi}{34}\PYG{p}{,} \PYG{n+nt}{\PYGZdq{}quantité\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mi}{1}\PYG{p}{,}   \PYG{n+nt}{\PYGZdq{}prix\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mi}{45}\PYG{p}{\PYGZcb{},}
+     \PYG{p}{\PYGZob{}}\PYG{n+nt}{\PYGZdq{}idArticle\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mi}{154}\PYG{p}{,} \PYG{n+nt}{\PYGZdq{}quantité\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mi}{3}\PYG{p}{,}   \PYG{n+nt}{\PYGZdq{}prix\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mf}{3.02}\PYG{p}{\PYGZcb{},}
+  \PYG{p}{]}
+\PYG{p}{\PYGZcb{}}
+\end{Verbatim}

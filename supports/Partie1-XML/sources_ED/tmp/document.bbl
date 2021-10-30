@@ -1,0 +1,24 @@
+\begin{thebibliography}{ABS99}
+
+\bibitem[ABS99]{ABS99}
+Serge Abiteboul, Peter Buneman, and Dan Suciu.
+\newblock {\em {Data on the Web: From Relations to Semistructured Data and
+  XML}}.
+\newblock Morgan Kaufmann, 1999.
+
+\bibitem[Bri07]{Bri07}
+Alexandre Briant.
+\newblock {\em {XML - Cours et exercices}}.
+\newblock Eyrolles, 2007.
+
+\bibitem[HM04]{XML_nut}
+Elliotte~R. Harold and Scott~W. Means.
+\newblock {\em XML in a Nutshell, Third Edition}.
+\newblock {O'Reilly Media, Inc.}, 2004.
+
+\bibitem[Mic99]{Mich99}
+Alain Michard.
+\newblock {\em {XML, langage et applications}}.
+\newblock Eyrolles, 1999.
+
+\end{thebibliography}

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!DOCTYPE mail [
+<!ELEMENT mail (header,body)>
+<!ELEMENT header (from,to+,cc*,bcc*,subject)>
+<!ELEMENT from (#PCDATA)>
+<!ELEMENT to (#PCDATA)>
+<!ELEMENT cc (#PCDATA)>
+<!ELEMENT bcc (#PCDATA)>
+<!ELEMENT subject (#PCDATA)>
+<!ELEMENT body (#PCDATA)>
+<!ENTITY author "moi même">
+]>
+
+<mail>
+  <header>
+    <from>etudiant@dauphine.fr</from>
+    <to>virginie.thion-goasdoue@lamsade.dauphine.fr</to>
+    <to>manouvrier@lamsade.dauphine.fr</to>
+    <cc>membre1@isi.u-psud.fr</cc>
+    <cc>membre2@isi.u-psud.fr</cc>
+    <subject>Echange &amp; publication de données – désignation des groupes</subject>
+  </header>
+  <body>
+    Bonjour,
+    Le groupe est composé de
+    ...
+    ...
+    
+    Cordialement,
+    &author;
+  </body>
+</mail>

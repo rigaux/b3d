@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+ <logicielCompatbilité>
+   <version>1</version>
+   <user>
+     <uid>bgirot</uid>
+   </user>
+   <contact>
+     <lastName>Girot</lastName>
+     <firstName>Bernadette</firstName>
+     <email>ggirot@petites.fleurs.com</email>
+   </contact>
+   <author autId="ghuret" lastName="Huret" firstName="George" organism="">
+     <company>
+       <labId>3987</labId>
+       <name>Analyse Informatique des Données Information</name>
+       <shortName></shortName>
+     </company>
+   </author>
+   <author autId="mgirard" lastName="Girard" firstName="Matin" organism="">
+     <company>
+       <labId>6670</labId>
+       <name>La compta en vogue</name>
+       <shortName>Vogu'la compta</shortName>
+     </company>
+     <company>
+       <labId>4621</labId>
+       <name>En avant les chiffres</name>
+       <shortName>EAC</shortName>
+     </company>
+   </author>
+ </logicielCompatbilité>

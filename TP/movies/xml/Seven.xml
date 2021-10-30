@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<movies>
+  <movie>
+    <title>Seven</title>
+    <year>1995</year>
+    <genre>crime</genre>
+    <summary>A film about two homicide detectives' desperate hunt for a serial killer who justifies his crimes as absolution for the world's ignorance of the Seven Deadly Sins. The movie takes us from the tortured remains of one victim to the next as the sociopathic "John Doe" sermonizes to Detectives Sommerset and Mills -- one sin at a time. The sin of Gluttony comes first and the murderer's terrible capacity is graphically demonstrated in the dark and subdued tones characteristic of film noir. The seasoned and cultured Sommerset researches the Seven Deadly Sins in an effort to understand the killer's modus operandi while green Detective Mills scoffs at his efforts to get inside the mind of a killer... </summary>
+    <country>USA</country>
+	<director id="31">
+	    <last_name>Fincher</last_name>
+	    <first_name>David</first_name>
+	    <birth_date>1962</birth_date>
+	</director>
+	<actor id="18">
+	    <first_name>Kevin</first_name>
+	    <last_name>Spacey</last_name>
+	    <birth_date>1959</birth_date>
+	    <role>Doe</role>
+	</actor>
+	<actor id="22">
+	    <first_name>Morgan</first_name>
+	    <last_name>Freeman</last_name>
+	    <birth_date>1937</birth_date>
+	    <role>Somerset</role>
+	</actor>
+	<actor id="32">
+	    <first_name>Brad</first_name>
+	    <last_name>Pitt</last_name>
+	    <birth_date>1963</birth_date>
+	    <role>Mills</role>
+	</actor>
+
+  </movie>
+</movies>

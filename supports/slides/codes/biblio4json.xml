@@ -1,0 +1,26 @@
+<?xml version="1.0" >
+<biblio subject="XML" xmlns="http://www.biblioAppliNFE204"> 
+  <book ISBN="9782212090819" lang="fr" subject="applications"> 
+    <author> <firstname>Jean-Christophe</firstname> <lastname>Bernadac</lastname> </author>  
+    <author> 
+      <firstname>François</firstname> <lastname>Knab</lastname> 
+    </author>  
+    <title>Construire une application XML</title>  
+    <publisher> <name>Eyrolles</name> <place>Paris</place> </publisher>  
+    <datepub>1999</datepub> 
+  </book>  
+  <book ISBN="9782212090529" lang="fr" subject="general"> 
+    <author> <firstname>Alain</firstname> <lastname>Michard</lastname> </author>  
+    <title>XML, Langage et Applications</title>  
+    <publisher> 
+      <name>Eyrolles</name> <place>Paris</place> 
+    </publisher>  
+    <datepub>1998</datepub> 
+  </book>  
+  <book ISBN="9782840825685" lang="fr" subject="applications"> 
+    <author> <firstname>William J.</firstname> <lastname>Pardi</lastname> </author>  
+    <title>XML en Action</title>  
+    <publisher> <name>Microsoft Press</name> <place>Paris</place> </publisher>  
+    <datepub>1999</datepub> 
+  </book> 
+</biblio>

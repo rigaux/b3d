@@ -1,0 +1,948 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="369.34561"
+   height="253.82036"
+   id="svg2"
+   version="1.0"
+   inkscape:version="0.48.0 r9654"
+   sodipodi:docname="replication.pdf"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   sodipodi:version="0.32">
+  <defs
+     id="defs4">
+    <marker
+       inkscape:stockid="Arrow1Mstart"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Mstart"
+       style="overflow:visible">
+      <path
+         id="path4400"
+         d="M 0,0 L 5,-5 L -12.5,0 L 5,5 L 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;marker-start:none"
+         transform="matrix(0.4,0,0,0.4,4,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Mend"
+       style="overflow:visible">
+      <path
+         id="path3841"
+         d="M 0,0 L 5,-5 L -12.5,0 L 5,5 L 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;marker-start:none"
+         transform="matrix(-0.4,0,0,-0.4,-4,0)" />
+    </marker>
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 526.18109 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="744.09448 : 526.18109 : 1"
+       inkscape:persp3d-origin="372.04724 : 350.78739 : 1"
+       id="perspective10" />
+    <inkscape:perspective
+       id="perspective2993"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective3007"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective3021"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective3035"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective3049"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective4300"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective5430"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective5491"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective5591"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.78"
+     inkscape:cx="262.19916"
+     inkscape:cy="138.01786"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1234"
+     inkscape:window-height="740"
+     inkscape:window-x="112"
+     inkscape:window-y="11"
+     inkscape:window-maximized="0">
+    <inkscape:grid
+       type="xygrid"
+       id="grid2968"
+       empspacing="5"
+       visible="true"
+       enabled="true"
+       snapvisiblegridlinesonly="true" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-124.53494,-450.42867)">
+    <path
+       sodipodi:type="arc"
+       style="opacity:0.92430282;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path6576"
+       sodipodi:cx="211.72414"
+       sodipodi:cy="167.56061"
+       sodipodi:rx="1.3793104"
+       sodipodi:ry="0"
+       transform="translate(-50.869553,411.27853)" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1.12300003;stroke-linecap:butt;stroke-linejoin:miter;marker-start:none;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 150.7661,471.16019 L 150.09844,502.58783"
+       id="path8224" />
+    <g
+       id="g2589"
+       transform="translate(-95.505618,-2.247191)">
+      <rect
+         ry="9.8314676"
+         y="453.40036"
+         x="220.54056"
+         height="19.662935"
+         width="53.932594"
+         id="rect3463"
+         style="opacity:0.92430282;fill:#d5d5ff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text3465"
+         y="467.03864"
+         x="232.24834"
+         style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+         xml:space="preserve"><tspan
+           y="467.03864"
+           x="232.24834"
+           id="tspan3467"
+           sodipodi:role="line">Client A</tspan></text>
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-size:8px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="127.20042"
+       y="486.2211"
+       id="text5046"
+       sodipodi:linespacing="100%"><tspan
+         sodipodi:role="line"
+         id="tspan5048"
+         x="127.20042"
+         y="486.2211">put(d)</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Sans;-inkscape-font-specification:Sans"
+       x="108.42697"
+       y="166.88622"
+       id="text6104"
+       sodipodi:linespacing="125%"
+       transform="translate(94.69786,417.41302)"><tspan
+         sodipodi:role="line"
+         id="tspan6106"
+         x="108.42697"
+         y="166.88622" /></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="181.85963"
+       y="525.25024"
+       id="text6108"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan6110"
+         x="181.85963"
+         y="525.25024">replication </tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="124.37453"
+       y="538.38696"
+       id="text2608"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan2610"
+         x="124.37453"
+         y="538.38696">Primary copy </tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="245.07263"
+       y="539.50079"
+       id="text2620"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan2622"
+         x="245.07263"
+         y="539.50079">Replica</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="132.15128"
+       y="557.47839"
+       id="text2624"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan2626"
+         x="132.15128"
+         y="557.47839"
+         style="font-style:italic;-inkscape-font-specification:Times New Roman Italic">a) Réplication synchrone, un Master</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Sans;-inkscape-font-specification:Sans"
+       x="108.98876"
+       y="77.560364"
+       id="text2672"
+       sodipodi:linespacing="125%"
+       transform="translate(94.69786,417.41302)"><tspan
+         sodipodi:role="line"
+         id="tspan2674"
+         x="108.98876"
+         y="77.560364" /></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="180.03075"
+       y="507.4881"
+       id="text2676"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan2678"
+         x="180.03075"
+         y="507.4881">Synchronous </tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1.12300003;stroke-linecap:butt;stroke-linejoin:miter;marker-start:none;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 179.5502,514.28823 L 231.12973,514.2552"
+       id="path2680"
+       sodipodi:nodetypes="cc" />
+    <g
+       id="g2682"
+       transform="translate(10.17048,-2.4716914)">
+      <rect
+         ry="9.8314676"
+         y="453.40036"
+         x="220.54056"
+         height="19.662935"
+         width="53.932594"
+         id="rect2684"
+         style="opacity:0.92430282;fill:#d5d5ff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text2686"
+         y="467.03864"
+         x="232.24834"
+         style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+         xml:space="preserve"><tspan
+           y="467.03864"
+           x="232.24834"
+           id="tspan2688"
+           sodipodi:role="line">Client B</tspan></text>
+    </g>
+    <rect
+       style="opacity:0.92430282;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect2692"
+       width="53.932594"
+       height="19.662935"
+       x="125.65486"
+       y="504.29947"
+       ry="9.8314676" />
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="133.04135"
+       y="516.31787"
+       id="text3486"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3488"
+         x="133.04135"
+         y="516.31787">Server N1</tspan></text>
+    <rect
+       style="opacity:0.92430282;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect3490"
+       width="53.932594"
+       height="19.662935"
+       x="232.39644"
+       y="505.42303"
+       ry="9.8314676" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1.12300003;stroke-linecap:butt;stroke-linejoin:miter;marker-start:none;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 230.67379,463.16465 L 163.71399,503.58105"
+       id="path3492"
+       sodipodi:nodetypes="cc" />
+    <text
+       xml:space="preserve"
+       style="font-size:8px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="189.65857"
+       y="472.79437"
+       id="text3494"
+       sodipodi:linespacing="100%"><tspan
+         sodipodi:role="line"
+         id="tspan3496"
+         x="189.65857"
+         y="472.79437">put(d)</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1.12300003;stroke-linecap:butt;stroke-linejoin:miter;marker-start:none;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 255.9547,505.86128 L 255.84883,471.55858"
+       id="path3502"
+       sodipodi:nodetypes="cc" />
+    <text
+       xml:space="preserve"
+       style="font-size:8px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="258.7597"
+       y="489.64832"
+       id="text3504"
+       sodipodi:linespacing="100%"><tspan
+         sodipodi:role="line"
+         id="tspan3506"
+         x="258.7597"
+         y="489.64832">read(d)</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="239.78293"
+       y="517.44147"
+       id="text3508"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3510"
+         x="239.78293"
+         y="517.44147">Server N2</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1.12300003;stroke-linecap:butt;stroke-linejoin:miter;marker-start:none;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 354.96734,471.83154 L 354.29968,503.25918"
+       id="path3520" />
+    <g
+       id="g3522"
+       transform="translate(108.69562,-1.5758406)">
+      <rect
+         ry="9.8314676"
+         y="453.40036"
+         x="220.54056"
+         height="19.662935"
+         width="53.932594"
+         id="rect3524"
+         style="opacity:0.92430282;fill:#d5d5ff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text3526"
+         y="467.03864"
+         x="232.24834"
+         style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+         xml:space="preserve"><tspan
+           y="467.03864"
+           x="232.24834"
+           id="tspan3528"
+           sodipodi:role="line">Client A</tspan></text>
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-size:8px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="331.40164"
+       y="486.89246"
+       id="text3530"
+       sodipodi:linespacing="100%"><tspan
+         sodipodi:role="line"
+         id="tspan3532"
+         x="331.40164"
+         y="486.89246">put(d)</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="387.18445"
+       y="529.29236"
+       id="text3534"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3536"
+         x="387.18445"
+         y="529.29236">replication </tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="329.13754"
+       y="538.49646"
+       id="text3538"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3540"
+         x="329.13754"
+         y="538.49646">Primary copy </tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="452.08286"
+       y="538.48676"
+       id="text3542"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3544"
+         x="452.08286"
+         y="538.48676">Replica</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="335.22891"
+       y="557.02606"
+       id="text3546"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3548"
+         x="335.22891"
+         y="557.02606"
+         style="font-style:italic;-inkscape-font-specification:Times New Roman Italic">b) Réplication asynchrone, un Master</tspan><tspan
+         sodipodi:role="line"
+         x="335.22891"
+         y="569.52606"
+         style="font-style:italic;-inkscape-font-specification:Times New Roman Italic"
+         id="tspan2733">(Master-Slave)</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="384.23196"
+       y="508.15942"
+       id="text3550"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3552"
+         x="384.23196"
+         y="508.15942">Asynchronous </tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1.12300003;stroke-linecap:butt;stroke-linejoin:miter;marker-start:none;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:1.123, 1.123;stroke-dashoffset:0;stroke-opacity:1"
+       d="M 383.75144,514.95958 L 435.33097,514.92655"
+       id="path3554"
+       sodipodi:nodetypes="cc" />
+    <g
+       id="g3556"
+       transform="translate(214.37172,-1.8003406)">
+      <rect
+         ry="9.8314676"
+         y="453.40036"
+         x="220.54056"
+         height="19.662935"
+         width="53.932594"
+         id="rect3558"
+         style="opacity:0.92430282;fill:#d5d5ff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text3560"
+         y="467.03864"
+         x="232.24834"
+         style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+         xml:space="preserve"><tspan
+           y="467.03864"
+           x="232.24834"
+           id="tspan3562"
+           sodipodi:role="line">Client B</tspan></text>
+    </g>
+    <rect
+       style="opacity:0.92430282;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect3564"
+       width="53.932594"
+       height="19.662935"
+       x="329.85608"
+       y="504.97083"
+       ry="9.8314676" />
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="337.24258"
+       y="516.9892"
+       id="text3566"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3568"
+         x="337.24258"
+         y="516.9892">Server N1</tspan></text>
+    <rect
+       style="opacity:0.92430282;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect3570"
+       width="53.932594"
+       height="19.662935"
+       x="436.59766"
+       y="506.09439"
+       ry="9.8314676" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1.12300003;stroke-linecap:butt;stroke-linejoin:miter;marker-start:none;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 434.87503,463.836 L 367.91523,504.2524"
+       id="path3572"
+       sodipodi:nodetypes="cc" />
+    <text
+       xml:space="preserve"
+       style="font-size:8px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="393.8598"
+       y="473.46573"
+       id="text3574"
+       sodipodi:linespacing="100%"><tspan
+         sodipodi:role="line"
+         id="tspan3576"
+         x="393.8598"
+         y="473.46573">put(d)</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1.12300003;stroke-linecap:butt;stroke-linejoin:miter;marker-start:none;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 460.15594,506.53263 L 460.05007,472.22993"
+       id="path3578"
+       sodipodi:nodetypes="cc" />
+    <text
+       xml:space="preserve"
+       style="font-size:8px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="462.96094"
+       y="490.31967"
+       id="text3580"
+       sodipodi:linespacing="100%"><tspan
+         sodipodi:role="line"
+         id="tspan3582"
+         x="462.96094"
+         y="490.31967">read(d)</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="443.98416"
+       y="518.11279"
+       id="text3584"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3586"
+         x="443.98416"
+         y="518.11279">Server N2</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1.12300003;stroke-linecap:butt;stroke-linejoin:miter;marker-start:none;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 154.40834,600.76411 L 153.74068,632.19175"
+       id="path3588" />
+    <g
+       id="g3590"
+       transform="translate(-91.86338,127.35673)">
+      <rect
+         ry="9.8314676"
+         y="453.40036"
+         x="220.54056"
+         height="19.662935"
+         width="53.932594"
+         id="rect3592"
+         style="opacity:0.92430282;fill:#d5d5ff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text3594"
+         y="467.03864"
+         x="232.24834"
+         style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+         xml:space="preserve"><tspan
+           y="467.03864"
+           x="232.24834"
+           id="tspan3596"
+           sodipodi:role="line">Client A</tspan></text>
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-size:8px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="130.84267"
+       y="615.82501"
+       id="text3598"
+       sodipodi:linespacing="100%"><tspan
+         sodipodi:role="line"
+         id="tspan3600"
+         x="130.84267"
+         y="615.82501">put(d)</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="185.50189"
+       y="654.85413"
+       id="text3602"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3604"
+         x="185.50189"
+         y="654.85413">replication </tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="136.44374"
+       y="668.55261"
+       id="text3606"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3608"
+         x="136.44374"
+         y="668.55261">Replica 1 </tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="248.71487"
+       y="669.10468"
+       id="text3610"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3612"
+         x="248.71487"
+         y="669.10468">Replica 2</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="130.73734"
+       y="683.71149"
+       id="text3614"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3616"
+         x="130.73734"
+         y="683.71149"
+         style="font-style:italic;-inkscape-font-specification:Times New Roman Italic">c) Réplication synchrone, plusieurs Masters.</tspan><tspan
+         sodipodi:role="line"
+         x="130.73734"
+         y="696.21149"
+         style="font-style:italic;-inkscape-font-specification:Times New Roman Italic"
+         id="tspan4389">pas praticable </tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="183.673"
+       y="637.09198"
+       id="text3618"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3620"
+         x="183.673"
+         y="637.09198">Synchronous </tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1.12300003;stroke-linecap:butt;stroke-linejoin:miter;marker-start:url(#Arrow1Mstart);marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 183.19244,643.89215 L 234.77197,643.85912"
+       id="path3622"
+       sodipodi:nodetypes="cc" />
+    <g
+       id="g3624"
+       transform="translate(13.812721,127.13223)">
+      <rect
+         ry="9.8314676"
+         y="453.40036"
+         x="220.54056"
+         height="19.662935"
+         width="53.932594"
+         id="rect3626"
+         style="opacity:0.92430282;fill:#d5d5ff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text3628"
+         y="467.03864"
+         x="232.24834"
+         style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+         xml:space="preserve"><tspan
+           y="467.03864"
+           x="232.24834"
+           id="tspan3630"
+           sodipodi:role="line">Client B</tspan></text>
+    </g>
+    <rect
+       style="opacity:0.92430282;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect3632"
+       width="53.932594"
+       height="19.662935"
+       x="129.2971"
+       y="633.90338"
+       ry="9.8314676" />
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="136.68359"
+       y="645.92175"
+       id="text3634"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3636"
+         x="136.68359"
+         y="645.92175">Server N1</tspan></text>
+    <rect
+       style="opacity:0.92430282;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect3638"
+       width="53.932594"
+       height="19.662935"
+       x="236.0387"
+       y="635.02692"
+       ry="9.8314676" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1.12300003;stroke-linecap:butt;stroke-linejoin:miter;marker-start:none;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 263.52951,600.07194 L 263.98544,634.87036"
+       id="path3640"
+       sodipodi:nodetypes="cc" />
+    <text
+       xml:space="preserve"
+       style="font-size:8px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="270.26709"
+       y="619.81396"
+       id="text3642"
+       sodipodi:linespacing="100%"><tspan
+         sodipodi:role="line"
+         id="tspan3644"
+         x="270.26709"
+         y="619.81396">put(d)</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="243.42517"
+       y="647.04535"
+       id="text3652"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3654"
+         x="243.42517"
+         y="647.04535">Server N2</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1.12300003;stroke-linecap:butt;stroke-linejoin:miter;marker-start:none;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 357.81762,601.04501 L 357.14996,632.47265"
+       id="path4760" />
+    <g
+       id="g4762"
+       transform="translate(111.5459,127.63763)">
+      <rect
+         ry="9.8314676"
+         y="453.40036"
+         x="220.54056"
+         height="19.662935"
+         width="53.932594"
+         id="rect4764"
+         style="opacity:0.92430282;fill:#d5d5ff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text4766"
+         y="467.03864"
+         x="232.24834"
+         style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+         xml:space="preserve"><tspan
+           y="467.03864"
+           x="232.24834"
+           id="tspan4768"
+           sodipodi:role="line">Client A</tspan></text>
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-size:8px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="334.25195"
+       y="616.1059"
+       id="text4770"
+       sodipodi:linespacing="100%"><tspan
+         sodipodi:role="line"
+         id="tspan4772"
+         x="334.25195"
+         y="616.1059">put(d)</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="388.91116"
+       y="655.13501"
+       id="text4774"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan4776"
+         x="388.91116"
+         y="655.13501">replication </tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="311.67471"
+       y="683.4306"
+       id="text4786"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         x="311.67471"
+         y="683.4306"
+         style="font-style:italic;-inkscape-font-specification:Times New Roman Italic"
+         id="tspan2735">d) Réplication asynchrone, plusieurs Master</tspan><tspan
+         sodipodi:role="line"
+         x="311.67471"
+         y="695.9306"
+         style="font-style:italic;-inkscape-font-specification:Times New Roman Italic"
+         id="tspan4393">(Master-Master)</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1.12300003;stroke-linecap:butt;stroke-linejoin:miter;marker-start:url(#Arrow1Mstart);marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:1.12300003, 1.12300003;stroke-dashoffset:0;stroke-opacity:1"
+       d="M 386.60172,644.17305 L 438.18125,644.14002"
+       id="path4794"
+       sodipodi:nodetypes="cc" />
+    <g
+       id="g4796"
+       transform="translate(217.222,127.41313)">
+      <rect
+         ry="9.8314676"
+         y="453.40036"
+         x="220.54056"
+         height="19.662935"
+         width="53.932594"
+         id="rect4798"
+         style="opacity:0.92430282;fill:#d5d5ff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text4800"
+         y="467.03864"
+         x="232.24834"
+         style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+         xml:space="preserve"><tspan
+           y="467.03864"
+           x="232.24834"
+           id="tspan4802"
+           sodipodi:role="line">Client B</tspan></text>
+    </g>
+    <rect
+       style="opacity:0.92430282;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect4804"
+       width="53.932594"
+       height="19.662935"
+       x="332.70639"
+       y="634.18427"
+       ry="9.8314676" />
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="340.09286"
+       y="646.20264"
+       id="text4806"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan4808"
+         x="340.09286"
+         y="646.20264">Server N1</tspan></text>
+    <rect
+       style="opacity:0.92430282;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect4810"
+       width="53.932594"
+       height="19.662935"
+       x="439.44797"
+       y="635.3078"
+       ry="9.8314676" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1.12300003;stroke-linecap:butt;stroke-linejoin:miter;marker-start:none;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 466.93879,600.35284 L 467.39472,635.15126"
+       id="path4812"
+       sodipodi:nodetypes="cc" />
+    <text
+       xml:space="preserve"
+       style="font-size:8px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="473.67636"
+       y="620.09485"
+       id="text4814"
+       sodipodi:linespacing="100%"><tspan
+         sodipodi:role="line"
+         id="tspan4816"
+         x="473.67636"
+         y="620.09485">put(d)</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="446.83444"
+       y="647.32623"
+       id="text4818"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan4820"
+         x="446.83444"
+         y="647.32623">Server N2</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="344.74213"
+       y="667.76636"
+       id="text4862"
+       sodipodi:linespacing="125%"
+       inkscape:transform-center-x="-5.6179775"><tspan
+         sodipodi:role="line"
+         id="tspan4864"
+         x="344.74213"
+         y="667.76636">Replica 1 </tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="448.3302"
+       y="668.32825"
+       id="text4866"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan4868"
+         x="448.3302"
+         y="668.32825">Replica 2</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="386.63016"
+       y="633.487"
+       id="text4870"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan4872"
+         x="386.63016"
+         y="633.487">Asynchronous </tspan></text>
+  </g>
+</svg>

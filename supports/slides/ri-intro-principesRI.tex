@@ -1,0 +1,513 @@
+\begin{comment}
+\begin{frame}{Recherche d'information}
+
+  3 cours : 
+  \begin{itemize}
+      \setlength{\itemsep}{6pt}
+    \item 17 octobre : introduction générale à la RI
+    \item 24 octobre : indexation
+    \item 31 octobre : recherche avec classement
+  \end{itemize}
+  \bigskip
+  Travaux pratiques :
+  \begin{itemize}
+      \setlength{\itemsep}{6pt}
+    \item 2-3 novembre : MongoDB
+    \item 9-10 novembre : MongoDB MapReduce
+    \item {\color{red}7-8 décembre : ElasticSearch (1)}
+    \item {\color{red}14-15 décembre : ElasticSearch (2)}
+    \item 11-12 janvier 2018 : calcul distribué (1)
+    \item 18-19 janvier 2018 : calcul distribué (2)
+  \end{itemize}
+\end{frame}
+\end{comment}
+
+\subsection{Exemple de Recherche d'information}
+\begin{frame}{\textit{Information Retrieval}, définition}
+
+  \vfill
+  \begin{defblock}{Une définition}
+    La \alert{Recherche d'Information} (\textit{Information Retrieval}, IR) consiste à
+    trouver des \alert{documents} peu ou faiblement structurés, dans une grande \alert{collection},
+    en fonction d'un \alert{besoin d'information}.
+  \end{defblock}
+
+  \vfill
+  \begin{itemize} 
+      \setlength{\itemsep}{8pt}
+    \item Recherche sur le Web. Utilisée quotidiennement par des milliards d'utilisateurs.
+    \item Recherche dans votre boîte mail.
+    \item Recherche sur votre ordinateur (\textit{Spotlight}).
+    \item Recherche dans une base documentaire, publique ou privée.
+  \end{itemize}
+  \vfill
+\end{frame}
+
+\begin{frame}{\textit{Information Retrieval}, définition}
+  \begin{itemize}
+    \item Recherche plein texte : on cherche à examiner tous les mots de chaque
+      document enregistré et à essayer de les faire correspondre à ceux fournis
+      par l'utilisateur
+    \item À bien distinguer d'une recherche type ``base de données''\,: requête
+      structurée, données structurées, réponse \guill{exacte}.
+  \end{itemize}
+  \vfill
+  
+\begin{blocgauche}
+  Contrairement à une base de données (SQL), le résultat dépend de
+  \alert{l'interprétation} d'un besoin. On ne peut jamais dire qu'un résultat est
+  totalement exact (ou totalement faux).
+\end{blocgauche}
+\end{frame}
+
+\begin{comment}
+\begin{frame}{Un exemple de besoin}
+  \begin{center}
+    \includegraphics[height=7cm]{avocat.jpg}
+  \end{center}
+\end{frame}
+
+\begin{frame}[plain]{Un moteur de recherche bien connu}
+  \begin{center}
+    \includegraphics[height=9cm]{serp-googleavocat.png}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Fonctionnalités avancées}
+  \begin{center}
+    \includegraphics[height=7cm]{serp-wiki-avocat-autocomplete.png}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Wikipédia : recherche avancée}
+  \begin{center}
+    \includegraphics[width=10cm]{serp-wiki-avocat-facettes.png}
+  \end{center}
+\end{frame}
+
+\begin{frame}{ECommerce : recherche à facettes}
+  \begin{center}
+    \includegraphics[width=10cm]{serp-houra-avocat-facettes.png}
+  \end{center}
+\end{frame}
+
+\end{comment}
+\subsection{Un besoin, une réponse}
+
+\begin{frame}[plain]{Évaluation d'un moteur de recherche}
+  \begin{center}
+    \only<1>{\includegraphics[height=8cm]{serp-googleavocat.png}}
+    \only<2>{\includegraphics[height=8cm]{serp-googleavocat-evaluation.png}}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Évaluation d'un moteur de recherche}
+  \begin{defblock}{Deux notions importantes}
+  \begin{itemize}
+    \item \alert{Faux positifs} : ce sont les documents \alert{non pertinents} inclus dans le résultat;
+      ils ont été sélectionnés à tort.
+    \item \alert{Faux négatifs} : ce sont les documents \alert{pertinents} qui \alert{ne sont pas}
+      inclus dans le résultat. 
+  \end{itemize}
+\end{defblock}
+
+  \vfill
+  \begin{itemize}
+    \item 
+      La recherche plein texte est susceptible de récupérer beaucoup de faux positifs. 
+    \item La récupération de documents non pertinents est souvent
+      provoquée par l'ambiguïté inhérente au langage naturel ; 
+  \end{itemize}
+\vfill
+
+\begin{blocgauche}
+En général, chercher à réduire les faux positifs entraîne l'augmentation des
+  faux négatifs, et réciproquement. 
+\end{blocgauche}
+
+\end{frame}
+
+\begin{comment}
+\begin{frame}{Évaluation de la pertinence : précision et rappel}
+
+  La \alert{précision} mesure la fraction des vrais positifs dans le résultat $r$.
+
+  \medskip
+
+  Si on note $t_p(r)$ et $f_p(r)$ le nombre de vrais et de faux positifs dans $r$, alors
+
+  $$\text{précision} = \frac{t_p(r)}{t_p(r) + f_p(r)} = \frac{t_p(r)}{|r|}$$
+
+  \vfill
+
+  Le \alert{rappel} mesure la fraction de faux négatifs. 
+
+  \medskip
+
+  $$\text{rappel} = \frac{t_p}{t_p + f_n}$$
+
+  \vfill
+
+  L'évaluation d'un système de RI est difficile : implique des tests rigoureux
+  avec des utilisateurs sur un échantillon.
+
+\end{frame}
+\end{comment}
+
+\begin{frame}{Faux-positifs et négatifs, précision et rappel}
+  \begin{center}
+    \includegraphics[height=7cm]{fauxpositifs.png}
+  \end{center}
+\end{frame}
+
+
+\begin{comment}
+\begin{frame}{Performances}
+  On peut améliorer les performances des moteurs de recherche à l'aide de
+  plusieurs techniques : 
+  \begin{itemize}
+    \item des requêtes plus structurées 
+      \begin{itemize}
+        \item requêtes booléennes, 
+        \item expressions rationnelles, 
+        \item proximité, 
+        \item recherche d'expression
+      \end{itemize}
+    \item des résultats classés
+      \begin{itemize}
+        \item modèle vectoriel 
+        \item PageRank
+        \item analyse sémantique latente
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\end{comment}
+
+\section{Index (ou liste) inversés}
+
+\subsection{Modèle}
+
+\begin{frame}{Exemple de base}
+
+  Un ensemble (modeste) de documents nous servira de guide.
+
+  \vspace{.5cm}
+
+  \begin{tabular}{>{\color{structure.fg}}ll}
+    $d_1$&Le loup est dans la bergerie.\\
+    $d_2$&Le loup et le trois petits cochons.\\
+    $d_3$&Les moutons sont dans la bergerie.\\
+    $d_4$&Spider Cochon, Spider Cochon, il peut marcher au plafond.\\
+    $d_5$&Un loup a mangé un mouton, les autres loups sont restés dans la bergerie.\\
+    $d_6$&Il y a trois moutons dans le pré, et un mouton dans la gueule du loup.\\
+    $d_7$&Le cochon est à 12 Euros le Kg, le mouton à 10 Euros/Kg.\\
+    $d_8$&Les trois petits loups et le grand méchant cochon.\\
+  \end{tabular}
+
+\end{frame}
+
+\begin{frame}{Le besoin et la solution}
+
+  \begin{defblock}{Besoin}
+    On veut chercher tous les documents parlant de loups, de moutons mais pas de
+    bergerie.
+  \end{defblock}
+
+  \medskip
+
+  \alert{Parcourir tous les documents ?} (\texttt{grep})
+  \begin{itemize}
+    \item potentiellement long;
+    \item critère "pas de bergerie" n'est pas facile à traiter;
+    \item autres types de recherche ('loup' doit être \alert{près} de 'mouton'") sont
+      difficiles;
+    \item comment \alert{classer} par pertinence les documents trouvés ?
+  \end{itemize}
+
+  \vfill
+\begin{blocgauche}
+  Structure spécialisée : la \alert{matrice d'incidence} et surtout son inversion.
+\end{blocgauche}
+\end{frame}
+
+\begin{frame}{Matrice avec documents en ligne}
+
+  On sélectionne un ensemble de mots (ou \alert{termes}), constituant notre
+  \alert{vocabulaire}
+
+  \vfill
+
+  \figSlideWithSize{matrice-incidence1}{10cm}
+
+
+  \vfill
+\begin{blocgauche}
+  Documents en ligne, termes en colonnes. Dans chaque cellule : 1 si le terme est dans
+  le document, 0 sinon.
+\end{blocgauche}
+\end{frame}
+
+
+\begin{frame}{Recherche (loup, mouton, et pas bergerie)}
+
+On prend les vecteurs binaires des \alert{termes} (les colonnes).
+
+\begin{itemize}
+  \item Loup :      11001101
+  \item Mouton :    00101110
+  \item Bergerie :    01010011
+\end{itemize}
+
+\vfill
+
+Puis :
+
+\begin{itemize}
+  \item ET logique sur les vecteurs de Loup et Mouton, on obtient  00001100.
+  \item ET logique  avec le \alert{complément} du vecteur de Bergerie (01010111)
+\end{itemize}
+
+\vfill
+\begin{blocgauche}
+On obtient 00000100, d'où on déduit que la réponse est limitée au document $d_6$.
+
+Opération binaires \alert{très efficace}, mais...
+\end{blocgauche}
+\end{frame}
+
+
+\begin{frame}{Passons à grande échelle}
+
+\begin{itemize}
+ \item Un million de documents, mille mots chacun en moyenne.
+ \item Disons 6 octets par mot, soit 6 Go (ce n'est pas une si grosse base que
+   cela)
+ \item Disons 500\,000 termes \alert{distincts}
+\end{itemize}
+
+% 
+\smallskip
+
+$\Rightarrow$ la matrice d'incidence a :
+\begin{itemize}
+  \item $10^6$ lignes et 500 000 colonnes soit $500 \times 10^9$ bits
+  \item soit 62 Go approximativement
+\end{itemize}
+
+\vfill
+
+Ne tient pas en mémoire, ce qui va beaucoup compliquer les choses....
+
+\vfill
+
+\alert{Comment faire mieux\,?}
+
+\end{frame}
+
+\begin{frame}{On peut faire mieux}
+
+  \begin{minipage}[c]{.46\linewidth}
+       Il vaut mieux avoir les termes en ligne pour disposer des vecteurs dans une zone
+mémoire contigue.
+
+\vspace*{1cm}
+
+On parle de matrice inversée, et de \alert{liste inversée}.
+Une liste par terme; dans chaque liste, 1 pour les documents contenant le terme.
+   \end{minipage} \hfill
+   \begin{minipage}[c]{.46\linewidth}
+\figSlideWithSize{inverted-index-bool}{4.5cm}
+   \end{minipage}
+   
+\begin{blocgauche}
+\begin{defblock}{Important}
+Mises à jour beaucoup plus difficiles car elles impliquent la réorganisation
+d'une liste compacte. Prix à payer pour l'efficacité en \alert{lecture} (recherche).
+\end{defblock}
+\end{blocgauche}
+\end{frame}
+
+
+\begin{frame}{On peut encore faire mieux}
+
+La matrice est \alert{creuse} : il n'y a que $10^9$ positions avec des 1, soit un sur 500.
+
+\vfill
+
+
+\figSlideWithSize{inverted-index}{6cm}
+
+\vfill
+
+\begin{blocgauche}
+\begin{defblock}{Essentiel}
+On place dans les cellules \alert{l'identifiant} du document. De plus chaque liste est
+\alert{triée} sur l'identifiant du document.
+\end{defblock}
+
+\end{blocgauche}
+\end{frame}
+
+\begin{frame}{Index inversé}
+
+La structure utilisée dans \alert{tous}  les moteurs de recherche.
+
+\begin{itemize}
+ \item Un \alert{répertoire} contient tous les \alert{termes}.
+ \item Une \alert{liste} (inversée) est associée à chaque \alert{terme}, \alert{triée} par docId.
+ \item  Chaque élément de la liste est appelé une \alert{entrée}.
+\end{itemize}
+
+\vfill
+
+%\alert{Concept}\,: la notion de \alert{terme} (\alert{token} en anglais) est différente de celle de ``mot''. 
+%\vfill
+
+%\alert{Vocabulaire}\,: le répertoire est parfois appelé \emph{dictionnaire}\,; les listes sont des \emph{posting list} en anglais;
+%les entrées sont des \emph{postings}.
+
+
+\begin{blocgauche}
+\alert{Efficacité}\,: le répertoire devrait toujours être en mémoire\,; les listes, autant que possible en mémoire, sinon
+fichiers contigus sur le disque.
+\end{blocgauche}
+\end{frame}
+
+\subsection{Opération de recherche avec liste inversée}
+
+\begin{frame}{Documents parlant de \alert{loup} {\bf ET} de \alert{mouton}}
+
+
+Algorithme par \alert{fusion} : on parcourt \alert{séquentiellement} les deux listes.
+
+\vfill
+
+On compare à chaque étape les docId\,; s'ils sont égaux\,: \alert{trouvé}!
+
+\vfill
+
+On avance sur la liste du plus petit docId.
+
+\vfill
+
+\only<1>{
+\figSlideWithSize{brutus-et-cesar}{7.5cm}
+}
+\only<2>{
+\figSlideWithSize{brutus-et-cesar-2}{7.5cm}
+}
+\only<3>{
+\figSlideWithSize{brutus-et-cesar-3}{7.5cm}
+}
+\only<4>{
+\figSlideWithSize{brutus-et-cesar-4}{7.5cm}
+}
+\only<5>{
+\figSlideWithSize{brutus-et-cesar-5}{7.5cm}
+}
+\only<6>{
+\figSlideWithSize{brutus-et-cesar-6}{7.5cm}
+}
+\only<7>{
+\figSlideWithSize{brutus-et-cesar-7}{7.5cm}
+}
+\only<8>{
+\figSlideWithSize{brutus-et-cesar-8}{7.5cm}
+}
+\only<9>{
+\figSlideWithSize{brutus-et-cesar-9}{7.5cm}
+}
+
+\pause
+%\vfill
+
+%\alert{Un seul parcours suffit}\,: recherche linéaire, parcours séquentiel. Pas mieux.
+
+\vfill
+
+\begin{blocgauche}
+C'est une recherche dite \alert{Booléenne}\,: pas de classement, résultat exact. 
+On peut faire mieux...
+\end{blocgauche}
+\end{frame}
+
+\begin{comment}
+\begin{frame}[fragile]{Algorithme}
+\begin{minted}[frame=lines,linenos=true,
+               fontsize=\footnotesize,
+               framesep=3mm]{php}
+// Fusion de deux listes l1 et l2
+function Intersect($l1, $l2)
+{
+  $résultat = [];
+  // Début de la fusion des listes
+  while ($l1 != null and $l2 != null) {
+    if ($l1.docId == $l2.docId) {
+      // On a trouvé un document contenant les deux termes
+      $résultat += $l1.docId;
+      // Avançons sur les deux listes
+      $l1 = $l1.next; $l2 = $l2.next;
+    }
+    else if ($l1.docId < $l2.docId) {
+      // Avançons sur l1
+      $l1 = $l1.next;
+    }
+    else {
+       // Avançons sur l2
+      $l2 = $l2.next;
+    }
+  }
+}
+\end{minted}
+
+\end{frame}
+
+\begin{frame}[fragile]{Optimisation}
+  \begin{itemize}
+    \item Si l'on veut effectuer la recherche : 
+\begin{minted}[frame=lines,
+               baselinestretch=.9,
+               fontsize=\footnotesize,
+               framesep=2mm]{php}
+               A AND B AND C
+\end{minted}
+\item Quelle manière de procéder va optimiser le résultat ?
+  \pause
+  \item on stocke la taille des listes et l'on commence par faire l'intersection
+    des plus petites
+  \medskip
+  \item de nombreuses autres questions d'optimisation existent 
+    \item exemple : stocker l'une des listes en mémoire et calculer les
+      intersections à la volée, en lisant depuis le disque
+  \end{itemize}
+\end{frame}
+\end{comment}
+
+\begin{frame}{Premier bilan}
+
+Fondements techniques : index inversé, tri et compaction, parcours linéaire.
+
+\begin{itemize}
+ \item Permet d'effectuer des recherches \alert{puissantes}
+     et \alert{flexibles}.
+ \item \alert{Garantissent une très grande efficacité.}
+\end{itemize}
+\vfill
+
+\begin{description}
+ \item[\alert{Quels termes}\,?] Quels termes indexe-t-on\,? Beaucoup moins facile que ça n'en a l'air...
+ \item[\alert{Quelles requêtes}\,?] De la plus simple (``sac de mots'') à plus 
+                 structurée 
+%(index structuré, requêtes Boolénnes, recherche de phrases).
+   \item[Performance.] compression, distribution, optimisation des accès,  mises à jour, etc.
+  \item[\alert{Classement}\,?]  comment classer en premier les documents pertinents\,?
+\end{description}
+
+\vfill
+\begin{blocgauche}
+La suite dans les prochaines sessions
+\end{blocgauche}
+
+\end{frame}
+

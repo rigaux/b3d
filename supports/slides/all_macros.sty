@@ -1,0 +1,56 @@
+%  Packages inclusion
+\usepackage{etex}
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{latexsym}
+\usepackage{comment}
+
+\usepackage{fancyvrb}
+\usepackage{moreverb}
+\usepackage{mathptmx}
+\usepackage{latexsym,color}
+
+% Fonts
+%\RequirePackage[TS1,T1]{fontenc}
+%\RequirePackage{textcomp}
+%\RequirePackage{amssymb}
+
+%\RequirePackage{mathpazo}
+%\RequirePackage[scaled=0.9]{helvet}
+%\RequirePackage{courier}
+%\RequirePackage{stmaryrd}
+%\RequirePackage{microtype}
+\usepackage{xcolor}
+
+\graphicspath{{../figures/}}
+%%%%%%%%%%%%%%%%% END OF PACKAGES INCLUSION %%%%%%%%%%%%%%%%%%%
+
+\def\mongodb/{MongoDB}
+
+\newcommand{\caveat}[1]{
+  \begin{itemize}
+    \item[\color{darkred}$\spadesuit$] \alert{#1}
+  \end{itemize}}
+
+\newcommand{\remark}[1]{
+  \begin{itemize}
+    \item[\color{darkgreen}$\clubsuit$] {\color{darkgreen}#1}
+  \end{itemize}}
+
+%% Import a figure in a slide
+\newcommand{\figSlideWithSize}[2]{%
+\begin{center}
+   \includegraphics[width=#2]{#1}
+\end{center}
+}
+\newcommand{\guill}[1]{<<\,#1\,>>}
+\newcommand{\variable}[1]{{\bf \color{darkblue} #1}}
+\definecolor{darkblue}{rgb}{.0,.0,.6}
+
+\newcommand{\figSlide}[1]{%
+\begin{center}
+   \includegraphics{#1}
+\end{center}
+}

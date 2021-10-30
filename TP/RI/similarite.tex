@@ -1,0 +1,68 @@
+\section{Recherche par Similarité}
+
+Nous reprendrons les listes inverses créées dans la section~\ref{LI}, question~\ref{LI_q}.
+
+\subsection{Produit Scalaire}
+
+\begin{enumerate}
+  \item Calculer le produit scalaire de la requête suivante : ``France Ralentie PIB''
+\begin{correction}
+\begin{itemize}
+  \item doc$_1 = \frac{1}{66} \times \log{\frac{4}{3}} \times \frac{1}{3} + \frac{2}{66} \times \log{\frac{4}{3}} \times \frac{1}{3} + \frac{2}{66} \times \log{\frac{4}{2}} \times \frac{1}{3} = 4,934\times 10^{-3}$
+  \item doc$_2 = \frac{1}{68} \times \log{\frac{4}{3}} \times \frac{1}{3} + \frac{1}{68} \times \log{\frac{4}{3}} \times \frac{1}{3} + \frac{0}{68} \times \log{\frac{4}{2}} \times \frac{1}{3} = 1,225\times 10^{-3}$
+  \item doc$_3 = \frac{2}{97} \times \log{\frac{4}{3}} \times \frac{1}{3} + \frac{0}{97} \times \log{\frac{4}{3}} \times \frac{1}{3} + \frac{2}{97} \times \log{\frac{4}{2}} \times \frac{1}{3} = 2,928\times 10^{-3}$
+  \item doc$_4 = \frac{0}{93} \times \log{\frac{4}{3}} \times \frac{1}{3} + \frac{2}{93} \times \log{\frac{4}{3}} \times \frac{1}{3} + \frac{0}{93} \times \log{\frac{4}{2}} \times \frac{1}{3} = 0,895\times 10^{-3}$
+  \end{itemize}
+\end{correction}
+  \item Trier le résultat par ordre de pertinence décroissante
+\begin{correction}
+$doc_1, doc_3, doc_2, doc_4$
+\end{correction}
+\end{enumerate}  
+
+
+
+
+\subsection{Cosinus}
+\label{cos}
+\begin{enumerate}
+  \item Donner le calcul de la norme d'un document et de la requête
+\begin{correction}
+$\sqrt{\sum tf_i^2}$
+\end{correction} 
+	\item Les normes des documents sont respectivement : 0.0392, 0.0336, 0.0310, 0.0421
+  \item Calculer le cosinus de la requête suivante : ``France Ralentie PIB''
+\begin{correction}
+\begin{itemize}
+  \item doc$_1 = \frac{4,934\times 10^{-3}}{0.0392} = 0,126$
+  \item doc$_2 = \frac{1,225\times 10^{-3}}{0.0336} = 0,036$
+  \item doc$_3 = \frac{2,928\times 10^{-3}}{0.0310} = 0,094$
+  \item doc$_4 = \frac{0,895\times 10^{-3}}{0.0421} = 0,021$
+  \end{itemize}
+\end{correction}
+  \item Trier le résultat par ordre de pertinence décroissante
+\label{cos_q}
+\begin{correction}
+$R_1 : doc_1, doc_3, doc_2, doc_4$
+\end{correction}
+\end{enumerate}
+
+\subsection{Précision / Rappel}
+
+Nous nous attendions à l'ensemble résultat suivant : $R_2 : doc_1, doc_4$
+\begin{enumerate}
+  \item Donner la précision et le rappel du résultat obtenu par Cosinus
+\begin{correction}
+\begin{itemize}
+  \item $\frac{R_1 \cap R_2}{R_1} = \frac{2}{4}$
+  \item $\frac{R_1 \cap R_2}{R_2} = \frac{2}{2}$
+\end{itemize}
+\end{correction}
+  \item Donner le précision et le rappel du résultat obtenu par Cosinus avec un score supérieur à 0,03
+\begin{correction}
+\begin{itemize}
+  \item $\frac{R_1 \cap R_2}{R_1} = \frac{1}{3}$
+  \item $\frac{R_1 \cap R_2}{R_2} = \frac{1}{2}$
+\end{itemize}
+\end{correction}
+\end{enumerate}  

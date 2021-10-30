@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<movies>
+  <movie>
+    <title>Jackie Brown</title>
+    <year>1997</year>
+    <genre>Policier</genre>
+    <summary>Jackie Brown is the name of a flight attendant who gets caught smuggling her boss' gun money on the airline she works for. Luckily for her, the Fed Ray Nicolet and the LA Cop Mark Dargus decide to team up in order to arrest the arms dealer she works for, whose name they don't even know. Here's when she has to choose one way: tell Nicolet and Dargus about Ordell Robbie (the arms dealer) and get her freedom -except that if Ordell suspects you're talking about him, you're dead- or keep her mouth shut and do some time. That's when she meets Max Cherry -her bail bondsman-, a late fifties, recently separated, burnt-out man, who falls in love with her. Then Jackie comes up with a plan to play the Feds off against Ordell and the guys he works with -Louis Gara and Melanie Ralston, among others- and walk off with their money. But she needs Max's help. No one is going to stand in the way of his million dollar payoff</summary>
+    <country>USA</country>
+	<director id="37">
+	    <last_name>Tarantino</last_name>
+	    <first_name>Quentin</first_name>
+	    <birth_date>1963</birth_date>
+	</director>
+	<actor id="167">
+	    <first_name>Robert</first_name>
+	    <last_name>De Niro</last_name>
+	    <birth_date>1943</birth_date>
+	    <role>Luis Gara</role>
+	</actor>
+	<actor id="168">
+	    <first_name>Pam</first_name>
+	    <last_name>Grier</last_name>
+	    <birth_date>1949</birth_date>
+	    <role>Jackie Brown</role>
+	</actor>
+	<actor id="169">
+	    <first_name>Bridget</first_name>
+	    <last_name>Fonda</last_name>
+	    <birth_date>1964</birth_date>
+	    <role>Melanie</role>
+	</actor>
+	<actor id="170">
+	    <first_name>Michael</first_name>
+	    <last_name>Keaton</last_name>
+	    <birth_date>1951</birth_date>
+	    <role>Ray Nicolette</role>
+	</actor>
+	<actor id="212">
+	    <first_name>Samuel</first_name>
+	    <last_name>Jackson</last_name>
+	    <birth_date>1948</birth_date>
+	    <role>Ordell Robbie</role>
+	</actor>
+
+  </movie>
+</movies>

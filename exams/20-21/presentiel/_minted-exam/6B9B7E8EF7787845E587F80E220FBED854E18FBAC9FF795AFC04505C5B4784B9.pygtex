@@ -1,0 +1,8 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+      \PYG{k+kd}{function} \PYG{n+nx}{reduceAuteurVersPlateforme} \PYG{p}{(}\PYG{n+nx}{plateforme}\PYG{p}{,} \PYG{p}{[}\PYG{n+nx}{listeArticles}\PYG{p}{])} \PYG{p}{\PYGZob{}}
+         \PYG{c+c1}{// On va s\PYGZsq{}épargner le petit algo de regroupement des auteurs sur le titre}
+         \PYG{n+nx}{les\PYGZus{}articles} \PYG{o}{=} \PYG{n+nx}{groupement\PYGZus{}auteurs\PYGZus{}par\PYGZus{}titre} \PYG{p}{(}\PYG{n+nx}{listeArticles}\PYG{p}{)}
+         \PYG{c+c1}{// On a tout ce qu\PYGZsq{}il faut}
+         \PYG{k}{return} \PYG{p}{(\PYGZob{}}\PYG{l+s+s2}{\PYGZdq{}nom\PYGZdq{}}\PYG{o}{:} \PYG{n+nx}{platforme}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}articles\PYGZdq{}}\PYG{o}{:} \PYG{n+nx}{les\PYGZus{}articles}\PYG{p}{)}
+       \PYG{p}{\PYGZcb{}}
+\end{Verbatim}

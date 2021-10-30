@@ -1,0 +1,1189 @@
+
+
+\section{Qu'est-ce que la recherche d'information (Information Retrieval)\,?}
+
+\begin{frame}{\textit{Information Retrieval}, définition}
+
+\begin{block}{Une définition}
+La \alert{Recherche d'Information} (\textit{Information Retrieval}, IR) consiste à
+trouver des \alert{document} peu ou faiblement structurés, dans une grande \alert{collection},
+en fonction d'un \alert{besoin d'information}.
+\end{block}
+
+Prend peu à peu la prédominance sur les techniques de bases de données.
+
+\begin{itemize} 
+  \item Recherche sur le Web. Utilisée quotidiennement par des milliards d'utilisateurs.
+   \item Recherche dans votre boîte mail.
+   \item Recherche sur votre ordinateur (\textit{Spotlight}).
+    \item Recherche dans une base documentaire, publique ou privée.
+\end{itemize}
+
+À bien distinguer d'un recherche type ``base de données''\,: requête structurée, données structurées.
+\end{frame}
+
+\begin{frame}{\textit{Information Retrieval}, scénario général}
+
+
+\figSlideWithSize{ri-process}{11cm}
+
+\end{frame}
+
+
+
+\begin{frame}{Spécificités}
+
+Recherche plus ou moins précise, documents peu structurés, résultats très nombreux. 
+
+\begin{problem}
+Comment évaluer la \alert{pertinence} du résultat\,?
+\end{problem}
+
+Deux critères esentiels (définition à préciser)\,:
+
+\begin{itemize}
+  \item \alert{Précision}\,: fraction des documents \alert{trouvés} qui sont pertinents pour l'utilisateur.
+  \item \alert{Rappel}\,: fraction des documents \alert{pertinents} qui sont trouvés par le système.
+\end{itemize}
+
+\begin{block}{Réfléchissez-y\,!}
+\begin{enumerate}
+ \item quel est le rappel si la recherche ramène \alert{tous} les documents\,? 
+ \item quelle est la précision si la recherche ne ramène \alert{aucun} document\,?
+ \item et inversement...
+ \end{enumerate}
+ \end{block}
+\end{frame}
+
+\begin{frame}{Notre exemple de base}
+
+
+\vspace{.5cm}
+
+Un ensemble (modeste) de \alert{documents textuels}
+
+\vspace{.5cm}
+
+\begin{tabular}{>{\color{structure.fg}}ll}
+$d_1$&The jaguar is a New World mammal of the Felidae family.\\
+$d_2$&Jaguar has designed four new engines.\\
+$d_3$&For Jaguar, Atari was keen to use a 68K family device.\\
+$d_4$&The Jacksonville Jaguars are a professional US football team.\\
+$d_5$&Mac OS X Jaguar is available at a price of US \$199 for
+Apple's\\& new ``family pack''.\\
+$d_6$&One such ruling family to incorporate the jaguar into their name\\&is
+Jaguar Paw.\\
+$d_7$&It is a big cat.
+\end{tabular}
+
+\medskip
+
+Noter\,: les documents \alert{multimedia} soulèvent d'autres types de problèmes. Cf. NFE205.
+\end{frame}
+
+
+\subsection{Présentation informelle}
+
+
+\begin{frame}{La Recherche d'Information au XVII$^e$ siècle}
+
+\begin{block}{Mon besoin}
+Dans quelle pièce de Shakespeare trouve-t-on Brutus, César, mais pas Calpurnia.
+\end{block}
+\vfill
+
+Première solution\,: parcourir les textes des pièces exhaustivement.
+
+\vfill
+
+Pas très satisfaisant car\,:
+\begin{itemize}
+  \item c'est long,
+  \item le critère ``pas Calpurnia'' n'est pas facile à traiter,
+  \item autres types de recherche ("Brutus doit être \alert{près de} César") difficiles.
+  \item \textit{quid} si je veux \alert{classer} par pertinence\,?
+\end{itemize}
+
+Les moteurs de recherche font tout cela\,!
+
+\end{frame}
+
+\begin{frame}{Un outil pour faire mieux et plus vite}
+
+Une \alert{matrice d'incidence}.
+
+\figSlideWithSize{incidence-matrix}{12cm}
+
+\medskip
+
+Parfois utilisée dans les bases de données sous le nom \alert{d'index bitmap}.
+\end{frame}
+
+
+\begin{frame}{Répondons à la recherche}
+
+On prend les \alert{vecteurs d'incidence} de chaque terme.
+
+\begin{itemize}
+  \item Brutus:       110100
+  \item César:        110111
+  \item Calpurnia:    010000
+\end{itemize}
+
+On fait un \texttt{AND} sur les vecteurs de Brutus et César.
+
+\vfill
+\centerline{Résultat: 110100}
+\vfill
+
+On fait un \texttt{AND} avec le \alert{complément} du vecteur de Calpurnia (101111).
+
+\vfill
+\centerline{Résultat: 100100}
+
+\end{frame}
+
+
+\begin{frame}{Passons à grande échelle}
+
+Quelques hypothèses:
+\begin{itemize}
+ \item Un million de documents, mille mots chacun en moyenne.
+ \item Disons 6 octets par mot, soit 6 GO (pas très gros en fait!)
+ \item Disons 500\,000 termes \alert{distincts}
+\end{itemize}
+
+$\Rightarrow$ la matrice a $500 \times 10^9$ bits, soit 62 GO.
+
+\vfill
+
+Ne tient pas en mémoire, ce qui va beaucoup me compliquer les choses....
+
+\vfill
+
+\alert{Mais qu'est-ce qui ne va pas\,?}
+
+\end{frame}
+
+
+\begin{frame}{La matrice d'incidence est \alert{creuse}}
+
+\begin{block}{Mais oui}
+Dans l'ensemble de la matrice, il n'y a que $10^9$ positions avec des 1, soit un sur 500.
+\end{block}
+
+Il faut une meilleure structure, appelée \alert{index inversé}.
+
+\figSlideWithSize{inverted-index}{11cm}
+
+On ne peut plus se baser sur la \alert{position}, donc on place dans les cellules \alert{l'identifiant}
+du document (\textit{docId}).
+
+\end{frame}
+
+\begin{frame}{Index inversé}
+
+La structure utilisée dans \alert{tous}  les moteurs de recherche.
+
+\begin{itemize}
+ \item Un \alert{répertoire} contient tous les \alert{termes}.
+ \item Une \alert{liste} (inversée) est associée à chaque \alert{terme}, \alert{triée} par docId.
+ \item  Chaque élément de la liste est appelé une \alert{entrée}.
+\end{itemize}
+
+\vfill
+
+\alert{Concept}\,: la notion de \alert{terme} (\alert{token} en anglais) est différente de celle de ``mot'', voir plus loin.
+\vfill
+
+\alert{Vocabulaire}\,: le répertoire est parfois appelé \emph{dictionnaire}\,; les listes sont des \emph{posting list} en anglais;
+les entrées sont des \emph{postings}.
+
+\vfill
+
+\alert{Efficacité}\,: le répertoire devrait toujours être en mémoire\,; les listes, autant que possible en mémoire, sinon
+fichiers contigus sur le disque.
+\end{frame}
+
+\begin{frame}{Traitement d'une recherche}
+
+Recherchons les documents contenant Brutus et César. 
+
+\vfill
+
+On parcourt \alert{séquentiellement} les deux listes.
+
+\smallskip
+
+On compare à chaque étape les docId\,; s'ils sont égaux\,: \alert{trouvé}!
+
+\smallskip
+
+On avance sur la liste du plus petit docId.
+
+\figSlideWithSize{brutus-et-cesar}{10cm}
+
+\vfill
+
+\alert{Un seul parcours suffit}\,: recherche linéaire, parcours séquentiel. Pas mieux.
+
+\vfill
+
+ C'est une recherche dite \alert{Booléenne}\,: pas de classement, résultat exact.
+ 
+ \vfill
+ 
+ Question\,: et si je ne veux pas Calpurnia\,? Comment je fais\,?
+ 
+\end{frame}
+
+
+\begin{frame}{L'algorithme (pour les conjonctions)}
+
+\figSlideWithSize{algo-merge}{8cm}
+
+Exercice: écrire l'algorithme de \alert{différence} de deux listes.
+
+\end{frame}
+
+
+\begin{frame}{Que reste-t-il à faire\,?}
+
+C'est juste la base. Voici quelques problématiques importantes pour la recherche
+d'information, nécessitant des extensions / adaptations de l'index inversé de base
+
+\begin{description}
+ \item[Quels termes\,?] Quels termes indexe-t-on\,? Beaucoup moins facile que ça n'en a l'air...
+ \item[Quelles requêtes\,?] De la plus simple (``sac de mots'') à plus 
+                 structurée (index struturé, requêtes Boolénnes, recherche de phrases).
+   \item[Performance.] Construction, compression, distribution, optimisation des accès,  mises à jour, etc.
+  \item[Classement\,?] Si j'ai des millions de documents dans le résultat, je veux les classer. Comment\,?
+\end{description}
+
+On reprend pas à pas.
+
+\end{frame}
+
+\section{Traitement syntaxique et linguistique}
+
+\begin{frame}{Pré-traitement du texte}
+
+Avant d'insérer dans l'index, plusieurs phases.
+
+\vfill
+
+Important: identification de quelques méta-données (la langue), prise en compte du contexte
+(quels documents pour quelle application). Puis, de manière  générale\,:
+
+\begin{itemize}
+\item \alert{Tokenization}\,: découpage du texte en ``mots''
+\item \alert{Normalisation}\,: majuscules\,? acronymes\,? apostrophes\,?
+
+     Exemple\,: \textit{Windows} et \textit{window}, U.S.A vs USA, \emph{l'auditeur}  vs \emph{les auditeurs}, etc.
+     
+     \item \alert{Stemming} (``racinisation''), \alert{lemmatization}
+     
+     Prendre la racine des mots pour éviter le biais des variations (auditer, auditeur, audition, etc.)
+     
+     \item  \alert{Stop words}, quels mots garder\,?
+     
+     Mots très courants peu informatifs (le, un à, de).
+\end{itemize}
+
+C'est de l'art et du réglage... Dans ce qui suit\,: introduction / sensibilisation aux problèmes.
+
+\end{frame}
+
+\begin{frame}{Identification de la Langue}
+
+Comment trouver la langue d'un document\,?
+
+\begin{itemize}
+
+\item Méta information (dans l'entête HTTP p.e.): pas fiable du tout.
+
+\item \alert{Par le jeu de caractères}, pas assez courant!
+
+\figSlide{characters}
+
+\pause
+
+\structure{Respectivement}: Coréen, Japonais, Maldives, Malte, Islandais.
+
+\item Par extension: \alert{séquences de caractères fréquents}, ($n$-grams)
+
+\item Par techniques d'apprentissage (\alert{classifiers})
+
+\end{itemize}
+
+Des librairies font ça très bien (e.g., Tika, \url{http://tika.apache.org})
+\end{frame}
+
+\begin{frame}{Tokenisation}
+
+\begin{beamerboxesrounded}{Principe}
+Séparation du texte en \alert{tokens} (``mots'')
+\end{beamerboxesrounded}
+
+\smallskip
+
+
+Pas du tout aussi facile qu'on le dirait\,!
+
+\begin{itemize}
+
+\item Dans certaines langues (Chinois, Japonais), les mots  \alert{ne sont pas}
+séparés par des espaces.
+
+\item Certaines langues s'écrivent de droite à gauche, de haut en bas.
+
+\item Que faire (et de manière \alert{cohérente}) des acronymes, élisions, nombres, unités, URL, email, etc.
+
+\item \alert{Mots composés}\,: les séparer en \emph{tokens} ou les regrouper en un seul\,?
+
+\begin{enumerate}
+   \item Anglais\,: \emph{hostname}, \emph{host-name} et \emph{host
+name}, ...
+  \item Français\,: Le Mans, aujourd'hui, pomme de terre, ...
+  \item Allemand\,: \textit{Levensversicherungsgesellschaftsangestellter} (employé d’une
+société d’assurance vie)
+\end{enumerate}
+
+ Que faire si l'utilisateur
+cherche \emph{hostname} et qu'on a normalisé en \emph{host-name}\,?
+
+\end{itemize}
+
+
+Majuscules, ponctuation\,? Une solution simple est de normaliser (minuscules, pas de ponctuation).
+
+\end{frame}
+
+\begin{frame}{Exemple pour notre petit jeu de données}
+
+\begin{tabular}{>{\color{structure.fg}}ll}
+$d_1$&the$_{\alert{1}}$ jaguar$_{\alert{2}}$ is$_{\alert{3}}$ a$_{\alert{4}}$ new$_{\alert{5}}$ world$_{\alert{6}}$ mammal$_{\alert{7}}$ of$_{\alert{8}}$
+the$_{\alert{9}}$ felidae$_{\alert{{10}}}$ family$_{\alert{{11}}}$\\
+$d_2$&jaguar$_{\alert{1}}$ has$_{\alert{2}}$ designed$_{\alert{3}}$ four$_{\alert{4}}$ new$_{\alert{5}}$ engines$_{\alert{6}}$\\
+$d_3$&for$_{\alert{1}}$ jaguar$_{\alert{2}}$ atari$_{\alert{3}}$ was$_{\alert{4}}$ keen$_{\alert{5}}$ to$_{\alert{6}}$ use$_{\alert{7}}$ a$_{\alert{8}}$
+68k$_{\alert{9}}$ family$_{\alert{{10}}}$ device$_{\alert{{11}}}$\\
+$d_4$&the$_{\alert{1}}$ jacksonville$_{\alert{2}}$ jaguars$_{\alert{3}}$ are$_{\alert{4}}$ a$_{\alert{5}}$ professional$_{\alert{6}}$
+us$_{\alert{7}}$ football$_{\alert{8}}$ team$_{\alert{9}}$\\
+$d_5$&mac$_{\alert{1}}$ os$_{\alert{2}}$ x$_{\alert{3}}$ jaguar$_{\alert{4}}$ is$_{\alert{5}}$ available$_{\alert{6}}$ at$_{\alert{7}}$ a$_{\alert{8}}$
+price$_{\alert{9}}$ of$_{\alert{{10}}}$ us$_{\alert{{11}}}$ \$199$_{\alert{{12}}}$\\&for$_{\alert{{13}}}$
+apple's$_{\alert{{14}}}$ new$_{\alert{{15}}}$ family$_{\alert{{16}}}$ pack$_{\alert{{17}}}$\\
+$d_6$&one$_{\alert{1}}$ such$_{\alert{2}}$ ruling$_{\alert{3}}$ family$_{\alert{4}}$ to$_{\alert{5}}$ incorporate$_{\alert{6}}$
+the$_{\alert{7}}$ jaguar$_{\alert{8}}$ into$_{\alert{9}}$\\&their$_{\alert{{10}}}$ name$_{\alert{{11}}}$ is$_{\alert{{12}}}$
+jaguar$_{\alert{{13}}}$ paw$_{\alert{{14}}}$\\
+$d_7$&it$_{\alert{1}}$ is$_{\alert{2}}$ a$_{\alert{3}}$ big$_{\alert{4}}$ cat$_{\alert{5}}$
+\end{tabular}
+
+\end{frame}
+
+
+\begin{frame}{Stemming (racine)}
+\begin{beamerboxesrounded}{Principe}
+\alert{Confondre} toutes les formes d'un même mot, ou de mots apparentés, en
+une seule \alert{racine}.
+\end{beamerboxesrounded}
+
+\smallskip
+
+\begin{description}
+
+\item[Stemming Morphologique.] Retire les pluriels, marque de genre, conjugaisons, modes, etc.
+
+\begin{itemize}
+
+\item Très dépendant de la langue\,: \emph{geese} pluriel de \emph{goose}, \emph{mice} de \emph{mouse}
+
+\item Difficile à séparer d'une analyse linguistique (``Les poules du couvent couvent'', ``la petite
+    brise la glace''\,:  où est le verbe\,?)
+\end{itemize}
+
+\item[Stemming lexical] Fondre les termes proches lexicalement\,: ``politique, politicien, police (?)'' ou 
+     ``université, universel, univers (?)'' 
+
+
+\item[Stemming phonétique.]  Correction fautes de frappes, fautes orthographes
+
+\end{description}
+
+\end{frame}
+
+\begin{frame}{Exemple de stemming}
+\begin{tabular}{>{\color{structure.fg}}ll}
+$d_1$&the$_1$ jaguar$_2$ \alert{be}$_3$ a$_4$ new$_5$ world$_6$ mammal$_7$ of$_8$
+the$_9$ felidae$_{10}$ family$_{11}$\\
+$d_2$&jaguar$_1$ \alert{have}$_2$ \alert{design}$_3$ four$_4$ new$_5$
+\alert{engine}$_6$\\
+$d_3$&for$_1$ jaguar$_2$ atari$_3$ \alert{be}$_4$ keen$_5$ to$_6$ use$_7$ a$_8$
+68k$_9$ family$_{10}$ device$_{11}$\\
+$d_4$&the$_1$ jacksonville$_2$ \alert{jaguar}$_3$ \alert{be}$_4$ a$_5$ professional$_6$ us$_7$ football$_8$ team$_9$\\
+$d_5$&mac$_1$ os$_2$ x$_3$ jaguar$_4$ \alert{be}$_5$ available$_6$ at$_7$ a$_8$
+price$_9$ of$_{10}$ us$_{11}$ \$199$_{12}$\\&for$_{13}$
+\alert{apple}$_{14}$ new$_{15}$ family$_{16}$ pack$_{17}$\\
+$d_6$&one$_1$ such$_2$ \alert{rule}$_3$ family$_4$ to$_5$ incorporate$_6$
+the$_7$ jaguar$_8$ into$_9$\\&their$_{10}$ name$_{11}$ \alert{be}$_{12}$
+jaguar$_{13}$ paw$_{14}$\\
+$d_7$&it$_1$ \alert{be}$_2$ a$_3$ big$_4$ cat$_5$
+\end{tabular}
+\end{frame}
+
+\begin{frame}{Suppression des \textit{Stop Words}}
+
+\begin{beamerboxesrounded}{Principe}
+On retire les mots porteurs d'une information faible afin de limiter le stockage.
+\end{beamerboxesrounded}
+
+\begin{description}
+\item[articles:] \emph{le}, \emph{le}, \emph{ce}, etc.
+
+\item[verbes ``fonctionnels''] \emph{être}, \emph{avoir}, \emph{faire}, etc.
+
+\item[conjunctions:] \emph{that}, \emph{and}, etc.
+
+\item[etc.]
+\end{description}
+
+\begin{remark}
+Maintenant moins utilisé car (i) espace de stockage peu coûteux et (ii) pose d'autres problèmes (``pomme de terre'',
+``Let it be'', ``Stade de France'')
+\end{remark}
+
+\end{frame}
+
+
+
+\begin{frame}{Autres problèmes, en vrac}
+
+
+\alert{Majuscules / minuscules}
+
+Lyonnaise des Eaux, Société Générale, etc.
+
+\vfill
+ \alert{Acronymes}
+ 
+   CAT = \textit{cat} ou \textit{Caterpillar Inc.}\,?  M.A.A.F ou MAAF ou Mutuelle ... \,?
+
+\vfill
+
+\alert{Dates, chiffres}
+
+   Monday 24, August, 1572 -- 24/08/1572 -- 24 août 1572
+    10000 ou 10,000.00 ou 10,000.00
+     
+     
+     \vfill
+     
+     \alert{Accents, ponctuation}
+     
+     résumé ou résume ou resume... 
+     
+ \begin{remark}
+ Dans tous les cas, les même règles de transformation s'appliquent aux documents ET à la requête.
+ \end{remark}
+ \end{frame}
+
+
+\begin{frame}{Exemple avec suppression des \textit{stop words}}
+\begin{tabular}{>{\color{structure.fg}}ll}
+$d_1$&jaguar$_2$ new$_5$ world$_6$ mammal$_7$
+felidae$_{10}$ family$_{11}$\\
+$d_2$&jaguar$_1$ design$_3$ four$_4$ new$_5$ engine$_6$\\
+$d_3$&jaguar$_2$ atari$_3$ keen$_5$
+68k$_9$ family$_{10}$ device$_{11}$\\
+$d_4$&jacksonville$_2$ jaguar$_3$ professional$_6$
+us$_7$ football$_8$ team$_9$\\
+$d_5$&mac$_1$ os$_2$ x$_3$ jaguar$_4$ available$_6$
+price$_9$ us$_{11}$ \$199$_{12}$
+apple$_{14}$\\&new$_{15}$ family$_{16}$ pack$_{17}$\\
+$d_6$&one$_1$ such$_2$ rule$_3$ family$_4$ incorporate$_6$
+jaguar$_8$ their$_{10}$ name$_{11}$
+\\&jaguar$_{13}$ paw$_{14}$\\
+$d_7$&big$_4$ cat$_5$
+\end{tabular}
+\end{frame}
+
+
+
+\begin{frame}{Au final, notre index inversé}
+
+\begin{tabular}{>{\color{structure.fg}}ll}
+family&$d_1$, $d_3$, $d_5$, $d_6$\\
+football&$d_4$\\
+jaguar&$d_1$, $d_2$, $d_3$, $d_4$, $d_5$, $d_6$\\
+new&$d_1$, $d_2$, $d_5$\\
+rule&$d_6$\\
+us&$d_4$, $d_5$\\
+world&$d_1$\\
+\ldots
+\end{tabular}
+
+Deux remarques importantes, à l'origine \alert{d'optimisations}.
+\begin{itemize}
+  \item la longueur des listes inverses est \alert{très} variable\,; 
+  \item listes constituées d'entrées très homogènes, permettant des \alert{compressions} efficaces.
+\end{itemize}
+\end{frame}
+
+
+
+\section{Requêtes Booléennes, positionnelles et structurées}
+
+\begin{frame}{Requêtes Booléennes}
+
+Les requêtes sont des \alert{expressions Booléennes}, construites
+avec les connecteurs habituels.
+
+\begin{description}
+\item[AND] intersection
+\item[OR] union
+\item[AND NOT] différence
+\end{description}
+
+
+\[\text{(\emph{jaguar} AND \emph{new} AND NOT \emph{family}) OR
+\emph{cat}}\]
+
+\vfill
+
+Les documents sont vus comme des \alert{ensembles} de mots.
+
+\vfill
+
+La réponse est \alert{exacte}. Dans le cas d'une conjonction, chaque document contient
+\alert{tous} les mots.
+
+\vfill
+
+Toujours très utilisé\,: recherche sur ordinateur personnel, recherche de mails.
+
+\end{frame}
+
+\begin{frame}{Optimisation\,: \alert{d'abord} les petites listes}
+
+La requête \texttt{Brutus AND César AND Calpurnia}
+
+\vfill
+
+\figSlideWithSize{optim-petiteliste}{10cm}
+
+\vfil
+
+\begin{itemize}
+  \item On charge la plus petite liste en mémoire\,: c'est le résultat par défaut.
+  \item Parcours de  la plus petite parmi celles qui restent\,: \textit{matching} avec la liste en mémoire.
+   \item Jusqu'à ce que toutes les listes soient parcourues.
+\end{itemize}
+
+\end{frame}
+
+\subsection{Requêtes positionnelles}
+
+\begin{frame}{\textit{Phrase queries}}
+
+Au lieu d'une requête ``sacs de mots'', on ajoute des critères sur les \alert{positions
+relatives} des mots de la requête.
+
+\begin{itemize}
+  \item par des séquences de mots (``phrases''), ex ``Conservatoire National des Arts et Métiers''.
+  
+     $\Rightarrow$ ``tout l'art dans cette nation est de conserver son métier'' n'est pas une réponse.
+     
+  \item par des clauses comme \texttt{NEAR}. 
+\end{itemize}
+
+\begin{block}{Extension}
+Il faut introduire la \alert{position des mots} dans l'index.
+\end{block}
+
+\end{frame}
+
+\begin{frame}{Stockage des positions dans l'index}
+
+Dans chaque entrée, avec chaque document\,: on donne la séquence \alert{triée} des
+positions du terme dans le document.
+
+\smallskip
+
+\begin{tabular}{>{\color{structure.fg}}ll}
+family&$d_1/11$, $d_3/10$, $d_5/16$, $d_6/4$\\
+football&$d_4/8$\\
+jaguar&$d_1/2$, $d_2/1$, $d_3/2$, $d_4/3$, $d_5/4$, $d_6/8+13$\\
+new&$d_1/5$, $d_2/5$, $d_5/15$\\
+rule&$d_6/3$\\
+us&$d_4/7$, $d_5/11$\\
+world&$d_1/6$\\
+\ldots
+\end{tabular}
+
+\smallskip
+
+Gros impact sur la \alert{taille} de l'index (l'ordre de grandeur devient celui de la collection elle-même)
+
+\smallskip
+
+Algorithme de recherche légèrement étendu (fusion des positions pour un même document).
+\end{frame}
+
+\subsection{Requêtes structurées}
+
+
+\begin{frame}[fragile]{Requêtes structurées}
+
+Les documents textuels ont toujours une structure plus ou moins stable (regarder ce transparent par exemple).
+
+\vfill
+
+On peut en extraire des \alert{champs} (titre, auteur, date) et les indexer séparément.
+
+\vfill
+
+Le langage de requête permet d'exprimer des contraintes sur ces champs
+
+\medskip
+
+\begin{verbatim}
+title CONTAINS 'nfe204'
+AND author = 'Rigaux'
+AND content CONTAINS 'mongodb'
+\end{verbatim}
+
+\vfill
+
+Comment\,? On combine dans le répertoire le terme et le champ (ex: "\texttt{title:nfe204}", "\texttt{author:rigaux}" et 
+"\texttt{content:mongodb}").
+\vfill
+Exemple\,: voir le modèle de données de Lucene et son langage d'interrogation.
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%
+\section{Construction et mise à jour des index inversés}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{La construction repose sur le \alert{tri}}
+
+Il faut impérativement obtenir des listes triées, de longueur arbitraire. 
+
+\vfill
+
+Pour une collection \alert{statique} de documents\,: 
+
+\begin{itemize}
+  \item on extrait les triplets $[d, t, p]$, $d$ étant le document, $t$ le terme et $p$ la position de $t$ dans $d$;
+
+   \item on groupe  les paires $[d, p]$ par terme et on trie chaque groupe\,; 
+   
+   \item le résultat du tri correspond aux listes inversées.
+\end{itemize}
+
+\medskip
+
+On met en {\oe}uvre des techniques de tri classiques, en mémoire, ou sur disque.
+
+\medskip
+
+Dans ce qui suit\,: rappel du tri-fusion en mémoire externe, application aux index inversés.
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{Première phase\,: le tri}
+
+
+On remplit la mémoire, on trie, on vide
+dans des \textbf{fragments}, et
+on recommence.
+
+\figSlide{phasetri}
+
+Coût\,: une lecture + une écriture du fichier.
+
+\vfill
+
+On obtient une liste de fragments \alert{triés}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{Deuxième phase\,: la fusion}
+
+
+On groupe les fragments par $M$ (taille de la zone
+de tri), et on fusionne.\\
+
+\figSlideWithSize{trifusion}{9cm}
+
+Coût\,: autant de lectures/écritures du fichier que de niveaux
+de fusion.
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{Illustration avec $M = 3$}
+
+\figSlideWithSize{tri-fusion}{10cm}
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+
+\frametitle{Essentiel\,: la taille de la zone de tri}
+
+Un fichier de 75~000 pages de 4 Ko, soit 307 Mo.
+
+\vfill
+
+ \textbf{$M > 307 Mo$}\,: une lecture, soit 307 
+
+\vfill
+
+ \textbf{$M = 2 Mo$}, soit 500 pages.
+    \begin{enumerate}
+      \item le tri donne $\lceil \frac{307}{2} \rceil = 154$
+        fragments.
+
+      \item On fait la fusion avec $154$ pages
+     \end{enumerate}
+       Coût total de $614 + 307 = 921$ Mo. 
+
+\vfill
+
+NB\,: il faut allouer beaucoup de mémoire pour
+passer de 1 à 0 niveau de tri.
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+
+\frametitle{Avec très peu de mémoire}
+\textbf{$M = 1 Mo$}, soit 250 pages.
+    \begin{enumerate}
+       \item on obtient 307 fragments.
+
+       \item On fusionne les 249 premiers fragments,
+               puis les 58 restant. On obtient $F_1$ et $F_2$.
+        \item On fusionne $F_1$ et $F_2$.
+   \end{enumerate}
+
+\medskip
+
+ Coût total\,: $1\,228 + 307 = 1\,535$ Mo.
+
+\medskip
+
+Résultat\,: grosse dégradation entre 2 Mo et 1 Mo (calcul
+approximatif).
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{Construction d'un index inversé}
+
+On crée un premier index en mémoire, puis on l'écrit sur  disque.
+
+\figSlideWithSize{merge-based}{10cm}
+
+On \alert{fusionne} périodiquement avec les mises à jour suivantes.
+
+\begin{remark}
+Pas adapté à des mises à jour intensives.
+\end{remark}
+\end{frame}
+
+
+\begin{frame}{Attention à la taille de l'index}
+ 
+Avec les positions (et d'autres informations éventuelles, comme le poids, cf. plus loin), la taille de l'index
+devient un problème.
+
+\smallskip
+
+Supposons qu'on indexe une collection d'un million d'emails, de taille moyenne 1,000 octets. Chaque
+email contient 100 mots, et il y a 200\,000 termes distincts.
+
+
+\begin{enumerate}
+  \item taille de la collection, nombre d'occurrences de mots\,? % 1GBn 100 millions
+  \item combien de listes dans l'index\,? % 200,000 listes;
+  \item supposons que  20\% des termes d'un document apparaissent deux fois\,; dans combien de listes
+      un document apparaît-il\,?  % 80 lists, 
+  \item combien d'entrées dans une liste\,? %  500 entries;
+  \item  un docId et une position sont codée sur 4 octets, quelle est la taille de l'index\,? % 800 MO
+  
+%the \emph{average} size of a list is 1,600 bytes; the whole index contains
+% $400 \times 200{,}000 = 80{,}000{,}000$ entries; the index size is 320 MB (for inverted lists) plus 
+%   2,4 MB ($200{,}000 \times 12$) for the directory. 
+\end{enumerate}
+\end{frame}
+
+
+\begin{frame}{Compression des listes inversées}
+
+Sans compression, la taille d'un index peut devenir plus importante que la collection elle-même.
+
+\vfill
+Une bonne technique de compression est essentielle. 
+
+\vfill
+
+Note\,: le temps de décompression doit représenter un gain par rapport à la lecture de la liste non-compressée.
+
+\vfill
+On s'appuie sur le fait que les docId et les positions sont stockés en ordre ascendant.
+
+\[[87; 273; 365; 576; 810].\]
+
+\vfill
+
+Première étape, on utilise le \emph{delta-coding}:
+
+\[[87; 186; 92; 211; 234].\]
+
+Exercice: quel est le nombre minimal d'octets pour représenter la première liste\,? la seconde\,?
+\end{frame}
+
+
+\begin{frame}{Codage par octets variables}
+
+Idée: on code les entiers sur 7 bits ($2^7= 128$); le premier bit à 1 indique la terminaison de l'encodage du nombre.
+
+\vfill
+
+Soit  $v=9$, on l'encode sur un octet $10000101$ (premier bit à 1). 
+
+\vfill
+Soit $v=137$. 
+\begin{enumerate}
+  \item le premier octet encode $v'= v \bmod 128 = 9$, donc $b=10000101$ comme précédemment;
+  \item ensuite on encode $ v / 128 = 1 $, avec un octet $b' = 00000001$ (premier bit à 0).
+\end{enumerate}
+
+$137$ est donc encodé sur deux octets:
+\[00000001\,\,10000101.\]
+\vfill
+Taux de compression\,: typiquement 1/4 à 1/2 de la représentation fixe.
+\end{frame}
+
+
+\end{document}
+
+\section{Requêtes avec classement}
+
+\begin{frame}{Ranked search}
+
+Boolean search does not give an accurate result because it does not take account
+of the \alert{relevance} of a document to a query.
+
+\vfill
+
+If the search retrieves dozen or hundreds of documents, the most relevant must
+be shown in top position!
+
+\vfill
+
+The quality of a result with respect to relevance is measured by two factors:
+
+$$precision =\frac{|relevant| \cap |retrieved|}{|retrieved|}$$
+
+$$recall =\frac{|relevant| \cap |retrieved|}{|relevant|}$$
+
+\end{frame}
+
+
+\begin{frame}{Weighting terms occurrences}
+
+Relevance can be computed by giving a \alert{weight}
+to term occurrences.
+\begin{itemize}
+
+\item Terms occurring \alert{frequently} in a \alert{given document}:
+more \textcolor{magenta}{relevant}.
+
+
+The \emph{term frequency} is the number of occurrences of a term $t$ in a
+document $d$, divided by the total number of terms in $d$ (normalization)
+
+\[\mathop{\mathrm{tf}}(t,d)=\frac{n_{t,d}}{\sum_{t'} n_{t',d}}\]
+\noindent
+where $n_{t',d}$ is the number of occurrences of $t'$ in $d$.  
+
+\item Terms occurring \alert{rarely} in the \alert{document collection}
+as a whole: more \textcolor{orange}{informative}
+
+The \emph{inverse document frequency}  (idf) is obtained from the division of 
+the total number of documents by the number of documents where $t$ occurs, as follows:
+\[\mathop{\mathrm{idf}}(t)=\log\frac{|D|}{\left|\left\{d'\in
+D\,|\,n_{t,d'}>0\right\}\right|}.\]
+
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{TF-IDF Weighting}
+
+The inverted is extended by adding 
+\alert{Term Frequency---Inverse Document Frequency} weighting
+ \[
+\mathop{\mathsf{tf{}idf}}(t,d)={\color{magenta}\frac{n_{t,d}}{\sum_{t'}
+n_{t',d}}}\cdot
+\color{orange}\log\frac{|D|}{\left|\left\{d'\in D\,|\,n_{t,d'}>0\right\}\right|}\]
+\begin{center}\begin{tabular}{cl}
+$n_{t,d}$&number of occurrences of $t$ in $d$\\
+$D$&set of all documents
+\end{tabular}
+\end{center}
+
+Documents (along with weight) are stored in \alert{decreasing weight
+order} in
+the index
+
+\end{frame}
+
+
+\begin{frame}{TF-IDF Weighting Example}
+\begin{tabular}{>{\color{structure.fg}}ll}
+family&$d_1/11/.13$, $d_3/10/.13$, $d_6/4/.08$, $d_5/16/.07$\\
+football&$d_4/8/.47$\\
+jaguar&$d_1/2/.04$, $d_2/1/.04$, $d_3/2/.04$, $d_4/3/.04$,
+  $d_6/8+13/.04$,\\& $d_5/4/.02$\\
+new&$d_2/5/.24$, $d_1/5/.20$, $d_5/15/.10$\\
+rule&$d_6/3/.28$\\
+us&$d_4/7/.30$, $d_5/11/.15$\\
+world&$d_1/6/.47$\\
+\ldots
+\end{tabular}
+
+Exercise: take an entry, and check that the tf/idf value is indeed correct
+(take documents after stop-word removal).
+
+\end{frame}
+
+
+\begin{frame}{Answering Top-$k$ Queries}
+
+ \[t_1\text{ AND }\dots\text{ AND }t_n\]
+
+\begin{beamerboxesrounded}{Problem}
+Find the \alert{top-$k$ results} (for some given $k$) 
+to the query, without retrieving all documents
+matching it.
+\end{beamerboxesrounded}
+
+\vspace{.5cm}
+
+Notations:
+\begin{description}
+\item[$s(t,d)$] weight of $t$ in $d$ (e.g., $\mathsf{tf{}idf}$)
+\item[$g(s_1,\dots,s_n)$] monotonous function that computes the global
+score (e.g., addition)
+\end{description}
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+\frametitle{Exercise}
+Consider the following documents:
+\begin{enumerate}
+  \item $d_1$ = I like to watch the sun set with my friend.
+  \item $d_2$ = The Best Places To Watch The Sunset.
+  \item $d_3$ = My friend watches the sun come up.
+\end{enumerate}
+
+Construct an inverted index with tf/idf weights for terms 'Best' and 'sun'. What
+would be the ranked result of the query 'Best and sun'?
+
+\end{frame}
+
+\begin{frame}{Basic algorithm}
+
+First version of the top-$k$ algorithm: the inverted file contains entries
+sorted on the document id. The query is \[t_1\text{ AND }\dots\text{ AND }t_n\].
+
+\begin{enumerate}
+\item Take the first entry of each list; one obtains a tuple $T = [e_1, \ldots
+e_n]$;
+\item Let $d_1$ be the minimal doc id in the entries of $T$: compute the global
+score of $d_1$;
+ \item For each entry $e_i$ featuring $d_1$: advance on the inverted list $L_i$.
+\end{enumerate}
+
+When \emph{all} lists have been scanned: sort the documents on the global
+scores.
+\vfill
+
+Not very efficient; cannot give the ranked result before a full scan on the
+lists.
+\end{frame}
+
+\begin{frame}{The Threshold Algorithm}
+\begin{enumerate}
+\item Let $R$ be the empty list, and $m=+\infty$.
+\item For each $1\leq i\leq n$:
+\label{step:main-fagin}
+\begin{enumerate}
+\item Retrieve the document $d^{(i)}$ containing term
+$t_i$ that has the \alert{next largest} $s(t_i,d^{(i)})$.
+\item Compute its global score
+$g_{d^{(i)}}=g(s(t_1,d^{(i)}),\dots,s(t_n,d^{(i)}))$
+by retrieving all $s(t_j,d^{(i)})$ with $j\neq i$.
+\item If $R$ contains less
+than $k$ documents, or if $g_{d^{(i)}}$ is greater than the \alert{minimum of
+the score of
+documents} in $R$, add $d^{(i)}$ to $R$.
+\end{enumerate}
+\item Let $m=g(s(t_1,d^{(1)}),s(t_2,d^{(2)}),\dots,s(t_n,d^{(n)}))$.
+\item If $R$
+contains more than $k$ documents, and the minimum of the score of the
+documents in $R$ is \alert{greater than or equal} to $m$, return $R$.
+\item Redo step \ref{step:main-fagin}.
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{The TA, by example}
+
+$q$ = ``\emph{new} OR \emph{family}'', and $k=3$. 
+We use inverted
+lists sorted on the weight. 
+
+\begin{tabular}{>{\bfseries}p{4em}l}
+family&$d_1/11/.13$, $d_3/10/.13$, $d_6/4/.08$, $d_5/16/.07$\\
+new&$d_2/5/.24$, $d_1/5/.20$, $d_5/15/.10$\\
+\ldots
+\end{tabular}
+
+Initially, $R=\varnothing$ and $\tau=+\infty$. 
+
+\begin{enumerate}
+  \item $d^{(1)}$ is the first entry in $L_{\rm{family}}$, one finds 
+  $s(\rm{new}, d_1) = .20$; the global score
+for $d_1$ is $.13 + .20 = .33$.
+
+\item Next, $i=2$, and one finds that the global score for $d_2$ is .24.
+
+\item The
+algorithm quits the loop on $i$ with $R = \langle[d_1,.33], [d_2, .24] \rangle$ 
+and $\tau = .13 + .24 = .37$.
+
+\item We proceed with the loop
+again, taking $d_3$ with score $.13$ and $d_5$ with score $.17$. 
+$[d_5, .17]$ is added to $R$ (at the end) and  $\tau$ is now $.10 + .13 = .23$.
+
+  A last loop concludes that the next candidate
+is $d_6$, with a global score of $.08$. Then we are done. 
+
+\end{enumerate}
+
+\end{frame}
+
+
+\end{document}
+
+
+
+\subsection{Clustering}
+
+\begin{frame}{Clustering Example}
+\includegraphics[width=\linewidth,trim={0 500 0 0},clip]{../figures/clusty}
+\end{frame}
+
+\begin{frame}{Cosine Similarity of Documents}
+
+\begin{itemize}
+\item \alert{Document Vector Space} model:
+\begin{description}
+\item[terms] dimensions
+\item[documents] vectors
+\item[coordinates] weights
+\end{description}
+
+(The projection of document $d$ along coordinate $t$ is the weight of $t$
+in~$d$, say $\mathsf{tf{}idf(t,d)}$)
+
+\item Similarity between documents $d$ and $d'$: \alert{cosine} of these two
+vectors
+
+\[
+\alert{\cos(d,d')}=\frac{d\cdot d'}{\Vert d\Vert\times\Vert d'\Vert}
+\]
+\begin{center}\begin{tabular}{cl}
+$d\cdot d'$&scalar product of $d$ and $d'$\\
+$\Vert d\Vert$&norm of vector $d$
+\end{tabular}\end{center}
+
+\item $\cos(d,d)=1$
+
+\item $\cos(d,d')=0$ if $d$ and $d'$ are \alert{orthogonal} (do not
+share any common term)
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Agglomerative Clustering of Documents}
+
+\begin{enumerate}
+\item Initially, each document forms \alert{its own cluster}.
+\item The similarity between two clusters is defined as the \alert{maximal
+similarity} between elements of each cluster.
+\item Find the two clusters whose mutual similarity is \alert{highest}. If it is
+\alert{lower than a given threshold}, end the clustering. Otherwise, regroup
+these clusters. Repeat.
+\end{enumerate}
+
+\begin{remark}
+Many other more refined algorithms for clustering exist.
+\end{remark}
+
+\end{frame}
+
+\subsection{Other Media}
+
+\begin{frame}{Indexing HTML}
+\begin{itemize}
+\item HTML: text + \alert{meta-information} + \alert{structure}
+
+\item Possibly: \alert{separate index} for meta-information (title, keywords)
+
+\item \alert{Increase weight} of structurally emphasized content in index
+
+\item \alert{Tree structure} can also be queried with XPath or XQuery, but not
+very useful on the Web as a whole, because of tag soup and lack of
+consistency.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Indexing Multimedia Content}
+
+\begin{itemize}
+
+\item Basic approach: index \alert{text from context} of the media
+\begin{itemize}
+\item surrounding text
+\item text in or around the links pointing to the content
+\item filenames
+\item associated subtitles (hearing-impaired track on TV)
+\end{itemize}
+
+\item Elaborate approach: index and search the media itself, with the
+help of \alert{speech recognition} and \alert{sound, image, and video
+analysis}
+\begin{itemize}
+\item TrackID, Shazam: identify a song played on the radio
+\item Musipedia: look for music by whistling a tune,
+\url{http://www.musipedia.org/}, \url{http://www.midomi.com/}
+\item Image search from a similar image,
+\url{http://images.google.com/}, Google Goggles
+\item Voxalead, \url{http://voxaleadnews.labs.exalead.com/}
+\end{itemize}
+\end{itemize}
+
+\end{frame}
+
+\end{document}

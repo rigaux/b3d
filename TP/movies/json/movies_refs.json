@@ -1,0 +1,719 @@
+{
+  "_id": "movies_import", 
+  "movies": [
+{
+    "_id": "movie:1",
+    "title": "Vertigo",
+    "year": "1958",
+    "genre": "drama",
+    "summary": "John \"Scottie\" Ferguson is a retired San Francisco police detective who suffers from acrophobia and Madeleine is the lady who leads him to high places. A wealthy shipbuilder who is an acquaintance from college days approaches Scottie and asks him to follow his beautiful wife, Madeleine. He fears she is going insane, maybe even contemplating suicide, because she believes she is possessed by a dead ancestor. Scottie is skeptical, but agrees after he sees the beautiful Madeleine.",
+    "country": "USA",
+    "director": 	{
+	    "_id": "artist:3"	
+	},
+    "actors": [
+	{
+	    "_id": "artist:15",
+	    "role": "John Ferguson"	
+	},
+	{
+	    "_id": "artist:16",
+	    "role": "Madeleine Elster"	
+	}
+	]
+},
+{
+    "_id": "movie:2",
+    "title": "Alien",
+    "year": "1979",
+    "genre": "Science-fiction",
+    "summary": "When a mining ship lands on a planet to investigate upon a suspected SOS, the entire crew are unaware of the terror which they would unleash upon their ship. When a alien life-form attach's itself to the face of a crew member, the rest of the team act fast to try and separate the two organisms. Unbeknownst to everyone, this is the start of the terror which would affect every member of the seven person crew.",
+    "country": "USA",
+    "director": 	{
+	    "_id": "artist:4"	
+	},
+    "actors": [
+	{
+	    "_id": "artist:5",
+	    "role": "Ripley"	
+	}
+	]
+},
+{
+    "_id": "movie:3",
+    "title": "Titanic",
+    "year": "1997",
+    "genre": "drama",
+    "summary": "84 years later a 100-year-old woman named Rose DeWitt Bukator tells the story to her granddaughter Lizzy Calvert, Brock Lovett, Lewis Bodine, Bobby Buell, and Anatoly Mikailavich on the Keldysh about her life set in April 10th 1912, on a ship called Titanic when young Rose boards the departing ship with the upper-class passengers and her mother, Ruth DeWitt Bukater, and her fiancé, Caledon Cal Hockley. Meanwhile, a drifter and artist named Jack Dawson and his best friend Fabrizio De Rossi win third-class tickets to the ship in a game. And she explains the whole story from departure until the death of Titanic on its first and last voyage April 15th, 1912 at 2:20 in the morning.",
+    "country": "USA",
+    "director": 	{
+	    "_id": "artist:6"	
+	},
+    "actors": [
+	{
+	    "_id": "artist:109",
+	    "role": "Rose DeWitt Bukater"	
+	},
+	{
+	    "_id": "artist:110",
+	    "role": "Jack Dawson"	
+	}
+	]
+},
+{
+    "_id": "movie:5",
+    "title": "Face/Off",
+    "year": "1997",
+    "genre": "Action",
+    "summary": "Sean Archer, a very tough, rugged FBI Agent. Who is still grieving for the dead son Michael. Archer believes that his son's killer is his sworn enemy, a very powerful criminal, Castor Troy. One day, Archer has finally cornered Castor, however, their fight has knocked out Troy cold. As Archer finally breathes easy over the capture of his enemy, he finds out that Troy has planted a bomb that will destroy the entire city of Los Angeles and all of its inhabitants. Unfortunately the only other person who knows its location is Castor's brother Pollux, and he refuses to talk. The solution, a special operation doctor that can cut off people's faces, and can place a person's face onto another person. Archer undergoes one of those surgeries to talk to Pollux. However, Castor Troy somehow regains consciousness and now wants revenge on Archer for taking his face. Not only is Troy ruining Archer's mission, but his personal life as well. Archer must stop Troy again. This time, it's personal.",
+    "country": "USA",
+    "director": 	{
+	    "_id": "artist:10"	
+	},
+    "actors": [
+	{
+	    "_id": "artist:11",
+	    "role": "Sean Archer/Castor Troy"	
+	},
+	{
+	    "_id": "artist:12",
+	    "role": "Castor Troy/Sean Archer"	
+	}
+	]
+},
+{
+    "_id": "movie:6",
+    "title": "Sleepy Hollow",
+    "year": "1999",
+    "genre": "Fantastique",
+    "summary": "The cruse of the headless horseman is the legacy of the small town of Sleepy Hollow. Spearheaded by the eager Constable Ichabod Crane and his new world ways into the quagmire of secrets and murder, secrets once laid to rest, best forgotten and now reawakened, and he too, holding a dark secret of a past once gone.",
+    "country": "USA",
+    "director": 	{
+	    "_id": "artist:13"	
+	},
+    "actors": [
+	{
+	    "_id": "artist:14",
+	    "role": "Constable Ichabod Crane"	
+	},
+	{
+	    "_id": "artist:96",
+	    "role": "Katrina Anne Van Tassel"	
+	},
+	{
+	    "_id": "artist:97",
+	    "role": "Le cavalier"	
+	}
+	]
+},
+{
+    "_id": "movie:8",
+    "title": "Unforgiven",
+    "year": "1992",
+    "genre": "Western",
+    "summary": "The town of Big Whisky is full of normal people trying to lead quiet lives. Cowboys try to make a living. Sheriff 'Little Bill' tries to build a house and keep a heavy-handed order. The town whores just try to get by.Then a couple of cowboys cut up a whore. Unsatisfied with Bill's justice, the prostitutes put a bounty on the cowboys. The bounty attracts a young gun billing himself as 'The Schofield Kid', and aging killer William Munny. Munny reformed for his young wife, and has been raising crops and two children in peace. But his wife is gone. Farm life is hard. And Munny is no good at it. So he calls his old partner Ned, saddles his ornery nag, and rides off to kill one more time, blurring the lines between heroism and villainy, man and myth. ",
+    "country": "USA",
+    "director": 	{
+	    "_id": "artist:20"	
+	},
+    "actors": [
+	{
+	    "_id": "artist:20",
+	    "role": "William Munny"	
+	},
+	{
+	    "_id": "artist:21",
+	    "role": "Little Bill Dagget"	
+	},
+	{
+	    "_id": "artist:22",
+	    "role": "Ned Logan"	
+	}
+	]
+},
+{
+    "_id": "movie:10",
+    "title": "Blade Runner",
+    "year": "1982",
+    "genre": "Action",
+    "summary": "In a cyberpunk vision of the future, man has developed the technology to create replicants, human clones used to serve in the colonies outside Earth but with fixed lifespans. In Los Angeles, 2019, Deckard is a Blade Runner, a cop who specialises in terminating replicants. Originally in retirement, he is forced to re-enter the force when six replicants escape from an offworld colony to Earth. ",
+    "country": "USA",
+    "director": 	{
+	    "_id": "artist:4"	
+	},
+    "actors": [
+	{
+	    "_id": "artist:24",
+	    "role": "Deckard"	
+	},
+	{
+	    "_id": "artist:25",
+	    "role": "Batty"	
+	}
+	]
+},
+{
+    "_id": "movie:14",
+    "title": "Seven",
+    "year": "1995",
+    "genre": "crime",
+    "summary": "A film about two homicide detectives' desperate hunt for a serial killer who justifies his crimes as absolution for the world's ignorance of the Seven Deadly Sins. The movie takes us from the tortured remains of one victim to the next as the sociopathic \"John Doe\" sermonizes to Detectives Sommerset and Mills -- one sin at a time. The sin of Gluttony comes first and the murderer's terrible capacity is graphically demonstrated in the dark and subdued tones characteristic of film noir. The seasoned and cultured Sommerset researches the Seven Deadly Sins in an effort to understand the killer's modus operandi while green Detective Mills scoffs at his efforts to get inside the mind of a killer... ",
+    "country": "USA",
+    "director": 	{
+	    "_id": "artist:31"	
+	},
+    "actors": [
+	{
+	    "_id": "artist:18",
+	    "role": "Doe"	
+	},
+	{
+	    "_id": "artist:22",
+	    "role": "Somerset"	
+	},
+	{
+	    "_id": "artist:32",
+	    "role": "Mills"	
+	}
+	]
+},
+{
+    "_id": "movie:16",
+    "title": "The Name of the Rose",
+    "year": "1986",
+    "genre": "crime",
+    "summary": "1327: after a mysterious death in a Benedictine Abbey, the monks are convinced that the apocalypse is coming. With the Abbey to play host to a council on the Franciscan's Order's belief that the Church should rid itself of wealth, William of Baskerville, a respected Franciscan monk, is asked to assist in determining the cause of the untimely death. Alas, more deaths occur as the investigation draws closer to uncovering the secret the Abbey wants hidden, and there is finally no stopping the Holy Inquisition from taking an active hand in the process. William and his young novice must race against time to prove the innocence of the unjustly accused and avoid the wrath of Holy Inquisitor Bernardo Gui. ",
+    "country": "FR",
+    "director": 	{
+	    "_id": "artist:34"	
+	},
+    "actors": [
+	{
+	    "_id": "artist:35",
+	    "role": "Baskerville"	
+	},
+	{
+	    "_id": "artist:36",
+	    "role": "de Melk"	
+	}
+	]
+},
+{
+    "_id": "movie:17",
+    "title": "Pulp fiction",
+    "year": "1994",
+    "genre": "Action",
+    "summary": "Jules Winnfield and Vincent Vega are two hitmen who are out to retrieve a suitcase stolen from their employer, mob boss Marsellus Wallace. Wallace has also asked Vincent to take his wife Mia out a few days later when Wallace himself will be out of town. Butch Coolidge is an aging boxer who is paid by Wallace to lose his next fight. The lives of these seemingly unrelated people are woven together comprising of a series of funny, bizarre and uncalled-for incidents.",
+    "country": "USA",
+    "director": 	{
+	    "_id": "artist:37"	
+	},
+    "actors": [
+	{
+	    "_id": "artist:11",
+	    "role": "Vincent Vega"	
+	},
+	{
+	    "_id": "artist:27",
+	    "role": "Butch Coolidge"	
+	},
+	{
+	    "_id": "artist:37",
+	    "role": "Jimmy Dimmick"	
+	},
+	{
+	    "_id": "artist:38",
+	    "role": "Jules Winnfield"	
+	},
+	{
+	    "_id": "artist:39",
+	    "role": "Jody"	
+	},
+	{
+	    "_id": "artist:40",
+	    "role": "Mia Wallace"	
+	},
+	{
+	    "_id": "artist:97",
+	    "role": "Capt. Koons"	
+	},
+	{
+	    "_id": "artist:98",
+	    "role": "Winston \"The Wolf\" Wolfe"	
+	},
+	{
+	    "_id": "artist:99",
+	    "role": "Pumpkin (Ringo)"	
+	}
+	]
+},
+{
+    "_id": "movie:25",
+    "title": "Kagemusha",
+    "year": "1980",
+    "genre": "war",
+    "summary": "When a powerful warlord in medieval Japan dies, a poor thief recruited to impersonate him finds difficulty living up to his role and clashes with the spirit of the warlord during turbulent times in the kingdom.",
+    "country": "JP",
+    "director": 	{
+	    "_id": "artist:68"	
+	},
+    "actors": [
+
+	]
+},
+{
+    "_id": "movie:33",
+    "title": "Psycho",
+    "year": "1960",
+    "genre": "Thriller",
+    "summary": "Phoenix officeworker Marion Crane is fed up with the way life has treated her. She has to meet her lover Sam in lunch breaks and they cannot get married because Sam has to give most of his money away in alimony. One Friday Marion is trusted to bank $40,000 by her employer. Seeing the opportunity to take the money and start a new life, Marion leaves town and heads towards Sam's California store. Tired after the long drive and caught in a storm, she gets off the main highway and pulls into The Bates Motel. The motel is managed by a quiet young man called Norman who seems to be dominated by his mother. ",
+    "country": "USA",
+    "director": 	{
+	    "_id": "artist:3"	
+	},
+    "actors": [
+	{
+	    "_id": "artist:88",
+	    "role": "Bates"	
+	},
+	{
+	    "_id": "artist:89",
+	    "role": "Lila Crane"	
+	},
+	{
+	    "_id": "artist:90",
+	    "role": "Marion Crane"	
+	}
+	]
+},
+{
+    "_id": "movie:35",
+    "title": "Birds",
+    "year": "1963",
+    "genre": "horror",
+    "summary": "Melanie Daniels is the modern rich socialite, part of the jet-set who always gets what she wants. When lawyer Mitch Brenner sees her in a pet shop, he plays something of a practical joke on her, and she decides to return the favor. She drives about an hour north of San Francisco to Bodega Bay, where Mitch spends the weekends with his mother Lydia and younger sister Cathy. Soon after her arrival, however, the birds in the area begin to act strangely. A seagull attacks Melanie as she is crossing the bay in a small boat, and then, Lydia finds her neighbor dead, obviously the victim of a bird attack. Soon, birds in the hundreds and thousands are attacking anyone they find out of doors. There is no explanation as to why this might be happening, and as the birds continue their vicious attacks, survival becomes the priority.",
+    "country": "USA",
+    "director": 	{
+	    "_id": "artist:3"	
+	},
+    "actors": [
+	{
+	    "_id": "artist:94",
+	    "role": "Mitch Brenner"	
+	},
+	{
+	    "_id": "artist:95",
+	    "role": "Melanie Daniels"	
+	}
+	]
+},
+{
+    "_id": "movie:36",
+    "title": "Reservoir dogs",
+    "year": "1992",
+    "genre": "crime",
+    "summary": "Six criminals, who are strangers to each other, are hired by a crime boss Joe Cabot to carry out a diamond robbery. Right at the outset, they are given false names with an intention that they won't get too close and concentrate on the job instead. They are completely sure that the robbery is going to be a success. But when the police show up right at the time and the site of the robbery, panic spreads amongst the group members and one of them is killed in the subsequent shootout along with a few policemen and civilians. When the remaining people assemble at the premeditated rendezvous point (a warehouse), they begin to suspect that one of them is an undercover cop.",
+    "country": "USA",
+    "director": 	{
+	    "_id": "artist:37"	
+	},
+    "actors": [
+	{
+	    "_id": "artist:37",
+	    "role": "Mr. Brown"	
+	},
+	{
+	    "_id": "artist:98",
+	    "role": "Mr. White/Larry"	
+	},
+	{
+	    "_id": "artist:99",
+	    "role": "Freddy Newendyke/Mr. Orange"	
+	},
+	{
+	    "_id": "artist:100",
+	    "role": "Nice Guy Eddie"	
+	},
+	{
+	    "_id": "artist:215",
+	    "role": "Mr Blonde"	
+	},
+	{
+	    "_id": "artist:217",
+	    "role": "Mr Pink"	
+	},
+	{
+	    "_id": "artist:218",
+	    "role": "Mr Blue"	
+	}
+	]
+},
+{
+    "_id": "movie:37",
+    "title": "Eyes Wide Shut",
+    "year": "1999",
+    "genre": "Thriller",
+    "summary": "A doctor becomes obsessed with having a sexual encounter after his wife admits to having sexual fantasies about a man she met and chastising him for dishonesty in not admitting to his own fantasies. This sets him off into unfulfilled encounters with a dead patient's daughter and a hooker. But when he visits a nightclub, where a pianist friend Nick Nightingale is playing, he learns about a secret sexual group and decides to attend one of their congregations. However, he quickly learns he is in well over his head and finds he and his family are threatened.",
+    "country": "USA",
+    "director": 	{
+	    "_id": "artist:101"	
+	},
+    "actors": [
+	{
+	    "_id": "artist:65",
+	    "role": "Docteur William \"Bill\" Harford"	
+	},
+	{
+	    "_id": "artist:102",
+	    "role": "Alice Harford"	
+	}
+	]
+},
+{
+    "_id": "movie:38",
+    "title": "Shining",
+    "year": "1980",
+    "genre": "horror",
+    "summary": "A man, his son and wife become the winter caretakers of an isolated hotel where Danny, the son, sees disturbing visions of the hotel's past using a telepathic gift known as \"The Shining\". The father, Jack Torrance, is underway in a writing project when he slowly slips into insanity as a result of cabin fever and former guests of the hotel's ghosts. After being convinced by a waiter's ghost to \"correct\" the family, Jack goes completely insane. The only thing that can save Danny and his mother is \"The Shining\". ",
+    "country": "FR",
+    "director": 	{
+	    "_id": "artist:101"	
+	},
+    "actors": [
+	{
+	    "_id": "artist:103",
+	    "role": "Jack Torrance"	
+	}
+	]
+},
+{
+    "_id": "movie:40",
+    "title": "Rear window",
+    "year": "1954",
+    "genre": "Thriller",
+    "summary": "Professional photographer L.B. \"Jeff\" Jeffries breaks his leg while getting an action shot at an auto race. Confined to his New York apartment, he spends his time looking out of the rear window observing the neighbors. He begins to suspect that a man across the courtyard may have murdered his wife. Jeff enlists the help of his high society fashion-consultant girlfriend Lisa Freemont and his visiting nurse Stella to investigate. ",
+    "country": "USA",
+    "director": 	{
+	    "_id": "artist:3"	
+	},
+    "actors": [
+
+	]
+},
+{
+    "_id": "movie:41",
+    "title": "Noth by northwest",
+    "year": "1959",
+    "genre": "Thriller",
+    "summary": "Middle-aged Madison Avenue advertising executive Roger O. Thornhill is mistaken for a government agent by a gang of spies. He gets involved in a series of misadventures and is pursued across the States by both the spies and the government whilst being helped by a beautiful blonde.",
+    "country": "USA",
+    "director": 	{
+	    "_id": "artist:3"	
+	},
+    "actors": [
+	{
+	    "_id": "artist:105",
+	    "role": "Roger O. Thornhill"	
+	},
+	{
+	    "_id": "artist:106",
+	    "role": "Eve Kendall"	
+	},
+	{
+	    "_id": "artist:107",
+	    "role": "Philipp Vandamm"	
+	}
+	]
+},
+{
+    "_id": "movie:47",
+    "title": "Spider-Man",
+    "year": "2002",
+    "genre": "Action",
+    "summary": "Based on Marvel Comics' superhero character, this is a story of Peter Parker who is a nerdy high-schooler. He was orphaned as a child, bullied by jocks, and can't confess his crush for his stunning neighborhood girl Mary Jane Watson. To say his life is \"miserable\" is an understatement. But one day while on an excursion to a laboratory a runaway radioactive spider bites him... and his life changes in a way no one could have imagined. Peter acquires a muscle-bound physique, clear vision, ability to cling to surfaces and crawl over walls, shooting webs from his wrist ... but the fun isn't going to last. An eccentric millionaire Norman Osborn administers a performance enhancing drug on himself and his maniacal alter ego Green Goblin emerges. Now Peter Parker has to become Spider-Man and take Green Goblin to the task... or else Goblin will kill him. They come face to face and the war begins in which only one of them will survive at the end.",
+    "country": "USA",
+    "director": 	{
+	    "_id": "artist:187"	
+	},
+    "actors": [
+	{
+	    "_id": "artist:188",
+	    "role": "Spider-Man / Peter Parker"	
+	},
+	{
+	    "_id": "artist:247",
+	    "role": "Mary Jane Watson"	
+	},
+	{
+	    "_id": "artist:248",
+	    "role": "Green Goblin / Norman Osborn"	
+	}
+	]
+},
+{
+    "_id": "movie:48",
+    "title": "King of New York",
+    "year": "1990",
+    "genre": "drama",
+    "summary": "A former drug lord returns from prison determined to wipe out all his competition and distribute the profits of his operations to the city's poor in this stylish and ultraviolent modern twist on Robin Hood.",
+    "country": "USA",
+    "director": 	{
+	    "_id": "artist:122"	
+	},
+    "actors": [
+	{
+	    "_id": "artist:63",
+	    "role": "Jimmy Jump"	
+	},
+	{
+	    "_id": "artist:97",
+	    "role": "Frank White"	
+	},
+	{
+	    "_id": "artist:124",
+	    "role": "Thomas Flanigan"	
+	},
+	{
+	    "_id": "artist:131",
+	    "role": "Dennis Gilley"	
+	},
+	{
+	    "_id": "artist:132",
+	    "role": "Thomas Flanigan"	
+	},
+	{
+	    "_id": "artist:217",
+	    "role": "Test tube"	
+	}
+	]
+},
+{
+    "_id": "movie:54",
+    "title": "Godfather",
+    "year": "1972",
+    "genre": "drama",
+    "summary": "The story begins as \"Don\" Vito Corleone, the head of a New York Mafia \"family\", oversees his daughter's wedding. His beloved son Michael has just come home from the war, but does not intend to become part of his father's business. Through Michael's life the nature of the family business becomes clear. The business of the family is just like the head of the family, kind and benevolent to those who give respect, but given to ruthless violence whenever anything stands against the good of the family. Don Vito lives his life in the way of the old country, but times are changing and some don't want to follow the old ways and look out for community and \"family\". An up and coming rival of the Corleone family wants to start selling drugs in New York, and needs the Don's influence to further his plan. The clash of the Don's fading old world values and the new ways will demand a terrible price, especially from Michael, all for the sake of the family.",
+    "country": "USA",
+    "director": 	{
+	    "_id": "artist:64"	
+	},
+    "actors": [
+	{
+	    "_id": "artist:151",
+	    "role": "Don Vito Corleone"	
+	},
+	{
+	    "_id": "artist:152",
+	    "role": "Micheal"	
+	},
+	{
+	    "_id": "artist:153",
+	    "role": "Sonny"	
+	},
+	{
+	    "_id": "artist:154",
+	    "role": "Tom Hagen"	
+	},
+	{
+	    "_id": "artist:155",
+	    "role": "Kay Adams"	
+	}
+	]
+},
+{
+    "_id": "movie:55",
+    "title": "Godfather: Part II",
+    "year": "1974",
+    "genre": "drama",
+    "summary": "The continuing saga of the Corleone crime family tells the story of a young Vito Corleone growing up in Sicily and in 1910s New York; and follows Michael Corleone in the 1950s as he attempts to expand the family business into Las Vegas, Hollywood and Cuba. ",
+    "country": "USA",
+    "director": 	{
+	    "_id": "artist:64"	
+	},
+    "actors": [
+
+	]
+},
+{
+    "_id": "movie:56",
+    "title": "Godfather:Part III",
+    "year": "1990",
+    "genre": "drama",
+    "summary": "In the final instalment of the Godfather Trilogy, an aging Don Michael Corleone seeks to legitimize his crime family's interests and remove himself from the violent underworld but is kept back by the ambitions of the young. While he attempts to link the Corleone's finances with the Vatican, Michael must deal with the machinations of a hungrier gangster seeking to upset the existing Mafioso order and a young protoge's love affair with his daughter. ",
+    "country": "USA",
+    "director": 	{
+	    "_id": "artist:64"	
+	},
+    "actors": [
+
+	]
+},
+{
+    "_id": "movie:100",
+    "title": "A History of Violence",
+    "year": "2005",
+    "genre": "crime",
+    "summary": "Tom Stall, a humble family man and owner of a popular neighborhood restaurant, lives a quiet but fulfilling existence in the Midwest. One night Tom foils a crime at his place of business and, to his chagrin, is plastered all over the news for his heroics. Following this, mysterious people follow the Stalls' every move, concerning Tom more than anyone else. As this situation is confronted, more lurks out over where all these occurrences have  stemmed from compromising his marriage, family relationship and the main characters' former relations in the process.",
+    "country": "USA",
+    "director": 	{
+	    "_id": "artist:243"	
+	},
+    "actors": [
+	{
+	    "_id": "artist:69",
+	    "role": "Carl Fogarty"	
+	},
+	{
+	    "_id": "artist:244",
+	    "role": "Tom Stall"	
+	},
+	{
+	    "_id": "artist:245",
+	    "role": "Edie Stall"	
+	},
+	{
+	    "_id": "artist:246",
+	    "role": "Richie Cusack"	
+	}
+	]
+},
+{
+    "_id": "movie:57",
+    "title": "Jackie Brown",
+    "year": "1997",
+    "genre": "crime",
+    "summary": "Jackie Brown is the name of a flight attendant who gets caught smuggling her boss' gun money on the airline she works for. Luckily for her, the Fed Ray Nicolet and the LA Cop Mark Dargus decide to team up in order to arrest the arms dealer she works for, whose name they don't even know. Here's when she has to choose one way: tell Nicolet and Dargus about Ordell Robbie (the arms dealer) and get her freedom -except that if Ordell suspects you're talking about him, you're dead- or keep her mouth shut and do some time. That's when she meets Max Cherry -her bail bondsman-, a late fifties, recently separated, burnt-out man, who falls in love with her. Then Jackie comes up with a plan to play the Feds off against Ordell and the guys he works with -Louis Gara and Melanie Ralston, among others- and walk off with their money. But she needs Max's help. No one is going to stand in the way of his million dollar payoff...",
+    "country": "USA",
+    "director": 	{
+	    "_id": "artist:37"	
+	},
+    "actors": [
+	{
+	    "_id": "artist:167",
+	    "role": "Luis Gara"	
+	},
+	{
+	    "_id": "artist:168",
+	    "role": "Jackie Brown"	
+	},
+	{
+	    "_id": "artist:169",
+	    "role": "Melanie"	
+	},
+	{
+	    "_id": "artist:170",
+	    "role": "Ray Nicolette"	
+	},
+	{
+	    "_id": "artist:212",
+	    "role": "Ordell Robbie"	
+	}
+	]
+},
+{
+    "_id": "movie:60",
+    "title": "Lost in Translation",
+    "year": "2003",
+    "genre": "romance",
+    "summary": "Bob Harris is an American film actor, far past his prime. He visits Tokyo to appear in commercials, and he meets Charlotte, the young wife of a visiting photographer. Bored and weary, Bob and Charlotte make ideal if improbable traveling companions. Charlotte is looking for \"her place in life,\" and Bob is tolerating a mediocre stateside marriage. Both separately and together, they live the experience of the American in Tokyo. Bob and Charlotte suffer both confusion and hilarity due to the cultural and language differences between themselves and the Japanese. As the relationship between Bob and Charlotte deepens, they come to the realization that their visits to Japan, and one another, must soon end. Or must they? ",
+    "country": "USA",
+    "director": 	{
+	    "_id": "artist:240"	
+	},
+    "actors": [
+	{
+	    "_id": "artist:173",
+	    "role": "Bob Harris"	
+	},
+	{
+	    "_id": "artist:174",
+	    "role": "Charlotte"	
+	}
+	]
+},
+{
+    "_id": "movie:99",
+    "title": "Marie Antoinette",
+    "year": "2006",
+    "genre": "history",
+    "summary": "Based on Antonia Fraser's book about the ill-fated Archduchess of Austria and later Queen of France, 'Marie Antoinette' tells the story of the most  misunderstood and abused woman in history, from her birth in Imperial Austria to her later life in France.",
+    "country": "USA",
+    "director": 	{
+	    "_id": "artist:240"	
+	},
+    "actors": [
+	{
+	    "_id": "artist:242",
+	    "role": "Louis XVI"	
+	},
+	{
+	    "_id": "artist:247",
+	    "role": "Marie-Antoinette"	
+	}
+	]
+},
+{
+    "_id": "movie:61",
+    "title": "Kill Bill",
+    "year": "2003",
+    "genre": "drama",
+    "summary": "The lead character, called 'The Bride,' was a member of the Deadly Viper Assassination Squad, lead by her lover 'Bill.' Upon realizing she was pregnant with Bill's child, 'The Bride' decided to escape her life as a killer. She fled to Texas, met a young man, and on the day of their wedding was gunned down by an angry and jealous Bill (with the assistance of the Deadly Viper Assassination Squad). Four years later, 'The Bride' wakes from a coma, and discovers her baby is gone. She, then, decides to seek revenge upon the five people who destroyed her life and killed her baby.",
+    "country": "USA",
+    "director": 	{
+	    "_id": "artist:37"	
+	},
+    "actors": [
+	{
+	    "_id": "artist:40",
+	    "role": "La mariée, alias \"Black Mamba\""	
+	},
+	{
+	    "_id": "artist:213",
+	    "role": "O-Ren Ishii"	
+	},
+	{
+	    "_id": "artist:214",
+	    "role": "Bill"	
+	},
+	{
+	    "_id": "artist:215",
+	    "role": "Budd / Sidewinder"	
+	},
+	{
+	    "_id": "artist:216",
+	    "role": "Elle Driver"	
+	}
+	]
+},
+{
+    "_id": "movie:98",
+    "title": "The Social network",
+    "year": "2010",
+    "genre": "drama",
+    "summary": "On a fall night in 2003, Harvard undergrad and computer programming genius Mark Zuckerberg sits down at his computer and heatedly begins working on a new idea. In a fury of blogging and programming, what begins in his dorm room soon becomes a global social network and a revolution in communication. A mere six years and 500 million friends later, Mark Zuckerberg is the youngest billionaire in history... but for this entrepreneur, success leads to both personal and legal complications.",
+    "country": "USA",
+    "director": 	{
+	    "_id": "artist:31"	
+	},
+    "actors": [
+	{
+	    "_id": "artist:236",
+	    "role": "Mark Zuckerberg"	
+	},
+	{
+	    "_id": "artist:237",
+	    "role": "Erica Albright"	
+	},
+	{
+	    "_id": "artist:238",
+	    "role": "Eduardo Saverin"	
+	},
+	{
+	    "_id": "artist:239",
+	    "role": "Sean Parker"	
+	}
+	]
+}
+
+]
+}

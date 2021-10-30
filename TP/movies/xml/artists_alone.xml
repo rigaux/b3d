@@ -1,0 +1,1041 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<artists>
+<artist id="6">
+    <last_name>Cameron</last_name>
+    <first_name>James</first_name>
+    <birth_date>1954</birth_date>
+</artist>
+<artist id="3">
+    <last_name>Hitchcock</last_name>
+    <first_name>Alfred</first_name>
+    <birth_date>1899</birth_date>
+</artist>
+<artist id="4">
+    <last_name>Scott</last_name>
+    <first_name>Ridley</first_name>
+    <birth_date>1937</birth_date>
+</artist>
+<artist id="5">
+    <last_name>Weaver</last_name>
+    <first_name>Sigourney</first_name>
+    <birth_date>1949</birth_date>
+</artist>
+<artist id="9">
+    <last_name>Tarkovski</last_name>
+    <first_name>Andrei</first_name>
+    <birth_date>1932</birth_date>
+</artist>
+<artist id="10">
+    <last_name>Woo</last_name>
+    <first_name>John</first_name>
+    <birth_date>1946</birth_date>
+</artist>
+<artist id="11">
+    <last_name>Travolta</last_name>
+    <first_name>John</first_name>
+    <birth_date>1954</birth_date>
+</artist>
+<artist id="12">
+    <last_name>Cage</last_name>
+    <first_name>Nicolas</first_name>
+    <birth_date>1964</birth_date>
+</artist>
+<artist id="13">
+    <last_name>Burton</last_name>
+    <first_name>Tim</first_name>
+    <birth_date>1958</birth_date>
+</artist>
+<artist id="14">
+    <last_name>Depp</last_name>
+    <first_name>Johnny</first_name>
+    <birth_date>1964</birth_date>
+</artist>
+<artist id="15">
+    <last_name>Stewart</last_name>
+    <first_name>James</first_name>
+    <birth_date>1908</birth_date>
+</artist>
+<artist id="16">
+    <last_name>Novak</last_name>
+    <first_name>Kim</first_name>
+    <birth_date>1925</birth_date>
+</artist>
+<artist id="17">
+    <last_name>Mendes</last_name>
+    <first_name>Sam</first_name>
+    <birth_date>1965</birth_date>
+</artist>
+<artist id="18">
+    <last_name>Spacey</last_name>
+    <first_name>Kevin</first_name>
+    <birth_date>1959</birth_date>
+</artist>
+<artist id="19">
+    <last_name>Bening</last_name>
+    <first_name>Anette</first_name>
+    <birth_date>1958</birth_date>
+</artist>
+<artist id="20">
+    <last_name>Eastwood</last_name>
+    <first_name>Clint</first_name>
+    <birth_date>1930</birth_date>
+</artist>
+<artist id="21">
+    <last_name>Hackman</last_name>
+    <first_name>Gene</first_name>
+    <birth_date>1930</birth_date>
+</artist>
+<artist id="22">
+    <last_name>Freeman</last_name>
+    <first_name>Morgan</first_name>
+    <birth_date>1937</birth_date>
+</artist>
+<artist id="23">
+    <last_name>Crowe</last_name>
+    <first_name>Russell</first_name>
+    <birth_date>1964</birth_date>
+</artist>
+<artist id="24">
+    <last_name>Ford</last_name>
+    <first_name>Harrison</first_name>
+    <birth_date>1942</birth_date>
+</artist>
+<artist id="25">
+    <last_name>Hauer</last_name>
+    <first_name>Rutger</first_name>
+    <birth_date>1944</birth_date>
+</artist>
+<artist id="26">
+    <last_name>McTierman</last_name>
+    <first_name>John</first_name>
+    <birth_date>1951</birth_date>
+</artist>
+<artist id="27">
+    <last_name>Willis</last_name>
+    <first_name>Bruce</first_name>
+    <birth_date>1955</birth_date>
+</artist>
+<artist id="28">
+    <last_name>Harlin</last_name>
+    <first_name>Renny</first_name>
+    <birth_date>1959</birth_date>
+</artist>
+<artist id="29">
+    <last_name>Pialat</last_name>
+    <first_name>Maurice</first_name>
+    <birth_date>1925</birth_date>
+</artist>
+<artist id="30">
+    <last_name>Dutronc</last_name>
+    <first_name>Jacques</first_name>
+    <birth_date>1943</birth_date>
+</artist>
+<artist id="31">
+    <last_name>Fincher</last_name>
+    <first_name>David</first_name>
+    <birth_date>1962</birth_date>
+</artist>
+<artist id="32">
+    <last_name>Pitt</last_name>
+    <first_name>Brad</first_name>
+    <birth_date>1963</birth_date>
+</artist>
+<artist id="33">
+    <last_name>Gilliam</last_name>
+    <first_name>Terry</first_name>
+    <birth_date>1940</birth_date>
+</artist>
+<artist id="34">
+    <last_name>Annaud</last_name>
+    <first_name>Jean-Jacques</first_name>
+    <birth_date>1943</birth_date>
+</artist>
+<artist id="35">
+    <last_name>Connery</last_name>
+    <first_name>Sean</first_name>
+    <birth_date>1930</birth_date>
+</artist>
+<artist id="36">
+    <last_name>Slater</last_name>
+    <first_name>Christian</first_name>
+    <birth_date>1969</birth_date>
+</artist>
+<artist id="37">
+    <last_name>Tarantino</last_name>
+    <first_name>Quentin</first_name>
+    <birth_date>1963</birth_date>
+</artist>
+<artist id="38">
+    <last_name>Jackson</last_name>
+    <first_name>Samuel L.</first_name>
+    <birth_date>1948</birth_date>
+</artist>
+<artist id="39">
+    <last_name>Arquette</last_name>
+    <first_name>Rosanna</first_name>
+    <birth_date>1959</birth_date>
+</artist>
+<artist id="40">
+    <last_name>Thurman</last_name>
+    <first_name>Uma</first_name>
+    <birth_date>1970</birth_date>
+</artist>
+<artist id="41">
+    <last_name>Farrelly</last_name>
+    <first_name>Bobby</first_name>
+    <birth_date>1958</birth_date>
+</artist>
+<artist id="42">
+    <last_name>Diaz</last_name>
+    <first_name>Cameron</first_name>
+    <birth_date>1972</birth_date>
+</artist>
+<artist id="43">
+    <last_name>Dillon</last_name>
+    <first_name>Mat</first_name>
+    <birth_date>1964</birth_date>
+</artist>
+<artist id="44">
+    <last_name>Schwartzenegger</last_name>
+    <first_name>Arnold</first_name>
+    <birth_date>1947</birth_date>
+</artist>
+<artist id="45">
+    <last_name>Spielberg</last_name>
+    <first_name>Steven</first_name>
+    <birth_date>1946</birth_date>
+</artist>
+<artist id="46">
+    <last_name>Scheider</last_name>
+    <first_name>Roy</first_name>
+    <birth_date>1932</birth_date>
+</artist>
+<artist id="47">
+    <last_name>Shaw</last_name>
+    <first_name>Robert</first_name>
+    <birth_date>1927</birth_date>
+</artist>
+<artist id="48">
+    <last_name>Dreyfus</last_name>
+    <first_name>Richard</first_name>
+    <birth_date>1947</birth_date>
+</artist>
+<artist id="49">
+    <last_name>Demme</last_name>
+    <first_name>Jonathan</first_name>
+    <birth_date>1944</birth_date>
+</artist>
+<artist id="50">
+    <last_name>Hopkins</last_name>
+    <first_name>Anthony</first_name>
+    <birth_date>1937</birth_date>
+</artist>
+<artist id="51">
+    <last_name>Foster</last_name>
+    <first_name>Jodie</first_name>
+    <birth_date>1962</birth_date>
+</artist>
+<artist id="53">
+    <last_name>Kilmer</last_name>
+    <first_name>Val</first_name>
+    <birth_date>1959</birth_date>
+</artist>
+<artist id="54">
+    <last_name>Fiennes</last_name>
+    <first_name>Ralph</first_name>
+    <birth_date>1962</birth_date>
+</artist>
+<artist id="55">
+    <last_name>Pfeiffer</last_name>
+    <first_name>Michelle</first_name>
+    <birth_date>1957</birth_date>
+</artist>
+<artist id="56">
+    <last_name>Bullock</last_name>
+    <first_name>Sandra</first_name>
+    <birth_date>1964</birth_date>
+</artist>
+<artist id="57">
+    <last_name>Goldblum</last_name>
+    <first_name>Jeff</first_name>
+    <birth_date>1952</birth_date>
+</artist>
+<artist id="58">
+    <last_name>Emmerich</last_name>
+    <first_name>Roland</first_name>
+    <birth_date>1955</birth_date>
+</artist>
+<artist id="59">
+    <last_name>Broderick</last_name>
+    <first_name>Matthew</first_name>
+    <birth_date>1962</birth_date>
+</artist>
+<artist id="60">
+    <last_name>Reno</last_name>
+    <first_name>Jean</first_name>
+    <birth_date>1948</birth_date>
+</artist>
+<artist id="61">
+    <last_name>Wachowski</last_name>
+    <first_name>Andy</first_name>
+    <birth_date>1967</birth_date>
+</artist>
+<artist id="62">
+    <last_name>Reeves</last_name>
+    <first_name>Keanu</first_name>
+    <birth_date>1964</birth_date>
+</artist>
+<artist id="63">
+    <last_name>Fishburne</last_name>
+    <first_name>Laurence</first_name>
+    <birth_date>1961</birth_date>
+</artist>
+<artist id="64">
+    <last_name>De Palma</last_name>
+    <first_name>Brian</first_name>
+    <birth_date>1940</birth_date>
+</artist>
+<artist id="65">
+    <last_name>Cruise</last_name>
+    <first_name>Tom</first_name>
+    <birth_date>1962</birth_date>
+</artist>
+<artist id="66">
+    <last_name>Voight</last_name>
+    <first_name>John</first_name>
+    <birth_date>1938</birth_date>
+</artist>
+<artist id="67">
+    <last_name>Bart</last_name>
+    <first_name>Emmanuelle</first_name>
+    <birth_date>1965</birth_date>
+</artist>
+<artist id="68">
+    <last_name>Kurozawa</last_name>
+    <first_name>Akira</first_name>
+    <birth_date>1910</birth_date>
+</artist>
+<artist id="69">
+    <last_name>Harris</last_name>
+    <first_name>Ed</first_name>
+    <birth_date>1950</birth_date>
+</artist>
+<artist id="70">
+    <last_name>Linney</last_name>
+    <first_name>Laura</first_name>
+    <birth_date>1964</birth_date>
+</artist>
+<artist id="71">
+    <last_name>Girault</last_name>
+    <first_name>Jean</first_name>
+    <birth_date>1924</birth_date>
+</artist>
+<artist id="72">
+    <last_name>De Funs</last_name>
+    <first_name>Louis</first_name>
+    <birth_date>1914</birth_date>
+</artist>
+<artist id="73">
+    <last_name>Galabru</last_name>
+    <first_name>Michel</first_name>
+    <birth_date>1922</birth_date>
+</artist>
+<artist id="224">
+    <last_name>Swank</last_name>
+    <first_name>Hillary</first_name>
+    <birth_date>1974</birth_date>
+</artist>
+<artist id="75">
+    <last_name>Balasko</last_name>
+    <first_name>Josiane</first_name>
+    <birth_date>1950</birth_date>
+</artist>
+<artist id="76">
+    <last_name>Lavanant</last_name>
+    <first_name>Dominique</first_name>
+    <birth_date>1944</birth_date>
+</artist>
+<artist id="77">
+    <last_name>Lanvin</last_name>
+    <first_name>Grard</first_name>
+    <birth_date>1950</birth_date>
+</artist>
+<artist id="78">
+    <last_name>Villeret</last_name>
+    <first_name>Jacques</first_name>
+    <birth_date>1951</birth_date>
+</artist>
+<artist id="79">
+    <last_name>Levinson</last_name>
+    <first_name>Barry</first_name>
+    <birth_date>1942</birth_date>
+</artist>
+<artist id="80">
+    <last_name>Hoffman</last_name>
+    <first_name>Dustin</first_name>
+    <birth_date>1937</birth_date>
+</artist>
+<artist id="81">
+    <last_name>Scott</last_name>
+    <first_name>Tony</first_name>
+    <birth_date>1944</birth_date>
+</artist>
+<artist id="82">
+    <last_name>McGillis</last_name>
+    <first_name>Kelly</first_name>
+    <birth_date>1957</birth_date>
+</artist>
+<artist id="83">
+    <last_name>Leconte</last_name>
+    <first_name>Patrice</first_name>
+    <birth_date>1947</birth_date>
+</artist>
+<artist id="84">
+    <last_name>Blanc</last_name>
+    <first_name>Michel</first_name>
+    <birth_date>1952</birth_date>
+</artist>
+<artist id="85">
+    <last_name>Clavier</last_name>
+    <first_name>Christian</first_name>
+    <birth_date>1952</birth_date>
+</artist>
+<artist id="86">
+    <last_name>Lhermite</last_name>
+    <first_name>Thierry</first_name>
+    <birth_date>1952</birth_date>
+</artist>
+<artist id="88">
+    <last_name>Perkins</last_name>
+    <first_name>Anthony</first_name>
+    <birth_date>1932</birth_date>
+</artist>
+<artist id="89">
+    <last_name>Miles</last_name>
+    <first_name>Vera</first_name>
+    <birth_date>1929</birth_date>
+</artist>
+<artist id="90">
+    <last_name>Leigh</last_name>
+    <first_name>Janet</first_name>
+    <birth_date>1927</birth_date>
+</artist>
+<artist id="91">
+    <last_name>Marquand</last_name>
+    <first_name>Richard</first_name>
+    <birth_date>1938</birth_date>
+</artist>
+<artist id="92">
+    <last_name>Hamill</last_name>
+    <first_name>Mark</first_name>
+    <birth_date>1951</birth_date>
+</artist>
+<artist id="93">
+    <last_name>Fisher</last_name>
+    <first_name>Carrie</first_name>
+    <birth_date>1956</birth_date>
+</artist>
+<artist id="94">
+    <last_name>Taylor</last_name>
+    <first_name>Rod</first_name>
+    <birth_date>1930</birth_date>
+</artist>
+<artist id="95">
+    <last_name>Hedren</last_name>
+    <first_name>Tippi</first_name>
+    <birth_date>1931</birth_date>
+</artist>
+<artist id="96">
+    <last_name>Ricci</last_name>
+    <first_name>Christina</first_name>
+    <birth_date>1980</birth_date>
+</artist>
+<artist id="97">
+    <last_name>Walken</last_name>
+    <first_name>Christopher</first_name>
+    <birth_date>1943</birth_date>
+</artist>
+<artist id="98">
+    <last_name>Keitel</last_name>
+    <first_name>Harvey</first_name>
+    <birth_date>1939</birth_date>
+</artist>
+<artist id="99">
+    <last_name>Roth</last_name>
+    <first_name>Tim</first_name>
+    <birth_date>1961</birth_date>
+</artist>
+<artist id="100">
+    <last_name>Penn</last_name>
+    <first_name>Chris</first_name>
+    <birth_date>1966</birth_date>
+</artist>
+<artist id="101">
+    <last_name>Kubrick</last_name>
+    <first_name>Stanley</first_name>
+    <birth_date>1928</birth_date>
+</artist>
+<artist id="102">
+    <last_name>Kidman</last_name>
+    <first_name>Nicole</first_name>
+    <birth_date>1967</birth_date>
+</artist>
+<artist id="103">
+    <last_name>Nicholson</last_name>
+    <first_name>Jack</first_name>
+    <birth_date>1937</birth_date>
+</artist>
+<artist id="104">
+    <last_name>Kelly</last_name>
+    <first_name>Grace</first_name>
+    <birth_date>1929</birth_date>
+</artist>
+<artist id="105">
+    <last_name>Grant</last_name>
+    <first_name>Cary</first_name>
+    <birth_date>1904</birth_date>
+</artist>
+<artist id="106">
+    <last_name>Saint</last_name>
+    <first_name>Eva Marie</first_name>
+    <birth_date>1924</birth_date>
+</artist>
+<artist id="107">
+    <last_name>Mason</last_name>
+    <first_name>James</first_name>
+    <birth_date>1909</birth_date>
+</artist>
+<artist id="110">
+    <last_name>DiCaprio</last_name>
+    <first_name>Leonardo</first_name>
+    <birth_date>1974</birth_date>
+</artist>
+<artist id="109">
+    <last_name>Winslet</last_name>
+    <first_name>Kate</first_name>
+    <birth_date>1975</birth_date>
+</artist>
+<artist id="111">
+    <last_name>Besson</last_name>
+    <first_name>Luc</first_name>
+    <birth_date>1959</birth_date>
+</artist>
+<artist id="112">
+    <last_name>Jovovich</last_name>
+    <first_name>Milla</first_name>
+    <birth_date>1975</birth_date>
+</artist>
+<artist id="113">
+    <last_name>Dunaway</last_name>
+    <first_name>Fane</first_name>
+    <birth_date>1941</birth_date>
+</artist>
+<artist id="114">
+    <last_name>Malkovitch</last_name>
+    <first_name>John</first_name>
+    <birth_date>1953</birth_date>
+</artist>
+<artist id="115">
+    <last_name>Karyo</last_name>
+    <first_name>Tchky</first_name>
+    <birth_date>1953</birth_date>
+</artist>
+<artist id="116">
+    <last_name>Oldman</last_name>
+    <first_name>Gary</first_name>
+    <birth_date>1958</birth_date>
+</artist>
+<artist id="117">
+    <last_name>Holm</last_name>
+    <first_name>Ian</first_name>
+    <birth_date>1931</birth_date>
+</artist>
+<artist id="118">
+    <last_name>Portman</last_name>
+    <first_name>Natalie</first_name>
+    <birth_date>1981</birth_date>
+</artist>
+<artist id="119">
+    <last_name>Parillaud</last_name>
+    <first_name>Anne</first_name>
+    <birth_date>1960</birth_date>
+</artist>
+<artist id="120">
+    <last_name>Anglade</last_name>
+    <first_name>Jean-Hughes</first_name>
+    <birth_date>1955</birth_date>
+</artist>
+<artist id="121">
+    <last_name>Barr</last_name>
+    <first_name>Jean-Marc</first_name>
+    <birth_date>1960</birth_date>
+</artist>
+<artist id="122">
+    <last_name>Ferrara</last_name>
+    <first_name>Abel</first_name>
+    <birth_date>1951</birth_date>
+</artist>
+<artist id="123">
+    <last_name>Caruso</last_name>
+    <first_name>David</first_name>
+    <birth_date>1956</birth_date>
+</artist>
+<artist id="124">
+    <last_name>Snipes</last_name>
+    <first_name>Wesley</first_name>
+    <birth_date>1962</birth_date>
+</artist>
+<artist id="125">
+    <last_name>Sciora</last_name>
+    <first_name>Annabella</first_name>
+    <birth_date>1964</birth_date>
+</artist>
+<artist id="126">
+    <last_name>Rosselini</last_name>
+    <first_name>Isabella</first_name>
+    <birth_date>1952</birth_date>
+</artist>
+<artist id="127">
+    <last_name>Gallo</last_name>
+    <first_name>Vincent</first_name>
+    <birth_date>1961</birth_date>
+</artist>
+<artist id="128">
+    <last_name>von Trier</last_name>
+    <first_name>Lars</first_name>
+    <birth_date>1956</birth_date>
+</artist>
+<artist id="129">
+    <last_name>Gudmundsdottir</last_name>
+    <first_name>Bjork</first_name>
+    <birth_date>1965</birth_date>
+</artist>
+<artist id="130">
+    <last_name>Deneuve</last_name>
+    <first_name>Catherine</first_name>
+    <birth_date>1943</birth_date>
+</artist>
+<artist id="131">
+    <last_name>Kassowitz</last_name>
+    <first_name>Matthieu</first_name>
+    <birth_date>1967</birth_date>
+</artist>
+<artist id="132">
+    <last_name>Cassel</last_name>
+    <first_name>Vincent</first_name>
+    <birth_date>1966</birth_date>
+</artist>
+<artist id="133">
+    <last_name>Gray</last_name>
+    <first_name>James</first_name>
+    <birth_date>1969</birth_date>
+</artist>
+<artist id="134">
+    <last_name>Wahlberg</last_name>
+    <first_name>Mark</first_name>
+    <birth_date>1971</birth_date>
+</artist>
+<artist id="135">
+    <last_name>Phoenix</last_name>
+    <first_name>Joaquin</first_name>
+    <birth_date>1974</birth_date>
+</artist>
+<artist id="136">
+    <last_name>Theron</last_name>
+    <first_name>Charlize</first_name>
+    <birth_date>1975</birth_date>
+</artist>
+<artist id="137">
+    <last_name>Caan</last_name>
+    <first_name>James</first_name>
+    <birth_date>1940</birth_date>
+</artist>
+<artist id="138">
+    <last_name>Chabrol</last_name>
+    <first_name>Claude</first_name>
+    <birth_date>1930</birth_date>
+</artist>
+<artist id="139">
+    <last_name>Huppert</last_name>
+    <first_name>Isabelle</first_name>
+    <birth_date>1953</birth_date>
+</artist>
+<artist id="140">
+    <last_name>Mouglalis</last_name>
+    <first_name>Anna</first_name>
+    <birth_date>1978</birth_date>
+</artist>
+<artist id="141">
+    <last_name>Costner</last_name>
+    <first_name>Kevin</first_name>
+    <birth_date>1955</birth_date>
+</artist>
+<artist id="142">
+    <last_name>Dern</last_name>
+    <first_name>Laura</first_name>
+    <birth_date>1967</birth_date>
+</artist>
+<artist id="143">
+    <last_name>Hanks</last_name>
+    <first_name>Tom</first_name>
+    <birth_date>1956</birth_date>
+</artist>
+<artist id="144">
+    <last_name>Sizemore</last_name>
+    <first_name>Tom</first_name>
+    <birth_date>1964</birth_date>
+</artist>
+<artist id="145">
+    <last_name>Damon</last_name>
+    <first_name>Matt</first_name>
+    <birth_date>1970</birth_date>
+</artist>
+<artist id="146">
+    <last_name>Modine</last_name>
+    <first_name>Matthew</first_name>
+    <birth_date>1959</birth_date>
+</artist>
+<artist id="147">
+    <last_name>Baldwin</last_name>
+    <first_name>Adam</first_name>
+    <birth_date>1962</birth_date>
+</artist>
+<artist id="148">
+    <last_name>O'Neal</last_name>
+    <first_name>Ryan</first_name>
+    <birth_date>1941</birth_date>
+</artist>
+<artist id="149">
+    <last_name>Berenson</last_name>
+    <first_name>Marisa</first_name>
+    <birth_date>1946</birth_date>
+</artist>
+<artist id="150">
+    <last_name>McDowell</last_name>
+    <first_name>Macolm</first_name>
+    <birth_date>1943</birth_date>
+</artist>
+<artist id="151">
+    <last_name>Dullea</last_name>
+    <first_name>Keir</first_name>
+    <birth_date>1936</birth_date>
+</artist>
+<artist id="152">
+    <last_name>Lockwood</last_name>
+    <first_name>Gary</first_name>
+    <birth_date>1937</birth_date>
+</artist>
+<artist id="153">
+    <last_name>Sellers</last_name>
+    <first_name>Peter</first_name>
+    <birth_date>1925</birth_date>
+</artist>
+<artist id="154">
+    <last_name>Scott</last_name>
+    <first_name>George</first_name>
+    <birth_date>1927</birth_date>
+</artist>
+<artist id="155">
+    <last_name>Hayden</last_name>
+    <first_name>Sterling</first_name>
+    <birth_date>1916</birth_date>
+</artist>
+<artist id="156">
+    <last_name>Douglas</last_name>
+    <first_name>Kirk</first_name>
+    <birth_date>1916</birth_date>
+</artist>
+<artist id="157">
+    <last_name>Donat</last_name>
+    <first_name>Robert</first_name>
+    <birth_date>1905</birth_date>
+</artist>
+<artist id="158">
+    <last_name>Caroll</last_name>
+    <first_name>Madeleine</first_name>
+    <birth_date>1906</birth_date>
+</artist>
+<artist id="159">
+    <last_name>Olivier</last_name>
+    <first_name>Laurence</first_name>
+    <birth_date>1907</birth_date>
+</artist>
+<artist id="160">
+    <last_name>Fontaine</last_name>
+    <first_name>Joan</first_name>
+    <birth_date>1917</birth_date>
+</artist>
+<artist id="161">
+    <last_name>Sanders</last_name>
+    <first_name>George</first_name>
+    <birth_date>1906</birth_date>
+</artist>
+<artist id="162">
+    <last_name>Bergman</last_name>
+    <first_name>Ingrid</first_name>
+    <birth_date>1915</birth_date>
+</artist>
+<artist id="163">
+    <last_name>Rains</last_name>
+    <first_name>Claude</first_name>
+    <birth_date>1889</birth_date>
+</artist>
+<artist id="164">
+    <last_name>Milland</last_name>
+    <first_name>Ray</first_name>
+    <birth_date>1907</birth_date>
+</artist>
+<artist id="166">
+    <last_name>Day</last_name>
+    <first_name>Doris</first_name>
+    <birth_date>1924</birth_date>
+</artist>
+<artist id="167">
+    <last_name>De Niro</last_name>
+    <first_name>Robert</first_name>
+    <birth_date>1943</birth_date>
+</artist>
+<artist id="168">
+    <last_name>Grier</last_name>
+    <first_name>Pam</first_name>
+    <birth_date>1949</birth_date>
+</artist>
+<artist id="169">
+    <last_name>Fonda</last_name>
+    <first_name>Bridget</first_name>
+    <birth_date>1964</birth_date>
+</artist>
+<artist id="170">
+    <last_name>Keaton</last_name>
+    <first_name>Michael</first_name>
+    <birth_date>1951</birth_date>
+</artist>
+<artist id="171">
+    <last_name>Shyamalan</last_name>
+    <first_name>M. Night</first_name>
+    <birth_date>1970</birth_date>
+</artist>
+<artist id="172">
+    <last_name>Osment</last_name>
+    <first_name>Haley Joel</first_name>
+    <birth_date>1988</birth_date>
+</artist>
+<artist id="173">
+    <last_name>Collette</last_name>
+    <first_name>Tony</first_name>
+    <birth_date>1972</birth_date>
+</artist>
+<artist id="174">
+    <last_name>Leighton</last_name>
+    <first_name>Eric</first_name>
+    <birth_date>1962</birth_date>
+</artist>
+<artist id="175">
+    <last_name>Mann</last_name>
+    <first_name>Michael</first_name>
+    <birth_date>1943</birth_date>
+</artist>
+<artist id="176">
+    <last_name>Pacino</last_name>
+    <first_name>Al</first_name>
+    <birth_date>1940</birth_date>
+</artist>
+<artist id="177">
+    <last_name>Crowe</last_name>
+    <first_name>Russel</first_name>
+    <birth_date>1964</birth_date>
+</artist>
+<artist id="178">
+    <last_name>Plummer</last_name>
+    <first_name>Christopher</first_name>
+    <birth_date>1927</birth_date>
+</artist>
+<artist id="179">
+    <last_name>Furlong</last_name>
+    <first_name>Edward</first_name>
+    <birth_date>1977</birth_date>
+</artist>
+<artist id="180">
+    <last_name>Redgrave</last_name>
+    <first_name>Vanessa</first_name>
+    <birth_date>1937</birth_date>
+</artist>
+<artist id="181">
+    <last_name>Coppola</last_name>
+    <first_name>Francis Ford</first_name>
+    <birth_date>1939</birth_date>
+</artist>
+<artist id="182">
+    <last_name>Brando</last_name>
+    <first_name>Marlon</first_name>
+    <birth_date>1924</birth_date>
+</artist>
+<artist id="183">
+    <last_name>Keaton</last_name>
+    <first_name>Diane</first_name>
+    <birth_date>1946</birth_date>
+</artist>
+<artist id="184">
+    <last_name>Duvall</last_name>
+    <first_name>Robert</first_name>
+    <birth_date>1931</birth_date>
+</artist>
+<artist id="185">
+    <last_name>Caan</last_name>
+    <first_name>Jamees</first_name>
+    <birth_date>1939</birth_date>
+</artist>
+<artist id="186">
+    <last_name>Garcia</last_name>
+    <first_name>Andy</first_name>
+    <birth_date>1956</birth_date>
+</artist>
+<artist id="187">
+    <last_name>Raimi</last_name>
+    <first_name>Sam</first_name>
+    <birth_date>1959</birth_date>
+</artist>
+<artist id="188">
+    <last_name>Maguire</last_name>
+    <first_name>Tobey</first_name>
+    <birth_date>1975</birth_date>
+</artist>
+<artist id="210">
+    <last_name>Moss</last_name>
+    <first_name>Carrie-Anne</first_name>
+    <birth_date>1967</birth_date>
+</artist>
+<artist id="211">
+    <last_name>Weaving</last_name>
+    <first_name>Hugo</first_name>
+    <birth_date>1960</birth_date>
+</artist>
+<artist id="212">
+    <last_name>Jackson</last_name>
+    <first_name>Samuel</first_name>
+    <birth_date>1948</birth_date>
+</artist>
+<artist id="213">
+    <last_name>Liu</last_name>
+    <first_name>Lucy</first_name>
+    <birth_date>1968</birth_date>
+</artist>
+<artist id="214">
+    <last_name>Carradine</last_name>
+    <first_name>David</first_name>
+    <birth_date>1936</birth_date>
+</artist>
+<artist id="215">
+    <last_name>Madsen</last_name>
+    <first_name>Michael</first_name>
+    <birth_date>1958</birth_date>
+</artist>
+<artist id="216">
+    <last_name>Hannah</last_name>
+    <first_name>Daryl</first_name>
+    <birth_date>1960</birth_date>
+</artist>
+<artist id="217">
+    <last_name>Buscemi</last_name>
+    <first_name>Steve</first_name>
+    <birth_date>1957</birth_date>
+</artist>
+<artist id="218">
+    <last_name>Bunker</last_name>
+    <first_name>Edward</first_name>
+    <birth_date>1933</birth_date>
+</artist>
+<artist id="221">
+    <last_name>Volonte</last_name>
+    <first_name>Gian Maria</first_name>
+</artist>
+<artist id="220">
+    <last_name>Van Cleef</last_name>
+    <first_name>Lee</first_name>
+</artist>
+<artist id="219">
+    <last_name>Leone</last_name>
+    <first_name>Sergio</first_name>
+    <birth_date>1929</birth_date>
+</artist>
+<artist id="1">
+    <last_name>df</last_name>
+    <first_name>df</first_name>
+</artist>
+<artist id="231">
+    <last_name>Nash</last_name>
+    <first_name>Joe</first_name>
+    <birth_date>1999</birth_date>
+</artist>
+<artist id="232">
+    <last_name>Nash</last_name>
+    <first_name>John</first_name>
+    <birth_date>1987</birth_date>
+</artist>
+<artist id="233">
+    <last_name>Nashville</last_name>
+    <first_name>Joe</first_name>
+    <birth_date>1999</birth_date>
+</artist>
+<artist id="234">
+    <last_name>Bauer</last_name>
+    <first_name>Jack</first_name>
+</artist>
+<artist id="235">
+    <last_name>Rigaux</last_name>
+    <first_name>Philippe</first_name>
+</artist>
+<artist id="236">
+    <last_name>Eisenberg</last_name>
+    <first_name>Jesse</first_name>
+    <birth_date>1983</birth_date>
+</artist>
+<artist id="237">
+    <last_name>Mara</last_name>
+    <first_name>Rooney</first_name>
+    <birth_date>1985</birth_date>
+</artist>
+<artist id="238">
+    <last_name>Garfield</last_name>
+    <first_name>Andrew</first_name>
+    <birth_date>1983</birth_date>
+</artist>
+<artist id="239">
+    <last_name>Timberlake</last_name>
+    <first_name>Justin</first_name>
+    <birth_date>1981</birth_date>
+</artist>
+<artist id="240">
+    <last_name>Coppola</last_name>
+    <first_name>Sofia</first_name>
+</artist>
+<artist id="241">
+    <last_name>Dunst</last_name>
+    <first_name>Kisten</first_name>
+</artist>
+<artist id="242">
+    <last_name>Schwartzman</last_name>
+    <first_name>Jason</first_name>
+    <birth_date>1980</birth_date>
+</artist>
+<artist id="243">
+    <last_name>Cronenberg</last_name>
+    <first_name>David</first_name>
+    <birth_date>1943</birth_date>
+</artist>
+<artist id="244">
+    <last_name>Mortensen</last_name>
+    <first_name>Vigo</first_name>
+    <birth_date>1958</birth_date>
+</artist>
+<artist id="245">
+    <last_name>Bello</last_name>
+    <first_name>Maria</first_name>
+    <birth_date>1967</birth_date>
+</artist>
+<artist id="246">
+    <last_name>Hurt</last_name>
+    <first_name>William</first_name>
+    <birth_date>1950</birth_date>
+</artist>
+</artists>

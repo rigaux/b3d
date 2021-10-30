@@ -1,0 +1,7 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{p}{\PYGZob{}} \PYG{n+nt}{\PYGZdq{}pseudo\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}jojoXYZ\PYGZdq{}}\PYG{p}{,}
+  \PYG{n+nt}{\PYGZdq{}date\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}30/06/2020\PYGZdq{}}\PYG{p}{,}
+  \PYG{n+nt}{\PYGZdq{}contacts\PYGZdq{}}\PYG{p}{:} \PYG{p}{[\PYGZob{}}\PYG{n+nt}{\PYGZdq{}pseudo\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}tat37HG\PYGZdq{}}\PYG{p}{,} \PYG{n+nt}{\PYGZdq{}count\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mi}{1}\PYG{p}{\PYGZcb{},}
+               \PYG{p}{\PYGZob{}}\PYG{n+nt}{\PYGZdq{}pseudo\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}xuyh57\PYGZdq{}}\PYG{p}{,} \PYG{n+nt}{\PYGZdq{}count\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mi}{2}\PYG{p}{\PYGZcb{}]}
+\PYG{p}{\PYGZcb{}}
+\end{Verbatim}

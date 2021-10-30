@@ -1,0 +1,743 @@
+\documentclass{beamer}
+
+\usepackage{slmacros}
+
+\usepackage{hyperref}
+\usepackage{tikz}
+
+\usetheme[secheader]{Boadilla}
+
+\slideFrontPage{Introduction to Distributed Data Systems}{}
+
+%\date{\today}
+
+\begin{document}
+
+\maketitle
+
+
+%
+% Command to show the table of content at the beginning of each section
+%
+
+\AtBeginSection{
+\begin{frame}<beamer>
+  \frametitle{Outline}
+  {\tableofcontents[subsectionstyle=show/show/hide,sectionstyle=show/shaded]}
+\end{frame}
+}
+
+\section{Introduction}
+
+
+\begin{frame}
+\frametitle{Outline}
+
+\vfill
+
+\alert{Guidelines and principles for distributed data management}
+
+\begin{itemize}
+  \item Basics of distributed systems (networks, performance, principles).
+    \item Failure management and distributed transactions.  
+     \item Properties of a distributed system
+     \item Specifics of peer-to-peer networks
+     \item A powerful and resilient distribution method: consistent hashing
+     \item Case study: GFS, a distributed file system.
+\end{itemize}
+
+\end{frame}
+
+\section{Overview of distributed data management principles}
+
+
+\begin{frame}
+\frametitle{Distributed systems}
+
+A \alert{distributed system} is an application that coordinates the actions of
+  several computers to achieve a specific task. 
+  
+  \vfill
+  This coordination is achieved by exchanging \alert{messages}
+  which are  pieces of data that convey
+   some information. 
+   
+   $\Rightarrow$ ``shared-nothing'' architecture -> no shared memory, no shared
+   disk.
+   
+   \vfill 
+   
+   The system relies on a network that connects the
+   computers and handles the routing of messages.
+   
+   $\Rightarrow$ Local area networks (LAN), Peer to peer (P2P) networks, \ldots
+    
+    \vfill
+    
+    \alert{Client} (nodes) and \alert{Server} (nodes) are communicating
+    \alert{software} components: we assimilate them with the machines they run
+    on.
+\end{frame}
+
+\begin{frame}
+\frametitle{LAN-based infrastructure: clusters of machines}
+
+Three communication levels: ``racks'', clusters, and groups of clusters. 
+
+\figSlideWithSize{network}{9cm}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Example: data centers}
+
+Typical setting of a Google data center.
+
+\begin{enumerate}
+  \item $\approx$ 40 servers per rack;
+  \item $\approx$ 150 racks per data center (cluster);
+
+  \item $\approx$ 6,000 servers per data center;
+    \item how many clusters? Google's secret, and constantly evolving \ldots
+\end{enumerate}
+
+Rough estimate: 150-200 data centers? 1,000,000 servers? 
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{P2P infrastructure: Internet-based communication}
+
+ Nodes, or ``peers'' communicate with messages
+  sent over the Internet network.
+  
+  \vfill
+  
+\figSlideWithSize{internet}{9cm}
+
+\vfill
+
+ The physical route may consist of 10 or more forwarding
+  messages,  or ``hops''.
+  
+  \vfill
+  
+  Suggestion: use the \texttt{traceroute} utility to 
+  check the route between your laptop and a Web site of your choice.
+\end{frame}
+
+\begin{frame}
+\frametitle{Performance}
+
+\begin{center}
+\begin{small}
+
+\begin{tabular}{l|p{5cm}|p{5cm}}
+{\bf Type} & {\bf Latency} & \textbf{Bandwidth}\\
+\hline
+Disk & $\approx 5 \times
+10^{-3}\mathrm{s}$ (5
+millisec.); & At best 100 MB/s\\ 
+LAN &  $\approx 1-2 \times
+10^{-3}\mathrm{s}$ (1-2
+millisec.);  &  $\approx 1 \mathrm{GB/s}$ (single rack);  $\approx 100
+\mathrm{MB/s}$ (switched); \\
+Internet &  Highly variable. Typ. 10-100 ms.;  &  Highly variable.
+Typ. a few MB/s.;\\
+\hline
+\end{tabular}
+
+Bottom line (1): it is approx. one order of magnitude faster to exchange main
+memory data between 2 machines in a data center, that to read on the disk.
+
+Bottom line (2): exchanging through the Internet is slow and unreliable with
+respect to LANs.
+
+\end{small}
+\end{center}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Distribution, why?}
+
+% A two-columns presentation
+\begin{tabular}{l|p{6cm}}
+   \parbox{5cm}{
+
+  \textbf{Sequential access.}  It takes 166 minutes (more than 2 hours and a
+  half) to read a 1 TB disk. 
+  
+  \vfill
+  \textbf{Parallel access.} With 100 disks, assuming that the disks work in
+  parallel and sequentially:  about 1mn 30s.
+ \vfill
+ 
+ \textbf{Distributed access.} With 100 computers, each disposing of its own
+ local disk: each CPU processes its own dataset.  
+   }  % Inclusion of an XML file
+  & 
+  \parbox{6cm}{\figSlideWithSize{bigpic-distrstorage}{5.5cm} }
+\end{tabular}
+\vfill
+
+% A Beamer box
+\begin{beamerboxesrounded}{Scalability}
+The latter solution is \emph{scalable}, by adding new computing resources.
+\end{beamerboxesrounded}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{What you should remember: performance of data-centric distr.
+systems}
+
+   \begin{enumerate}
+      \item disk transfer rate is a bottleneck for large scale data management;
+      parallelization and distribution of the data on many machines is a means
+      to eliminate this bottleneck;
+      \item \emph{write once, read many}: a distributed storage system is
+      appropriate for large files that are written once and then
+      repeatedly scanned;
+       \item \emph{data locality}: bandwidth is a scarce resource, and program
+      should be ``pushed'' near the data they must access to.
+     \end{enumerate}
+
+A distr. system also gives an opportunity to reinforce the security
+of data with \alert{replication}.
+      
+\end{frame}
+
+\subsection{Data replication and consistency}
+
+\begin{frame}
+\frametitle{What is it about?}
+
+\alert{Replication}: a mechanism that copies data item located on a machine
+$A$ to a remote machine $B$
+
+\vfill
+
+$\Rightarrow$ one obtains \alert{replica}
+
+\vfill
+
+\alert{Consistency}: ability of a system to behave as if the transaction of each
+      user always run in isolation from other transactions, and never fails.
+
+\vfill
+ Example: shopping basket in an e-commerce application.
+\vfill
+
+$\Rightarrow$ difficult in centralized systems because of multi-users and
+concurrency.
+
+\vfill
+
+$\Rightarrow$ even more difficult in distributed  systems because of 
+replica.
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Some illustrative scenarios}
+
+\figSlideWithSize{replication}{11cm}
+
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Consistency management in distr. systems}
+
+\alert{Consistency}: essentially, ensures that the system faithfully reflects
+the actions of a user.
+\begin{itemize}
+  \item \alert{Strong consistency} (ACID properties) --  requires a
+  (slow) synchronous replication, and possibly heavy locking mechanisms.
+  \item \alert{Weak consistency} -- accept to serve some requests with outdated
+  data.
+  \item \alert{Eventual consistency} -- same as before, but the system is
+  guaranteed to converge towards a consistent state based on the last version.
+\end{itemize}
+
+\vfill
+
+In a system that is not eventually consistent, \alert{conflicts} occur
+and the application must take care of \alert{data reconciliation}: given the two
+conflicting copies, determine the new current one.
+
+\vfill
+
+Standard RDBMS favor consistency over availability -- one of the reasons (?) of
+the 'NoSQL' trend.
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Achieving strong consistency -- The 2PC protocol}
+
+2PC = Two Phase Commit. The algorithm of choice to ensure ACID properties
+in a distributed setting.
+
+\vfill
+
+\alert{Problem}: the update operations may occur on distinct
+ servers $\{S_1, \ldots, S_n\}$, called \emph{participants}.
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Two Phase Commit: Overview}
+
+ \figSlideWithSize{2pc}{11cm}
+
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Exercises and questions}
+
+You are a customer using an e-commerce application which is known to be
+eventually consistent (e.g., Amazon \ldots):
+\begin{enumerate}
+  \item Show a scenario where you buy an item, but this item does not appear
+  in your basket.
+  \item You reload the page: the item appears. What happened?
+  \item You delete an item from your command, and add another one: the basket
+  shows both items. What happened?
+  \item Will the situation change if you reload the page?
+  \item Would you expect both items to disapear in an e-commerce application?
+\end{enumerate}
+
+\end{frame}
+
+
+\section{Properties of a distributed system}
+
+\begin{frame}
+\frametitle{Properties of a distributed system: (i) scalability}
+
+\alert{Scalability} refers to the ability of a system to 
+ continuously evolve in order to support an evergrowing amount
+ of tasks. 
+
+\figSlideWithSize{scalability}{11cm}
+
+A scalable system should (i) distribute evenly the task load to all
+participants, and (ii) ensure a negligible  distribution management cost.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Properties of a distributed system: (ii) efficiency}
+
+Two usual measures of its efficiency are the \alert{response time} (or latency)
+ which denotes the delay to obtain the first item, and the \alert{throughput}
+ (or bandwidth)
+ which denotes the number of items delivered in a given period unit (e.g., a
+ second).
+
+\vfill
+
+Unit costs:
+
+ \begin{enumerate}
+   \item  \emph{number of messages} 
+   globally sent by the nodes of the system, regardless of the message size;
+   \item  \emph{size of messages} representing  the volume of data
+   exchanges.
+ \end{enumerate}
+ 
+\end{frame}
+
+\begin{frame}
+\frametitle{Properties of a distributed system: (iii) availability}
+
+\alert{Availability} is the capacity of of a system to limit as much as possible 
+its latency.
+Involves several aspects:
+\begin{itemize}
+  \item \alert{Failure detection.}
+  \begin{itemize}
+    \item  monitor the participating nodes to detect
+  failures as early as possible (usually via ``heartbeat'' messages); 
+  \item design quick restart protocols.
+\end{itemize}
+
+  \item \alert{Replication} on several nodes.
+  
+  Replication may be \alert{synchronous} or \alert{asynchronous}. 
+  In the later case, a Client \textit{write()} returns before the operation
+  has been completed on each site.
+
+\end{itemize} 
+
+\end{frame}
+
+\section{Failure management}
+
+\begin{frame}
+\frametitle{Failure recovery in centralized DBMSs}
+
+Common principles:
+
+\begin{enumerate}
+  \item The \alert{state} of a (data) system is the set of item 
+  committed by the application.
+  \item Updating ``in place'' is considered as inefficient because of disk
+  seeks.
+  \item Instead, update are written in main memory \emph{and} in a sequential
+  \alert{log file}.
+  \item Failure? The main memory is lost, but all the committed  transactions
+  are in the log: a \textsc{Redo} operations is carried out when the system
+  restarts.
+\end{enumerate}
+
+$\Rightarrow$ implemented in all DBMSs.
+\end{frame}
+
+\begin{frame}
+\frametitle{Failure and distribution}
+
+First: when do we kown that a component is in failed state?
+
+\vfill
+$\Rightarrow$ periodically send message to each participant.
+
+\vfill
+Second: does the centralized recovery still hold?
+
+\vfill
+
+Yes, providing the log file is accessible \ldots
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Distributed logging}
+
+
+ \figSlideWithSize{recovery-basics}{11cm}
+
+Note: distributed logging can be asynchronous (efficient, risky)
+or asynchronous (just the opposite).
+
+\end{frame}
+
+\section{Consistent hashing}
+
+
+\begin{frame}
+\frametitle{Basics: Centralized Hash files}
+
+The collection consists of $(key, value)$ pairs. A \alert{hash function} evenly
+distributes the values in \alert{buckets} w.r.t. the key.
+
+\vfill 
+
+\figSlideWithSize{hash-file}{9cm}
+
+\vfill
+
+This is the basic, \alert{static}, scheme: the number of buckets is fixed.
+
+\vfill
+
+\alert{Dynamic hashing} extends the number of buckets as the collection grows --
+the most popular method is \alert{linear hashing}.
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Issues with hash structures distribution}
+
+Straighforward idea: everybody uses the same hash function, and buckets are
+replaced by servers. 
+
+\vfill
+
+Two issues:
+
+\begin{itemize}
+  \item \alert{Dynamicity}. At Web scale, we must be able to add or remove
+  servers at any moment.
+\item \alert{Inconsistencies}. It is very hard to ensure that all participants
+share an accurante view of the system (e.g., the hash function).
+\end{itemize}
+
+\vfill
+
+Some solutions:
+\begin{itemize}
+  \item \alert{Distributed linear hashing}: sophisticated scheme that allows
+  Client nodes to use an outdated image of the has file; guarantees eventual
+  convergence.
+  \item \alert{Consistent hashing}: to be presented next.
+  
+  NB: consistent hashing is used in several systems, including Dynamo
+  (Amazon)/Voldemort (Open Source), and P2P structures, e.g. Chord.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Consistent hashing}
+
+Let $N$ be the number of servers. The following functions
+$$hash(key) \to modulo (key, N) = i$$
+maps a pair $(key, value)$ to server $S_i$.
+
+\vfill
+
+\alert{Fact}: if $N$ changes, or if a client uses an invalid value for $N$, the
+mapping becomes inconsistent.
+
+\vfill
+
+With \alert{Consistent hashing}, addition or removal of an instance does
+not significantly change the mapping of keys to servers.
+
+\begin{itemize}
+  \item a simple, non-mutable hash function $h$ maps \alert{both} the keys ad
+   the servers IPs to a large address space $A$ (e.g., $[0, 2^{64}-1$]);
+  \item $A$ is organized as a ring, scanned in clockwise order;
+  \item if $S$ and $S'$ are two adjacent servers on the ring:  
+  all the keys in range $]h(S), h(S')]$ are mapped to $S'$.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Illustration}
+
+Example: item $A$ is mapped to server IP1-2; item B to server \ldots
+
+\vfill
+
+\figSlideWithSize{consist-hashing}{7cm}
+
+\vfill
+
+A server is added or removed? A \alert{local} re-hashing is sufficient.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Some (really useful) refinements}
+
+What if a server fails?  How can we balance the load? 
+
+\vfill
+
+% A two-columns presentation
+\begin{tabular}{l|p{5cm}}
+   \parbox{6.5cm}{
+
+
+\alert{Failure} $\Rightarrow$ use replication; put a copy on the next machine
+(on the ring), then on the next after the next, and so on.
+  
+  \vfill
+  
+\alert{Load balancing} $\Rightarrow$ map a server to several points on the ring
+(virtual nodes)
+
+\begin{itemize}
+  \item the more points, the more load received by a server;
+  \item also useful if the server fails: data rellocation is more evenly
+  distributed.
+  \item also useful in case of heterogeneity (the rule in large-scale systems).
+\end{itemize}
+  
+   }  % Inclusion of an XML file
+  & 
+  \parbox{5cm}{\figSlideWithSize{ch-refinement}{5cm} }
+\end{tabular}
+
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Distributed indexing based on consistent hashing}
+
+%Consistent hashing has been initialized designed for caching system. 
+%\vfill
+
+Main question: \alert{where is the hash
+directory (servers locations)}? Several possible answers:
+
+
+\begin{itemize}
+  \item  \alert{On a specific (``Master") node}, acting as a load
+  balancer. Example: caching systems.
+  
+  $\Rightarrow$ raises scalability issues.
+ 
+  \item \alert{Each node  records its successor on the ring}.
+  
+    $\Rightarrow$ may require $O(N)$ messages for routing queries -- not
+    resilient to failures.
+ 
+  \item  \alert{Each node  records $\log N$ carefully chosen other nodes.}
+ 
+    $\Rightarrow$ ensures $O(\log N)$ messages for routing queries -- convenient
+    trade-off for highly dynamic networks (e.g., P2P)
+
+ \item \alert{Full duplication of
+  the hash directory at each node.} 
+  
+   $\Rightarrow$ ensures $1$ message for routing  -- heavy maintenance protocol
+   which can be achieved through \alert{gossiping} (broadcast of any event
+   affecting the network topology).
+
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Case study: Dynamo (Amazon)}
+
+A distributed system that targets high availability (your shopping cart is
+stored there!).
+
+\begin{itemize}
+  \item Duplicates and maintains the hash directory at \alert{each
+   node} via \alert{gossiping} --
+  queries can be routed to the correct server with 1 message.
+  
+  \item The hosting server replicates $N$ (application parameter) copies of its
+  objects on the $N$ \alert{distinct} nodes that follow $S$ on the ring.
+  
+  \item Propagates updates \alert{asynchronously} $\to$ may result in 
+     update conflicts, solved by the application at read-time.
+     
+     \item Use a fully distributed failure detection mechanism (failure are
+     detected by individual nodes when then fail to communicate with others)
+\end{itemize}
+
+An Open-source version is available at
+\textit{http://project-voldemort.com/}
+\end{frame}
+
+
+\section{Case study: large scale distributed file systems (GFS)}
+
+
+\begin{frame}
+\frametitle{History and development of GFS}
+
+Google File System, a paper published in 2003 by Google Labs at OSDI.
+
+\vfill
+
+Explains the design and architecture of a distributed system apt at 
+serving very large data files; internally used by Google for storing documents
+collected from the Web.
+
+\vfill
+
+Open Source versions have been developed at once: Hadoop File System (HDFS),
+and Kosmos File System (KFS).
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{The problem}
+
+Why do we need a distributed file system in the first place?
+
+\vfill
+
+Fact: standard NFS (left part) does not meet  scalability requirements
+(what if \file{file1} gets really big?).
+
+\figSlideWithSize{dfs-bigpic}{9cm}
+
+Right part: GFS/HDFS storage, based on (i) a virtual file namespace, and
+(ii)  partitioning of files in ``chunks''.
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Architecture}
+
+A \alert{Master node} performs administrative tasks, while \alert{servers}
+store ``chunks'' and send them to Client nodes.
+
+\figSlideWithSize{gfs}{8cm}
+
+The Client maintains a \alert{cache} with chunks locations, and directly
+communicates with servers.
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Technical details}
+
+\begin{itemize}
+  \item The architecture works best for very large files (e.g., several
+  Gigabytes), divided in large (64-128 MBs) chunks.
+ 
+     $\Rightarrow$ this limits the metadata information served by the Master.
+     
+  \item Each server implements recovery and replication techniques (default: 3
+  replicas).
+  
+  \item (\alert{Availability}) The Master sends heartbeat messages to servers,
+  and initiates a replacement when a failure occurs.
+  
+  \item (\alert{Scalability}) The Master is a potential single point of failure;
+  its protection relies on distributed recovery techniques for all changes that affect the
+  file namespace.
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Workflow of a \textit{write()} operation (simplified)}
+
+The following figure shows a non-concurrent \textit{append()} operation.
+
+\figSlideWithSize{gfs-write}{8.5cm}
+
+In case of concurrent appends to a chunk, the primary replica 
+assigns serial numbers to the mutation, and coordinates the secondary replicas.
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Namespace updates: distributed recovery protocol}
+
+Extension of standard techniques for recovery (left: centralized; right:
+distributed).
+
+\figSlideWithSize{recovery-basics}{9cm}
+
+If a node fails, the replicated log file can be used to recover the last
+transactions on one of its mirrors.
+
+\end{frame}
+
+\end{document}
+
+http://www-poleia.lip6.fr/~doucet/CoursBDRA/BDRA3-4-P2P.pdf
+
+
+
+
+
+
+
+

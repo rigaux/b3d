@@ -1,0 +1,988 @@
+\subsection{Avant-propos : publication de documents XML avec XHTML et CSS}
+
+\begin{frame}[containsverbatim]{Publication de fichiers XML orientés documents}
+
+Plut\^ot pour des fichiers XML {\it orient\'es documents}.
+
+\begin{itemize}
+\item eXtensible HyperText Markup Language,
+\item Format XML pour la publication sur le web,
+\item Fichier XHTML = Fichier XML orient\'e document.
+\end{itemize}
+
+\begin{itemize}
+\item Id\'ealement (bonne pratique), d\'ecrit la structure du document (titre, paragraphe, etc), la pr\'esentation est prise en charge par un fichier de feuille de style CSS.
+\item Dans la pratique, les balises de pr\'esentation disponibles dans XHTML sont souvent utilis\'ees (\verb?<font>?, \verb?<color>?, etc) afin de ne pas avoir à \'ecrire un fichier de feuille de style CSS associ\'e.
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}[containsverbatim]{XHTML et CSS}
+
+Une structure "seule" (sans information de pr\'esentation).
+
+
+\begin{small}
+\begin{verbatim}
+titre du doc : CV de Martin Durant
+
+titre niveau 1 : Coordonnées
+
+titre niveau 1 : Expérience professionnelles
+
+titre niveau 1 : Diplomes
+titre niveau 2 : 2008 - Licence pro CNAM
+La licence pro cnam est un cursus ...
+titre niveau 2 : 2000 - DUT génie industriel
+titre niveau 2 : 1998 - BAC C
+
+...
+\end{verbatim}
+\end{small}
+\end{frame}
+
+
+\begin{frame}[containsverbatim]{XHTML et CSS}
+
+A partir de la structure seule, les navigateurs Web sont capables (interpr\'eteur (X)HTML int\'egr\'e) d'inf\'erer une pr\'esentation associ\'ee simple.\\
+
+$\rightarrow$ Renvoie un affichage basique du fichier XHTML en mettant les titres en gras, en affichant les listes avec des puces et en retrait, en souligant les liens, etc. 
+
+\begin{center}
+\figSized{images/html1.jpg}{Affichage basique \`a partir d'une structure}{0.7}
+\end{center}
+
+\end{frame}
+
+
+\begin{frame}[fragile,containsverbatim,allowframebreaks]{XHTML et CSS}
+Situation id\'eale
+
+\bigskip
+\bigskip
+\bigskip
+
+\begin{tabular}{cc}
+\begin{minipage}{0.5\textwidth}
+\begin{tiny}
+\begin{verbatim}
+titre du doc : CV de Martin Durant
+
+titre niveau 1 : Coordonnées
+
+titre niveau 1 : Expérience professionnelles
+
+titre niveau 1 : Diplomes
+titre niveau 2 : 2008 - Licence pro CNAM
+La licence pro cnam est un cursus ...
+titre niveau 2 : 2000 - DUT génie industriel
+titre niveau 2 : 1998 - BAC C
+
+...
+\end{verbatim}
+\end{tiny}
+\end{minipage}
+&
+\begin{minipage}{0.3\textwidth}
+\begin{footnotesize}
+le titre du doc est en lettres capitales
+
+les titres niveau 1 sont en gras police Times 12pt, vert
+
+les titres niveau 2 sont en gras police Times 10pt, bleu
+
+le texte est du verdana 10pt, noir
+
+le fond du document est beige
+\end{footnotesize}
+\end{minipage}\\
+\\
+Fichier XHTML & Fichier CSS associ\'e\\
+\end{tabular}
+
+
+\framebreak
+
+Souvent, dans la pratique (pas de fichier CSS associ\'e, informations de format incluses dans le fichier contenant les donn\'ees).
+
+\begin{small}
+\begin{verbatim}
+fond du document : beige
+
+titre du doc : En lettres capitales "CV de Martin Durant"
+
+titre niveau 1 : En times, 12pt, vert, gras "Coordonnées"
+
+titre niveau 1 : En times, 12pt, vert, gras "Expérience professionnelles"
+
+titre niveau 1 : En times, 10pt, bleu, gras "Diplomes"
+titre niveau 2 : En times, 10pt, bleu, gras "2008 - Licence pro CNAM"
+En verdana, 10pt, noir "La licence pro cnam est un cursus …"
+titre niveau 2 : En times, 10pt, bleu, gras "2000 - DUT génie industriel"
+titre niveau 2 : 1998 – En times, 10pt, bleu, gras "BAC S"
+\end{verbatim}
+\end{small}
+
+\end{frame}
+
+
+
+\begin{frame}[fragile,containsverbatim]{XHTML, Structure d'un document}
+
+\begin{lstlisting}[inputencoding=utf8/latin1]
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>CV de Martin Durant</title>
+  </head>
+  <body>
+    Contenu structure du CV.
+  </body>
+</html>
+\end{lstlisting}
+
+Balise \verb?<head></head>? : contient des m\'eta-donn\'ees du document p.e. author, copyright, generator, mots clef pour indexation par les moteurs de recherche, titre de la page XHTML, etc. et aussi la r\'ef\'erence au fichier CSS associ\'e.
+
+\medskip
+
+Balise \verb?<body></body>? : englobe le document en lui-m\^eme, sa partie visible.
+
+\begin{flushright}
+Lien W3C : http://www.w3.org/TR/2008/REC-xhtml-basic-20080729/
+\end{flushright}
+\prof{Faire retrouver et interpréter le namespace aux auditeurs}
+\end{frame}
+
+\begin{frame}[fragile,containsverbatim,allowframebreaks]{Quelques balises XHTML}
+
+Les titres
+
+\bigskip
+
+\lstinputlisting[inputencoding=utf8/latin1,basicstyle=\tiny,language=HTML,breaklines=true,numbers=left]{codes/cv1.html}
+
+% \begin{lstlisting}[inputencoding=utf8/latin1,basicstyle=\tiny,language=HTML]
+% <html xmlns="http://www.w3.org/1999/xhtml" >
+%   <head>
+%     <title>CV de Martin Durant, Chef de projet informatique</title>
+%   </head>
+%   <body>
+%     <h1>Martin Durant, Chef de projet informatique</h1>
+%     N\'e le 1er janvier 1972
+%     Marié, quatre enfants
+%     Nationalité Française
+%     <h1>Coordonnées</h1>
+%     Adresse : 3 Allée du Lac, 91400 Orsay
+%     Téléphone : 01 23 45 67 89
+%     Messagerie : martin.durant@mamessagerie.fr
+%     <h1>Expériences professionelles</h1>
+%       <h2> Chef de projet junior chez Alcatel</h2>
+%       J'ai occupé ce poste de 2004 à 2009. Intégré à l'équipe Réseaux et télécommunication, j'ai maintenu ...
+%       <h2>Développeur JAVA chez TransSystèmes Pro</h2> 
+%       A la sortie de mon diplome de DUT, j'ai rejoins le goupe TransSystèmes Pro. J'y ai été développeur sur de modules ad-hoc sur le systèmes d'information mis en place en appui au service commercial de l'entreprise ...
+%          <h3>Développement JAVA</h3>
+%          En terme de développement JAVA, j'ai un particulièrement travaillé sur le déveloeppement de frameworks ...
+%          <h3>Gestion de projet</h3>
+%          J'ai touché du doigt la gestion de projet à la fin de ...
+%   </body>
+% </html>
+% \end{lstlisting}
+
+\framebreak
+
+Paragraphes, saut de lignes forc\'es
+
+\bigskip
+
+\lstinputlisting[inputencoding=utf8/latin1,basicstyle=\tiny,language=HTML,firstline=5,lastline=10,breaklines=true,numbers=left]{codes/cv2.html}
+
+
+\verb?<p></p>? : paragraphe
+
+\verb?<br/>? : balise ouvrante-fermante pour saut de ligne forc\'e (là, on commence à introduire des balises de pr\'esentation dans XHTML i.e. XHTML ne contient pas juste des informations structurelles)
+
+
+\framebreak
+
+Listes
+
+\bigskip
+
+\lstinputlisting[inputencoding=utf8/latin1,basicstyle=\tiny,language=HTML,firstline=10,lastline=15,breaklines=true,numbers=left]{codes/cv3.html}
+
+\verb?<ul></ul>? : unordered list\\
+\verb?<ol></ol>? : ordered list avec \verb?<li>item</li>?
+
+\verb?<dl></dl>? : definition list avec \verb?<dt>nom item</dt><dd>description item</dd>?
+
+
+\framebreak
+
+\begin{center}
+\figSized{images/cv1.jpg}{Affichage d'un fichier XHTML par un navigateur}{0.8}
+\end{center}
+
+
+\framebreak
+
+Listes
+
+\bigskip
+
+\lstinputlisting[inputencoding=utf8/latin1,basicstyle=\tiny,language=HTML,firstline=10,lastline=15,breaklines=true,numbers=left]{codes/cv4.html}
+
+\framebreak
+
+\begin{center}
+\figSized{images/cv3.jpg}{Affichage d'un fichier XHTML par un navigateur}{0.75}
+\end{center}
+
+\framebreak
+
+Liens 
+
+\bigskip
+
+\lstinputlisting[inputencoding=utf8/latin1,basicstyle=\tiny,language=HTML,firstline=16,lastline=20,breaklines=true,numbers=left]{codes/cv5.html}
+
+
+\framebreak
+
+Fontes, italique, gras, etc\\
+
+\bigskip
+
+Comme pour la balise \verb?<br/>?, on sort du cadre de la structure du document pour commencer \`a d\'efinir des options de pr\'esentation.
+
+\lstinputlisting[inputencoding=utf8/latin1,basicstyle=\tiny,language=HTML,firstline=10,lastline=20,breaklines=true,numbers=left]{codes/cv6.html}
+
+\framebreak
+
+\begin{center}
+\figSized{images/cv4.jpg}{Affichage d'un fichier XHTML par un navigateur}{0.75}
+\end{center}
+
+\framebreak
+
+et des tableaux, des ancres, et encore beaucoup d'autres fonctionnalités, ... Read The Friendly Manual...
+
+\bigskip
+
+Vous trouverez facilement pl\'ethore d'informations sur XHTML \cite{w3c/xhtml}.
+
+\framebreak
+Comment \c{c}a marche ?
+
+\lstinputlisting[inputencoding=utf8/latin1,basicstyle=\tiny,language=HTML,breaklines=true,numbers=left]{codes/cv1.html}
+\prof{pointer le namespace, r\'e-expliquer comment cela fonctionne}
+
+\framebreak
+
+\exo{Qu'affiche le navigateur si on remplace la ligne \verb?<html xmlns="http://www.w3.org/1999/xhtml">? par la ligne \verb?<html>?}
+
+\framebreak
+
+\begin{center}
+\figSized{images/cv_ss_ns.jpg}{Affichage d'un fichier XHTML par un navigateur}{0.6}
+\end{center}
+
+\end{frame}
+
+
+\begin{frame}[allowframebreaks,containsverbatim]{CSS}
+
+Principe : permet d'appliquer des propri\'et\'es de pr\'esentation \'evolu\'ee aux balises XML via des règles.
+
+\begin{itemize}
+\item Cascading Style Sheets ;
+\item Langage non XML pour la d\'efinition de pr\'esentation de document XML (souvent XHTML) ;
+\item Trois niveaux (versions) 1, 2 et 3. Niveau 2 le plus utilis\'e (niveau 3 pas encore entièrement support\'e par les navigateurs) ;
+\end{itemize}
+
+\cite{w3c/css}
+
+\framebreak
+
+R\`egle CSS : \verb?selecteur { proriete : valeur }?
+
+\bigskip
+
+\begin{description}
+\item[selecteur] champ d'application de la r\`egle \\
+			par exemple la balise \verb?h1?
+\item[propriete] la propri\'et\'e de la balise \`a instancier \\
+			par exemple la couleur \verb?color?
+\item[valeur] valeur de la propri\'et\'e \\
+			par exemple \verb?green?
+\end{description}
+
+\begin{center}
+\verb?h1 {color : green}?
+\end{center}
+
+\framebreak
+
+De façon plus g\'en\'erale
+
+\bigskip
+
+\begin{verbatim}
+sel1, …, selk { 
+p1 : v1;
+… ;
+pn : vn 
+}
+\end{verbatim}
+
+\begin{verbatim}
+h1, h2, h3 {
+color : green; 
+font: normal small "Trebuchet MS", Arial, Helvetica, sans-serif;
+text-decoration : underline
+}
+\end{verbatim}
+
+Il existe plus d'une centaine de propri\'et\'es CSS...
+
+\framebreak
+
+Un fichier CSS est compos\'e d'un ensemble de règles CSS
+
+\bigskip
+
+Un fichier CSS est li\'e au fichier X(HT)ML à pr\'esenter par la balise  :
+\begin{small}
+\verb?<link rel="stylesheet" type="text/css" href="path_to_style/style.css"/>?
+\end{small}
+
+d\'eclar\'ee dans le fichier X(HT)ML 
+
+\framebreak
+
+Si on veut pouvoir définir des styles différents pour une même balise, utiliser l'attribut \verb?class?. \textit{On retrouvera ce principe avec l'attribut \verb?mode? de XSLT}\\
+
+\medskip
+
+Par exemple :\\
+\lstinputlisting[caption={Fichier CSS simple (styleCV.css)},inputencoding=utf8/latin1,basicstyle=\tiny,language=HTML,firstline=1,lastline=20,breaklines=true,numbers=left]{codes/styleCV.css}
+
+
+\framebreak
+
+Fichier XHTML :
+\lstinputlisting[inputencoding=utf8/latin1,basicstyle=\tiny,language=HTML,firstline=1,lastline=20,breaklines=true,numbers=left, caption={Fichier XHTML (cv.xhtml)}]{codes/cv.xhtml}
+
+\framebreak
+
+Interpr\'et\'e par Firefox :\\
+\begin{center}
+\figSized{images/cv_css.jpg}{Affichage d'un fichier XHTML par un navigateur}{0.8}
+\end{center}
+
+
+\framebreak
+
+Une feuille de style peut devenir assez compliqu\'ee (des r\`egles peuvent rentrer en conflit, une notion de priorit\'e est d\'efinie, etc). 
+Le langage des feuilles de style CSS est un langage assez puissant qui, s'il est maitris\'e, permet d'\'elaborer des pr\'esentations sophistiqu\'ees.
+
+\framebreak
+
+\begin{tabular}{| p{3cm} | p{3.5cm} | p{3.5cm} |}
+\hline
+&
+XHTML seul (structure et pr\'esentation "m\'elang\'ees'')
+& 
+XHTML pour la structure et CSS pour la pr\'esentation\\
+\hline
+Facilit\'e de d\'efinition & Simple à \'ecrire & Plus compliqu\'e à \'ecrire\\
+\hline
+Langage de d\'efinition de la pr\'esentation & Verbeux & Compact \\
+\hline
+Informations concernant la pr\'esentation & "m\'elang\'ees" au contenu, r\'ep\'et\'ees pour chaque tag & Ind\'ependantes non r\'ep\'et\'ees \\
+\hline
+Maintenance & Difficile si plusieurs fichiers \`a uniformiser (voir m\^eme un seul!) & 
+Un grand plus par exemple si tous les fichiers d'un site web pointent vers une m\^eme feuille de style CSS car il suffit de mettre à jour le fichier CSS pour changer l'apparence de toutes les pages du site\\
+\hline
+Profil administrateur & "lambda" & Demande une connaissance de CSS\\ 
+\hline
+
+\end{tabular}
+
+\end{frame}
+
+\subsection{XSLT}
+
+\begin{frame}[allowframebreaks]{XSLT}
+\prof{XSLT 1.0 incluant XPaht 1.0 (sauf pour le output=xhtml). Nous nous en tiendrons \`a XSLT 1.0, la version 2.0 utilise XQuery (dont XPath 2.0 est un sous-ensemble)}
+
+XSL :  Extensible Stylesheet Language.\\
+
+\medskip
+
+Compos\'e de deux dialectes de XML :
+\begin{itemize}
+\item XSL-FO (XSL Formatting Objects) – dialecte XML permettant de d\'ecrire un rendu attendu sur une page de texte. Langage technique plutôt destin\'e à des typographes. \`A partir d'un document XSL-FO, un formateur XSL-FO peut cr\'eer un document final, par exemple un document pdf. \prof{Voir intro W3C pour une première approche}
+\item XSLT (XSL Transformations) – dialecte XML permettant de d\'efinir des transformations pour transformer un document XML en autre un document XML. Ce document XML peut (par exemple) \^etre :
+\begin{itemize}
+\item XHTML (pour afficher "\'el\'egamment" le contenu d'un fichier XML);
+\item XSL-FO si l'objectif est un rendu très perfectionn\'e ou papier.
+\end{itemize}
+\end{itemize}
+
+\framebreak
+
+ \begin{figure}
+  \begin{center}
+\begin{tikzpicture}[node distance=1.3cm,>=stealth',bend angle=45,auto]
+\footnotesize
+ \tikzstyle{parser}=[rounded corners=3mm,thick,draw=blue!75,fill=blue!20,minimum size=6mm,text centered,text width=1.5cm]
+  \tikzstyle{file}=[rounded corners=0mm,thick,draw=Olive!75,fill=Olive!20,text centered,text width=1cm]
+  \tikzstyle{file1}=[rounded corners=0mm,thick,draw=DarkCyan!75,fill=DarkCyan!20,text centered,text width=1cm]
+  \tikzstyle{file2}=[rounded corners=0mm,thick,draw=BlueViolet!75,fill=BlueViolet!20,text centered,text width=1cm]
+
+  \begin{scope}
+    \node[file1](f1) at (0,2) {Fichier XML};
+    \node[file2](f2) at (0,0) {Feuille de style};
+    \node[parser](parser) at (2,1) {Processeur XSLT (prog.)};
+    \node[file, right= 0.5cm of parser](ffo)  {Fichier XSL-FO};
+    \node[parser, right= 0.5cm of ffo](form) {Formateur XSL-FO (prog.)};
+    \node[file, right= 0.5cm of form](pdf)  {Fichier pdf};
+    \draw[->,>=latex] (f1) -- (parser);
+    \draw[->,>=latex] (f2) -- (parser);
+    \draw[->,>=latex] (parser) -- (ffo);
+    \draw[->,>=latex] (ffo) -- (form);
+    \draw[->,>=latex] (form) -- (pdf);
+\end{scope}
+
+\end{tikzpicture}
+  \caption{Fonctionnement de XSLT/XSL-FO}
+  \end{center}
+ \end{figure}
+\prof{On laisse de cote XSL-FO pour se concentrer sur XSLT qui est d'ailleurs très souvent utilisé indépendemment de XSL-FOƒ}
+
+\end{frame}
+
+
+\begin{frame}[allowframebreaks]{XSLT : d'un fichier XML \`a un autre fichier XML}
+
+ \begin{figure}
+  \begin{center}
+\begin{tikzpicture}[node distance=1.3cm,>=stealth',bend angle=45,auto]
+\footnotesize
+  \tikzstyle{emptyStyle}=[text width=3cm]
+  \tikzstyle{parser}=[rounded corners=3mm,thick,draw=blue!75,fill=blue!20,minimum size=6mm,text width=7cm]
+  \tikzstyle{file}=[rounded corners=0mm,thick,draw=Olive!75,fill=Olive!20,text centered,text width=1.7cm]
+  \tikzstyle{file1}=[rounded corners=0mm,thick,draw=DarkCyan!75,fill=DarkCyan!20,text centered,text width=1.7cm]
+  \tikzstyle{file2}=[rounded corners=0mm,thick,draw=BlueViolet!75,fill=BlueViolet!20,text centered,text width=1.7cm]
+
+  \begin{scope}
+   \node[file1](f1) at (3,5) {Fichier XML};
+    \node[file2](f2) at (5,5) {Fichier XSLT (feuille de style)};
+    \node[parser](parser) at (4,3) {{\bf Processeur XSL}\linebreak
+dans explorateur web (ex: module TransforMiiX de Mozilla),\linebreak
+dans serveur web ou d'application (Cocoon d'Apache), \linebreak
+dans programme standalone (Xalan d'Apache), \linebreak ...};
+    \node[file](ffo) at (4,1) {Nouveau fichier XML};
+  \draw[->,>=latex] (f1) -- (parser);
+    \draw[->,>=latex] (f2) -- (parser);
+    \draw[->,>=latex] (parser) -- (ffo);
+\end{scope}
+
+\end{tikzpicture}
+  \caption{D'un fichier XML \`a un autre fichier XML}
+  \end{center}
+ \end{figure}
+
+\framebreak
+
+
+ \begin{figure}
+  \begin{center}
+\begin{tikzpicture}[node distance=1.3cm,>=stealth',bend angle=45,auto]
+\footnotesize
+  \tikzstyle{emptyStyle}=[text width=3cm]
+  \tikzstyle{parser}=[rounded corners=3mm,thick,draw=blue!75,fill=blue!20,minimum size=6mm,text width=7cm]
+  \tikzstyle{file}=[rounded corners=0mm,thick,draw=Olive!75,fill=Olive!20,text centered,text width=1.7cm]
+  \tikzstyle{file1}=[rounded corners=0mm,thick,draw=DarkCyan!75,fill=DarkCyan!20,text centered,text width=1.7cm]
+  \tikzstyle{file2}=[rounded corners=0mm,thick,draw=BlueViolet!75,fill=BlueViolet!20,text centered,text width=1.7cm]
+
+  \begin{scope}
+    \node[emptyStyle] at (1,5) {\bf \textcolor{orange}{Orient\'e donn\'ees $\rightarrow$}};
+    \node[file1](f1) at (3,5) {Fichier XML};
+    \node[file2](f2) at (5,5) {Fichier XSLT (feuille de style)};
+    \node[parser](parser) at (4,3) {{\bf Processeur XSL}\linebreak
+dans explorateur web (ex: module TransforMiiX de Mozilla),\linebreak
+dans serveur web ou d'application (Cocoon d'Apache), \linebreak
+dans programme standalone (Xalan d'Apache), \linebreak ...};
+    \node[file](ffo) at (4,1) {Nouveau fichier XML};
+    \node[emptyStyle] at (2,1) {\bf \textcolor{orange}{Orient\'e document $\rightarrow$}};
+   \draw[->,>=latex] (f1) -- (parser);
+    \draw[->,>=latex] (f2) -- (parser);
+    \draw[->,>=latex] (parser) -- (ffo);
+\end{scope}
+
+\end{tikzpicture}
+  \caption{Publication d'un fichier XML orienté données à l'aide de XSLT}
+  \end{center}
+ \end{figure}
+
+\end{frame}
+
+
+\begin{frame}{XSLT : exemple}
+
+\begin{center}
+\begin{minipage}{0.7\textwidth}
+\lstinputlisting[inputencoding=utf8/latin1,basicstyle=\tiny, language=XML,breaklines=true, caption={Extrait d'un simple fichier XML (listeUML.xml)}, firstline=1,lastline=23,numbers=left,label={listeUMLxml},backgroundcolor=\color{DarkCyan!20},rulesepcolor=\color{DarkCyan!75}]{codes/listeUML.xml}
+\end{minipage}
+\end{center}
+\prof{Dessiner l'arbre (Xpath avec "root") au tableau}
+\end{frame}
+
+\begin{comment}
+\begin{frame}[allowframebreaks]{XSLT : d'un fichier XML \`a un autre fichier XML}
+
+\begin{center}
+\begin{tikzpicture}[node distance=1.3cm,>=stealth',bend angle=45,auto]
+\footnotesize
+  \tikzstyle{emptyStyle}=[text width=3cm]
+  \tikzstyle{parser}=[rounded corners=3mm,thick,draw=blue!75,fill=blue!20,minimum size=6mm,text width=7cm]
+  \tikzstyle{file}=[rounded corners=0mm,thick,draw=Olive!75,fill=Olive!20,text centered,text width=1.7cm]
+  \tikzstyle{file1}=[rounded corners=0mm,thick,draw=DarkCyan!75,fill=DarkCyan!20,text centered,text width=1.7cm]
+  \tikzstyle{file2}=[rounded corners=0mm,thick,draw=BlueViolet!75,fill=BlueViolet!20,text centered,text width=1.7cm]
+
+  \begin{scope}
+    \node[file1](f1) at (3,9) {Fichier XML};
+    \node[file2](f2) at (5,9) {Fichier XSLT (feuille de style)};
+    \node[parser](parser) at (4,7) {{\bf Processeur XSL}\linebreak
+dans explorateur web (ex: module TransforMiiX de Mozilla),\linebreak
+dans serveur web ou d'application (Cocoon d'Apache), \linebreak
+dans programme standalone (Xalan d'Apache), \linebreak ...};
+    \node[file](ffo) at (4,5.3) {Nouveau fichier XML (XHTML)};
+    \node[parser](explo) at (4,4) {Interpr\'eteur XHTML (explorateur)};
+    \node[file](html) at (4,3) {Affichage page XHTML};  
+     \node[emptyStyle] at (7,3) {\textcolor{DarkCyan}{Explorateur Web}}; 
+    \draw[->,>=latex] (f1) -- (parser);
+    \draw[->,>=latex] (f2) -- (parser);
+    \draw[->,>=latex] (parser) -- (ffo);
+    \draw[->,>=latex] (ffo) -- (explo);
+    \draw[->,>=latex] (explo) -- (html);
+\end{scope}
+
+  \begin{pgfonlayer}{background}
+    \filldraw [line width=4mm,join=round,DarkOliveGreen!20]
+      (parser.north  -| parser.west)  rectangle (parser.south  -| parser.east);
+    \filldraw [line width=4mm,join=round,DarkCyan!20]
+      (explo.north  -| explo.west)  rectangle (html.south  -| explo.east);
+ \end{pgfonlayer}
+
+\end{tikzpicture}
+ \end{center}
+
+\end{frame}
+
+\end{comment}
+
+\begin{frame}{Feuille de style XSLT}
+Une feuille de style (\textit{stylesheet}) XSLT est un fichier XML (puisque XSLT est un dialecte XML).
+
+\begin{center}
+\begin{minipage}{0.8\textwidth}
+\lstinputlisting[inputencoding=utf8/latin1,basicstyle=\tiny, language=XSLT,breaklines=true, caption={Un simple fichier XSL (listeUMLHelloWorld.xsl) contenant une seule r\`egle de transformation}, label={listeUMLHelloWorldxsl}, numbers=left,backgroundcolor=\color{BlueViolet!20},rulesepcolor=\color{BlueViolet!75}]{codes/listeUMLHelloWorld.xsl}
+\end{minipage}
+\end{center}
+Lignes 4 \`a 12 : R\`egle de transformation XSL  (\textit{template rule}) \\
+
+\begin{exoblock}
+\begin{enumerate}
+\item Ligne 2 : vous me reconnaissez ?
+\item \`A quel(s) \'el\'ement(s) est appliqu\'e le namespace XSLT ?
+\end{enumerate}
+\end{exoblock}
+
+\end{frame}
+
+\begin{frame}[allowframebreaks]{Feuille de style XSLT (suie)}
+
+Ensemble de r\`egles de transformation (\textit{template rules}). 
+\begin{itemize}
+\item Une r\`egle est composée de :
+\begin{itemize}
+\item une expression XPath appelée \textit{pattern} identifiant les \'el\'ements que la r\`egle traite \prof{match un nom d'\'el\'ement ou la racine "/"}
+\item un fragment de code XML (bien form\'e) appel\'e \textit{corps} créé lorsque la r\`egle est instanci\'ee.
+\end{itemize}
+\item La r\`egle est instanci\'ee lorsque des \'el\'ements correspondant au pattern sont trouv\'es dans le fichier XML \`a transformer.
+\end{itemize}
+Syntaxiquement, une règle est décrite par un élément \texttt{xsl:template} contenant le \textit{corps} entre son tag ouvrant et son tag fermant, et ayant un attribut \texttt{match} dont la valeur est le pattern.
+
+\prof{Ctr req XPath doit (1) toujours renvoyer un ensemble de n{\oe}uds (n{\oe}ud au sens large DOM incluant les attributs), (2) simplifiée n'utilisant que les axes child, attribute ou // avec evt tests de noeuds et prédicats. Le pattern peut commencer par la fonction id()}
+
+\begin{exoblock}
+\'Etant donnée cette description, écrivez la forme d'une règle ayant pour pattern \texttt{req\_XPath} et pour corps \texttt{Well-formed\_XML\_fragment}.
+\end{exoblock}
+
+\framebreak
+
+\begin{block}{Intuition du mécanisme de base de l'exécution}
+Initialement, un processeur XSLT cherche à appliquer, à la racine du fichier XML à transformer (n{\oe}ud contexte initial), un template ayant le pattern /. \prof{ (à défaut le contenant} 
+
+\medskip
+
+Pour chaque règle, étant donné un n{\oe}ud \textit{contexte} dans le document à transformer, le processeur XSLT sélectionne un ensemble de n{\oe}uds $\mathcal{N}$ résultant de l'évaluation de l'expression XPath de son pattern. Pour chaque n{\oe}ud $n \in \mathcal{N}$, le processeur XSLT instancie le corps de la règle, cela l'amenant éventuellement à choisir d'autres règles à appliquer avec le n{\oe}ud contexte $n$. 
+\end{block}
+
+\framebreak
+
+\begin{center}
+\begin{minipage}{0.7\textwidth}
+\lstinputlisting[inputencoding=utf8/latin1,basicstyle=\tiny, language=XSLT,breaklines=true, backgroundcolor=\color{BlueViolet!20},rulesepcolor=\color{BlueViolet!75}, numbers=left]{codes/listeUMLHelloWorld.xsl}
+\end{minipage}
+\end{center}
+
+\begin{exoblock}
+\begin{itemize}
+\item Cette feuille de style contient une règle. Quel est son pattern ? Quel est son corps ?
+\item \`A quel(s) \'el\'ement(s) sont appliqu\'es les différents espaces de noms apparaissant dans cette feuille de style ?
+\end{itemize}
+\end{exoblock}
+
+\end{frame}
+
+
+\begin{frame}[allowframebreaks]{Associer une feuille de style \`a un fichier XML}
+
+\begin{center}
+\begin{minipage}{0.7\textwidth}
+\lstinputlisting[inputencoding=utf8/latin1,basicstyle=\tiny, language=XML,breaklines=true, caption={Extrait d'un simple fichier XML (listeUML\_xslcallHelloWorld.xml)}, firstline=1,lastline=20,numbers=left, label={listeUMLxslcallHelloWorldxml},backgroundcolor=\color{DarkCyan!20},rulesepcolor=\color{DarkCyan!75}]{codes/listeUML_xslcallHelloWorld.xml}
+\end{minipage}
+\end{center}
+
+R\'ef\'erence \`a la feuille de style en ligne 2.
+\prof{expliquer ici que c'est par exemple pour les navigateurs. Pas pour les processeurs qui attendent deux fichiers en entr\'ee \'evidemment.}
+
+\end{frame}
+
+\begin{frame}[allowframebreaks, fragile]{Transformation d'un fichier XML avec XSLT}
+
+\begin{center}
+\begin{minipage}{0.7\textwidth}
+\lstinputlisting[inputencoding=utf8/latin1,basicstyle=\tiny, language=XML,breaklines=true, caption={Fichier XHTML (xslcallHelloWorld.xhtml)  g\'en\'er\'e$^{(*)}$ par application de la feuille de style au fichier XML}, firstline=1,lastline=20,numbers=left, label={listeUMLxslcallHelloWorldxhtml},backgroundcolor=\color{Olive!20},rulesepcolor=\color{Olive!75}]{codes/listeUML_xslcallHelloWorld.xhtml}
+\end{minipage}
+\end{center}
+
+$^{(*)}$ \footnotesize{Ici, g\'en\'er\'e par Xalan \cite{xalan} (fichier indent\'e manuellement pour lisibilit\'e)}
+% java -cp /Applications/xalan-j_2_7_1/xalan.jar:/Applications/xalan-j_2_7_1/serializer.jar:/Applications/xalan-j_2_7_1/xml-apis.jar:/Applications/xalan-j_2_7_1/xercesImpl.jar org.apache.xalan.xslt.Process -IN listeUML_xslcallHelloWorld2.xml -XSL listeUMLHelloWorld2.xsl -OUT listeUML_xslcallHelloWorld2.xhtml
+\prof{1- Xalan est un ignore la référence à la feuille de style, on lui indique en entrée les deux fichiers (XML et XSL) et il applique la feuille de style au fichier. 2-Par d\'efaut, indentation toute pourrie, je l'ai reformat\'e. Si on veux une belle indentation, utiliser le \verb?<xsl:output ... indent="yes" ...>?, j'en parle plus loin dans le cours}
+
+\framebreak
+
+\figSized{images/listeUML_xslcallHelloWorld.jpg}{Ouverture du fichier Listing \ref{listeUMLxslcallHelloWorldxhtml} avec Firefox (v. 6.0.1)}{0.7}
+
+\prof{faire la manip en utilisant l'interpréteur de Firefox. Expliquer (voir montrer) qu'on n'a pas accès au code XML généré par Firefox, d'où l'utilisation d'un programme tel que Xalan ou Cooktop en TP pour pouvoir voir le fichier XML (et pas juste son rendu sous forme de page web)} 
+
+\end{frame}
+
+\begin{frame}{Transformation d'un fichier XML avec XSLT (suite)}
+
+Voici une autre feuille de style :
+
+\begin{center}
+\begin{minipage}{0.7\textwidth}
+\lstinputlisting[inputencoding=utf8/latin1,basicstyle=\tiny, language=XSLT,breaklines=true, backgroundcolor=\color{BlueViolet!20},rulesepcolor=\color{BlueViolet!75}, numbers=left]{codes/listeUMLHelloWorld2.xsl}
+\end{minipage}
+\end{center}
+
+\begin{small}
+\begin{exoblock}
+\begin{enumerate}
+\item Quel type de fichier cherche-t-on \`a g\'en\'erer par cette transformation ? \prof{XML dans le dialecte XHTML}
+\item Quel est le contenu du fichier \prof{XHTML} obtenu par transformation du fichier XML du Listing \ref{listeUMLxml} par cette feuille de style ?
+\prof{le template s'applique lorsqu'on rencontre l'\'el\'ement \texttt{diagrammesUML}, donc une seule fois, on obtient donc le m\^eme fichier que celui de Listing \ref{listeUMLxslcallHelloWorldxhtml}}
+\item Aurait-on pu g\'en\'erer un fichier SVG contenant le texte ``Hello World'' \`a la place de g\'en\'erer un fichier XHTML ? \prof{oui, en produisant un fichier XML respectant le dialecte SVG et affichant le texte ``Helle World'', comme dans \cite{Tid08} p. 36}
+\end{enumerate}
+\end{exoblock}
+\end{small}
+
+\end{frame}
+
+\begin{frame}{Transformation d'un fichier XML avec XSLT (suite)}
+
+Voici une variante de la feuille de style pr\'ec\'edente.
+
+\begin{center}
+\begin{minipage}{0.7\textwidth}
+\lstinputlisting[inputencoding=utf8/latin1,basicstyle=\tiny, language=XSLT,breaklines=true, backgroundcolor=\color{BlueViolet!20},rulesepcolor=\color{BlueViolet!75}, numbers=left]{codes/listeUMLHelloWorld3.xsl}
+\end{minipage}
+\end{center}
+%java -cp /Applications/xalan-j_2_7_1/xalan.jar:/Applications/xalan-j_2_7_1/serializer.jar:/Applications/xalan-j_2_7_1/xml-apis.jar:/Applications/xalan-j_2_7_1/xercesImpl.jar org.apache.xalan.xslt.Process -IN listeUML_xslcallHelloWorld3.xml -XSL listeUMLHelloWorld3.xsl -OUT listeUML_xslcallHelloWorld3.xhtml
+
+\begin{small}
+\begin{exoblock}
+\begin{enumerate}
+\item Quelle diff\'erence voyez-vous avec la feuille de style du Listing \ref{listeUMLHelloWorldxsl} (listeUMLHelloWorld.xsl) ? \prof{la déclaration des les espaces de noms}
+\item Voyez-vous des espaces de noms d\'eclar\'es dans ce fichier XML ? Si oui, lesquels ?
+\item Sachant qu'au plus un espace de nom peut \^etre associ\'e \`a un \'el\'ement, indiquez pour chaque \'el\'ement si un namespace lui est associ\'e et si oui lequel.
+\prof{Tous les \'el\'ements marqu\'es \verb?xsl? sont dans le namespace de XSLT et les autres dans le namespace XHTML.}
+\end{enumerate}
+\end{exoblock}
+\end{small}
+
+\end{frame}
+
+\begin{frame}[allowframebreaks, fragile]{Transformation d'un fichier XML avec XSLT}
+
+Voici le r\'esultat du fichier g\'en\'er\'e par Xalan en appliquant la feuille de style pr\'ec\'edente au fichier du Listing \ref{listeUMLxml} (listeUML.xml).
+
+\begin{center}
+\begin{minipage}{0.9\textwidth}
+\lstinputlisting[inputencoding=utf8/latin1,basicstyle=\tiny, language=XML,breaklines=true, caption={Fichier XHTML (listeUML\_xslcallHelloWorld3.xhtml) g\'en\'er\'e (par Xalan) par application de la feuille de style au fichier XML}, firstline=1,lastline=20,numbers=left,breaklines=true,backgroundcolor=\color{Olive!20},rulesepcolor=\color{Olive!75}]{codes/listeUML_xslcallHelloWorld3.xhtml}
+\end{minipage}
+\end{center}
+
+\framebreak
+
+
+Pour forcer l'indentation du fichier de sortie (et éventuellement changer l'encodage de celui-ci) (ligne 6).
+\begin{center}
+\begin{minipage}{0.7\textwidth}
+\lstinputlisting[inputencoding=utf8/latin1,basicstyle=\tiny, language=XSLT,breaklines=true, backgroundcolor=\color{BlueViolet!20},rulesepcolor=\color{BlueViolet!75}, numbers=left]{codes/listeUMLHelloWorld4.xsl}
+\end{minipage}
+\end{center}
+%java -cp /Applications/xalan-j_2_7_1/xalan.jar:/Applications/xalan-j_2_7_1/serializer.jar:/Applications/xalan-j_2_7_1/xml-apis.jar:/Applications/xalan-j_2_7_1/xercesImpl.jar org.apache.xalan.xslt.Process -IN listeUML_xslcallHelloWorld4.xml -XSL listeUMLHelloWorld4.xsl -OUT listeUML_xslcallHelloWorld4.xhtml
+\prof{ici l'encodage est ISO-8859-1. \verb?<xsl:output ...>? sp\'ecifie des informations concernant le fichier produit. C'est du XML ($->$ le processeur peut se comporte de facon sp\'ecifique par exemple pour l'indentation ou associer automatiquement le bon espace de noms selon les processeurs), et on demande d'indenter le fichier XML en sortie (par d\'efaut sur une seule ligne). }
+
+\prof{
+NB : L'attribut \verb?method? de l'\'el\'ement \verb?output? ne peut prendre la valeur \verb?xhtml? que pour un processeur XSLT 2.0. En Firefox 6.0.1 inclue un processeurs XSLT 1.0, on ne peut donc pas utiliser cette valeur si on veut utiliser le processeus XSLT de Firefox 6.0.1.\\
+J'ai mis XML car si output=html alors (cf doc XSLT W3C), the html output method should not output an end-tag for empty elements. For example, an element written as <br/> or <br></br> in the stylesheet should be output as <br>. Donc fichier XML pas bien formé... 
+}
+
+\framebreak
+
+\begin{center}
+\begin{minipage}{0.8\textwidth}
+\lstinputlisting[inputencoding=utf8/latin1,basicstyle=\tiny, language=XML,breaklines=true, caption={Fichier XHTML (listeUML\_xslcallHelloWorld4.xhtml) g\'en\'er\'e (par Xalan) par application de la feuille de style au fichier XML}, firstline=1,lastline=20,numbers=left,backgroundcolor=\color{Olive!20},rulesepcolor=\color{Olive!75}]{codes/listeUML_xslcallHelloWorld4.xhtml}
+\end{minipage}
+\end{center}
+
+\end{frame} 
+
+\begin{frame}[allowframebreaks,fragile,containsverbatim]{Quelques \'el\'ements de XSLT}
+
+Voici une feuille de style un peu plus complexe.
+
+\begin{center}
+\begin{minipage}{\textwidth}
+\lstinputlisting[inputencoding=utf8/latin1,basicstyle=\tiny, language=XSLT,breaklines=true, caption={Fichier XSLT listeUMLAfficheListe.xsl}, numbers=left , label={listeUMLAfficheListe}, backgroundcolor=\color{BlueViolet!20},rulesepcolor=\color{BlueViolet!75}]{codes/listeUMLAfficheListe.xsl}
+\end{minipage}
+\end{center}
+%java -cp /Applications/xalan-j_2_7_1/xalan.jar:/Applications/xalan-j_2_7_1/serializer.jar:/Applications/xalan-j_2_7_1/xml-apis.jar:/Applications/xalan-j_2_7_1/xercesImpl.jar org.apache.xalan.xslt.Process -IN listeUML_xslcall_AfficheListe.xml -XSL listeUMLAfficheListe.xsl -OUT listeUML_xslcall_AfficheListe.xhtml
+
+\begin{exoblock}
+Sachant que 
+\begin{itemize}
+\item \verb?<xsl:for-each select = XPath_expr> </xsl:for-each>? contient un code instanci\'e pour chaque n{\oe}ud r\'esultat de l'expression XPath \verb?XPath_expr? \'evalu\'ee dans le contexte courant.
+\prof{expliquer changement de contexte quand on rentre dans la r\`egle}
+\item \verb?<xsl:value-of select = XPath_expr />? \'evalue l'expression  \verb?XPath_expr? et convertit son r\'esultat en cha\^ine de caractères.
+\prof{The xsl:copy-of element can be used to insert a result tree fragment into the result tree, without first converting it to a string as xsl:value-of does}
+\end{itemize}
+
+\begin{enumerate}
+\item Quel est le r\'esultat de l'application de cette feuille de style au fichier du Listing \ref{listeUMLxml} (listeUML.xml) ? 
+\item La ligne 5 devient \verb? <xsl:template match="/">?.  Modifier la suite de la feuille de style afin que celle-ci puisse produire le m\^eme fichier XHTML en sortie.
+\end{enumerate} \prof{R\'esultats sur les deux slides suivants}
+%java -cp /Applications/xalan-j_2_7_1/xalan.jar:/Applications/xalan-j_2_7_1/serializer.jar:/Applications/xalan-j_2_7_1/xml-apis.jar:/Applications/xalan-j_2_7_1/xercesImpl.jar org.apache.xalan.xslt.Process -IN listeUML.xml -XSL listeUMLAfficheListeBis.xsl -OUT listeUML_xslcall_AfficheListeBis.xhtml
+\end{exoblock}
+
+\framebreak
+
+R\'eponse à 1.\\
+
+\begin{center}
+\begin{minipage}{0.9\textwidth}
+\lstinputlisting[inputencoding=utf8/latin1,basicstyle=\tiny, language=XML,breaklines=true, caption={Extrait du fichier XHTML (listeUML\_xslcall\_AfficheListe.xhtml)  g\'en\'er\'e (par Xalan) par application de la feuille de style au fichier XML}, firstline=1,lastline=20,numbers=left, label={listeUMLxslcallAfficheListexhtml},backgroundcolor=\color{Olive!20},rulesepcolor=\color{Olive!75}]{codes/listeUML_xslcall_AfficheListe.xhtml}
+\end{minipage}
+\end{center}
+
+%java -cp /Applications/xalan-j_2_7_1/xalan.jar:/Applications/xalan-j_2_7_1/serializer.jar:/Applications/xalan-j_2_7_1/xml-apis.jar:/Applications/xalan-j_2_7_1/xercesImpl.jar org.apache.xalan.xslt.Process -IN listeUML_xslcall_AfficheListe.xml -XSL listeUMLAfficheListe.xsl -OUT listeUML_xslcall_AfficheListe.xhtml
+
+\framebreak
+
+R\'eponse à 1.\\
+
+\figSized{images/listeUMLxslcallAfficheListe.jpg}{Ouverture du fichier avec Firefox}{0.75}
+
+\framebreak
+
+R\'eponse à 2.\\
+
+\begin{center}
+\begin{minipage}{0.9\textwidth}
+\lstinputlisting[inputencoding=utf8/latin1,basicstyle=\tiny, language=XSLT,breaklines=true, caption={Fichier XSLT (listeUMLAfficheListeBis.xsl)},backgroundcolor=\color{BlueViolet!20},rulesepcolor=\color{BlueViolet!75}, numbers=left]{codes/listeUMLAfficheListeBis.xsl}
+\end{minipage}\prof{Changement de l'expression XPath en ligne 9}
+\end{center}
+
+\prof{Mieux car template pour racine, ce qui est conseillé : Toujours créer un templae pour "/", équivalent du main de java (point d'entrée).}
+\framebreak
+
+Une autre feuille de style pour un r\'esultat \'equivalent\\
+
+\begin{center}
+\begin{minipage}{\textwidth}
+\lstinputlisting[inputencoding=utf8/latin1,basicstyle=\tiny, language=XSLT,breaklines=true, caption={Fichier XSLT listeUMLAfficheListe2.xsl},backgroundcolor=\color{BlueViolet!20},rulesepcolor=\color{BlueViolet!75}, numbers=left]{codes/listeUMLAfficheListe2.xsl}
+\end{minipage}
+\end{center}
+
+\begin{small}
+
+\begin{exoblock}
+\begin{enumerate}
+\item  \'Ecrire une feuille de style \'equivalente \`a la pr\'ec\'edente en ajoutant une règle pour le pattern \texttt{"/"}.
+\prof{rajout de \verb?<xsl:template match="/"><xsl:apply-template select=''diagrammesUML''><xsl:template>?}
+\item Réduiser le fichier listeUML.xml à ses trois premiers diagrammes (voir listing \ref{listeUMLxml}). Pour chaque règle de votre nouvelle feuille de style, indiquer dans quel(s) contexte(s) la règle est instanciée si la feuille de style est appliquée au fichier XML contenant les trois diagrammes.
+\end{enumerate}
+\end{exoblock}
+ 
+\bigskip 
+\begin{block}{Rappel de l'intuition du mécanisme de base de l'exécution}
+Initialement, un processeur XSLT cherche à appliquer, à la racine du fichier XML à transformer (n{\oe}ud \textit{contexte} initial), un template ayant le pattern /. 
+
+\medskip
+
+Pour chaque règle, étant donné un n{\oe}ud \textit{contexte} dans le document à transformer, le processeur XSLT sélectionne un ensemble de n{\oe}uds $\mathcal{N}$ résultant de l'évaluation de l'expression XPath de son pattern. Pour chaque n{\oe}ud $n \in \mathcal{N}$, le processeur XSLT instancie le corps de la règle, cela l'amenant éventuellement à choisir d'autres règles à appliquer avec le n{\oe}ud contexte $n$. 
+\end{block}
+\end{small}
+
+
+\framebreak
+
+Encore une autre feuille de style pour un r\'esultat \'equivalent\\
+
+\begin{center}
+\begin{minipage}{\textwidth}
+\lstinputlisting[inputencoding=utf8/latin1,basicstyle=\tiny, language=XSLT,breaklines=true, caption={Fichier XSLT listeUMLAfficheListe3.xsl},backgroundcolor=\color{BlueViolet!20},rulesepcolor=\color{BlueViolet!75}, numbers=left]{codes/listeUMLAfficheListe3.xsl}
+\end{minipage}
+\end{center}
+
+\begin{exoblock}
+Quel est le r\'esultat de l'application de cette feuille de style au fichier du Listing \ref{listeUMLxml} (listeUML.xml) ? \prof{Idem que Liste2}
+\end{exoblock}
+
+
+\end{frame}
+
+
+\begin{frame}[allowframebreaks]{Associer diff\'erentes r\`egles de transformation \`a un m\^eme ensemble d'\'el\'ements}
+
+Utilisation de l'attribut \verb?mode? dans l'\'el\'ement XSLT \verb?template?.
+
+\begin{center}
+\begin{minipage}{0.7\textwidth}
+\lstinputlisting[inputencoding=utf8/latin1,basicstyle=\tiny, language=XSLT,breaklines=true,linewidth=9cm, numbers=left, firstline=24, lastline=30,caption={Extrait d'un fichier XSLT utilisant l'attribut mode dans l'\'el\'ement template},backgroundcolor=\color{BlueViolet!20},rulesepcolor=\color{BlueViolet!75}]{codes/listeUMLAfficheListeMode.xsl}
+\end{minipage}
+\end{center}
+
+
+\framebreak
+
+\begin{small}
+\begin{center}
+\begin{minipage}{\textwidth}
+\lstinputlisting[inputencoding=utf8/latin1,basicstyle=\tiny, language=XSLT,breaklines=true, caption={Fichier XSLT listeUMLAfficheListeMode.xsl},backgroundcolor=\color{BlueViolet!20},rulesepcolor=\color{BlueViolet!75}, numbers=left]{codes/listeUMLAfficheListeMode.xsl}
+\end{minipage}
+\end{center}
+\end{small}
+
+\framebreak
+
+\begin{center}
+\begin{minipage}{0.9\textwidth}
+\lstinputlisting[inputencoding=utf8/latin1,basicstyle=\tiny, language=XML,breaklines=true, caption={Extrait du fichier XHTML (listeUML\_xslcall\_AfficheListeMode.xhtml)  g\'en\'er\'e (par Xalan) par application de la feuille de style au fichier XML}, firstline=1,lastline=20,numbers=left, label={listeUMLxslcallAfficheListexhtml},backgroundcolor=\color{Olive!20},rulesepcolor=\color{Olive!75}]{codes/listeUML_xslcall_AfficheListeMode.xhtml}
+\end{minipage}
+\end{center}
+
+%java -cp /Applications/xalan-j_2_7_1/xalan.jar:/Applications/xalan-j_2_7_1/serializer.jar:/Applications/xalan-j_2_7_1/xml-apis.jar:/Applications/xalan-j_2_7_1/xercesImpl.jar org.apache.xalan.xslt.Process -IN listeUML.xml -XSL listeUMLAfficheListeMode.xsl -OUT listeUML_xslcall_AfficheListeMode.xhtml
+
+\framebreak
+
+\figSized{images/listeUML_mode_ff.jpg}{Fichier issu de la transformation}{0.75}
+
+\framebreak
+
+\begin{exoblock}
+\begin{enumerate}
+\item \'Ecrire une feuille de style \'equivalente \`a la pr\'ec\'edente en ajoutant une règle pour le pattern \texttt{"/"}.
+\prof{rajout de \verb?<xsl:template match="/"><xsl:apply-template select=''diagrammesUML''><xsl:template>?}
+\item Imaginez un fichier XML contenant trois diagrammes UML (par exemple ceux de l'extrait du Listing \ref{listeUMLxml}). Pour la nouvelle feuille de style appliquée à ce fichier, expliquer dans quel(s) contexte(s) sont instanciées chacunes de r\`egles.
+\end{enumerate}
+\end{exoblock}
+
+\end{frame}
+
+\begin{frame}[allowframebreaks,containsverbatim]{Conflit entre règles}
+
+\begin{small}
+\begin{center}
+\begin{minipage}{\textwidth}
+\lstinputlisting[inputencoding=utf8/latin1,basicstyle=\tiny, language=XSLT,breaklines=true, caption={Fichier XSLT listeUMLAfficheListeConflit.xsl},backgroundcolor=\color{BlueViolet!20},rulesepcolor=\color{BlueViolet!75}, numbers=left]{codes/listeUMLAfficheListeConflit.xsl}
+\end{minipage}
+\end{center}
+\end{small}
+
+\begin{block}{En cas de conflit de règles}
+La règle la plus spécifique est appliquée.
+\end{block}
+
+\prof{si pas de règle importée (une règle importée écrase les règles locales). On peut aussi définir soit-même des priorités ou nommer les règles et appeler la règle désirée. Plein de mécanismes pour jouer sur les règles à appliquer mais le principe reste bien celui de l'évaluation des patterns avec évolution du contexte.}
+
+\framebreak
+
+\begin{center}
+\begin{minipage}{0.9\textwidth}
+\lstinputlisting[inputencoding=utf8/latin1,basicstyle=\tiny, language=XML,breaklines=true, caption={Extrait du fichier XHTML (listeUML\_xslcall\_AfficheListeConflit.xhtml)  g\'en\'er\'e (par Xalan) par application de la feuille de style au fichier XML}, firstline=1,lastline=20,numbers=left, backgroundcolor=\color{Olive!20},rulesepcolor=\color{Olive!75}]{codes/listeUML_xslcall_AfficheListeConflit.xhtml}
+\end{minipage}
+\end{center}
+
+\end{frame}
+
+
+\begin{frame}{XSLT}
+On s'arr\^ete l\`a mais XSLT peut aller beaucoup plus loin (variables, etc).
+
+\bigskip
+
+Pour aller plus loin :
+\begin{itemize}
+\item \cite{WDMD} Wed Data Management and Distribution de Serge Abiteboul, Ioana Manolescu, Philippe Rigaux, Marie-Christine Rousset, et Pierre Senellart.
+\item \cite{RA02} Comprendre XSLT (2002) de Philippe Rigaux et Bernd Amann.
+\item \cite{Tid08} XSLT: Mastering XML Transformations (2008) de Doug Tidwell.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile,containsverbatim,allowframebreaks]{Exercice \`a effectuer en cours}
+Voici un fichier XML (\textit{produitsBB.xml}).
+
+\begin{tabular}{cc}
+\begin{minipage}{0.48\textwidth}
+\lstinputlisting[inputencoding=utf8/latin1,basicstyle=\tiny,language=XML, firstline=1,lastline=28,backgroundcolor=\color{DarkCyan!20},rulesepcolor=\color{DarkCyan!75}]{codes/produitsBB.xml}
+\end{minipage}
+&
+\begin{minipage}{0.53\textwidth}
+\lstinputlisting[inputencoding=utf8/latin1,basicstyle=\tiny,language=XML, firstline=29,lastline=50,backgroundcolor=\color{DarkCyan!20},rulesepcolor=\color{DarkCyan!75}]{codes/produitsBB.xml}
+\end{minipage}
+\end{tabular}
+
+\framebreak
+
+\begin{exoblock}
+
+\begin{enumerate}
+\item \'Ecrire un fichier XSLT permettant d'\'ecrire sous forme d'un fichier XHTML la liste des noms des magasins contenus dans \textit{produitsBB.xml}.
+\item Compl\'eter ce fichier en lui permettant d'afficher, en dessous de la liste des magasins, pour chaque magasin la liste des produits vendus dans le magasin (libell\'e du produit et sa marque entre parenth\`eses).
+\end{enumerate}
+\end{exoblock}
+
+Vous pouvez trouver une solution pour cet exercice dans le fichier \textit{feuilleproduits.xsl} (t\'el\'echargeable sur Plei@d)
+ %java -cp /Applications/xalan-j_2_7_1/xalan.jar:/Applications/xalan-j_2_7_1/serializer.jar:/Applications/xalan-j_2_7_1/xml-apis.jar:/Applications/xalan-j_2_7_1/xercesImpl.jar org.apache.xalan.xslt.Process -IN produitsBB.xml -XSL feuilleproduits.xsl -OUT affichageDesProduits.xhtml
+
+\end{frame}

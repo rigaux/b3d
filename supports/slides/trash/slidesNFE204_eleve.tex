@@ -1,0 +1,251 @@
+\documentclass[allowframebreaks,9pt]{beamer}
+ 
+%\usetheme{JuanLesPins}
+\usetheme{JuanLesPins}
+%http://www.hartwork.org/beamer-theme-matrix
+%\usecolortheme{seahorse}
+\usecolortheme{beaver} 
+
+\setbeamertemplate{caption}[numbered]
+
+% numéros des frame lorsque franbreak en arabic au lieu de roman
+%\setbeamertemplate{frametitle continuation}{\insertcontinuationcount}
+% pas de numéros mais un (suite) NB. En anglais, remplacer par (cont.)
+\setbeamertemplate{frametitle continuation}[from second][(suite)]
+
+\usepackage{etex}
+\reserveinserts{28}
+\usepackage[french]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{url}
+\usepackage{array}
+\usepackage{tikz}
+\usetikzlibrary{arrows,shapes,snakes,automata,backgrounds,petri,positioning}
+\usepackage{tikz-qtree}
+\usepackage{color}
+\usepackage{MnSymbol,amsmath,bbm,amssymb}
+\usepackage{listings}
+\usepackage{setspace}
+\usepackage{marvosym}
+\usepackage{listingsutf8}
+\usepackage{hyperref}
+\usepackage[final]{pdfpages} 
+\usepackage{comment}
+
+\input{definedcolors}
+
+\def\sitepartage/{le site \texttt{Plei@d}}
+
+
+\setcounter{tocdepth}{1}
+
+\newcommand{\HRule}{\rule{\linewidth}{0.1mm}}
+
+\newcommand{\tryit}[1]{
+\HRule \\
+\begin{minipage}{0.1\textwidth}
+\textcolor{seaGreen}{\Coffeecup} %\Bicycle\\
+\end{minipage}
+\begin{minipage}{0.8\textwidth}
+\begin{flushright} \small \textcolor{seaGreen}{#1}\\
+\end{flushright}
+\end{minipage}
+}
+
+
+\newcommand{\info}[1]{
+\HRule \\
+\begin{minipage}{0.1\textwidth}
+\textcolor{cyan}{\Info} %\Bicycle\\
+\end{minipage}
+\begin{minipage}{0.8\textwidth}
+\begin{flushright} \small \textcolor{cyan}{#1}\\
+\end{flushright}
+\end{minipage}
+}
+
+
+\newcommand{\exo}[1]{
+\HRule \\
+\begin{minipage}{0.1\textwidth}
+\textcolor{magenta}{\Stopsign} %\Bicycle\\
+\end{minipage}
+\begin{minipage}{0.8\textwidth}
+\small \textcolor{magenta}{#1}\\
+\end{minipage}
+}
+
+\newcommand{\hide}[1]{}
+
+
+\newenvironment{exoblock}[1][]{
+\begingroup
+\setbeamercolor{block title}{bg=violet,fg=white}%bg=background, fg= foreground
+\setbeamercolor{block body}{fg=violet}%bg=background, fg= foreground
+\begin{block}{Test #1}}
+{\end{block}\endgroup}
+
+
+%DECOMMENTER POUR V FINALE
+\logo{\includegraphics[height=0.4cm]{./images/LeCnamLOGO.jpg}}
+
+\author{Enseignant : Philippe Rigaux}
+
+\institute[CNAM]{
+  {
+    \'Equipe Vertigo\\
+    Laboratoire CEDRIC\\
+    Conservatoire National des Arts \& M\'etiers, Paris, France
+  }
+}
+
+
+\setbeamertemplate{navigation symbols}{} %gets rid of navigation symbols
+%\setbeamertemplate{footline}[page number]{}	 %gets rid of bottom navigation bars
+
+%\setbeamertemplate{footline}[frame number]
+%\setbeamertemplate{footline}{%
+%  \raisebox{5pt}{\makebox[\paperwidth]{\hfill\makebox[10pt]{\scriptsize\insertframenumber}}}}
+\setbeamertemplate{footline}{}
+
+\input{config_eleve}
+
+
+\newcommand{\slides}[1]{x
+\includepdf[pages=2-,nup=1x1,noautoscale,scale=0.5,pagecommand={\thispagestyle{plain}}]{SlidesPDF/#1}
+} 
+
+\title{NFE204 - Bases documentaires et NoSQL}
+\subtitle{Partie XML}
+
+
+\date{}
+
+% \pgfdeclareimage[height=0.5cm]{university-logo}{university-logo-filename}
+% \logo{\pgfuseimage{university-logo}}
+
+
+% If you wish to uncover everything in a step-wise fashion, uncomment
+% the following command:
+
+%\beamerdefaultoverlayspecification{<+->}
+ 
+\newcommand{\fig}[2]
+{
+ \begin{figure}
+  \begin{center}
+  \includegraphics[width=0.7\textwidth]{#1}\\
+  \caption{\label{#1}  #2}
+  \end{center}
+ \end{figure}
+} 
+
+
+\newcommand{\figSized}[3]
+{
+ \begin{figure}
+  \begin{center}
+  \includegraphics[width=#3\textwidth]{#1}\\
+  \caption{\label{#1}  #2}
+  \end{center}
+ \end{figure}
+} 
+
+
+
+\begin{document}
+
+\begin{frame}
+\titlepage 
+\end{frame}
+
+
+%\begin{frame}
+%\frametitle{Plan du cours}
+%\tableofcontents
+% You might wish to add the option [pausesections]
+% \begin{block}{Bloc standard}
+%   Un bloc tout simple, par dï¿½faut
+%   Un texte sur un fond de couleur qui 
+%   dï¿½pend, bien sï¿½r, du thï¿½me choisi. 
+% \end{block}
+%\end{frame}
+
+
+
+%\definecolor{grey}{HTML}{736F6E}
+%\setbeamercolor{block body alerted}{fg=white,bg=orange}
+
+\lstset{basicstyle=\footnotesize,showstringspaces=false,language=XML,breaklines=false,columns=fullflexible,frame=shadowbox, rulesepcolor=\color{gray},captionpos=b}
+
+
+\section{Introduction}
+%\input{intro}
+
+\begin{frame}
+\titlepage 
+\end{frame}
+
+\section{Le formalisme XML}\label{sec:formXML}
+\input{xml}
+
+
+\end{document}
+
+\begin{frame}
+\titlepage 
+\end{frame}
+
+\section{XPath}\label{sec:xpath}
+\input{xpath}
+
+\begin{frame}
+\titlepage 
+\end{frame}
+
+\section{XSLT}\label{sec:xslt}
+\input{xslt}
+    
+\begin{frame}
+\titlepage 
+\end{frame}
+
+\section{XQuery}\label{sec:xquery}
+\input{xquery}
+\begin{frame}
+\titlepage 
+\end{frame}
+
+\section{XML Schema}\label{sec:xmlschema}
+\input{xmlschema}
+\begin{frame}
+\titlepage 
+\end{frame}
+
+\section{JSON}\label{sec:json}
+\input{json}
+
+\section{Ressources et r\'ef\'erences}
+\bibliographystyle{alpha}  
+
+\begin{frame}[allowframebreaks]{R\'ef\'erences} 
+\nocite{*}
+\bibliography{../sources_ED/biblio_cours_xml}
+\end{frame}
+
+% \begin{frame}{Ressources du cours}
+% Les ressources de ce cours sont disponibles \`a l'adresse suivante:\\
+% \url{http://cedric.cnam.fr/~thionv/NFE204.php} et sur plei@d. \\
+
+% \bigskip
+
+% \begin{minipage}{0.1\textwidth}
+% \textcolor{DarkRed}{\Info} %\Bicycle\\
+% \end{minipage}
+% \begin{minipage}{0.8\textwidth}
+% \small \textcolor{DarkRed}{\bf Pour les auditeurs CNAM : \\référez-vous à plei@d (\url{http://idf.pleiad.net/}), qui contient d'autres informations par exemple organisationnelles concernant l'UE NFE204.}\\
+% \end{minipage}
+%\end{frame}
+
+
+\end{document}

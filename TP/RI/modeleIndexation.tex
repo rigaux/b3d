@@ -1,0 +1,156 @@
+\section{Modèle d'indexation textuel}
+\subsection{Modèle Booléen}
+
+Nous utiliserons ici un ensemble de document (défini par un docId) auquel nous allons associé un ensemble de mots-clés qui les caractérisent.
+Ci-joint les documents correpondant :
+
+\begin{tabular}{|c|l|}
+\hline
+\textbf{docId}&\textbf{terms}\\
+\hline
+\hline
+1 & France, Récession, Ralentie, INSEE\\
+\hline
+2 & USA, Finance, Paulson, Ralentie, Crise\\
+\hline
+3 & Crise, Gouvernement, Ralentie, INSEE\\
+\hline
+4 & PIB, France, Crise, Ralentie\\
+\hline
+\end{tabular}
+
+\begin{enumerate}
+	\item Créer une matrice d'incidence sur les documents précédents.
+\begin{correction}~\\
+\hspace*{-2cm}\begin{tabular}{|c||c|c|c|c|c|c|c|c|c|c|}
+\hline
+\textbf{docId}&\textbf{France}&\textbf{Récession}&\textbf{Ralentie}&\textbf{INSEE}&\textbf{USA}&\textbf{Finance}&\textbf{Paulson}&\textbf{Crise}&\textbf{Gouvernement}&\textbf{PIB}\\
+\hline
+\hline
+1	&1&1&1&1&0&0&0&0&0&0\\
+\hline
+2	&0&0&1&0&1&1&1&1&0&0\\
+\hline
+3	&0&0&1&1&0&0&0&1&1&0\\
+\hline
+4	&1&0&1&0&0&0&0&1&0&1\\
+\hline
+\end{tabular}
+\end{correction}
+
+
+	\item Proposer une transformation des requêtes suivantes sous forme de requêtes booléennes :
+	\begin{itemize}
+		\item "la crise ralentie"
+		\item "En France, selon l'Insee, le PIB"
+		\item "Aux USA, Paulson" mais sans le mot "crise"
+	\end{itemize}
+
+\begin{correction}~\\
+	\begin{itemize}
+		\item crise $\land$ ralentie
+		\item France $\land$ INSEE $\land$  PIB
+		\item USA $\land$ Paulson $\land \lnot$ Crise
+	\end{itemize}
+\end{correction}
+
+	\item Evaluer les requêtes et donner les documents répondant à ces requêtes.
+
+\begin{correction}~\\
+	\begin{itemize}
+		\item 2, 3, 4
+		\item aucun document
+		\item aucun document
+	\end{itemize}
+\end{correction}
+
+	\item Formaliser l'algorithme d'évaluation
+
+\begin{correction}~\\
+			Soit la matrice $M$\\
+			Soit la requête de termes $T$ (lié chacun par un operateur $o$ vrai ou not)\\
+			Soit $L$ une liste de $docId$\\
+			Pour chaque terme $t$ de la requête\\
+			\hspace*{1cm}V = vecteur (M, id(t))\\
+			\hspace*{1cm}Si (R est vide $\land$ !dernier($t$))\\
+			\hspace*{2cm}V = R\\
+			\hspace*{1cm}Sinon\\
+			\hspace*{2cm}Pour $i$ = 1 à nb\_doc\\
+			\hspace*{3cm}Si !dernier ($t$)\\
+			\hspace*{4cm}$R[i] = (R[i] \land o V[i])$\\
+			\hspace*{3cm}Sinon Si V est vide\\
+			\hspace*{4cm}Si R[i]\\
+			\hspace*{5cm}ajouter ($L$, i)\\
+			\hspace*{3cm}Sinon Si $R[i] \land o V[i]$\\
+			\hspace*{4cm}ajouter ($L$, i)\\
+\end{correction}
+
+\end{enumerate}
+
+\subsection{Modèle vecteur}
+
+\begin{enumerate}
+	\item Créer, à partir des documents précédents, des fichiers inverses \textit{(posting lists)}
+
+\begin{correction}~\\
+\begin{tabular}{|c|l|}
+\hline
+\textbf{Terme}&\textbf{docIds}\\
+\hline
+\hline
+France & 1, 4\\
+\hline
+Récession & 1\\
+\hline
+Ralentie & 1, 2, 3, 4\\
+\hline
+INSEE & 1, 3\\
+\hline
+USA & 2\\
+\hline
+Finance & 2\\
+\hline
+Paulson & 2\\
+\hline
+Crise & 2, 3, 4\\
+\hline
+Gouvernement & 3\\
+\hline
+PIB & 4\\
+\hline
+\end{tabular}
+\end{correction}
+
+	\item Evaluer les requêtes précédentes.
+\begin{correction}~\\
+			Même résultat, la méthode est différente.
+\end{correction}
+	\item Formaliser l'algorithme de fusion de listes par rapport à une requête.
+\begin{correction}~\\
+			Intersection\footnote{p$_1$ et p$_2$ sont deux \textit{Posting lists correspondant à chaque terme}} (p$_1$, p$_2$)\\
+			\hspace*{1cm}$L$ = ()\\
+			\hspace*{1cm}Tant que p$_1$ et p$_2$ ne sont pas vides\\
+			\hspace*{2cm}Si docId (p$_1$) == docId (p$_2$)\\
+			\hspace*{3cm}Ajouter docId(p$_1$) à $L$\\
+			\hspace*{3cm}p$_1$ = suivant(p$_1$)\\
+			\hspace*{3cm}p$_2$ = suivant(p$_2$)\\
+			\hspace*{2cm}Sinon Si docId (p$_1$) $<$ docId (p$_2$)\\
+			\hspace*{3cm}p$_1$ = suivant(p$_1$)\\
+			\hspace*{2cm}Sinon p$_2$ = suivant(p$_2$)\\
+			\hspace*{1cm}Retourner $L$\\
+			~\\
+			~\\
+			Evaluation ($terms$)\\
+			\hspace*{1cm}p$_1$ = \textit{posting\_list}($terms$[1])\\
+			\hspace*{1cm}Pour chaque $i$ de 2 à taille($terms$)\\
+			\hspace*{2cm}p$_2$ = \textit{posting\_list} ($terms$[$i$])\\
+			\hspace*{2cm}p$_1$ = Intersection (p$_1$, p$_2$)\\
+			\hspace*{1cm}Retourner p$_1$			
+\end{correction}
+	\item Dans quel ordre doit-on choisir les mots de la requête pour l'évaluation ?
+		\begin{correction} En choisissant les termes par ordre de fréquence croissante, nous pourrons être plus sélectif sur le terme le plus fréquent.
+\end{correction}
+	\item Quelle optimisation peut-on faire sur le modèle pour accélerer les gros vecteurs (plusieurs millions d'occurences pour le mot 'crise') ? Modifier l'algorithme avec cette optimisation.
+\begin{correction}En ajoutant des pointeurs appelés \textit{Skip Lists}, nous allons pouvoir sauter un ensemble de documents s'ils sont inutiles. Celui-ci se pose tous les X documents et pointe sur la série suivante. Ainsi, tous les X documents nous avons le docId et le docId pointé. Cela nous permet, lorsque nous cherchons un docId trop grand de passer au docId pointé sans analyser les docId intermédiaires.
+\end{correction}
+\end{enumerate}

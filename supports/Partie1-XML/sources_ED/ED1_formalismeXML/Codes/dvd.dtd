@@ -1,0 +1,26 @@
+ <!ELEMENT BD (DVD|DVDdescr|Distrib|Loueur|Location)*>
+ <!ELEMENT DVD EMPTY>
+ <!ATTLIST DVD id ID #REQUIRED
+	       cb IDREF #REQUIRED
+	       iddis IDREF #REQUIRED>
+ <!ELEMENT DVDdescr EMPTY>
+ <!ATTLIST DVDdescr cb ID #REQUIRED
+		    titre CDATA #REQUIRED
+		    real CDATA #REQUIRED
+		    genre (Action|Comedie|Drame|Fantastique|Suspens|Terreur|X) #REQUIRED
+		    uri CDATA "http://www.cinedvdbanque.com/non-dispo.html">
+ <!ELEMENT Distrib (Adresse)>
+ <!ATTLIST Distrib id ID #REQUIRED>
+ <!ELEMENT Loueur (Adresse)>
+ <!ATTLIST Loueur id ID #REQUIRED
+		  nom CDATA #REQUIRED
+		  tel CDATA #REQUIRED
+		  passwd CDATA #REQUIRED>
+ <!ELEMENT Location EMPTY>
+ <!ATTLIST Location idl IDREF #REQUIRED
+		    idd IDREF #REQUIRED>
+ <!ELEMENT Adresse (Num,Rue,Ville,CP)>
+ <!ELEMENT Num (#PCDATA)>
+ <!ELEMENT Rue (#PCDATA)>
+ <!ELEMENT Ville (#PCDATA)>
+ <!ELEMENT CP (#PCDATA)>

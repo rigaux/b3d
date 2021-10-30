@@ -1,0 +1,207 @@
+
+\begin{frame}{Le \textit{Streaming} avec Flink}
+
+On a affaire à un \alert{stream}, flux de données de taille (conceptuellement) infinie.
+
+\vfill
+
+Les éléments de ce flux sont des \alert{item}s dans la terminologie Flink. Un item est de type quelconque,
+on doit parfois lui attribuer une clé de regroupement.
+
+\vfill
+
+Et on applique à ce flux et à ces items des \alert{transformations}, en continu
+
+\vfill
+\begin{blocgauche}
+Contrairement à Spark, Flink traite nativement les flux: les items sont pris en compte
+un par un, instantanémenent (alors que Spark fait du micro-batch, ou pseudo-streaming)
+\end{blocgauche}
+\end{frame}
+
+
+\begin{frame}{Les \textit{workflow} de Flink}
+
+La source est typiquement un gestionnaire de flux comme Kafka.
+\vfill
+
+\figSlideWithSize{flink_dataflow}{10cm}
+
+\vfill
+
+La cible est typiquement une base de données. 
+
+\vfill
+\begin{blocgauche}
+Les opérateurs (voir la liste dans support de cours) sont à peu près ceux que l'on trouve dans Pig ou Spark.
+\end{blocgauche}
+\end{frame}
+
+%%%%%%%%%%%%%
+\begin{frame}{Notre simulateur de flux}
+
+Pour expérimenter facilement, nous utilisons un simulateur de flux écrit en Python, \texttt{Simflux.py}. 
+
+\vfill
+
+\begin{redbullet}
+
+  \item Pour engendrer un flux d'entiers sur le port 9000 (par défaut)\,: 
+  
+   \texttt{python3 SimFlux.py}
+
+\item Pour engendrer un flux de lignes extraites d'un fichier texte\,: 
+
+ \texttt{python3 SimFlux.py {-}-source nom\_fichier}
+
+\item Pour engendrer un flux des contenus de fichier d'un répertoire\,:  
+
+  \texttt{python3 SimFlux.py {-}-source répertoire}
+
+\end{redbullet}
+
+\vfill
+
+On va tester la façon dont Flink consomme ce flux en entrée.
+\end{frame}
+
+
+\begin{frame}[fragile]{Un premier exemple avec l'interpréteur Scala}
+
+Au préalable, lancer notre générateur de flux sur le port 9000.
+
+\vfill
+
+\begin{minted}{scala}
+// Déclaration du flux de données. NB: senv est l'environnement de streaming
+val stream = senv.socketTextStream("localhost", 9000, '\n')
+// À chaque entier en entrée, on ajoute 2 (pourquoi pas)
+val w = stream.map ({ x => x.toInt + 2 } )
+// Voyons ce que cela donne
+w.print()
+// Workflow défini: on l'exécute
+senv.execute("Mon premier traitement de flux ")
+\end{minted}
+
+\vfill
+
+\begin{blocgauche}
+Notez bien que l'exécution est ``paresseuse'': on ne déclenche le \textit{workflow} que quand le \textit{sink} est défini.
+\end{blocgauche}
+\end{frame}
+
+%%%%%%%%%%%%
+\begin{frame}[fragile]{Un workflow = séquence de transformations}
+
+S'exprime très simplement en Scala.
+
+\vfill
+
+Ci-dessous\,: on crée un Tuple scala avec l'entier reçu, puis on lui associe son double, puis
+on affiche.
+
+\vfill
+\begin{minted}{scala}
+stream.map ( { x => Tuple1(x.toInt) } )
+      .map( {y => (y._1, y._1 * 2) } )
+      .print()
+\end{minted}
+
+\vfill
+\begin{blocgauche}
+Astuce: utiliser \texttt{:paste} puis \texttt{CTRL D} pour entrer des commandes multi-lignes.
+\end{blocgauche}
+\end{frame}
+
+
+
+%%%%%%%%%
+\begin{frame}[fragile]{Traitons des flux d'objets}
+
+Plus intéressant: on transforme le flux en entrée en un type donné (comme dans Pig)
+
+\vfill
+
+\begin{minted}{scala}
+case class MonDouble(leReel: Float, sonDouble: Double)
+val stream = senv.socketTextStream("localhost", 9000, '\n')
+val w = stream.map ( { x => Tuple1(x.toFloat) } )
+                .map( {y => MonDouble(y._1, y._1 * 2) } )
+val fluxFiltre = w.filter ({_.leReel > 1000})
+fluxFiltre.print()
+senv.execute("Mon premier traitement de flux ")
+\end{minted}
+
+\vfill
+\begin{blocgauche}
+Important: \textit{Streaming} = pipelinage. \alert{Il n'y a pas de matérialisation des résultats intermédiaires}.
+\end{blocgauche}
+\end{frame}
+
+
+%%%%%%%%%%%%
+\begin{frame}[fragile]{Passons à des chaînes de caractères}
+
+Ci-dessous\,: après avoir lancé le simulateur en mode 'lecture de fichier texte',
+on traite les lignes de texte constituant le flux.
+
+\vfill
+\begin{minted}{scala}
+     val stream = senv.socketTextStream("localhost", 9000, '\n')
+     val w = stream.flatMap ({ str => str.split("\\W+") }).print()
+     senv.execute("Je découpe en mots")
+\end{minted}
+
+\vfill
+
+Nous sommes prêts à compter les mots.
+\end{frame}
+
+\begin{frame}[fragile]{Le fameux compteur de mots}
+
+Voici la chaîne de traitement pour compter les mots d'un flux en entrée.
+\vfill
+
+\begin{minted}{scala}
+case class CompteurMot(mot: String, compteur: Int)
+ val stream = senv.socketTextStream("localhost", 9000, '\n')
+ val w = stream.flatMap ({ str => str.split("\\W+") })
+        .map({ CompteurMot(_, 1) })
+        .keyBy("mot")
+        .sum("compteur")
+        .print()
+senv.execute("Le compteur de mots")
+\end{minted}
+
+\vfill
+\begin{blocgauche}
+Notez.  (i) l'opérateur \texttt{keyBy} qui regroupe des nuplets Scala sur un champ (ici, le champ ``mot'') 
+et crée donc autant de flux que de mots; (ii) le compteur ne fait que s'incrémenter.
+\end{blocgauche}
+\end{frame}
+
+
+\begin{frame}[fragile]{Le même, en utilisant \texttt{reduce}}
+
+Que signifie \texttt{reduce} dans un contexte de flux? C'est l'accumulation
+successive des valeurs rencontrées, groupées d'après une clé.
+
+\vfill
+
+\begin{minted}{scala}
+case class CompteurMot(mot: String, compteur: Int)
+val stream = senv.socketTextStream("localhost", 9000, '\n')
+val mots = stream.flatMap ({ str => str.split("\\W+") })
+                 .map({ CompteurMot(_, 1) }).keyBy("mot")
+val compte = mots.reduce( (acc, occ)  
+       => {CompteurMot (acc.mot, acc.compteur + 1) }).print()
+senv.execute("Le compteur de mots")
+\end{minted}
+
+\vfill
+\begin{blocgauche}
+Et voilà\,! Nous savons traiter des flux \emph{infinis}. Il reste à savoir
+les découper en \alert{fenêtres}.
+\end{blocgauche}
+\end{frame}
+

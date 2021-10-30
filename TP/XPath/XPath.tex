@@ -1,0 +1,102 @@
+\chapter{XPath}
+
+\section{\'Evaluation XPath}
+Pour chaque expression XPath suivante, donner une phrase exprimant le résultat obtenu sur le document XML de référence\footnote{Document de référence : \url{http://cedric.cnam.fr/~traversn/teaching/nfe204/bibliotheque.xml}}. Vous testerez ces requêtes sur le logiciel {\it BaseX}\footnote{\url{http://basex.org/products/download/all-downloads/}}.
+\begin{enumerate}
+	\item /child::biblio/child::book/child::author
+\begin{correction}
+Les auteurs de livres
+\end{correction}
+	\item /child::biblio/child::book[position()=1]/child::author[position()=1]
+\begin{correction}
+Le premier auteur du premier livre
+\end{correction}
+	\item /child::biblio/child::book/child::title/child::text()
+\begin{correction}
+Titres des livres
+\end{correction}
+	\item /child::biblio/child::book/attribute::ISBN
+\begin{correction}
+Les codes ISBN de livres
+\end{correction}
+	\item /biblio/book/author
+\begin{correction}
+Les auteurs de livres
+\end{correction}
+	\item count(/biblio/book/author)
+\begin{correction}
+Nombre d'auteurs de livres
+\end{correction}
+	\item count(/biblio/book[1]/author)
+\begin{correction}
+Nombre d'auteurs pour le premier livre
+\end{correction}
+	\item biblio/book[@lang="fr"]/title
+\begin{correction}
+Titre des livres écrits en francais 
+\end{correction}
+	\item /biblio/book[not(position()=1)]/author
+\begin{correction}
+Les auteurs dont les livres ne sont pas en première position 
+\end{correction}
+\end{enumerate}
+
+\section{Rédaction de requêtes XPath}
+
+\`A partir de chaque phrase suivante, trouvez la requête XPath correspondante.
+
+\begin{enumerate}
+	\item Livres n'ayant qu'un seul auteur
+\begin{correction}
+/biblio/book[count(author)=1]
+\end{correction}
+	\item Toute balise ``book" ayant un fils avec un seul auteur
+\begin{correction}
+/descendant-or-self::book[count(child::author) = 1]
+//book[count(author)=1]
+\end{correction}
+	\item Tous les livres avant le deuxième livre
+\begin{correction}
+/biblio/book[2]/preceding-sibling::*
+\end{correction}
+	\item Tous les livres après le deuxième livre
+\begin{correction}
+/biblio/book[2]/following-sibling::*
+\end{correction}
+	\item Tous les auteurs de livres français
+\begin{correction}
+/biblio/book[@lang='fr']/author
+\end{correction}
+	\item Les titres de livres écrits en français écrit par ``Knab"
+\begin{correction}
+/biblio/book[@lang='fr']/author[contains(lastname,'Knab')]/parent::book/title/text()
+\end{correction}
+	\item Nombre de livres dont le sujet est ``databases''
+\begin{correction}
+count(/book[@subject=``databases''])
+\end{correction}
+	\item count(//book)
+\begin{correction}
+Nombre de livres
+\end{correction}
+	\item Premier et deuxième auteurs du premier livres
+\begin{correction}
+/biblio/book[1]/author[2 or 1]
+\end{correction}
+	\item Titre des livres écrit par Philippe Rigaux avec au moins un autre auteur
+\begin{correction}
+//book[author[lastname = 'Philippe'][firstname = 'Rigaux]][count(author) > 1]/title
+\end{correction}
+	\item Titre des livres dont le titre contient XML et publié chez Eyrolles
+\begin{correction}
+//book/title[contains(title, ``XML'')][contains(publisher/name, ``Eyrolles'')]
+\end{correction}
+	\item Auteurs ayant écrit au moins de livre
+\begin{correction}
+//author[count(.[lastname = //author/lastname][firstname = //author/firstname]) > 1]
+\end{correction} 
+\end{enumerate}
+
+
+
+

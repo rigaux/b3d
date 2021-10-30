@@ -1,0 +1,17 @@
+h1.commun {
+color : green; 
+font: normal small "Trebuchet MS", Arial, Helvetica, sans-serif;
+text-decoration : underline
+}
+
+h1.coord {
+color : red; 
+font: bold small "Trebuchet MS", Arial, Helvetica, sans-serif;
+text-decoration : underline
+}
+
+h2, h3 {
+color : green; 
+font: normal small "Trebuchet MS", Arial, Helvetica, sans-serif;
+text-decoration : underline
+}

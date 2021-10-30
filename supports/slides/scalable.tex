@@ -1,0 +1,165 @@
+
+\section{Définition}
+
+
+\begin{frame}
+\frametitle{Une définition (stricte) de la scalabilité}
+
+
+\begin{defblock}{Définition}
+Un \alert{système} est \alert{scalable}  si ses \alert{performances}
+sont proportionnelles aux \alert{ressources} qui lui sont allouées.
+\end{defblock}
+
+où
+\begin{redbullet}
+ \item le \alert{système} est un système distribué de gestion de données;
+  \item les \alert{ressources} sont les composants matériels (serveurs, connectique);
+  \item la \alert{performance} est mesurée
+  \begin{itemize}
+    \item soit par la \alert{latence} pour les systèmes temps réel (temps d'accès à un document);
+    \item soit par le \alert{débit} pour les systèmes analytiques (temps de parcours d'une collection).
+  \end{itemize}
+\end{redbullet}
+
+On quantifie les grandeurs ``ressource'' et ``performance'' ; on montre que 
+leur rapport est constant pour un volume de données fixé.
+
+\end{frame}
+
+
+\section{Exemple 1: comptons les documents}
+
+\begin{frame}{Premier exemple: comptage des vidéos}
+
+On veut compter les vidéos dans la collection. 
+
+\vfill
+
+\begin{redbullet}
+  \item Avec un serveur: on lit la collection sur le disque, on compte: 100 MO/s
+  \item Avec deux serveurs: on répartit la collection en deux parties égales, chaque
+      serveur lit sur son disque: 200 MO/s
+   \item avec $n$ serveurs: on répartit en $n$, on lit en parallèle: $n \times 100$ MO/s
+\end{redbullet} 
+
+À la fin, le ou les serveurs envoie(nt) leur compte à l'application qui cumule (coût 0 ou presque).
+
+\vfill
+
+Rapport performance/ressources = (débit global / nb serveurs) = 100 MO/s !
+\end{frame}
+
+\begin{frame}{La méthode}
+
+
+\figSlideWithSize{scalability1}{10cm}
+
+\vfill
+
+\begin{remblock}{Important}
+Le fait que le temps soit constant par serveur (courbe verte) est une condition nécessaire mais pas suffisante!
+\end{remblock}
+
+Si j'envoie \alert{toutes} les vidéos au client, le coût réseau (500 TOs!) devient prépondérant.
+\end{frame}
+
+
+\section{Exemple 2: cherchons les doublons}
+
+\begin{frame}{Second exemple: on cherche des doublons}
+
+Comment savoir si on a des vidéos en double (des \alert{contenus} identiques)?
+
+\vfill
+
+On procède en deux étapes
+
+\begin{redbullet}
+
+  \item parcours des vidéos, calcul d'une \alert{signature}; on produit la liste
+  des paires $(i, s)$, $i$ id de la vidéo, $s$ signature;
+  
+  \item regroupement des paires par signature:  si deux signatures (ou plus) égales sont trouvées,
+    c'est un doublon!
+\end{redbullet}
+
+Et on envoie au client la liste des doublons.
+\end{frame}
+
+
+\begin{frame}{Etape 1}
+
+La première étape se déroule entièrement en parallèle sur les serveurs.
+
+\vfill
+
+
+\figSlideWithSize{scalability2}{10cm}
+
+
+\vfill
+
+Scalable, pour les mêmes raisons que l'exemple 1.
+\end{frame}
+
+
+\begin{frame}{Etape 2}
+
+La  seconde étape implique des échanges réseaux: on alloue à chaque serveur un
+sous-ensemble des signatures, et on lui transmet les paires de la liste pour ces signatures.
+
+\vfill
+
+\figSlideWithSize{scalability3}{10cm}
+
+
+\vfill
+
+Scalable? Peut-on augmenter linéairement le débit d'un réseau?
+
+\end{frame}
+
+
+\begin{frame}{Analyse}
+
+On échange sur le réseau un paire $(i, s)$ pour chaque document.
+
+\vfill
+
+La taille est \alert{totalement négligeable} par rapport à celle du document lui-même.
+
+\vfill
+
+Conclusion: \alert{le coût des accès disques est largement prépondérant; la méthode est 
+scalable (pas parfaitement...)}
+
+\begin{remblock}{A vérifier}
+Il faudrait \alert{quantifier} les coûts respectifs des accès disques et réseau (cf. la suite)
+\end{remblock}
+
+\end{frame}
+
+
+\begin{frame}{Quelques conclusions générales}
+
+Quelques conditions favorables (voire indispensables) 
+
+\begin{redbullet}
+  \item Données équitablement réparties.
+  \item Traitement essentiellement \alert{local}.
+  \item Limitation des transferts réseaux, entre les serveurs et vers le client.
+  \item Et un temps de calcul global qui reste raisonnable pour les ressources qu'on peut/veut lui allouer...
+\end{redbullet}
+
+\begin{remblock}{Scalable mais pas acceptable?}
+Le fait d'être scalable (selon notre définition) ne veut pas dire que le temps
+de calcul est \alert{acceptable}. Si un traitement prend 10 ans, il prendra encore 5 ans en doublant les ressources...
+\end{remblock}
+
+
+\end{frame}
+
+\end{document}
+
+

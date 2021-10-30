@@ -1,0 +1,256 @@
+
+
+\section{Partitionnement par intervalle}
+
+\begin{frame}
+\frametitle{Principe}
+
+La collection est \alert{triée} sur la clé  et on la découpe en fragments d'une taille maximale pré-déterminée (de 64MO à qq GO)
+
+\vfill
+
+ Chaque fragment couvre donc un intervalle $[min_f, max_f[$.
+ 
+\vfill
+ 
+\figSlideWithSize{partition-intervalle}{10cm}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Dynamicité: comment évolue le système\,?}
+
+L'opération de base est le \alert{split}, division d'un gros fragment en deux petits.
+
+\figSlideWithSize{split}{11cm}
+
+\alert{L'équilibrage} consiste à répartir équitablement les fragments.
+
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Efficacité du routage}
+
+
+% A two-columns presentation
+\begin{tabular}{l|p{6cm}}
+   \parbox{5cm}{
+   
+   Pour 1 TO de données, et une taille d'entrée  $(I, a)$ de 20 octets.
+
+\begin{redbullet}
+  \item Fragment de 4 KO:
+    le routage décrit 250 millions de fragments, soit une taille de 5 GO;    
+  \item Fragment de 1 MO: il faudra 1 million de fragments,
+    et seulement 20 MO pour la structure de routage.
+\end{redbullet}
+Dans tous les  cas, le routage tient en mémoire RAM
+
+   }  % Inclusion of an XML file
+  & 
+  \parbox{6cm}{
+ 
+\begin{tabular}{r|l}
+Intervalle  & Serveur\\
+\hline
+$]-\infty, a]$ & A  \\
+$[a+1, b]$ & B  \\
+$[b+1, c]$ & C  \\
+$[c+1, d]$ & B  \\
+$[d+1, \infty[$ & A  \\
+\hline
+\end{tabular}
+
+}
+
+\end{tabular}
+
+
+
+ 
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Les opérations du routeur}
+
+% A two-columns presentation
+\begin{tabular}{l|p{6cm}}
+   \parbox{5cm}{
+$get(k)$: chercher l'intervalle qui contient $k$, transmettre
+au serveur correspondant.
+
+\smallskip
+
+$put(k, d)$: identifier le serveur avec $k$, transmettre l'insertion
+ 
+ \smallskip
+ 
+ $delete(k)$: idem
+ 
+ \smallskip
+ 
+ $range(k_1, k_2)$: transmettre à tous les serveurs gérant un intervalle chevauchant $[k_1, k_2]$
+ 
+ \smallskip
+ 
+ Toute autre opération\,: transmettre à tous les serveurs.
+   }  % Inclusion of an XML file
+  & 
+  \parbox{6cm}{
+ 
+\begin{tabular}{r|l}
+Intervalle  & Serveur\\
+\hline
+$]-\infty, a]$ & A  \\
+$[a+1, b]$ & B  \\
+$[b+1, c]$ & C  \\
+$[c+1, d]$ & B  \\
+$[d+1, \infty[$ & A  \\
+\hline
+\end{tabular}
+
+}
+
+\end{tabular}
+
+\end{frame}
+
+
+\section{Etude de cas\,: \mongodb/}
+
+
+\begin{frame}
+\frametitle{Le \textit{sharding} de MongoDB}
+
+Le routeur connaît les intervalles, et les serveurs associés.
+
+\figSlideWithSize{mongo-shard}{10cm}
+
+\vfill
+
+\begin{redbullet}
+   \item Chaque fragment est un \textit{replica set} complet.
+   \item On peut ajouter ou supprimer un serveur dynamiquement.
+\end{redbullet}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Partitionnement et équilibrage}
+
+\figSlideWithSize{partition-split}{11cm}
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+\frametitle{Allons-y pour un petit test}
+
+On lance un \textit{config server}
+
+\begin{minted}{text}
+mkdir /data/configdb
+mongod --configsvr --dbpath /data/configdb --port 27019
+\end{minted}
+
+On lance un routeur en lui indiquant où se trouve(nt) le(s) \textit{config server}(s)
+
+\begin{minted}{text}
+mongos --configdb localhost:27019
+\end{minted}
+
+Et deux serveurs (il faudrait des \textit{replica sets} complets en production)
+\begin{minted}{text}
+mongod --dbpath /data/node1 --port=30001 --oplogSize 700
+mongod --dbpath /data/node2 --port=30002 --oplogSize 700
+\end{minted}
+
+À partir de \textit{mongos}, déclarons les deux serveurs comme \textit{shards}.
+
+\begin{minted}{text}
+mongo --port 27017
+sh.addShard("localhost:30000")
+sh.addShard("localhost:30001")
+sh.enableSharding("nfe204")
+\end{minted}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Choisir la clé de partitionnement}
+
+On indique la clé de partitionnement avec la commande suivante\,:
+
+\begin{minted}{text}
+sh.shardCollection("nfe204.videos", { "title": 1 } )
+\end{minted}
+
+Attention au choix de la clé
+
+\begin{redbullet}
+  \item Les clés-séquences\,:  on envoie toujours les insertions au même serveur\,; bon ou pas?
+  \item Les clés à faible cardinalité (ex: pays)\,: pas très bon non plus, car 
+               il pourra être difficile de faire un \textit{split}
+\end{redbullet}
+
+Bonne option: appliquer un hachage pour bien distribuer les insertions\,:
+
+\begin{minted}{text}
+sh.shardCollection("nfe204.videos", { "title": "hashed" } )
+\end{minted}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Inspecter la configuration}
+
+Liste des \textit{shards}
+\begin{minted}{text}
+  mongos> db.runCommand({listshards: 1})
+\end{minted}
+
+Statut général du cluster
+\begin{minted}{text}
+    mongos> sh.status()    
+    mongos> db.stats()
+    mongos> db.printShardingStatus()
+\end{minted}
+
+Les fragments sont dans une collection \textit{chuncks}.
+
+\begin{minted}{text}
+use config
+db.chuncks.count()
+db.chuncks.findOne()
+\end{minted}
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+\frametitle{Chargement en masse}
+
+Utiliser un générateur de données:
+ipsum (\url{https://github.com/10gen-labs/ipsum}).
+
+\vfill
+
+Charger 1 million de pseudo-films.
+
+\begin{minted}{text}
+python ./pymonipsum.py -d nfe204 
+           -c movies ---count 1000000 movies.jsch
+\end{minted}
+
+\vfill
+
+Surveiller le chargement et les éclatements...
+
+\end{frame}

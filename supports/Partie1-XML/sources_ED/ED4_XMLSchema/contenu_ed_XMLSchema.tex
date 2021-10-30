@@ -1,0 +1,214 @@
+
+\subsection{Questions de cours}
+
+\begin{enumerate} 
+\item Pourquoi XML Schema a-t-il été créé ?
+\correction{DTD pas assez expressif pour certaines applications p.e. très léger
+en typage}
+\item \`A choisir entre le formalisme DTD et le formalisme XML Schema, mieux
+vaut toujours choisir XML Schema. V ou F ?
+\correction{Faux. Si les DTD suffisent, autant les utiliser.}
+\item Qu'est-ce qu'un type simple ?
+\correction{Un type dont l'instanciation est une valeur simple (un élément
+typé).}
+\item Qu'est-ce qu'un type simple dérivé ?
+\correction{Un type obtenu à partir de la définition d'un autre type, et ce par
+dérivation. 3 types de dérivation : restriction, liste ou union}
+\item Quand utiliser un type complexe ?
+\correction{Quand pas un type simpe c.-à-d. quand on veut qu'un élément
+vérifiant le type : 
+\begin{itemize}
+  \item contienne au moins un attribut ou (non exclusif)
+  \item soit composé de sous-éléments
+\end{itemize}}
+\item Quels sont les différents types complexes et quand les utiliser ?
+\correction{simple content : le contenu de l'élément vérifiant le type est une
+valeur (donc pas de sous éléments) + au moins un attribut. <internationalPrice
+currency=``dolars">345,67</internationalPrice>\\ 
+complex content : l'élément 
+vérifiant le type ne contient pas de valeur (contient des sous-éléments ou est
+vide) et éventuellement des attributs <internationalPrice currency=``EUR"
+value=``345,67"/> ou \\ 
+<internationalPrice> \\
+		<currency>EUR<currency> \\
+		<value>345,67<value>\\
+	</InternationalPrice>}
+\item Peut-il exister plusieurs notations possibles pour définir un même schéma
+XML Schema ? Si oui, donner un exemple. Quelles différences voyez-vous entre les notations ? 
+\correction{Oui, voir cours tr. 26 (Types complexes : 2 notations équivalentes).
+Notation 2 (type défini à l'extérieur) quand type utilisé plusieurs fois et
+plus propre. Notation 1 plus intuitive.}
+\item Question « subjective ». Que pensez-vous de la syntaxe XML Schema ?
+\correction{Compliquée et pas toujours très élégante. Ce n'est pas parce que
+c'est une norme que c'est bien fichu.}
+\end{enumerate}
+
+
+\subsection{Le mail\ldots suite}
+L'objectif de cet exercice est d'écrire un fichier XML codant un mail et sa DTD.
+Un mail est constitué de deux parties:
+\begin{enumerate}
+  \item Un entête constitué de : 
+  \begin{itemize}
+    \item un émetteur,
+    \item un ou plusieurs destinataires principaux,
+    \item éventuellement des destinataires secondaires,
+    \item éventuellement des destinataires cachés,
+    \item un sujet,
+  \end{itemize}
+  \item Un corps constitué d'un message.\\
+\end{enumerate}
+
+Vous devez :
+\begin{enumerate}
+\item Ecrire le schéma au formalisme XMLSchema ainsi qu'une instance XML codant
+un mail intitulé ``Echange \&
+publication de données - désignation des groupes'' à votre chargé de cours
+avec les autres membres du groupe en copie. Le mail doit
+annoncer les noms et prénoms des membres du groupe ainsi que leurs adresses
+mail.     
+\item Valider votre schema et la validité de \texttt{produit.xml}
+par rapport à celui-ci à l'aide du validateur XML Schema sur
+\url{http://tools.decisionsoft.com/schemaValidate.}
+\end{enumerate}
+Remarque : vous avez déjà effectué cet exercice mais avec le formalisme DTD. 
+
+\correction{\lstinputlisting{ED4_XMLSchema/Codes/mail.xsd}}
+\correction{\lstinputlisting{ED4_XMLSchema/Codes/mail.xml}}
+
+Comparez votre schéma avec celui de votre voisin. Quelle différence remarquez-vous ?
+\correction{Surement enoncé interprété différemment $\rightarrow$ sémantique
+surement ``vue'' différemmment
+Surement difficile de lire une schéma défini par quelqu'un d'autre alors que
+c'était relativement facile avec les DTD}
+
+\subsection{CineDVDbanque}
+L'objectif de cet exercice est de développer une base de données répondant aux
+besoins en stockage de distributeurs automatiques de DVDs en location appelé
+CineDVDBanque.\\
+
+Les DVD mis à la location sont achetés via une centrale d'achat. Les
+informations disponibles sur ces DVD sont : le code barre numérique de
+l'oeuvre, le titre, le réalisateur, le genre et éventuellement une URI (Uniform
+Resource Identifier) indiquant le fichier XHTML correspondant à l'image du
+boîtier commercial du DVD. Les genres possibles sont Action, Comedie, Drame,
+Fantastique, Suspens et Terreur.  \\
+
+Ces DVD sont en location dans des distributeurs localisés sur tout le
+territoire. Pour ces distributeurs, il est nécessaire de stocker leur adresse,
+les DVD en location.  \\
+
+Les loueurs de DVD se sont nécessairement inscrits préalablement à toute
+location. Les informations requises pour cette inscription sont le nom,
+l'adresse, le téléphone. De plus, chaque loueur possède une clef alphanumérique
+correspondant au cryptage d'un mot de passe.  \\
+
+Un exemple d'instance valide se trouve sur\\
+\url{http://www.lamsade.dauphine.fr/~goasdoue/Partage/EchangeDonnees/TD_XMLSchema/dvd.xml}
+
+\begin{enumerate}
+  \item \`A l'aide d'un schéma XMLSchema, représentez les informations données
+  dans l'énoncé ci-dessus. Validez votre document en ligne.
+  \item Vous allez mettre les données à disposition sur le site web de
+  CineDVDBanque (http://www.cinedvdbanque/). Dans cet optique associez un
+  namespace à vos données. Validez votre document en ligne.
+\end{enumerate}
+
+\correction{\lstinputlisting{ED4_XMLSchema/Codes/dvd.xsd}}
+\correction{\lstinputlisting{ED4_XMLSchema/Codes/dvd.xml}}
+
+\subsection{Les produits}
+Téléchargez le document \texttt{produits.xml} se trouvant sur
+\url{http://www.lamsade.dauphine.fr/~goasdoue/Partage/EchangeDonnees/produits.xml}.\\
+
+En voici le contenu :
+\lstinputlisting{ED4_XMLSchema/Codes/produits.xml}
+
+\begin{enumerate}
+  \item Ecrivez un fichier \texttt{produits.xsd} validant ce document, en tenant
+  compte des hypthèses suivantes :
+  \begin{itemize}
+    \item Le libellé (Lib) a une longueur max de 57 caractères,
+    \item L'ID du produit est du texte de longueur 8 dont la forme est C-CCCC-L
+    ou C-CCCC où C est une chiffre et L est une lettre majuscule comprise entre
+    A et E inclus ;
+    \item La quantité (Quantity) a une valeur max strictement positive, de
+    valeur inférieur ou égale à 1000 ;
+    \item Le prix (Price Devises) est une valeur décimale (éventuellement
+    négative si avoir ou nulle sur produit offert). Les devises appartiennent à
+    USD, EUR, GBP, JPY ;
+    \item Les éléments lib, Quantity, Price et Date sont ordonnés. Tous doivent
+    être présents hors mis la date qui peut être absente. L'élément price peut
+    apparaître 1 à 4 fois (pour chacune des devises). La devise par défaut et
+    EUR.   
+\end{itemize}
+	\item Validez votre schema et la validité de produit.xml par rapport à celui-ci
+	à l'aide du validateur XMLSchema sur
+	 \url{http://tools.decisionsoft.com/schemaValidate}.
+
+\end{enumerate}
+
+\correction{\lstinputlisting{ED4_XMLSchema/Codes/produits.xsd}}
+
+% *******************
+% Autre solution plus simple : utilisez votre navigateur web Mozilla qui intègre
+% un interpréteur XSLT (mais n'intègre pas toutes les fonctionnalités du
+% language). Il vous suffit pour cela d'ouvrir le fichier XML dans lequel vous
+% aurez référencé le fichier XSLT associé (\url{<?xml-stylesheet
+% type=``text/xsl''  href=``mon_fichier_XSL.xsl'' ?>}).
+% 
+% \subsection{XSLT\ldots par la pratique\ldots}
+% 
+% \begin{enumerate}
+% \item Récupérez le fichier XML \texttt{bibliotheque.xml} à l'adresse suivante :
+% \url{http://www.lamsade.dauphine.fr/~goasdoue/Partage/EchangeDonnees/} et
+% complétez-le à l'aide de trois livres de votre choix (sans modifier les autres
+% livres) traitant de XML ou de Bases de données.
+% \item Créez une feuille de style qui
+% permet de générer un fichier XHTML dont le rendu sous forme d'une
+% page web a la forme suivante (NB: la page
+% web doit contenir un sommaire listant les livres puis les livres détaillés).
+% \includegraphics{ED3_XSLT/PourPoly/final_ss_ancres.png}
+% \item Utilisez balise \url{<xsl:if>}\footnote{Voir
+% \url{http://www.w3.org/TR/xslt#section-Conditional-Processing-with-xsl:if} }
+% afin de
+% \begin{enumerate}
+% \item n'afficher ``Description :'' que si un abstract existe
+% \correction{<xsl:if test="abstract"> Description : <xsl:value-of select="abstract"/>
+% </xsl:if>
+% }
+% \item afficher les noms de auteurs sous la forme de autheur1\underline{,}
+% auteur2 \underline{et} auteur3\underline{.}
+% \correction{\lstinputlisting{ED3_XSLT/PourPoly/xslt_bout_if.xsl}}
+% \end{enumerate}
+% \item La balise \url{<xsl:sort>}\footnote{Voir
+% \url{http://www.w3.org/TR/xslt#sorting}} permet de trier des élements. Faites
+% en sorte que les livres soient affichés par ordre descendant de la date de
+% parution. 
+% \correction{\lstinputlisting{ED3_XSLT/PourPoly/xslt_bout_sort.xsl}}
+% \item \`A l'aide de la balise \url{<When>}\footnote{Voir
+% \url{http://xmlfr.org/w3c/TR/xslt/#element-when}}, afficher ``Résumé : ''
+% quand le livre est en français et ``Abstract : '' quand le livre est en anglais.
+% \correction{\lstinputlisting{ED3_XSLT/PourPoly/xslt_bout_when.xsl}}
+% \item Utilisez la fonction \texttt{generate-id()} de XPath afin de créer des
+% ancres permettant de lier les titres des livres décrits à ceux du sommaire.\\
+% Indication : La réponse se trouve sur le site du W3C\ldots A vous de la
+% trouver et la mettre en {\oe}uvre. Chercher \texttt{generate-id} sur la doc de
+% XSLT à \url{http://www.w3.org/TR/xslt}.
+% \item De façon à tester la robustesse de votre feuille de style, prenez le
+% fichier \texttt{library.xml} de votre voisin et appliquez-lui votre feuille de
+% style.
+% \end{enumerate}
+% 
+% N'hésitez surtout pas à aller chercher des solutions sur, par exemple, le site
+% du W3C ou des tutoriels XSL accessibles en ligne. Le cours ne vous a montré
+% qu'une très petite facette de XSL.
+% 
+% Le fichier final devrait ressembler à cela (vous pouvez améliorer le visuel si
+% bon vous semble !) :
+% 
+% \includegraphics{ED3_XSLT/PourPoly/final_avec_ancres.png}
+% 
+% \correction{\lstinputlisting{ED3_XSLT/Codes/bibliotheque_ancre.xsl}}
+% 
+% 

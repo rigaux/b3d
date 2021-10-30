@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Ceci est un exemple -->
+
+<library>
+  <book year="1857">
+    <author>Charles Baudelaire</author>
+    <title>Les fleurs du mal</title>
+  </book>
+  <book year="1862">
+    <author ln="Besancon">Victor Hugo</author>
+    <title>Les miserables</title>
+  </book>
+  <book year="1877">
+    <author ln="Paris">Emile Zola</author>
+    <title>L'assomoir</title>
+  </book>
+</library>

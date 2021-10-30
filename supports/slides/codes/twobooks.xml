@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<library>
+  <book year="2010">
+    <title>Web Data Management and Distribution</title>
+    <author>S. Abiteboul</author>
+    <author>I. Manolescu</author>
+    <author>P. Rigaux</author>
+    <author>M.-C. Rousset</author>
+    <author>P. Senellart</author>
+  </book>
+  <book year="2007">
+    <title>Database Management Systems</title>
+    <author>R. Ramakrishnan</author>
+    <author>J. Gehrke</author>
+  </book>
+</library>

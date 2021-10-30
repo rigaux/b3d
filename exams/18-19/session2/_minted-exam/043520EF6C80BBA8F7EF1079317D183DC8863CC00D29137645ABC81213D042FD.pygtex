@@ -1,0 +1,9 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+ \PYG{k}{case} \PYG{k}{class} \PYG{n+nc}{CompteurMot}\PYG{o}{(}\PYG{n}{mot}\PYG{k}{:} \PYG{k+kt}{String}\PYG{o}{,} \PYG{n}{compteur}\PYG{k}{:} \PYG{k+kt}{Int}\PYG{o}{)}
+
+ \PYG{n}{fluxContrib}\PYG{o}{.}\PYG{n}{map}\PYG{o}{(\PYGZob{}} \PYG{o}{\PYGZob{}}\PYG{n}{str} \PYG{k}{=\PYGZgt{}} \PYG{n+nc}{FiltrageVocabulaire}\PYG{o}{(}\PYG{n}{str}\PYG{o}{,} \PYG{n}{V}\PYG{o}{)} \PYG{o}{\PYGZcb{}\PYGZcb{})}
+            \PYG{o}{.}\PYG{n}{flatMap} \PYG{o}{(\PYGZob{}} \PYG{n}{str} \PYG{k}{=\PYGZgt{}} \PYG{n}{str}\PYG{o}{.}\PYG{n}{split}\PYG{o}{(}\PYG{l+s}{\PYGZdq{}\PYGZbs{}\PYGZbs{}W+\PYGZdq{}}\PYG{o}{)} \PYG{o}{\PYGZcb{})}
+            \PYG{o}{.}\PYG{n}{map}\PYG{o}{(\PYGZob{}} \PYG{n}{m} \PYG{k}{=\PYGZgt{}} \PYG{n+nc}{CompteurMot}\PYG{o}{(}\PYG{n}{m}\PYG{o}{,} \PYG{l+m+mi}{1}\PYG{o}{)} \PYG{o}{\PYGZcb{})}
+            \PYG{o}{.}\PYG{n}{keyBy}\PYG{o}{(}\PYG{l+s}{\PYGZdq{}mot\PYGZdq{}}\PYG{o}{)}
+            \PYG{o}{.}\PYG{n}{sum}\PYG{o}{(}\PYG{l+s}{\PYGZdq{}compteur\PYGZdq{}}\PYG{o}{)}
+\end{Verbatim}

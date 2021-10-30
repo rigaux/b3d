@@ -1,0 +1,160 @@
+
+\begin{frame}
+\frametitle{MongoDB, système distribué \textit{maître-esclave}}
+
+
+\figSlide{mongodb-ms}
+
+\begin{redbullet}
+  \item \mongodb/ gère la \alert{replication asynchrone} au sein d'un \textit{replica set} (RS)
+  
+  \item Le RS comprend un \textit{maître} (\textit{primary}) et des \textit{esclaves} (\textit{secondary})
+  
+   \item Si nombre pair\,: ajout d'un processus supplémentaire (\textit{arbiter})
+   
+   \item Les écritures ont \alert{toujours} lieu sur le \textit{maître}
+   
+   \item Le \textit{driver} associé à l'application peut lire sur le \textit{maître} (cohérence forte)
+       ou sur un \textit{secondary} (cohérence faible, mais répartition)
+  
+\end{redbullet}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Election d'un \textit{maître} dans \mongodb/}
+
+Une élection est déclenchée dans les cas suivants\,:
+
+\begin{redbullet}
+  \item Initialisation d'un nouveau RS
+  \item Un \textit{esclave} perd le contact avec le \textit{maître}
+  \item Le \textit{maître} perd son statut car il ne voit plus qu'une minorité de participants.
+\end{redbullet}
+\vfill
+
+\begin{redbullet}
+  \item Tous les clients (\textit{drivers}) connectés au RS sont réinitialisés pour dialoguer avec le nouveau \textit{maître}.
+  \item Beaucoup d'options pour paramétrer le vote (p.e., une \alert{priorité} donnée à chaque serveur). 
+ \end{redbullet}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Cohérence et répartition des lectures}
+
+Par défaut, les clients lisent sur le \textit{maître}\,: \alert{cohérence forte}.
+
+\vfill
+
+Une option de connexion permet à l'application d'indiquer qu'elle accepte de lire sur un \textit{esclave}\,:
+   \alert{cohérence faible}
+   
+\vfill
+   
+Autre option\,: l'application peut attendre que $n$ écritures soient faites avant de reprendre la main.
+
+\begin{remblock}{Remarque}
+La réplication n'est pas, dans \mongodb/, le moyen privilégié de passer à l'échelle. Le \alert{partitionnement}
+est un mécanisme plus puissant (à suivre!)
+\end{remblock}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{A l'action\,! Test de la réplication}
+
+On crée trois conteneurs avec des serveurs MongoDB
+
+\begin{minted}{text}
+docker run --name mongo1 --net host mongo mongod --replSet mon-rs --port 30001
+docker run --name mongo2 --net host mongo mongod --replSet mon-rs --port 30002
+docker run --name mongo3 --net host mongo mongod --replSet mon-rs --port 30003
+\end{minted}
+\vfill
+
+Connectons un client au premier serveur (ou Studio3D si vous voulez).
+
+
+\begin{minted}{text}
+mongo --host 192.168.99.100 --port 30001
+\end{minted}
+
+Et initialisons le RS 
+
+\begin{minted}{text}
+rs.initiate()
+\end{minted}
+
+On peut alors ajouter le second n{\oe}ud (remplacer l'IP de la machine).
+
+\begin{minted}{text}
+rs.add ("192.168.99.100:30002")
+\end{minted}
+
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Continuons}
+
+La fonction suivante indique le statut du n{\oe}ud auquel on est connecté.
+
+\begin{minted}{text}
+db.isMaster()
+\end{minted}
+
+Information plus complète sur le RS avec:
+
+\begin{minted}{text}
+rs.status()
+\end{minted}
+
+Tout va bien\,? Alors insérons.
+\begin{minted}{text}
+use nfe204;
+db.test.insert ({"produit": "Grulband", prix: 230, enStock: true})
+\end{minted}
+
+On devrait trouver le document sur chaque \textit{esclave}\,?
+\begin{minted}{text}
+mongo --host 192.168.99.100 --port 30002
+use nfe204;
+db.test.find ()
+\end{minted}
+
+Hmmm que se passe-t-il... \,? Et après \texttt{rs.slaveOk()}\,? Pourquoi donc\,?
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Et la reprise sur panne\,?}
+
+Tuons (gentiment) notre \textit{maître}.
+
+\begin{minted}{text}
+db.shutdownServer()
+\end{minted}
+
+Question\,: le second va-t-il s'élire \textit{maître}\,?
+
+\vfill
+
+Relancer le premier serveur. Que se passe-t-il\,?
+\vfill
+
+\begin{remblock}{Remarque}
+Un bon \textit{driver} devrait enregistrer la liste des serveurs du RS, et se reconnecter
+automatiquement au \textit{maître} quand celui-ci change.
+\end{remblock}
+
+
+\end{frame}
+
+\end{document}
+
+

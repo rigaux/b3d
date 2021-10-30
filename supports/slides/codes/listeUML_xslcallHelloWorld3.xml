@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="listeUMLHelloWorld3.xsl" ?>
+<diagrammesUML>
+  <diagramme UML1='yes' UML2='yes'>
+    <name>Diagramme de classes</name>
+    <description>Modélise les objets du système étudié et leurs relations.</description>
+    <objets>
+      Acteurs, cas d'utilisation
+    </objets>
+  </diagramme>
+  <diagramme UML1='yes' UML2='yes'>
+    <name>Diagramme de cas d’utilisation</name>
+    <description>Modélise l'ensemble des actions réalisées par le système étudié d'un utilistaeur extérieur au système</description>
+    <objets>Classes, associations</objets>
+  </diagramme>
+  <diagramme UML1='yes' UML2='yes'>
+    <name>Diagramme de séquence</name>
+    <description>Modélise des interactions entre éléments du système</description>
+    <objets>Rôle, ligne de vie, messages.</objets>
+  </diagramme>
+  <diagramme UML1='yes' UML2='yes'>
+    <name>Diagramme d'activité</name>
+    <description>Modélise une activité</description>
+    <objets>Noeuds, activité, action, partitions.</objets>
+  </diagramme>
+  <diagramme UML1='yes' UML2='yes'>
+    <name>Diagramme d'états-transitions</name>
+    <description>Modélise le comportement d'un objet</description>
+    <objets>Etats, événements.</objets>
+  </diagramme>
+  <diagramme UML1='yes' UML2='yes'>
+    <name>Diagramme de communication</name>
+    <description>Modélise les interactions (messages échangés) entre objets</description>
+    <objets>Ligne de vie, message.</objets>
+  </diagramme>
+  <diagramme UML1='yes' UML2='yes'>
+    <name>Diagramme de composants</name>
+    <description>Montre l'architecture physique d'une application en terme de modules : fichiers sources, exécutables, librairies,etc. </description>
+    <objets>Composants.</objets>
+  </diagramme>
+  <diagramme UML1='yes' UML2='yes'>
+    <name>Diagramme de déploiement</name>
+    <description>Montre la configuration physique des différents matériels nécessaires à l’exécution du système, ainsi que des artefacts qu’ils supportent.</description>
+    <objets>Noeuds, Liens</objets>
+  </diagramme>
+  <diagramme UML1='no' UML2='yes'>
+    <name>Diagramme de structure composite</name>
+    <description>Montre la configuration physique des différents matériels nécessaires à l’exécution du système, ainsi que des artefacts qu’ils supportent.</description>
+    <objets></objets>
+  </diagramme>
+  <diagramme UML1='no' UML2='yes'>
+    <name>Diagramme global d'interaction</name>
+    <description>Enchaînement de diagrammes de séquence avec le formalisme d’un diagramme d’activités.</description>
+    <objets></objets>
+  </diagramme>  
+  <diagramme UML1='no' UML2='yes'>
+    <name>Diagramme de packages</name>
+    <description>Regroupement pas packages.</description>
+    <objets></objets>
+  </diagramme>
+  <diagramme UML1='no' UML2='yes'>
+    <name>Diagramme de temps</name>
+    <description>Indique les changements d’états d’un objet par rapport au temps .</description>
+    <objets></objets>
+  </diagramme>
+
+</diagrammesUML>

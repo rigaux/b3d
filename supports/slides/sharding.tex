@@ -1,0 +1,154 @@
+
+\section{Principes généraux}
+
+
+\begin{frame}
+\frametitle{Vocabulaire}
+
+Rappel: une \alert{partition} d'un ensemble $S$ est un ensemble $\{F_1, F_2, \cdots F_n\}$
+de parties de $S$ telles que $F_i \cap F_j = \emptyset$ et $\bigcup_i Fi = S$.
+
+\vfill
+
+Dans notre cas
+\begin{redbullet}
+   \item l'ensemble est une collection;
+   \item les éléments de l'ensemble sont les documents;
+   \item les parties sont nommées \alert{fragments} (\textit{shard} en anglais)
+\end{redbullet}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Le partitionnement (\textit{sharding})}
+
+Le partitionnement consiste à  
+
+\begin{redbullet}
+  \item \alert{découper} une (grande) collection
+      en \alert{fragments} en fonction d'une \alert{clé}
+      \item placer chaque fragment sur un \alert{serveur}
+      \item Maintenir un \alert{répertoire} indiquant  que telle \alert{clé} se trouve dans tel \alert{fragment}
+          sur tel \alert{serveur}
+\end{redbullet}
+ 
+\vfill
+
+Le partitionnement apporte la \alert{répartition de charge} (\textit{load balancing})
+
+\vfill
+
+Il doit être \alert{dynamique} (ajout/retrait de serveurs) pour s'adapter ``élastiquement'' 
+ 
+ \vfill
+ 
+ S'applique à des collections de paires (clé, valeur), où valeur est n'importe quelle information structurée.
+\end{frame}
+
+
+
+
+\begin{frame}
+\frametitle{La clé de partitionnement}
+
+La clé indique à quel fragment appartient un document.
+
+\vfill
+
+Si un grand nombre de documents partagent la même clé, ils ne peuvent être que
+dans le même fragment $\Rightarrow$ le système perd en souplesse de distribution.
+
+\vfill
+
+La valeur de la clé pour un document ne devrait pas être modifiable (nécessité de déplacement).
+
+\vfill
+
+\alert{L'identifiant séquentiel d'un document est un bon choix}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Opérations}
+
+Les opérations de type ``dictionnaire'' peuvent être transmises à \alert{un seul} serveur\,:
+
+\begin{redbullet}
+   \item $get(k): v$, recherche par clé
+   \item $put (k, v)$, insertion
+   \item $delete(k)$, suppression
+   \item $range(k_1, k_2)$, recherche par intervalle (peut impliquer plusieurs serveurs, ne marche pas avec le hachage)
+\end{redbullet}
+
+\vfill
+
+\alert{Pour toutes les autres opérations}\,: tous les serveurs effectuent l'opération localement.
+
+\vfill
+
+Exemple\,: recherche sur une clé secondaire, s'effectue sur \alert{tous} les serveurs, avec si possible des index locaux.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Techniques de partitionnement}
+
+\begin{redbullet}
+   \item par \alert{intervalle}\,: documents triés sur la clé, puis groupés par intervalles.
+   
+     Exemples représentatifs\,: \mongodb/, HBase (BigTable).
+     
+   \item par \alert{hachage} sur la clé, avec répertoire de hachage.
+   
+       Exemples\,: \textit{memcached}, \textit{chord}, \textit{Dynamo/S3/Voldemort}, beaucoup d'autres.
+ \end{redbullet}
+ 
+\vfill
+
+\begin{remblock}{Des méthodes connues dans d'autres contextes}
+Se référer aux techniques d'indexation par arbre-B et par hachage dans des environnements centralisés.
+\end{remblock}
+\end{frame}
+
+\begin{frame}
+\frametitle{Structure d'un système partitionné}
+
+\figSlideWithSize{partition-vision}{10cm}
+      
+\begin{redbullet}
+  \item Par intervalle = séquentiel indexé, \alert{Arbre B}, Arbre B+, etc. 
+  \item Par hachage = hachage statique, dynamique, \alert{hachage linéaire}.
+\end{redbullet}
+
+\vfill
+
+\begin{remblock}{Tout en RAM}
+La structure de routage doit tenir en mémoire pour être pleinement efficace.
+\end{remblock}
+\end{frame}
+
+
+
+\section{Et en distribué?}
+
+
+\begin{frame}
+\frametitle{Routage et stockage en distribué}
+
+\figSlideWithSize{partition-distrib}{10cm}
+      
+\vfill
+
+\begin{redbullet}
+  \item Routeur = \textit{Master}, \textit{Balancer}, \textit{Config server}, ...
+  \item Fragment = \textit{chunk}, \textit{tablet}, \textit{region}, \textit{bucket}, ...
+\end{redbullet}
+
+\vfill
+
+\begin{remblock}{Et la réplication?}
+Chaque serveur gère une réplication locale pour tolérance aux pannes.
+\end{remblock}
+\end{frame}
+

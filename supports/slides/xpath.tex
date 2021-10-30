@@ -1,0 +1,456 @@
+
+\begin{frame}{XPath}
+XPath est un langage \alert{d'expression de chemins}.
+
+\vfill
+
+Il permet l'accès à des 
+ nœuds d’un document XML en décrivant les chemins menant à ces nœuds.
+
+\vfill
+
+XPath est un outil de base dans la manipulation de documents XML. Utilisé dans 
+\begin{description}
+\item[XQuery] XPath fait partie du langage d’interrogation XQuery,
+\item[XSLT] pour la sélection de la partie des données à transformer,
+\item[XML Schema] pour les expressions de contraintes d’unicité,
+%\item[XSL] pour la sélections des parties des données à formater,
+\item[XPointer] pour l'identification de fragments,
+\item[XLink] pour ancrer les liens hypertextes,
+\item[...]
+\end{description}
+
+Ce qui est montré dans ce qui suit: XPath 1.0
+
+\end{frame}
+
+
+\section{Un exemple commenté}
+
+\begin{frame}{Une intuition}
+
+Permet de ``pointer'' (localiser) des nœuds dans un document XML.
+
+\begin{exampleblock}{Intuition}
+Par \alert{navigation} : en se déplaçant dans l'arbre de "étape par étape" à partir de la racine, on va chercher à 
+   atteindre certaines de ses parties.
+\end{exampleblock}
+
+\vfill
+
+\begin{block}{Résultat d'une expression XPath}
+Le résultat de l'évaluation d'une expression XPath est un \alert{ensemble de nœuds} sélectionnés dans le
+document en entrée.
+\end{block}
+
+\vfill
+
+\alert{Attention}.  Un nœud peut être racine d'un sous-arbre; dans ce cas
+c'est l'ensemble du sous-arbre qui fait partie du résultat.
+ 
+\end{frame}
+
+\begin{frame}[allowframebreaks]{Commen\c{c}ons par un exemple: \texttt{/film/titre/text()}}
+
+Vous vous souvenez sans doute de notre document XML représentant le film Gravity, dans
+sa forme arborescente. Notez bien les types DOM des nœuds
+
+\figSlideWithSize{GravityDOM}{9cm}
+
+\vfill
+
+
+\begin{remark}
+Dans ce qui suit le nœud courant est marqué par des \alert{bords rouges en pointillés},
+les nœuds sélectionnés par des \alert{bords rouges pleins} et les chemins par
+des flèches. 
+\end{remark}
+
+\framebreak
+
+Notre expression commence par un '/': c'est une \alert{expression absolue} qui prend
+pour nœud courant initial la \alert{racine du document}. 
+
+\vfill
+
+\figSlideWithSize{GravityDOM-xpath1}{9cm}
+
+\vfill
+\begin{block}{La navigation}
+On navigue vers le bas, vers les enfants du nœud courant.
+\end{block}
+
+\framebreak
+
+Une expression XPath est constituée \alert{d'étapes}. La première étape
+est \texttt{film}: parmi les enfants du nœud courant, on prend
+celui dont le \alert{nom} est \texttt{film}.
+ 
+\vfill
+
+
+\figSlideWithSize{GravityDOM-xpath2}{9cm}
+
+\vfill
+
+\vfill
+\begin{block}{Les tests de nœud}
+La sélection d'un nœud par son nom est un exemple de \alert{test de nœud} (\textit{node test}). 
+Avec XPath on peut appliquer des filtres sur la \alert{structure} avec les \alert{tests de nœuds} et
+sur le \alert{contenu} avec les \alert{prédicats}.
+\end{block}
+
+\framebreak
+
+On passe à l'étape suivante: \texttt{titre}. Maintenant, le \alert{nœud courant} est
+\texttt{film}, résultat de l'étape précédente. On regarde les enfants et on sélectionne
+celui dont le nom est \texttt{titre}
+
+\figSlideWithSize{GravityDOM-xpath3}{9cm}
+
+
+\vfill
+\begin{block}{Etape et nœud courant}
+Le nœud courant à l'étape $n$ est un nœud sélectionné à l'étape $n-1$. On répète l'étape $n$
+autant de fois qu'il y a de nœuds sélectionnés.
+\end{block}
+
+\framebreak
+
+On arrive au bout\,! La dernière étape est \texttt{text()}. C'est un test de nœud sur le
+\alert{type} du nœud, et non sur le nom.
+
+\vfill
+
+On prend donc, parmi les enfants du nœud courant \texttt{titre}, ceux de type \textbf{Text}.
+
+\vfill
+
+\figSlideWithSize{GravityDOM-xpath4}{9cm}
+
+\vfill
+
+C'est fini: l'expression a donné  chemin 
+qui va de la racine du document vers le nœud-texte \texttt{Gravity}.
+
+\end{frame}
+
+\section{Formalisme XPath, en bref}
+
+\subsection{Etapes, expressions, interprétation}
+
+\begin{frame}{Qu'est-ce qu'une \alert{étape} XPath}
+
+Une \alert{étape}  est une expression de la forme 
+\texttt{\textcolor{indiaRed}{axis}::\textcolor{DarkOliveGreen}{node-test}\textcolor{cyan}{[predicate]}
+}\\
+
+
+\begin{description}
+\item[\texttt{\textcolor{indiaRed}{axis}}] est la direction de la navigation\\
+
+   Par défaut, on descend vers les enfants, mais beaucoup d'autres axes sont possibles.
+   
+\item[\texttt{\textcolor{DarkOliveGreen}{node-test}}] est  un test de structure\\
+
+   Il porte sur le type (DOM) du nœud ou sur le nom du nœud (éléments et attributs seulement)
+   
+\item[\texttt{\textcolor{cyan}{[predicate]}}] (optionnel) est un test sur le contenu\\
+
+    On prend les valeurs de nœuds-texte ou des attributs, on les compare à des constantes ou entre eux:
+    un peu à la SQL.
+    
+\end{description}
+
+\medskip
+
+Dans \texttt{child::realisateur[@nom='Cuaron']}, 
+\texttt{child} est l'axe, \texttt{library} le test,  le prédicat est entre crochets. 
+
+\end{frame}
+
+
+\begin{frame}{Interprétation d'une expression}
+
+\begin{block}{Principe général}
+Une expression XPath est une suite d'étapes (\textit{steps}), chaque étape comprenant éventuellement des tests 
+sur les nœuds atteints pour en éliminer certains.
+\end{block}
+
+\medskip
+A chaque étape\,:
+\begin{enumerate}
+  \item on considère un \alert{nœud courant}, pris comme point de départ\,;
+   \item on ``désigne'' à partir du nœud courant un ensemble d'autres nœuds\,;
+   \item on applique à chacun les tests de nœud\,;
+   \item on applique les prédicats (optionnels)\,;
+   \item enfin on prend chacun des nœuds restant comme nœud courant pour l'étape suivante.
+\end{enumerate}
+\end{frame}
+
+
+\subsection{Les axes XPath}
+
+\begin{frame}{Les axes dans XPath}
+
+À partir d'un nœud de l'arbre (nœud courant), les axes permettent 
+de se déplacer dans tous les sens.   
+
+\vfill
+
+On va se contenter du minimum (qui est aussi le plus utile!)
+
+\begin{itemize}
+  \item L'axe \texttt{child}: les enfants du nœud courant.
+  \item \texttt{descendant}: tous les descendants du nœud courant.
+  \item \texttt{parent}: l'ascendant direct du nœud courant. 
+  \item \texttt{attribute}: les attributs du nœud courant.
+  \item \texttt{self}: le nœud courant lui-même.
+\end{itemize}
+
+\begin{remark}
+Si vous êtes amenés à utiliser XPath intensivement, il faudra aller plus loin:
+reportez-vous au livre \url{http://webdam.inria.fr/jorge} pour une présentation complète.
+\end{remark}
+\end{frame}
+
+
+\begin{frame}{L'axe \texttt{child}}
+
+Pas de surprise: à chaque \alert{étape}, on se dirige vers les enfants du nœud courant.
+
+\vfill
+
+La figure montre les nœuds désignés par l'expression \texttt{child::node()}, pour le
+nœud courant \texttt{film}.
+
+\figSlideWithSize{GravityDOM-child}{9cm}
+
+\vfill
+
+\begin{remark}
+Note: \texttt{node()} est le test "neutre": il renvoie vrai pour tous les nœuds (ici, sans
+tenir compte du \alert{nom} du nœud).
+\end{remark}
+\end{frame}
+
+
+\begin{frame}{L'axe \texttt{descendant}}
+
+On parcourt les enfants, puis les enfants des enfants, jusqu'aux feuilles.
+
+\vfill
+
+La figure montre les nœuds désignés par l'expression \texttt{descendant::node()}, pour le
+nœud courant \texttt{film}.
+
+\figSlideWithSize{GravityDOM-descendant}{9cm}
+
+\begin{remark}
+Si, quand même une petite surprise: les \alert{attributs} ne sont pas concernés. 
+\end{remark}
+\end{frame}
+
+
+\begin{frame}{L'axe \texttt{attribute}}
+
+Les attributs sont spéciaux: on ne peut y accéder qu'en utilisant explicitement l'axe \texttt{@}
+(ou \texttt{attribute}).
+
+\vfill
+
+La figure montre les nœuds désignés par l'expression \texttt{@*}, pour le
+nœud courant \texttt{réalisateur}.
+
+\figSlideWithSize{GravityDOM-attribute}{9cm}
+
+\end{frame}
+
+\section{Tests et prédicats}
+
+
+\subsection{Test de nœud}
+
+\begin{frame}{Les tests de nœuds}
+
+Un axe désigne un ensemble de nœuds (par exemple, les enfants du nœud courant).
+
+\vfill
+
+On les \alert{filtre} avec un test (\texttt{node-test}). 
+
+\vfill
+
+On peut tester sur le type (DOM) du nœud :
+\begin{description}
+\item[\texttt{node()}] sélectionne les nœuds  quel que soit leur type
+\item[\texttt{text()}] sélectionne les nœuds de type \textbf{Text}.
+\item[\texttt{element()}] sélectionne les nœuds de type \textbf{Element}.
+\item et quelques autres...
+\end{description}
+
+\medskip
+
+Ou bien tester sur le nom du nœud (seulement pour éléments et attributs).
+
+\begin{description}
+\item[\texttt{leNom}] sélectionne les éléments ou attributs de nom \texttt{leNom}
+\item[\texttt{*}] sélectionne les nœuds qui ont un nom, quel que soit le nom.
+\end{description}
+
+\end{frame}
+
+\begin{frame}{Exemple: sélection des nœuds texte}
+
+On veut tous les nœuds de type \textbf{Text}.
+
+\vfill
+
+Expression: \texttt{/film/*/text()}.
+
+\figSlideWithSize{GravityDOM-text}{9cm}
+
+\vfill
+
+Quels sont les tests dans cette expression? Quels sont les axes?
+
+\end{frame}
+
+
+
+
+\subsection{Les prédicats}
+
+\begin{frame}{Les prédicats}
+
+Alors que les \texttt{node-test} portent sur la \alert{structure} du document,
+les \alert{prédicats} portent sur le contenu.
+
+\vfill
+
+Quelques exemples, mieux que les discours.
+
+
+\begin{itemize}
+\item Le titre du film réalisé par M. Cuaron
+ 
+	\texttt{/film[realisateur/@nom='Cuaron']/titre}
+	
+\item Les films de SF: \texttt{/film[genre='SF']/titre}
+
+\item Les personnes dont on connaît la date de naissance:
+
+    \texttt{/personne[@date\_naissance]}
+    
+ \item Les films dont le genre est soit SF, soit comédie:
+ 
+   \texttt{/film[genre='SF' or genre='Comedy']/titre}
+\end{itemize}
+
+\begin{block}{Le principe}
+Un nœud $n$ est sur un chemin. Pour savoir si on le garde ou pas: tests
+sur des \alert{valeurs} ramenées par des expressions \alert{relatives} à $n$.  
+\end{block}
+\end{frame}
+
+
+\begin{frame}{Un exemple détaillé}
+
+Films réalisés par M. Cuaron: \texttt{/film[realisateur/@nom='Cuaron']/titre}
+
+\vfill
+
+\figSlideWithSize{GravityDOM-predicate}{9cm}
+
+\vfill
+
+\begin{block}{Ce qu'il vaut mieux cacher...}
+Que se passe-t-il quand l'expression d'un prédicat désigne \alert{plusieurs} nœuds
+que l'on compare à \alert{une} valeur? Passons pudiquement...
+\end{block}
+
+\end{frame}
+
+\begin{frame}{Abréviations}
+
+Certaines expressions très courantes ont une abréviation.
+
+\vfill
+
+
+\textcolor{red}{.} désigne le nœud courant (abrégé de \texttt{self::node()})
+
+\vfill
+
+
+\textcolor{red}{..} désigne le  parent du nœud courant (abrégé de \texttt{parent::node()})
+
+\vfill
+
+\textcolor{red}{\texttt{//}} est une expression abrégée désignant tous les descendants du 
+  nœud courant, y compris le nœud courant lui-même.
+  
+  \begin{itemize}
+     \item \textcolor{red}{\texttt{//a}} désigne tous les nœuds du document dont le nom est \texttt{a}.
+     \item \textcolor{red}{\texttt{.//b}} désigne tous les descendants du nœud courant (ou lui-même)
+          dont le nom est \texttt{b}.
+  \end{itemize}
+
+
+\end{frame}
+
+\begin{frame}[allowframebreaks]{Opérations et fonctions}
+
+XPath permet aussi d'effectuer des opérations et fonctions. Mini sélection:
+
+\begin{itemize}
+\item \texttt{count(nset)} nombre d'éléments dans l'ensemble de nœuds. 
+\item \texttt{name(nœud)} nom du nœud.
+\item \texttt{concat(ch1, ..., chn)}, concaténation de textes
+\item \texttt{contains(ch1,ch2)}, vrai si \texttt{ch1} contient \texttt{ch2}.
+\end{itemize}
+
+
+{\bf Fonctions sur les booléens}
+
+\begin{itemize}
+\item \texttt{not(bool)}
+\end{itemize}
+
+\begin{remark}
+La version 2 de XPath est un sous-ensemble de XQuery: toutes les fonctions XQuery
+sont disponibles, il y en a beaucoup et c'est extensible.
+\end{remark}
+\end{frame}
+
+
+
+\begin{frame}{Bilan}
+
+Nous en savons assez pour faire beaucoup de choses intéressantes.
+
+\begin{itemize}
+  \item Tous les nœuds texte du document: \texttt{//text()}
+  \item Les nœuds texte dont le nom du parent est \texttt{titre}:
+       \texttt{//text()[parent::titre]}
+         \item Les nœuds texte dont le nom du parent est \texttt{titre}
+         et qui contiennent la sous-chaîne \texttt{'ty'}.
+         
+    \texttt{//text()[parent::titre and contains(., 'ty')]}
+       
+    \item Les nœuds qui ont plus de deux enfants.
+    
+      \texttt{//*[count(*) >= 2]} 
+       
+\end{itemize}
+
+\begin{block}{Pour conclure}
+Deux remarques
+\begin{itemize}
+  \item XPath sélectionne des nœuds existant; on ne peut pas construire de nouveaux documents,
+      de nouvelles valeurs.
+   \item Typique d'une approche où on peut interroger à la fois la structure et le contenu.   
+\end{itemize}
+\end{block}
+
+\end{frame}

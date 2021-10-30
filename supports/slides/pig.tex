@@ -1,0 +1,371 @@
+
+
+\newcommand{\map}{\mathop{\mathit{map}}}
+\newcommand{\reduce}{\mathop{\mathit{reduce}}}
+\newcommand{\mapreduce}{\textsc{MapReduce}}
+\newcommand{\shuffle}{\mathop{\mathit{shuffle}}}
+\newcommand{\pig}{\textsc{Pig}}
+
+\section{Programmer facilement en \mapreduce\,: \pig}
+
+
+\subsection{Basics}
+\begin{frame}
+\frametitle{Pig Latin}
+
+Un langage de haut niveau, type SQL, exécuté en  \mapreduce.
+
+\vfill
+
+``Requête'' \pig :  opération qui prend une \alert{relation} en entrée
+et produit une autre relation en sortie.
+
+\vfill
+
+Les requêtes consistent en une \alert{séquence} d'instructions
+\begin{redbullet}
+ \item  \textit{LOAD} charge les données d'un fichier (HDFS)
+       sous la forme d'une \alert{relation} (liste de n-uplets).
+   \item Une série de transformations traite les données.
+   \item L'instruction (optionnelle) \textit{STORE} écrit le résultat dans le système
+       de fichiers (HDFS); on peut aussi faire un 
+        \textit{DUMP} pour afficher à l'écran.
+\end{redbullet}
+
+\vfill
+
+Les requêtes sont evaluées par une \alert{combinaison} de \textit{jobs} \mapreduce.
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Tester \pig}
+
+\pig est un programme Java qui s'exécute en ligne de commande.
+\begin{redbullet}
+
+\item Télécharger  depuis \url{http://pig.apache.org}.
+
+\item Décompresser dans un répertoire, disons \texttt{pighome}
+
+\item Placer le répertoire \texttt{pighome/bin} dans le chemin d'exécuton (\texttt{PATH})
+\item Deux modes d'exécution
+\begin{description}
+\item[local] on lit les données sur le disque local, on évalue sans \mapreduce 
+\item[MapReduce] on exécute dans un \textit{cluster} \mapreduce, en lisant depuis HDFS.
+\end{description}
+
+
+
+\end{redbullet}
+
+Pour exécuter en local\,:
+\begin{verbatim}
+pig -x local
+grunt>run <script>.pig
+\end{verbatim}
+
+\end{frame}
+
+\begin{frame}[fragile]{Exemple de données en entrées (format tabulaire)}
+
+Un fichier texte, un n-uplet par ligne, champs séparés par des tabulations.
+
+\vfill
+
+Fichier: \texttt{publishers.txt}
+
+\footnotesize\begin{verbatim}
+Fundations of Databases	Addison-Wesley	USA
+Fundations of Databases	Vuibert	France
+Web Data Management and Distribution	CUP	GB
+\end{verbatim}
+
+\vfill
+
+Fichier: \texttt{books.txt}
+\footnotesize\begin{verbatim}
+1995	Fundations of Databases	Abiteboul
+1995	Fundations of Databases	Hull
+1995	Fundations of Databases	Vianu
+2010	Web Data Management	Abiteboul
+2010	Web Data Management	Manolescu
+2010	Web Data Management	Rigaux
+2010	Web Data Management	Rousset
+2010	Web Data Management	Senellart
+\end{verbatim}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Premier exemple: on regroupe les auteurs par livre.}
+
+
+
+\begin{minted}{pig}
+-- Chargement
+books = load 'books.txt' 
+    as (year: int, title: chararray, author: chararray) ;
+-- Regroupement    
+group_auth = group books by title;
+-- Restruturation
+authors = foreach group_auth generate group, books.author;
+-- Affichage
+dump authors;
+\end{minted}
+
+\begin{defblock}{Exécution}
+\begin{verbatim}
+pig -x local
+grunt>run groupby.pig
+\end{verbatim}
+\end{defblock}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Modèle de données}
+
+Modèle semi-structuré, type XML/JSON. Imbrication de structures ensemblistes (``bags'') et de n-uplets.
+
+\vfill
+
+Exemple: le \textit{bag} \texttt{group\_auth}.
+
+\small{
+\begin{minted}{pig}
+(
+  Fundations of Databases,
+  { (1995,Fundations of Databases,Abiteboul),
+    (1995,Fundations of Databases,Hull),
+    (1995,Fundations of Databases,Vianu)
+  }
+)
+\end{minted}
+}
+
+Imbrication sans limite, mais pas de références ou dépendance externe\,: un ``document'' autonome. 
+
+
+\vfill
+
+\alert{Objectif parallélisation}\,!
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Un exemple complet: le fichier}
+
+Fichier: \texttt{journal-small.txt}
+\footnotesize\begin{verbatim}
+2005    VLDB J. Model-based approximate querying in sensor networks.
+1997    VLDB J. Dictionary-Based Order-Preserving String Compression.
+2003	SIGMOD Record	Time management for new faculty.
+2001    VLDB J. E-Services - Guest editorial.
+2003	SIGMOD Record	Exposing undergraduate students to system internals.
+1998    VLDB J. Integrating Reliable Memory in Databases.
+1996    VLDB J. Query Processing and Optimization in Oracle Rdb
+1996    VLDB J. A Complete Temporal Relational Algebra.
+1994	SIGMOD Record	Data Modelling in the Large.
+2002	SIGMOD Record	Data Mining: Concepts and Techniques - Book Review.
+\end{verbatim}
+
+\end{frame}
+
+
+\begin{frame}[fragile]{Un exemple complet: le programme}
+
+Regroupement des publications par année. 
+
+\figSlideWithSize{pig-workflow}{10cm}
+
+\vfill
+
+\begin{minted}[frame=lines,
+               baselinestretch=.9,
+               fontsize=\footnotesize,
+               framesep=2mm]{pig}
+-- Chargement des documents de journal-small.txt
+articles = load 'journal-small.txt' 
+        as (year: chararray, journal:chararray, title: chararray) ;
+sr_articles = filter articles by journal=='SIGMOD Record';
+year_groups = group sr_articles by year;
+count_by_year = foreach year_groups generate group, 
+          count(sr_articles.title);
+dump count_by_year;
+\end{minted}
+
+\vfill
+
+À décomposer...
+\end{frame}
+
+\section{Les opérateurs \pig}
+
+\begin{frame}[fragile]
+\frametitle{Principaux opérateurs \pig}
+
+\begin{small}
+\begin{tabular}{lp{9cm}}
+\hline
+\textbf{Operator} & \textbf{Description} \\
+\hline
+\textit{foreach} & Applique une expression à chaque document\\ 
+\textit{filter} &  Filtre les tuples sur certains critères\\ 
+\textit{distinct} &  Elimination des doublons\\ 
+\textit{join} &  Jointures de deux \textit{bags}\\ 
+\textit{group} & Regroupement \\
+\textit{cogroup} & Association de n-uplets provenant de deux sources\\ 
+\textit{cross} &  Produit cartésien de deux sources\\ 
+\textit{order} & Tri\\ 
+\textit{limit} & Limite la taille des données traitées\\
+\textit{union} &  Union de deux sources (dont les schémas peuvent être très différents)\\ 
+\textit{split} & Partition d'une relation selon certains critères\\
+\hline
+\end{tabular}
+\end{small}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Opérateur de ``dégroupage''}
+
+\texttt{flatten} ``déploie'' une imbrication (\texttt{flatten.pig}).
+
+\begin{minted}{pig}
+-- Take the `authors' bag and flatten the nested set
+flattened = foreach authors generate group, flatten($1);
+\end{minted}
+
+\vfill
+
+Appliqué à la relation  \texttt{authors} créée précédemment, on obtient\,:
+
+
+\small\begin{verbatim}
+(Foundations of Databases,Abiteboul)
+(Foundations of Databases,Hull)
+(Foundations of Databases,Vianu)
+(Web Data Management,Abiteboul)
+(Web Data Management,Manolescu)
+(Web Data Management,Rigaux)
+(Web Data Management,Rousset)
+(Web Data Management,Senellart)
+\end{verbatim}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{L'opérateur \texttt{cogroup}}
+
+\vfill
+Permet d'assembler des n-uplets sur un ensemble de critères.
+
+\figSlideWithSize{pig-cogroup}{10cm}
+
+\vfill
+Exemple (\texttt{cogroup.pig})\,:
+
+\begin{minted}{pig}
+publishers = load 'webdam-publishers.txt' 
+    as (title: chararray, publisher: chararray) ;
+cogrouped = cogroup flattened by group,
+                    publishers by title;
+\end{minted}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Résultat (mis en forme)}
+\vfill
+Pour chaque valeur de regroupement, deux ensembles imbriqués,
+provenant de chacune des sources.
+
+\vfill
+
+{\small\begin{verbatim}
+(Foundations of Databases,
+  { (Foundations of Databases,Abiteboul),
+    (Foundations of Databases,Hull),
+    (Foundations of Databases,Vianu)
+  },
+  {(Foundations of Databases,Addison-Wesley),
+   (Foundations of Databases,Vuibert)
+  }
+)
+\end{verbatim}
+}
+
+\vfill
+Une sorte de jointure, dans un état intermédiaire, permis par le modèle semim-structuré.
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Jointures}
+\vfill
+Come précédemment, mais produit un résultat ``mis à plat''. 
+
+\vfill
+
+On
+effectue le produit cartésien des n-uplets imbriqués (\texttt{join.pig}).
+
+\vfill
+
+\begin{minted}{pig}
+-- Take the 'flattened' bag, join with 'publishers'
+joined = join flattened by group, publishers by title;
+\end{minted}
+
+\vfill
+
+{\small\begin{verbatim}
+(Foundations of Databases,Abiteboul,
+      Fundations of Databases,Addison-Wesley)
+(Foundations of Databases,Abiteboul,
+      Fundations of Databases,Vuibert)
+(Foundations of Databases,Hull,
+      Fundations of Databases,Addison-Wesley)
+(Foundations of Databases,Hull,
+     ...
+\end{verbatim}
+}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Un exemple à tester}
+\vfill
+Avec ajout de filtres pour sélectionner certain n-uplets.
+
+
+\vfill
+               
+\begin{minted}[frame=lines,
+               baselinestretch=.9,
+               fontsize=\footnotesize,
+               framesep=2mm]{pig}
+-- Chargement de books.txt
+books = load 'books.txt' 
+    as (year: int, title: chararray, author: chararray) ;
+-- On prend les livres de Victor Vianu
+vianu = filter books by author == 'Vianu';
+--- Chargement de publishers.txt
+publishers = load 'publishers.txt' 
+    as (title: chararray, publisher: chararray) ;
+-- Jointure sur le titre
+joined = join vianu by title, publishers by title;
+-- Groupement sur le nom de l'auteur
+grouped = group joined by vianu::author;
+-- Maintenant, comptons les editeurs (exercice: supprimer les doublons!)
+count = foreach grouped generate group, 
+           COUNT(joined.publisher);
+\end{minted}
+
+À vous de jouer.
+
+\end{frame}
+

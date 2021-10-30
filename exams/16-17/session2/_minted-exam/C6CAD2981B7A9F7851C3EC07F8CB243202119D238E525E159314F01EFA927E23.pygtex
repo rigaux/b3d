@@ -1,0 +1,5 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{select} \PYG{k}{count}\PYG{p}{(}\PYG{o}{*}\PYG{p}{)} \PYG{k}{from} \PYG{n}{Ticket} \PYG{n}{t}\PYG{p}{,} \PYG{n}{Article} \PYG{n}{a}
+\PYG{k}{where} \PYG{n}{a}\PYG{p}{.}\PYG{n}{idTicket} \PYG{o}{=} \PYG{n}{t}\PYG{p}{.}\PYG{n}{id}
+\PYG{k}{group} \PYG{k}{by} \PYG{n+nb}{date}\PYG{p}{,} \PYG{n}{noCaisse}
+\end{Verbatim}

@@ -1,0 +1,254 @@
+
+\section{Le principe de localité des données}
+
+\begin{frame}{Les programmes vers les données, pas l'inverse!}
+
+Client serveur pour traiter des TOs de données? \alert{Ne marche pas}.
+
+\vfill
+
+\figSlideWithSize{data-locality}{13cm}
+
+\vfill
+
+Il faut placer les traitements au plus près des données.
+
+\end{frame}
+
+
+\begin{frame}{Pourquoi un \textit{framework}}
+
+Un framework \alert{pilote} un traitement, conduit selon un processus générique (notion d'inversion de contrôle).
+
+
+\vfill
+
+L'application ``injecte'' des fonctions dans le framework.
+
+% Exemples: Applications MVC, XSLT, Couches ORM, \alert{MapReduce}.
+ 
+\vfill
+
+Le framework applique les fonctions  pendant l'exécution du processus.
+
+\vfill
+
+\begin{redbullet}
+  \item Une fonction \textit{map()} à appliquer pendant la phase de Map
+  \item Une fonction \textit{reduce()} à appliquer pendant la phase de Reduce.
+\end{redbullet}
+
+\begin{remblock}{Rôle d'un \textit{framework} MapReduce}
+Prendre en charge la distribution, et gérer les reprises sur panne.
+\end{remblock}
+\end{frame}
+
+
+\begin{frame}[fragile]{Comptons les mots: la fonction de Map}
+
+Phase de Map: on extrait les termes, on les compte (localement), on transmet
+
+\begin{minted}{bash}
+    function mapTF($id, $contenu)
+    {
+      // $id: identifiant du document
+      // $contenu: contenu textuel du document
+
+      // On boucle sur tous les termes du contenu
+      foreach  ($t in $contenu) {
+        // Comptons le nb d'occurrences de $t dans $contenu
+        $count = nbOcc ($t, $contenu);
+        // Emission du terme et de son nombre d'occurrences
+        emit ($t, $count);
+      }
+    }
+\end{minted}
+
+NB: rien n'indique le contexte de distribution.
+
+\end{frame}
+
+
+\begin{frame}[fragile]{Comptons les mots: la fonction de Reduce}
+
+Phase de Reduce: on reçoit, pour chaque terme, les compteurs, on les additionne.
+
+\begin{minted}{bash}
+    function reduceTF($t, $compteurs)
+    {
+      // $t: un terme
+      // $compteurs: les nombres d'occurrences, un pour chaque doc.
+      $total = 0;
+      // Boucles sur les compteurs et calcul du total
+      foreach ($c in $compteurs) {
+       $total = $total + $c;
+      }
+      // Et on produit le total  
+      return $total;
+    }
+\end{minted}
+
+Même remarque: rien n'indique le contexte de distribution.
+
+\end{frame}
+
+
+
+\newcommand{\map}{\mathop{\mathit{map}}}
+\newcommand{\reduce}{\mathop{\mathit{reduce}}}
+\newcommand{\mapreduce}{\mathop{\mathit{MapReduce}}}
+\newcommand{\shuffle}{\mathop{\mathit{shuffle}}}
+\newcommand{\combiner}{\mathop{\mathit{combiner}}}
+
+\begin{frame}{L'exécution par le \textit{framework}}
+
+\begin{tabular}{ll}
+URL&Document\\ \hline
+$u_1$&the jaguar is a new world mammal of the felidae family.\\
+$u_2$&for jaguar, atari was keen to use a 68k family device.\\
+$u_3$&mac os x jaguar is available at a price of us \$199 for
+apple's\\& new ``family pack''.\\
+$u_4$&one such ruling family to incorporate the jaguar into their name\\&is
+jaguar paw.\\
+$u_5$&it is a big cat.\\
+\hline
+\end{tabular}
+
+\end{frame}
+
+\begin{frame}{Déroulons le processus}
+
+\begin{columns}[t]
+\column{.33\linewidth}
+\centering\begin{tabular}{ll}
+\hline
+\structure{term}&\structure{count}\\
+\hline
+jaguar&1\\
+mammal&1\\
+family&1\\
+jaguar&1\\
+available&1\\
+jaguar&1\\
+family&1\\
+family&1\\
+jaguar&2\\
+\dots\\
+\hline
+\end{tabular}
+Sortie du $\map$\\
+Entrée du $\shuffle$
+\pause
+\column{.33\linewidth}
+\centering\begin{tabular}{ll}
+\hline
+\structure{term}&\structure{count}\\
+\hline
+jaguar&1,1,1,2\\
+mammal&1\\
+family&1,1,1\\
+available&1\\
+\dots\\
+\hline
+\end{tabular}
+Sortie du $\shuffle$ \\
+Entrée du $\reduce$ 
+\pause
+\column{.33\linewidth}
+\centering\begin{tabular}{ll}
+\hline
+\structure{term}&\structure{count}\\
+\hline
+jaguar&5\\
+mammal&1\\
+family&3\\
+available&1\\
+\dots\\
+\hline
+\end{tabular}
+Résultat final
+\end{columns}
+
+\end{frame}
+
+
+\section{Exécution distribuée d'un traitement \mapreduce/}
+
+\begin{frame}{La grande vision}
+
+\figSlideWithSize{mr-execution}{11cm}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Quelques calculs}
+
+Supposons une collection avec 1 million de documents; chaque document contient 100 termes
+en moyenne, et sa taille est (en moyenne) de 1 KO.
+
+\vfill
+
+Le partitionnement découpe en fragments de 64 MO: chaque fragment 
+contient  64\ 000 documents. Il y a à peu près $M= \lceil 1{,}000{,}000/64{,}000
+\rceil \approx 16{,}000$ fragments.
+
+\vfill
+
+Si j'ai 16 machines, chacune traitera 1\ 000 fragments par 1\ 000 tâches.
+
+\vfill
+
+Chaque tâche (Mapper) produit 6\, 400\ 000 paires (terme, compteur)
+
+\vfill
+
+Si j'ai 10 machines pour la phase de Reduce: chaque Reducer $R_i$ reçoit 640\ 000 paires
+de chaque Mapper, pour tous les termes $t$ tels que  $\mathit{hash}(t)=i$ ($1\leq i\leq {10}$)
+
+\end{frame}
+
+
+
+\begin{frame}{Un tout petit exemple}
+
+Quatre documents qui parlent de loups, de moutons, de bergerie.
+\vfill
+
+
+\figSlideWithSize{mr-execution-ex}{11cm}
+
+\end{frame}
+
+
+\section{La reprise sur panne}
+
+
+\begin{frame}
+\frametitle{Gestion des pannes}
+
+Un traitement MapReduce peut durer des jours, sur des centaines de machines:
+la probabilité de panne est très grande.
+
+\vfill
+
+Ré-exécuter à chaque panne $\Rightarrow$ : on ne finira jamais
+\vfill
+
+Dans Hadoop, le Maître (\textit{JobTracker}) surveille l'ensemble du processus.
+
+\medskip
+
+\begin{redbullet}
+  \item Panne d'un Reducer: on  reprend le résultat des Mappers, \alert{stocké sur disque}.
+
+  \item Panne d'un Mapper: on recommence la tâche sur le fragment (\alert{ou sur un réplica})
+  \item Si le Maître tombe en panne: on recommence tout, (probabilité très faible).
+
+\end{redbullet}
+
+\begin{remblock}{Essentiel}
+Tout repose sur une \alert{sérialisation} (écriture sur disque) aux différentes
+étapes. \alert{Robuste mais très lent}.
+\end{remblock}
+\end{frame}

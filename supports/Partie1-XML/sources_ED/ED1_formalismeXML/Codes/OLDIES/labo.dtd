@@ -1,0 +1,14 @@
+<!ELEMENT laboratoire (directeur,equipe+,projet*)>
+ <!ELEMENT directeur (#PCDATA)>
+ <!ELEMENT equipe (directeur)>
+ <!ATTLIST equipe
+	 id ID #REQUIRED
+	 nom CDATA #REQUIRED
+	 ref_projet IDREFS #REQUIRED
+	 >
+ <!ELEMENT projet (directeur)>
+ <!ATTLIST projet
+	 nom ID #REQUIRED
+	 ref_equipes IDREFS #REQUIRED
+	 >
+

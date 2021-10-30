@@ -1,0 +1,7 @@
+installation dans /Library/Python
+
+Voir http://notes.zatvia.com/notes-sphinx-themes.html 
+
+Les thèmes sont dans /Library/Python/2.7/site-packages/Sphinx-1.2-py2.7.egg/sphinx/themes
+
+On peut modifier un thème en ajoutant un template layout.html dans _templates

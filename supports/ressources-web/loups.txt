@@ -1,0 +1,4 @@
+Le loup est dans la bergerie.
+Les moutons sont dans la bergerie.
+Un loup a mangé un mouton, les autres loups sont restés dans la bergerie.
+Il y a trois moutons dans le pré, et un mouton dans la gueule du loup.

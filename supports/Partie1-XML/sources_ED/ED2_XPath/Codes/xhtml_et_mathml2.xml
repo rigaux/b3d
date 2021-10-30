@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pref:html xmlns:pref="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<!-- Exemple issu de http://www.w3.org/TR/xhtml1/ -->
+	<pref:head>
+		<pref:title>A Math Example</pref:title>
+	</pref:head>
+	<pref:body>
+		<pref:p>The following is <b>MathML</b> markup:</pref:p>
+		<!-- J'ins&egrave;re ici une formule MathML -->
+		<math xmlns="http://www.w3.org/1998/Math/MathML">
+			<mrow>
+				<msup>
+					<mfenced>
+						<mrow>
+							<mi>a</mi>
+							<mo>+</mo>
+							<mi>b</mi>
+						</mrow>
+					</mfenced>
+					<mn>2</mn>
+				</msup>
+			</mrow> 
+		</math>
+	</pref:body>
+</pref:html>

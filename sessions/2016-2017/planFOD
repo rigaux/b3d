@@ -1,0 +1,73 @@
+vertigo@cnam.fr
+
+cedric
+
+
+Bonjour à toutes et tous,
+
+Bienvenus dans cette session FOD de l'UE NFE204. Pour cette UE dont je suis responsable, nous avons produit
+avec mes collègues tout un ensemble de supports de cours qui sont tous accessibles à partir d'un unique
+site que je vous suggère de marquer dès maintenant:
+
+    http://b3d.bdpedia.fr
+
+Je vous invite en particulier à prendre connaissance du contenu, du plan et des objectifs du cours en lisant
+l'introduction:
+
+     http://b3d.bdpedia.fr/intro.html
+
+Les chapitres de ce cours sont également disponibles dans cet espace Moodle, si vous préférez passer par ce biais.  Je n'ai pas encore exploité toutes les possibilités de Moodle car la mise en place est très consommatrice de temps.
+
+Vous trouverez donc sur ce site un support rédigé complet, structuré en chapitres et sessions. Pour chaque session, vous
+trouverez au début un lien vers une vidéo d'une trentaine de minutes (moyenne) couvrant le sujet de la session. En fin
+de session  vous trouverez des exercices et quiz. Les solutions des exercices seront dévoilées au fur et à mesure
+de l'avancement.
+
+Le cours propose par ailleurs des exercices de mise en pratique avec des systèmes qui, TOUS, sont libres de droits et
+installables sous tous les systèmes (Windows, MacOS et Linux). Je travaille moi-même sous MacOS, et je m'avoue
+incapable de vous aider pour les problèmes d'installation sous Windows, mais vous devez pouvoir vous en tirer
+en vous entraidant, ou en recourant au Web.
+
+Dans le cadre de la FOD, je vous propose un plan d'avancement que je vous rappelerai régulièrement, ponctué par des
+séances de regroupement vidéo où je répondrai à vos questions. En ce qui concerne la charge de travail, il faut compter
+un chapitre par semaine en en moyenne, ce qui représente une charge de travail significative et surtout régulière:
+ne vous laissez par déborder dès le début.
+
+Je vous invite également à utiliser le forum pour poser des questions, et à éviter d'essayer de dialoguer directement
+avec moi (ou entre vous) par mail: cela permet à tout le monde d'en bénéficier.
+
+Veuillez noter dès maintenant la date du premier regroupement vidéo:
+
+  - Séance 1:  8 mars 2016, à 19 heures.
+
+Voici la liste des jalons que je vous propose pour vous aider à planifier la progression du cours.
+
+Jalons
+
+======
+
+1) Fin février 2017
+   Maîtriser Docker
+   Objectifs: disposer d'un jeu de données en XML et d'un autre en JSON. Cf. exercices
+
+2) Mi mars 2017
+   Installation MongoDB, CouchDB, Cassandra
+   Chargement de la base des films dans les trois systèmes
+   
+3) Fin mars 2017
+  Fin chapitre 4 sur l'interrogation des bases NoSQL
+  
+4) Mi avril 2017
+    Chapitre MapReduce et TP Cassandra / MongoDB
+    
+5) Mi-mai 2017
+   Fin de la partie "Recherche d'information"
+   
+6) Fin mai 2017
+   Chapitre 14 et 15: réplication et partitionnement
+   
+7) Mi juin 2017
+   Chapitre MapReduce, TP Pig.
+   
+8) Mi juillet
+    Rendu du projet

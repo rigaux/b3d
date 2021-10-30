@@ -1,0 +1,358 @@
+
+
+\section{Basics}
+
+\begin{frame}{Qu'est-ce que \mongodb/,?}
+
+%\frametitle{Qu'est-ce que \mongodb/,?}
+
+\mongodb/, un système "NoSQL", l'un des plus populaires
+
+\begin{redbullet}
+  \item fait partie des NoSQL dits ``documentaires''
+
+  \item s'appuie sur un modèle de données semi-structuré (encodage JSON)\,;
+  \item pas de schéma (complète flexibilité)\,;
+  \item un \alert{langage d'interrogation} original (et spécifique)\,;
+   \item pas (ou très peu) de \alert{support transactionnel}.
+   \end{redbullet}
+   \vfill
+   
+Construit dès l'origine comme un système \alert{scalable} et \alert{distribué}.
+
+\begin{redbullet}
+ \item distribution par partionnement (\textit{sharding})\,;
+  \item technique adoptée\,: découpage par intervalles (type BigTable, Google)\,;
+  \item tolérance aux pannes par réplication.
+\end{redbullet}   
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Objectifs de ce cours}
+
+
+\alert{Découvrir un système NoSQL} $\Rightarrow$ session interactive commentée.
+
+\vfill
+
+\alert{Modélisation}. Comment modélise-t-on une application\,? 
+Avantages/inconvénients vs. un système relationnel.
+
+\vfill
+
+Un aperçu du \alert{langage d'interrogation} de \mongodb/.
+
+\end{frame}
+
+
+\section{Session découverte\,!}
+
+
+\begin{frame}
+\frametitle{Le minimum à savoir}
+
+Vous connaissez déjà JSON\,?
+
+\begin{redbullet}
+ \item Système client/serveur\,; le serveur est \texttt{mongod}
+ \item Open-source, multi plate-formes\,: installez-le chez vous\,!
+  \item Un client en mode terminal\,: \texttt{mongo}\,; langage Javascript\,;
+  \item D'autres clients plus ergonomiques, dont \texttt{RockMongo}, une interface Web.
+\end{redbullet}
+
+Conçu et développé par 10gen.
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Découvrons (avec le client \texttt{mongo})}
+
+On se place dans une \alert{base} \texttt{nfe204} (cd. MySQL)
+
+\smallskip
+
+\texttt{use nfe024}
+
+\smallskip
+
+On insère un \alert{document} JSON dans une \alert{collection} 
+
+\smallskip
+
+\texttt{> db.test.insert (\{"nom": "nfe024"\})}
+
+\smallskip
+
+On affiche le contenu de la collection
+
+\smallskip
+
+\texttt{> db.test.find() }
+
+On insère n'importe quel autre document (pas de \alert{schéma})
+
+\smallskip
+
+\texttt{> db.test.insert (\{"produit": "Grulband", prix: 230, enStock: true\})}
+
+\smallskip
+
+On peut donner un identifiant explicite\,:
+
+\smallskip
+
+\texttt{> db.test.insert (\{\_id: "1", "produit": "Kramölk", prix: 10, enStock: true\})}
+
+\smallskip
+
+\texttt{> db.test.count()}
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+\frametitle{Quelques documents plus sérieux}
+
+Exemple
+
+\smallskip
+
+
+\begin{minted}[baselinestretch=.9,
+               fontsize=\small,
+               framesep=2mm]{javascript}
+{
+  "_id": "movie:100",
+  "title": "The Social network", 
+  "summary": "On a fall night in 2003, Harvard undergrad and 
+         programming genius Mark Zuckerberg sits down at his  
+         computer and heatedly begins working on a new idea. (...)",
+  "year": 2010, 
+  "director": {"last_name": "Fincher",
+                    "first_name": "David"},
+  "actors": [ 
+        {"first_name": "Jesse", "last_name": "Eisenberg"}, 
+        {"first_name": "Rooney", "last_name": "Mara"}
+    ]
+}
+\end{minted}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Aperçu du langage de requêtes}
+
+L'équivalent du \texttt{select-from-where}, \alert{sur une
+seule collection} (pas de \alert{jointure}).
+
+\vfill
+
+
+\begin{smallverbatim}
+db.movies.find ({"_id": "movie:2"})
+\end{smallverbatim}
+
+\vfill
+
+Avec des \alert{expressions de chemin} (simples!)
+
+\vfill
+
+
+\begin{smallverbatim}
+db.test.find ({"director.last_name": "Scott"} )
+\end{smallverbatim}
+
+\vfill
+Fonctionne \alert{aussi} pour les acteurs (même si c'est un \alert{tableau}).
+
+\vfill
+\begin{smallverbatim}
+db.test.find ({"actors.last_name": "Weaver"})
+\end{smallverbatim}
+
+\vfill
+Mise à jour\,:
+
+\vfill
+
+\begin{smallverbatim}
+db.test.update ({"_id": "movie:2"}, {$set: {sous_titre: "Le passager"}} )
+db.test.update ({"_id": "movie:2"}, {$unset: {country: 1}} )
+\end{smallverbatim}
+
+\vfill
+
+Et on supprime tout\,:
+
+\begin{smallverbatim}
+db.test.remove()
+\end{smallverbatim}
+
+\end{frame}
+
+
+\section{Manipulation de données avec \mongodb/}
+
+
+
+\begin{frame}[fragile]
+\frametitle{Les requêtes}
+
+Recherche par clé (très rapide). 
+
+\begin{minted}[baselinestretch=.9,
+               fontsize=\small,
+               framesep=2mm]{javascript}
+db.artists.find({_id: "artist:99"})
+\end{minted}
+
+Remarquez l'utilisation de \texttt{findOne}. Avec un chemin.
+
+\begin{minted}[baselinestretch=.9,
+               fontsize=\small,
+               framesep=2mm]{javascript}
+db.movies.find({"actors._id": "artist:99"})
+\end{minted}
+
+Avec pagination
+\begin{minted}[baselinestretch=.9,
+               fontsize=\small,
+               framesep=2mm]{javascript}
+db.movies.find({"actors._id": "artist:99"}).skip(0).limit(2)
+\end{minted}
+
+Avec une \alert{projection}
+
+\begin{minted}[baselinestretch=.9,
+               fontsize=\small,
+               framesep=2mm]{javascript}
+db.movies.find({"actors._id": "artist:99"}, {"title": 1})
+\end{minted}
+
+Avec une expression régulière (pas de guillemets!)\,:
+
+\begin{minted}[baselinestretch=.9,
+               fontsize=\small,
+               framesep=2mm]{javascript}
+db.movies.find({"title": /^Re/}, {"title": 1})
+\end{minted}
+
+Par intervalle:
+
+\begin{minted}[baselinestretch=.9,
+               fontsize=\small,
+               framesep=2mm]{javascript}
+db.movies.find({"year": {$gte: 2000, $lte: 2005}, {"title": 1})
+\end{minted}
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+\frametitle{Les requêtes, suite}
+
+Quelques clauses ensemblistes 
+
+\begin{minted}[baselinestretch=.9,
+               fontsize=\small,
+               framesep=2mm]{javascript}
+db.artists.find({_id: {$in: ["artist:34", "artist:98", "artist:1"]}, 
+      {"last_name": 1})
+\end{minted}
+
+Autres possibilités\,: \texttt{\$nin}, \texttt{\$all}, \texttt{\$exist}
+
+\begin{minted}[baselinestretch=.9,
+               fontsize=\small,
+               framesep=2mm]{javascript}
+db.movies.find({'summary': {$exists: true}}, {"title": 1})
+\end{minted}
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+\frametitle{Et les jointures}
+
+Il faut les effectuer du \alert{côté client}. 
+
+\vfill
+Exemple (en supposant un schéma uniquement avec références): tous les films
+réalisés par Clint Eastwood.
+
+\vfill
+
+On charge dans une variable \alert{locale} l'artiste Clint Eastwood.
+
+\begin{minted}[baselinestretch=.9,
+               fontsize=\small,
+               framesep=2mm]{javascript}
+eastwood = db.artists.findOne({"first_name": "Clint", "last_name": "Eastwood"})
+\end{minted}
+
+Notez le \texttt{findOne}\,!
+
+\vfill
+
+Et on recherche ses films.
+
+\begin{minted}[baselinestretch=.9,
+               fontsize=\small,
+               framesep=2mm]{javascript}
+db.movies.find({"director._id": eastwood['_id']}, {"title": 1})
+\end{minted}
+\vfill
+
+Revient à effectuer une jointure par boucle imbriquées avec l'application client\,: 
+très peu efficace à grande échelle.
+
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Comparaison des techniques de jointure}
+
+
+\figSlideWithSize{jointure-serveur-client}{10cm}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Une jointure complète}
+
+On veut afficher les films et leur metteur en scène. Ce que l'on obtient en SQL avec:
+
+\begin{minted}[baselinestretch=.9,
+               fontsize=\small,
+               framesep=2mm]{sql}
+select m.titre, a.*  from Movie m, Artist a
+where m.id_director = a.id
+\end{minted}
+
+\vfill
+Voici le code MongoDB.
+
+\begin{minted}[baselinestretch=.9,
+               fontsize=\small,
+               framesep=2mm]{javascript}
+var lesFilms = db.movies.find()
+while (lesFilms.hasNext()) {
+  var film = lesFilms.next();
+  var mes = db.artists.findOne({"_id": film.director._id});
+  printjson(film.title);
+  printjson(mes);
+}
+\end{minted}
+
+\vfill
+La requête imbriquée est exécutée autant de fois qu’il y a de films.
+
+\end{frame}

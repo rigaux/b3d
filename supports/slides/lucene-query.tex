@@ -1,0 +1,266 @@
+
+\begin{frame}{Recherche de documents}
+  \begin{itemize}
+      \setlength{\itemsep}{10pt}
+    \item Possibilités très sophistiquées de Solr
+    \item La manière d'effectuer une recherche varie en fonction de :
+      \begin{itemize}
+        \item la syntaxe de la requête (de très structurée avec booléen sur des
+          champs) à liste de mots-clefs
+        \item le {\bf classement} du résultat 
+          \begin{itemize}
+            \item Solr renvoie les documents ``pertinents'' (pas seulement ceux
+              qui correspondent exactement aux critères)
+            \item différence avec BDD (relationnelle)
+          \end{itemize}
+      \end{itemize}
+  \end{itemize}
+\end{frame} % ending frame Recherche de documents
+
+  
+%Dans tout ce qui suit, nous allons utiliser l'interface ``query`` de l'application Web
+%d'administration de Solr, accessible rappelons-le à http://localhost:8983/solr``. C'est 
+%un moyen simple de tester l'interrogation. Dans le cadre d'une application complète, 
+%on accède à un Solr grâce à l'interface de programmation que nous ne présentons pas ici.
+
+\begin{frame}{Consulter l'index}
+
+  \begin{itemize}
+    \item le paramètre qu'on utilise ici, c'est ``q'' ({\bf query})
+    \item proposé par défaut dans l'interface comme ``*.*'' ({\bf tous} les documents de l'index)
+      \smallskip
+    \item \variable{fq}: pour {\bf filter query}, pour interroger non pas l'index entier 
+      mais un résultat pré-calculé et stocké en {\bf cache}
+    \item \variable{sort}, pour trier le résultat
+    \item \variable{start} et \variable{row}, les paramètres classiques de pagination du résultat
+    \item \variable{fl}  pour {\bf field list}, la liste des champs (stockés) à inclure dans le résultat
+    \item \variable{df}, le champ à interroger si non spécifié dans la requête\\ (la valeur par défaut est indiqué
+      dans la configuration et vaut en principe \variable{text}, le champ dans lequel nous avons placé
+      toutes nos chaînes de caractères);
+    \item enfin, on trouve la liste des {\bf query parsers} disponibles; \\
+      un {\bf query parser} correspond à une syntaxe d'interrogation particulière.
+  \end{itemize}
+\end{frame}  
+
+\begin{frame}{Exemple d'utilisation des paramètres}
+  \begin{itemize}
+\item avec \variable{sort=title asc}: tri du résultat sur le titre, en ordre ascendant;
+\item avec \variable{fl=title, year}, restriction des champs dans les documents du résultat;
+\item avec \variable{start=10, rows=9}, récupération des documents classés entre les positions 10 à 19;
+\item avec \variable{q=Alien}, vous devriez retrouver le document Solr correspondant au film \variable{Alien};
+\item avec \variable{q=Alien} mais \variable{df=summary}, vous ne devriez rien trouver;
+\item avec \variable{q=Vertigo}, \variable{df=text}, vous devriez retrouver le film Vertigo;
+%\item mais avec  ``q=vertigo'' (en minuscules), on ne trouve rien. 
+%\item Solr serait-il sensible à la casse?
+%\item ... non car en cherchant ``scottie'', on retrouve bien Vertigo, alors que Scottie apparaît
+  %avec une majuscule dans le résumé du film; si vous ne comprenez pas pourquoi relisez-attentivement
+  %le début du chapitre, et notamment la partie sur le schéma. 
+  \end{itemize}
+\end{frame} % ending frame Exemple d'utilisation des paramètres
+
+\begin{frame}{Paramètres}
+\begin{itemize}
+  \item le document résultat ne montre que ceux qui ont été définis dans le
+    schéma comme ``stockés''
+  \item les autres champs sont utiles pour la recherche, mais on ne peut pas
+    récupérer leur valeur
+  \item En revanche, il est possible d'obtenir des informations {\bf calculées} par
+    Solr, sous forme de (pseudo-)champ :
+    \begin{itemize}
+      \item  ex. : le {\bf score}, qui évalue la pertinence d'un document pour une
+        recherche
+      \item essayer avec \variable{title, year, score} dans \variable{fl} (et une recherche
+        par mot-clef (ex. : \variable{fin}))
+      \item on vérifie que l'on a un classement par score
+      \item essayer en rajoutant \variable{[explain style=nl]}
+    \end{itemize}
+  
+\end{itemize}
+\end{frame}
+  
+\begin{frame}[fragile]{Les requêtes}
+  \begin{itemize}
+      \setlength{\itemsep}{10pt}
+    \item Solr fournit plusieurs interpréteurs de requêtes
+    \item  chacun reconnaît des syntaxes légèrement différentes
+    \item l'interpréteur par défaut, ``DisMax'', est le plus intuitif
+    \item mais pas toujours le plus précis 
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]{Termes}
+
+  \begin{itemize}
+    \item Notion de base : le {\bf terme}
+    \item c'est un mot au sens usuel
+    \item ou une séquence de mots entre apostrophes
+  \end{itemize}
+\smallskip
+Interroger l'index ``collection1'' avec :
+\begin{minted}[frame=lines,
+               baselinestretch=.9,
+               fontsize=\footnotesize,
+               framesep=2mm]{sql}
+  hard drive
+\end{minted}
+Puis :
+\begin{minted}[frame=lines,
+               baselinestretch=.9,
+               fontsize=\footnotesize,
+               framesep=2mm]{sql}
+  "hard drive"
+\end{minted}
+\smallskip
+\begin{itemize}
+  \item Première recherche : documents avec ``hard'', ``drive'' ou les deux
+  \item Deuxième : seulement ``hard drive'' (côte à côte)
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]{Termes (suite)}
+  \begin{itemize}
+    \item Dans Solr, la recherche d'un terme s'effectue toujours sur un champ. 
+\item La syntaxe complète pour associer le champ et le terme est:
+\begin{minted}[frame=lines,
+               baselinestretch=.9,
+               fontsize=\footnotesize,
+               framesep=2mm]{sql}
+  champ:terme
+\end{minted}
+\item si non précisé, c'est le champ par défaut qui est utilisé
+\item pratique courante : concaténer toutes les chaînes de caractères en un
+  champ ``text''général, défini par défaut
+\item Nos requêtes deviennent :
+\begin{minted}[frame=lines,
+               baselinestretch=.9,
+               fontsize=\footnotesize,
+               framesep=2mm]{sql}
+
+               text:hard text:drive
+\end{minted}
+\item et 
+\begin{minted}[frame=lines,
+               baselinestretch=.9,
+               fontsize=\footnotesize,
+               framesep=2mm]{sql}
+               text:"hard drive"
+\end{minted}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Termes (suite)}
+
+
+  \begin{itemize}
+    \item Les valeurs des termes (dans la requête) et le texte indexé sont tous deux
+soumis à des transformations spécifiées dans le schéma. 
+\item Une transformation simple est de tout transcrire en minuscules. 
+\begin{minted}[frame=lines,
+               baselinestretch=.9,
+               fontsize=\footnotesize,
+               framesep=2mm]{sql}
+               text:"Hard Drive"
+\end{minted}
+\item  Les transformations appliquées à la requête ET au texte indexé doivent être 
+   cohérentes : si les termes sont transformés en majuscules, et le texte indexé en minuscules,
+   on n'aura jamais de résultat!
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Termes (suite)}
+  On peut spécifier des termes (pas des séquences) incomplets
+  \begin{itemize}
+    \item le '?' indique un caractère inconnu
+      \begin{itemize}
+        \item ``opti?al'' désigne ``optimal'', ``optical'', etc.
+      \end{itemize}
+    \item le '*' indique n'importe quelle séquence de caractères
+      \begin{itemize}
+        \item ``opti*'' pour toute chaîne commençant par ``opti''
+      \end{itemize}
+  \end{itemize}
+
+  Approximations avec ``$\sim$'' :
+  \begin{itemize}
+    \item Rechercher ``optimal`` et ``optimal$\sim$``
+    \item 0 et 1 résultat (''optical'')
+    \item Proximité des termes par une distance d'édition : \\
+      (nb opérations pour passer de ``optimal'' à ``optical'')
+  \end{itemize}
+  Intervalles :\\
+  \begin{itemize}
+    \item $[ ]$ bornes comprises
+    \item \{ \} bornes exclues
+  \end{itemize}
+\begin{minted}[frame=lines,
+               baselinestretch=.9,
+               fontsize=\footnotesize,
+               framesep=2mm]{sql}
+    %price:[100 TO 200]
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Requêtes Booléennes}
+
+  \begin{itemize}
+    \item Les critères peuvent être combinés avec des opérateurs Booléens :\\
+      \variable{AND}, \variable{OR} et \variable{NOT}
+    \item Attention : majuscules
+  \end{itemize}
+\begin{minted}[frame=lines,
+               baselinestretch=.9,
+               fontsize=\footnotesize,
+               framesep=2mm]{sql}
+   %price:[100 TO 300] OR popularity:5
+   %price:[100 TO 300] AND NOT popularity:5
+   %popularity:6 AND features:matrix  
+\end{minted}
+   
+\begin{itemize}
+  \item Par défaut, c'est un \variable{OR} qui est appliqué
+  \item Recherche sur plusieurs critères ramène l'union des résultats sur chaque
+    critère pris individuellement
+  \item La requête suivante recherche les produits Dell {\bf ou} dont la popularité est
+égale à 6 :
+\begin{minted}[frame=lines,
+               baselinestretch=.9,
+               fontsize=\footnotesize,
+               framesep=2mm]{sql}
+    %popularity:6  manu:Dell
+\end{minted}
+
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]{Opérateur $+$, classement}
+  \begin{itemize}
+    \item préfixe d'un nom de champ, il indique que la valeur du champ {\bf doit}
+      être égale au terme
+    \item il existe également un opérateur $-$, équivalent au \variable{NOT}
+    \item recherche des documents dont la popularité est 6 (obligatoire) et qui peuvent
+être produits par Dell ou un autre constructeur 
+\begin{minted}[frame=lines,
+               baselinestretch=.9,
+               fontsize=\footnotesize,
+               framesep=2mm]{sql}
+    %+popularity:6  manu:Dell
+\end{minted}
+\item différence avec ce qui précède : le {\bf classement} du moteur
+\item illustre la différence entre recherche d'information et interrogation
+  de bases de données
+  \end{itemize}
+  \bigskip
+  Interprêter un classement est parfois délicat :\\
+\begin{minted}[frame=lines,
+               baselinestretch=.9,
+               fontsize=\footnotesize,
+               framesep=2mm]{sql}
+    %+popularity:6  cat:electronics
+
+    %+popularity:6  -manu:Dell
+
+\end{minted}
+\end{frame}

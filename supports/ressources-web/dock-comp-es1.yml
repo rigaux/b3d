@@ -1,0 +1,22 @@
+version: '2.2'
+services:
+  es01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.3
+    container_name: es01
+    environment:
+      - node.name=es01
+      - cluster.name=ma-grappe-es
+      - discovery.seed_hosts=es01,es02
+      - cluster.initial_master_nodes=es01,es02
+    ports:
+      - 9200:9200
+
+  es02:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.3
+    container_name: es02
+    environment:
+      - node.name=es02
+      - cluster.name=ma-grappe-es
+      - discovery.seed_hosts=es01,es02
+    ports:
+      - 9201:9200

@@ -1,0 +1,11 @@
+\begin{tikzpicture}
+\tikzstyle{every text node part}=[font=\bf]
+\tikzstyle{every lower node part}=[font=\itshape]
+
+\node [\elShape,fill=\elFill]  {\tikzEl{monEl}} 
+[
+level distance=2cm,
+]
+           child {\tikzText{Contenu textuel}}
+ ;
+\end{tikzpicture}

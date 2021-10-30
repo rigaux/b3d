@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<test>
+  <para type="warning">
+    1er para
+  </para>
+  <para type="warning">
+    2eme para
+  </para>
+  <para type="warning">
+    3eme para
+  </para>
+  <para type="warning">
+    4eme para
+  </para>
+  <para type="pas warning">
+    5eme para
+  </para>
+  <para type="warning">
+    6eme para
+  </para>
+</test>

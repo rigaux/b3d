@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<film>
+	<titre>Gravity</titre>
+	<annee>2013</annee>
+	<genre>SF</genre>
+	<realisateur nom="Cuaròn" prenom="Alfonso" />
+</film>

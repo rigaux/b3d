@@ -1,0 +1,109 @@
+{#
+    agogo/layout.html
+    ~~~~~~~~~~~~~~~~~
+
+    Sphinx layout template for the agogo theme, originally written
+    by Andi Albrecht.
+
+    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :license: BSD, see LICENSE for details.
+#}
+{%- extends "basic/layout.html" %}
+
+{% block header %}
+    <div class="header-wrapper">
+      <div class="header">
+        {%- if logo %}
+          <p class="logo"><a href="{{ pathto(master_doc) }}">
+            <img class="logo" src="{{ pathto('_static/' + logo, 1) }}" alt="Logo"/>
+          </a></p>
+        {%- endif %}
+        {%- block headertitle %}
+        <div class="headertitle"><a
+          href="{{ pathto(master_doc) }}">{{ title|e }}</a></div>
+        {%- endblock %}
+        <div class="rel">
+          {%- for rellink in rellinks|reverse %}
+          <a href="{{ pathto(rellink[0]) }}" title="{{ rellink[1]|striptags|e }}"
+             {{ accesskey(rellink[2]) }}>{{ rellink[3] }}</a>
+          {%- if not loop.last %}<font color="white">{{ reldelim2 }}</font>{% endif %}
+          {%- endfor %}
+        </div>
+       </div>
+    </div>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-57612346-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+
+<script type="text/javascript" src="{{ pathto('_static/dynsite.js', 1) }}"></script>
+
+{% endblock %}
+
+{% block content %}
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+          {%- block document %}
+            {{ super() }}
+          {%- endblock %}
+        </div>
+        <div class="sidebar">
+            <div>        
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Licence Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">
+  Ce cours</span> de <a xmlns:cc="http://creativecommons.org/ns#" href="http://www.bdpedia.fr" property="cc:attributionName" rel="cc:attributionURL">Philippe Rigaux</a> est mis à disposition selon les termes de la <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">licence Creative Commons Attribution - Pas d’Utilisation Commerciale - Partage dans les Mêmes Conditions 4.0 International</a>.
+</div>
+        <hr/>
+          {%- block sidebartoc %}
+          <h3>{{ _('Table Of Contents') }}</h3>
+          {{ toctree() }}
+          {%- endblock %}
+          {%- block sidebarsearch %}
+          <h3 style="margin-top: 1.5em;">{{ _('Search') }}</h3>
+          <form class="search" action="{{ pathto('search') }}" method="get">
+            <input type="text" name="q" />
+            <input type="submit" value="{{ _('Go') }}" />
+            <input type="hidden" name="check_keywords" value="yes" />
+            <input type="hidden" name="area" value="default" />
+          </form>
+          <p class="searchtip" style="font-size: 90%">
+      Saisissez un ou plusieurs mots-clés.
+          </p>
+          {%- endblock %}
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+{% endblock %}
+
+{% block footer %}
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          {%- for rellink in rellinks|reverse %}
+          <a href="{{ pathto(rellink[0]) }}" title="{{ rellink[1]|striptags|e }}"
+             {{ accesskey(rellink[2]) }}>{{ rellink[3] }}</a>
+          {%- if not loop.last %}{{ reldelim2 }}{% endif %}
+          {%- endfor %}
+          {%- if show_source and has_source and sourcename %}
+          {%- endif %}
+        </div>
+
+        <div class="right">
+        <a href="{{ pathto(master_doc) }}">{{ title|e }}</a><br/>
+          {{ super() }}
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+{% endblock %}
+
+{% block relbar1 %}{% endblock %}
+{% block relbar2 %}{% endblock %}

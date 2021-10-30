@@ -1,0 +1,126 @@
+
+\begin{frame}{Le  fenêtrage  avec Flink}
+
+Flink permet de découper les flux en \alert{fenêtres}. Trois types de fenêtres possibles.
+
+\vfill
+
+\figSlideWithSize{flink-windows}{7.5cm}
+
+\end{frame}
+
+
+
+\begin{frame}{Opérations sur les fenêtres}
+
+Attention à bien évaluer les ressources nécessaires ! Il peut être nécessaire d'accumuler complètement le contenu 
+d'une fenêtre avant de déclencher l'agrégation.
+
+\vfill
+
+\begin{redbullet}
+   \item  application \alert{incrémentale} d’une fonction \textit{Reduce()} 
+      combinant deux éléments de la fenêtre
+   \item    application \alert{incrémentale} d’une fonction \textit{Fold()}
+   ajoutant un élément de la fenêtre à un accumulateur
+   \item   enfin, toute fonction s’appliquant à l’ensemble des éléments de la fenêtre, et qui ne peut pas s’appliquer incrémentalement.
+\end{redbullet}
+
+\vfill
+
+La troisième est potentiellement consomatrice de mémoire.
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]{Un premier exemple de fenêtre}
+
+Au préalable, lancer notre générateur de flux sur le port 9000.
+
+\vfill
+
+\begin{minted}{scala}
+import org.apache.flink.streaming.api.windowing.assigners._;
+
+val stream = senv.socketTextStream("localhost", 9000, '\n')
+val w = stream.map ( { x => Tuple1(x.toInt) } )
+              .windowAll(TumblingProcessingTimeWindows.of(Time.seconds(5)))
+               .fold("Liste: ") { (acc, v) => acc + " | " + v }
+               .print()
+senv.execute(" ")
+\end{minted}
+
+\vfill
+
+On cumule les entiers de la fenêtre, toutes les 5 secondes.
+\end{frame}
+
+
+\begin{frame}[fragile]{Avec fenêtre glissante}
+
+La fenêtre couvre 10 secondes, et est évaluée toutes les 5 secondes.
+\vfill
+
+\begin{minted}{scala}
+import org.apache.flink.streaming.api.windowing.assigners._;
+
+val stream = senv.socketTextStream("localhost", 9000, '\n')
+val w = stream.map ( { x => Tuple1(x.toInt) } )
+               .windowAll(SlidingProcessingTimeWindows.of(Time.seconds(10), Time.seconds(5)))
+               .fold("Liste: ") { (acc, v) => acc + " | " + v }
+               .print()
+senv.execute(" ")
+\end{minted}
+
+\vfill
+
+Le \texttt{windowAll()} indique qu'il n'y a pas de partitionnement. 
+\end{frame}
+
+
+\begin{frame}[fragile]{Dernier exemple: avec partitionnement}
+
+L’exemple suivant partitionne le flux d’entiers en 2: les pairs et les impairs.
+
+\vfill
+
+\begin{minted}{scala}
+import org.apache.flink.streaming.api.windowing.assigners._;
+
+val stream = senv.socketTextStream("localhost", 9000, '\n')
+case class MonEntier (classe: Int, valeur: Int)
+val w = stream.map ( { x => x.toInt } ).map({ x => MonEntier (x % 2, x)} )
+               .keyBy("classe")
+               .window(TumblingProcessingTimeWindows.of(Time.seconds(5)))
+               .fold("Liste: ") { (acc, v) => acc + " | " + v.valeur }
+               .print()
+senv.execute(" ")
+\end{minted}
+
+\vfill
+\begin{blocgauche}
+Le niveau de parallélisme autorisé par ce fenêtrage n’est que de deux.
+\end{blocgauche}
+\end{frame}
+
+
+%%%%%%%
+\begin{frame}[fragile]{En conclusion}
+
+Le fenêtrage est un outil puissant pour effectuer l'analyse de flux (construction incrémentale de modèles).
+
+\vfill
+
+Deux obstacles à prendre en compte\,:
+\begin{redbullet}
+ \item Des calculs non incrémentaux sur de grandes fenêtres requièrent beaucoup de mémoire
+ \item Le patitionnement de flux limite les possibilités de parallélisme.
+\end{redbullet}
+
+\vfill
+\begin{blocgauche}
+ À faire\,: exercices montrant le traitement de documents 
+ structurés (cf. support)
+ \end{blocgauche}
+\end{frame}

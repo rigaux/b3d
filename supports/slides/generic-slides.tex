@@ -1,0 +1,26 @@
+\documentclass[allowframebreaks,9pt]{beamer}
+ 
+\usepackage{slides}
+
+\usepackage{all_macros}
+
+% Paramètres indiquant le titre des diapos, et le fichier 
+\providecommand{\titreDiapos}{Titre diapos}% fallback definition
+\providecommand{\inputFile}{}% fallback definition
+
+\subtitle{\titreDiapos}
+
+
+\begin{document}
+
+\begin{frame}
+\titlepage 
+\end{frame}
+
+
+\lstset{basicstyle=\footnotesize,showstringspaces=false,language=XML,breaklines=false,columns=fullflexible,frame=shadowbox, rulesepcolor=\color{gray},captionpos=b}
+
+\input{\inputFile}
+
+\end{document}
+

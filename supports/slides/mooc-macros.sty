@@ -1,0 +1,138 @@
+\usepackage[french]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{enumitem} %pour personnalisation des listes numérotées (cf. beamerthemeMoocLab.sty)
+
+\usetheme{MoocLab}
+\usefonttheme{MoocLab}
+
+
+\usepackage{moreverb}
+\usepackage{minted}
+\usepackage{array}
+\usepackage{comment}
+
+\def\mongodb/{\textsc{MongoDB}}
+
+
+% small et verbatim: to be coherent with \file
+\newenvironment{smallverbatim}%
+{\endgraf\small\verbatimtab}{\endverbatimtab}
+% tiny et verbatim: to be coherent with \file
+
+\renewcommand{\alert}[1]{\textcolor{MoocLab-red}{\textbf{#1}}}
+
+% use for definitions
+\newenvironment<>{defblock}[1]{%
+  \begin{actionenv}#2%
+      \def\insertblocktitle{#1}%
+      \par%
+      \mode<presentation>{%
+        \setbeamercolor{block title}{fg=white,bg=MoocLab-red}
+       \setbeamercolor{block body}{fg=black,bg=white!50}
+       \setbeamercolor{itemize item}{fg=orange!20!black}
+       \setbeamertemplate{itemize item}[triangle]
+     }%
+      \usebeamertemplate{block begin}}
+    {\par\usebeamertemplate{block end}\end{actionenv}}
+
+%% Take figures from the ../figures directory
+\graphicspath{{../figures/}}
+\usepackage{graphicx}
+
+
+% use for remarks
+\newenvironment<>{remblock}[1]{%
+  \begin{actionenv}#2%
+      \def\insertblocktitle{#1}%
+      \par%
+      \mode<presentation>{%
+        \setbeamercolor{block title}{fg=white,bg=violet}
+       \setbeamercolor{block body}{fg=black,bg=white!50}
+       \setbeamercolor{itemize item}{fg=orange!20!black}
+       \setbeamertemplate{itemize item}[triangle]
+     }%
+      \usebeamertemplate{block begin}}
+    {\par\usebeamertemplate{block end}\end{actionenv}}
+
+%
+% Insertion d'une figure
+%
+
+\newcommand{\figSimple}[1]{%
+\includegraphics{#1}
+}
+
+\newcommand{\figSlide}[1]{%
+\includegraphics[width=12cm]{#1}
+}
+\newcommand{\figSlideWithSize}[2]{%
+\includegraphics[width=#2]{#1}
+}
+
+\newcommand{\tbldesc}[3]{
+\begin{small}
+\begin{center}
+\begin{tabular}{l|p{8cm}}
+{\bf #1 } & {\bf #2}\\
+\hline
+#3
+\\ \hline
+\end{tabular}
+\end{center}
+\end{small}
+}
+
+\newcommand{\sqlcom}[1]{{\tt #1}\index{#1}}
+\def\param#1{\textit{\texttt{#1}}}
+\def\tble#1{{\em #1}}
+\def\sqltxt#1{{\tt #1}}
+\def\tbspace{\textit{tablespace}}
+
+\newcommand{\guill}[1]{ <<\,#1\,>>}
+\newenvironment{blocgauche}
+{%
+\begin{minipage}[t]{0.7\textwidth}%
+}
+{%
+\end{minipage}%
+}
+
+
+
+
+\newenvironment{blocgaucheOld}
+{%
+\begin{tabular}{p{9cm}p{5cm}}%
+}
+{%
+\end{tabular}%
+}
+
+% Pour la recriture
+
+\usepackage{pstricks,pst-node,pst-text,pst-3d,pst-tree,pst-grad}
+\def\MyShadowBox#1#2{%
+  \textcolor{black}{\psshadowbox[framearc=.3]{%
+    \shortstack[c]{\texttt{\shortstack[c]{#1}}\\{#2}}}}}
+\def\Database#1#2{%
+  \Tr[name=#1]{\MyFrameBox{\textit{#1}}{#2}}}
+\def\IteratorSansNom#1#2#3{%
+  \pstree{\Tr{\MyShadowBox{\textbf{{\sc #1}}}{\textit{#2}}}}{#3}
+}
+\def\MyFrameBox#1#2{%
+  \psovalbox[framearc=.3,fillstyle=solid,fillcolor=white]{%
+    \shortstack[c]{\textcolor{black}{\texttt{\shortstack[c]{#1}}}\\ 
+               \textcolor{black}{#2}}}}
+\def\IteratorSansNom#1#2#3{%
+  \pstree{\Tr{\MyShadowBox{\textbf{{\sc #1}}}{\textit{#2}}}}{#3}
+}
+
+\definecolor{darkgreen}{rgb}{.0,.6,.0}
+\definecolor{darkred}{rgb}{.8,.0,.0}
+\definecolor{darkblue}{rgb}{.0,.0,.6}
+\newcommand{\variable}[1]{{\bf \color{darkblue} #1}}
+\newcommand{\remark}[1]{
+  \begin{itemize}
+    \item[\color{darkgreen}$\clubsuit$] {\color{darkgreen}#1}
+  \end{itemize}}

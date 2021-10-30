@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article
+  PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
+  
+  <?xml-stylesheet type="text/css"
+    href="http://WWW.sabi.co.UK/style/docbook.css"?>
+    
+<article lang="">
+   <articleinfo>
+      <title>Titre de mon document</title>
+      <subtitle>Sous-titre de mon document</subtitle>
+      <edition/>
+   </articleinfo>
+   <sect1>
+      <title>Titre de ma première section</title>
+      <para>Contenu de ma section 1. Cette <emphasis>partie</emphasis> est en italiques. </para>
+      <informaltable frame="all">
+         <tgroup cols="1"><tbody><row>
+               <entry>
+                  <para>Ligne 1</para>
+               </entry>
+            </row>
+            <row>
+               <entry>
+                  <para>Ligne 2</para>
+               </entry>
+            </row>
+            <row>
+               <entry>
+                  <para>Ligne 3</para>
+               </entry>
+            </row></tbody></tgroup>
+      </informaltable>
+      <para/>
+      <para>Some more Text with <emphasis>emphasis</emphasis> 
+      </para>
+      <para>Ceci est ma section 2<footnote>
+            <para>Note de bas de page</para>
+         </footnote> Je rentre du texte.</para>
+      <para>Un texte en <subscript>exposant</subscript>. </para>
+      <para/>
+      <para>Essai 1</para>
+      <para>Essai 2</para>
+      <para>
+         <ulink url="http://www.bdpedia.fr/">http://www.bdpedia.fr/</ulink>
+      </para>
+      <para/>
+      <informaltable frame="all">
+         <tgroup cols="3">
+            <colspec colnum="1" colname="c1"/>
+            <colspec colnum="2" colname="c2"/>
+            <colspec colnum="3" colname="c3"/><tbody><row>
+               <entry>
+                  <para>11</para>
+               </entry>
+               <entry>
+                  <para>12</para>
+               </entry>
+            </row>
+            <row>
+               <entry>
+                  <para>21</para>
+               </entry>
+               <entry>
+                  <para>22</para>
+               </entry>
+            </row></tbody></tgroup>
+      </informaltable>
+      <para/>
+   </sect1>
+</article>

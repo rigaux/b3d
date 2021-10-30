@@ -1,0 +1,81 @@
+
+\section{Compression et Distribution}
+
+\subsection{Compression de fichiers inverse}
+
+Soit un fichier inverse contenant 100 000 termes différents, et 100 millions de documents. Chaque terme contient en moyenne 500 000 documents (peut varier de 10 000 à 5 millions). Nous nous intéressons maintenant à la taille prise par cet index, et la manière de le compresser.
+
+Pour cela, il faut savoir que :
+\begin{itemize}
+\item Un terme est codé maximum sur 20 octets (avec une moyenne de 8 octets)
+\item Un pointeur sur 8 octets
+\item Un nombre est codé sur 4 octets
+\end{itemize}
+Un index contient un $terme$, la \textit{fréquence} du terme et un pointeur sur la \textit{posting list}.
+
+\subsubsection{Compression de l'index de termes}
+
+\begin{enumerate}
+\item Quelle est la taille de l'index des termes ? (sans les \textit{posting lists})
+	\begin{correction}
+		100 000 x (20 + 4 + 8) = 3 200 000 o = 3,20 Mo
+	\end{correction}
+
+\begin{comment}
+	\item Proposer une technique de compression des termes. Donner la taille de cet index.
+	%\begin{comment}
+	\begin{correction}
+		En codant tous les termes sur leur taille moyenne, puis en rajoutant un pointeur sur la chaine entière à part (si besoin), nous pouvons réduire la taille à 8o + 8o pour chaque terme. Ce qui nous fait descendre à 2,4 Mo.
+	\end{correction}
+	%\end{comment}
+
+	\item Remplacer le codage du terme par un $termId$ (identifiant de terme dans le dictionnaire). Donner la taille de cet index.
+	%\begin{comment}
+	\begin{correction}
+		Chaque triplet est alors codé sur : (4 + 4 + 8).\\
+		Ce qui nous fait une taille totale de 1,6 Mo.
+	\end{correction}
+	%\end{comment}
+
+	\item Que pourra-t'on utiliser pour retrouver le terme en fonction de son $termId$ ? ?
+	%\begin{comment}
+	\begin{correction}
+		On pourra utiliser un BTree pour retrouver chaque terme.
+	\end{correction}
+	%\end{comment}
+\end{comment}
+\end{enumerate}
+
+\subsubsection{Compression de la \textit{Posting List}}
+
+\begin{enumerate}
+	\item Compte tenu du nombre de documents, donner la taille d'encodage d'un $docId$.
+	\begin{correction}
+		log$_2$(10$^8$) ~ 26,57 =$>$ 4 octets
+	\end{correction}
+
+	\item Donner, à partir de la taille moyenne des \textit{posting lists} et de la taille d'un $docId$, la taille d'un vecteur de l'index. Puis la taille de l'index global.
+	\begin{correction}
+		500 000 x 4 = 2 Mo / vecteur.\\
+		100 000 x 2M = 200 Go.
+	\end{correction}
+
+	\item Proposer une solution pour encoder les docId d'une manière différente. Donner le principe de l'encodage.
+	\begin{correction}
+		Une solution est de calculer les distances entre chaque docId avec des encodages à taille variable. Pour cela, à chaque docId, on calcul la différence avec le précédent et on l'encode sur le nombre de bits nécessaire. Le premier bit de chaque octet permet de dire si c'est la fin de l'encodage, s'il est à 1 c'est que c'est la fin du calcul, sinon on ajoute avec la suite.\\
+
+	\end{correction}
+
+	\item  Donner la transformation, puis l'encodage de la \textit{posting list} suivante : 105, 117, 222, 702, 3002
+	\begin{correction}
+	Transformation : 105, 2, 115, 480, 2300\\
+	Pour chaque différence : 1101001, 10, 1110011, 11 1100000, 10001 1111100\\
+	Encodage : \textbf{1}1101001\textbf{1}0000010\textbf{1}1110011\textbf{0}0000011\textbf{1}1100000\textbf{0}0010001\textbf{1}1111100
+	\end{correction}
+
+	\item Donner la taille moyenne de l'index, en supposant que les 2/5° des docIds sont sur 1 octet, 2/5° sur 2 octets, et le reste en moyenne à 4 octets.
+	\begin{correction}
+		1 x 200 000 + 2 x 200 000 + 4 x 100 000= 1 Mo / vecteur.\\
+		100 000 x 900k = 100 Go
+	\end{correction}
+\end{enumerate}

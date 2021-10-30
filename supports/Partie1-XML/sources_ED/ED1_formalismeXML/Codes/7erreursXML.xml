@@ -1,0 +1,34 @@
+<?xml version="3.0" encoding="utf-8" standalone="yes"?> 
+ <logiciel Comptabilité>
+   <version>1<version/> 
+   <user>
+     <uid>bgirot</uid>
+   </user>
+   <contact>
+     <lastName>Girot</lastName>
+     <firstName>Bernadette</FirstName>
+     <email>ggirot@petites.fleurs.com</email>
+   </contact>
+   <author autId="ghuret" lastName="Huret" firstName="George" organism="">
+     <company>
+       <labId>3987</labId>
+       <name>Analyse Informatique des Données & Information</name>
+       <shortName></shortName>
+     </company>
+   </author>
+   <author autId="mgirard" lastName="Girard" firstName="Matin" firstName="Matin" organism="">
+     <company>
+       <labId>6670</labId>
+       <name>La compta en vogue</name>
+       <shortName>Vogu'la compta</shortName>
+     </company>
+     <company>
+       <labId>4621</labId>
+       <name>En avant les chiffres</name>
+       <shortName>EAC</shortName>
+   </author>  
+     </company>
+</logiciel Comptabilité>
+ <date_mise_en_service> 
+   2007-09-17
+ </date_mise_en_service>

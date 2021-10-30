@@ -1,0 +1,417 @@
+
+
+
+\lstdefinelanguage{xquery}{
+  keywords={for, in, collection, doc, return, to, text, order, by, count, descending, let, where, avg, if, then, else, satisfies, contains, and, every, variable, order, while, do, else, case, break, true, false, document, element},
+  keywordstyle=\color{BlueViolet}\ttfamily,
+%  ndkeywords={class, export, boolean, throw, implements, import, this},
+%  ndkeywordstyle=\color{darkgray}\bfseries,
+  identifierstyle=\color{black},
+%  sensitive=false,
+  morecomment=[s]{(:}{:)},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{DarkOliveGreen}\ttfamily,
+  morestring=[b]"
+}
+
+\section{Préliminaires}
+
+\lstset{language=xquery,basicstyle=\normalsize}
+
+\begin{frame}[allowframebreaks,t]{Modèle de données et expressions}
+
+XQuery travaille sur des \alert{sequences}, notion très générale.
+
+\vfill
+
+Pour ce cours: on considère un cas spécial de séquence, la \alert{collection}, constituée de documents XML.
+
+\vfill
+
+Une \alert{expression} XQuery prend en entrée une collection et renvoie une collection.
+
+\vfill
+
+Deux fonctions permettent d'accéder aux collections: 
+
+\begin{itemize}
+  \item \lstinline!doc()! prend en entrée l'URI d'un document XML et renvoie une collection-singleton 
+contenant \alert{le nœud racine} du document.
+
+  \item \lstinline!collection()! prend en entrée l'URI d'une collection et 
+renvoie une séquence composée \alert{des nœuds racine} des documents de la collection.
+\end{itemize}
+
+Dans ce qui suit: exemples sur la collection \texttt{movies} avec l'ensemble des films de Webscope.
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{XPath et au-delà}
+
+Toute expression XPath est une requête XQuery. Voici une expression XPath/XQuery
+recherchant tous les films parus en 2005.
+
+\begin{lstlisting}[language=myXQuery]
+collection('movies')/movie[year=2005]/title
+\end{lstlisting}
+
+Le résultat est un \alert{séquence} de nœuds \texttt{title}\,::
+\begin{lstlisting}[language=myXML]
+<title>A History of Violence</title>
+<title>Match Point</title>
+\end{lstlisting}
+
+\begin{remark}
+L'expression XPath est évaluée pour chaque \domtype{Document} de la séquence  \texttt{collection('movies')}.
+\end{remark}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Constructeurs}
+
+XQuery permet la construction de nouveaux éléments, dont le contenu
+peut mêler des éléments littéraux, des valeurs, ou le résultat d'autres requêtes
+(composition!).
+
+\begin{lstlisting}[language=myXQuery]
+<titles>
+  {collection('movies')//title}
+</titles>
+\end{lstlisting}
+ 
+
+\begin{remark}
+Une expression $e$ doit être encadréee par des accolades
+\{\} pour être reconnue. 
+\end{remark}
+\end{frame}
+
+\begin{frame}[containsverbatim]{Variables}
+
+Des variables peuvent être utilisées dans les expressions XQuery. Par exemple;
+
+\begin{lstlisting}
+<employee empid="{$id}">
+   <name>{$name}</name>
+   {$job} 
+   <deptno>{$deptno}</deptno> 
+   <salary>{$SGMLspecialist+100000}</salary>
+</employee>
+\end{lstlisting}
+
+où les variables \lstinline!$id!, \lstinline!$name!, \lstinline!$job!, \lstinline!$deptno! and \lstinline!$SGMLspecialist! sont instanciées (une valeur est associée à chaque variable). \prof{par exemple avec un let ou au sein d'un for}
+
+\end{frame}
+
+
+\section{L'essentiel\;: la clause FLOWR}
+
+\begin{frame}[containsverbatim,allowframebreaks]{Expressions FLWOR \prof{prononcer ``flower''}}
+
+\begin{itemize}
+\item  4 clauses : 
+\begin{itemize}
+\item  For (itération sur une séquence), 
+\item  Let (définition ou instanciation d'une variable), 
+\item  Where (prédicat), 
+\item  Order by (tri du résultat), and 
+\item  Return (contructeur de résultat).
+\end{itemize}
+\item  Dans l'esprit du SELECT-FROM-WHERE de SQL
+\end{itemize}
+
+
+
+\framebreak
+
+Dans l'une de ses formes les plus simples, FLW0R est une alternative à XPath.
+
+\begin{lstlisting}
+//actor[birth_date>=1960]/last_name
+\end{lstlisting}
+
+est équivalent à l'expression (requête) XQuery suivante :
+
+\begin{lstlisting}
+let $year:=1960 
+for $a in doc("SpiderMan.xml")//actor 
+where $a/birth_date >= $year 
+return $a/last_name
+\end{lstlisting}
+
+\prof{Evidemment, toutes les expressions XQuery ne peuvent pas être écrites en XPath}
+
+\framebreak
+
+Les clauses \lstinline!for! et \lstinline!let!.
+
+\bigskip
+
+Ces deux clauses instancient des variables.
+
+\bigskip
+
+\lstinline!for! instancie une variable en lui faisant prendre (successivement) les valeurs des items d'une séquence en entrée\\
+\medskip
+ Par exemple : \lstinline!for $x in /company/employee! \\
+instancie la variable \lstinline!x! en lui faisant successivement prendre pour valeur \alert{chacun} 
+des éléments \lstinline!employee! de la séquence issue de l'évaluation de \lstinline!/company/employee!.
+
+\bigskip
+
+\lstinline!let! instancie une variable en lui faisant prendre la valeur de la séquence complète\\
+\medskip
+ Par exemple : \lstinline!let $x := /company/employee!\\
+instancie la variable \lstinline!x! en lui faisant prendre la valeur de \alert{la séquence} issue 
+de l'évaluation de \lstinline!/company/employee!.
+
+\framebreak
+
+Instanciation d'une variable :
+\begin{lstlisting}
+let $years:=(1960,1978)
+return $years
+\end{lstlisting}
+
+
+Parcours d'une séquence :
+\begin{lstlisting}
+for $i in (1,2,3)
+return 
+<chantons>
+  { $i } kilometre(s) a pieds,
+  Ca use, ca use
+  { $i } kilometre(s) a pieds,
+  Ca use les souliers
+</chantons>
+\end{lstlisting}
+ 
+\framebreak
+
+La séquence peut être obtenue par évaluation d'une expression XQuery (ci-dessous XPath)
+
+\bigskip
+
+Instanciation d'une variable :
+\begin{lstlisting}
+let $speechs := doc("hamlet.xml")//SPEECH
+return $speechs
+\end{lstlisting}
+
+\bigskip
+
+Parcours d'une séquence :
+\begin{lstlisting}
+for $speech in  doc("hamlet.xml")//SPEECH
+return $speech
+\end{lstlisting}
+
+\prof{meme résultat mais comportement different. Expliquer.}
+
+\bigskip
+Pour travailler le résultat :
+
+\begin{lstlisting}
+for $speech in  doc("hamlet.xml")//SPEECH
+return $speech/SPEAKER
+\end{lstlisting}
+
+\framebreak
+
+Un autre example :
+
+\begin{lstlisting}
+let $born := ('born, born, born')
+let $alive := (' to be alive')
+for $i in (1,2,3,4,5,6)
+   return 
+	<refrain numero="{$i}">
+	You see you were
+	{$born} {$alive}
+	You see you were
+	{$born}
+	born {$alive}
+	</refrain>
+\end{lstlisting}
+
+\begin{exoblock}
+Que renvoie cette expression XQuery ?
+\end{exoblock}
+\prof{monter correction sous eXist}
+\framebreak
+
+Un autre example :
+
+\begin{lstlisting}
+for $i in (-3,-2,-1,0,1,2,3)
+let $j := $i + 1
+return <suivant>{$j} est le nombre suivant {$i}</suivant>
+\end{lstlisting}
+
+\begin{exoblock}
+Que renvoie cette expression XQuery ?
+\end{exoblock}
+
+\prof{monter correction sous eXist}
+
+\framebreak
+
+La clause \lstinline!where! est assez similaire à son synonyme SQL. Elle permet de filtrer un item en fonction d'une condition.
+
+\bigskip
+
+\begin{lstlisting}
+for $line in doc("hamlet.xml")//SPEECH/LINE
+where contains($line,"To be, or not to be")
+return $line/parent::SPEECH/parent::SCENE/TITLE
+\end{lstlisting}
+
+
+\begin{lstlisting}[language=XML]
+<TITLE>SCENE I.  A room in the castle.</TITLE>
+\end{lstlisting}
+
+\framebreak 
+
+\begin{lstlisting}
+for $line in doc("hamlet.xml")//SPEECH/LINE
+where contains($line,"heart")
+return $line/parent::SPEECH/child::SPEAKER
+\end{lstlisting}
+
+\medskip
+ 
+Pour chaque élément (stocké dans \lstinline!$line!) de \lstinline!doc("hamlet.xml")//SPEECH/LINE! \\
+satisfaisant \lstinline!contains($line,"heart")! \\
+retourner \lstinline!$line/parent::SPEECH/child::SPEAKER!
+
+\framebreak
+
+\prof{testé sous eXist}
+\begin{lstlisting}
+for $line in doc("hamlet.xml")//SPEECH/LINE
+where contains($line,"heart")
+return $line/parent::SPEECH/child::SPEAKER
+\end{lstlisting}
+
+\begin{lstlisting}[language=XML,basicstyle=\tiny]
+<SPEAKER>FRANCISCO</SPEAKER>
+<SPEAKER>KING CLAUDIUS</SPEAKER>
+<SPEAKER>KING CLAUDIUS</SPEAKER>
+<SPEAKER>KING CLAUDIUS</SPEAKER>
+<SPEAKER>KING CLAUDIUS</SPEAKER>
+<SPEAKER>KING CLAUDIUS</SPEAKER>
+<SPEAKER>KING CLAUDIUS</SPEAKER>
+<SPEAKER>HAMLET</SPEAKER>
+<SPEAKER>LAERTES</SPEAKER>
+<SPEAKER>OPHELIA</SPEAKER>
+<SPEAKER>HAMLET</SPEAKER>
+<SPEAKER>HAMLET</SPEAKER>
+<SPEAKER>HAMLET</SPEAKER>
+<SPEAKER>HAMLET</SPEAKER>
+<SPEAKER>LORD POLONIUS</SPEAKER>
+<SPEAKER>HAMLET</SPEAKER>
+<SPEAKER>KING CLAUDIUS</SPEAKER>
+...
+\end{lstlisting}
+
+\framebreak
+
+
+\struct{where} est comme en SQL, mais... attention, documents semi-structurés. 
+
+\vfill
+
+``Tous les films dirigés par W. Allen''
+
+\begin{lstlisting}[language=myXQuery]
+for $m in collection("movies")/movie
+where $m/director/last_name="Allen"
+return $m/title
+\end{lstlisting}
+
+Ca ressemble à une requête SQL. Attention aux différences suivantes\,:
+\begin{enumerate}
+  \item si un chemin n'xiste pas, pas d'erreur de typage\,: le résultat est \struct{false}.
+
+  \item si un chemin retourne plusieurs nœuds, le résultat est vrai 
+  si \alert{au moins} une des comparaisons retourne \texttt{true}.
+
+\end{enumerate}
+
+\vfill
+
+``Tous les films avec Kirsten Dunst'' (note: plusieurs acteurs dans un films!)
+\begin{lstlisting}[language=myXQuery]
+for $m in collection("movies")/movie
+where $m/actor/last_name="Dunst"
+return $m/title
+\end{lstlisting}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{La clause \struct{return}}
+
+\struct{return} est obligatoire et sert à construire un ``item'' résultat. 
+Un tel item est construit pour chaque lien (\textit{binding}) de la
+variables par la clause \struct{for}.
+
+
+\begin{lstlisting}[language=myXQuery]
+for $m in collection("movies")/movie
+let $d := $m/director
+where $m/actor/last_name="Dunst"
+return 
+  <div>
+   {$m/title/text(), "directed by",  
+        $d/first_name/text(),  $d/last_name/text()}, 
+     with
+     <ol>
+      {for $a in $m/actor
+        return <li>{$a/first_name, $a/last_name, 
+                         " as ",  $a/role}</li>
+      } 
+     </ol>
+  </div>
+\end{lstlisting}
+
+\end{frame}
+\begin{frame}[containsverbatim,allowframebreaks]{Ordonner le résultat}
+La clause \lstinline!order by! permet de spécifier l'ordre de tri du résultat.
+
+\begin{lstlisting}
+for $p in doc("hamlet.xml")//PERSONA
+order by $p
+return $p
+\end{lstlisting}
+
+
+\begin{lstlisting}[language=XML,basicstyle=\tiny]
+<PERSONA>A Captain.</PERSONA>
+<PERSONA>A Gentleman</PERSONA>
+<PERSONA>A Priest. </PERSONA>
+<PERSONA>BERNARDO</PERSONA>
+<PERSONA>CLAUDIUS, king of Denmark. </PERSONA>
+<PERSONA>CORNELIUS</PERSONA>
+<PERSONA>English Ambassadors. </PERSONA>
+<PERSONA>FORTINBRAS, prince of Norway. </PERSONA>
+<PERSONA>FRANCISCO, a soldier.</PERSONA>
+<PERSONA>GERTRUDE, queen of Denmark, and mother to Hamlet. </PERSONA>
+<PERSONA>GUILDENSTERN</PERSONA>
+<PERSONA>Ghost of Hamlet s Father. </PERSONA>
+<PERSONA>HAMLET, son to the late, and nephew to the present king.</PERSONA>
+<PERSONA>HORATIO, friend to Hamlet.</PERSONA>
+<PERSONA>LAERTES, son to Polonius.</PERSONA>
+...
+<PERSONA>VOLTIMAND</PERSONA>
+\end{lstlisting}
+
+
+\end{frame}
+

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE people_list SYSTEM "dtd_persons.dtd">
+<people_list>
+  <person>
+    <name>Martin Lodges</name>
+    <birthdate>09/07/1965</birthdate>
+    <gender>Male</gender>
+  </person>
+  <person>
+    <name>Mary Logging</name>
+    <birthdate>27/11/1957</birthdate>
+    <gender>Female</gender>
+  </person>
+</people_list>

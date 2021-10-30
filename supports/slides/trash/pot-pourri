@@ -1,0 +1,221 @@
+	  
+Ces exercices ont pour but de commencer à créer une (petite) collection
+de documents bureautiques dont nous allons progressivement raffiner la gestion. Nous allons
+utiliser OpenOffice, une suite bureautique proposée par la fondation Apache, pour éditer
+ces documents.   
+Commencez, si nécessaire, par récupérer OpenOffice et par l'installer (http://www.openoffice.org).
+
+
+Créez également un répertoire ``bureautique`` quelque part sur votre ordinateur
+pour y enregistrer vos documents XML.  
+   
+.. admonition:: Exercice: Documents bureautiques en XML
+
+    Notre premier exercice consiste à produire des documents XML dans
+    un *dialecte* précis, DocBook. `DocBook <http://docbook.org>`_ est un format très ancien et
+    très utilisé dans le domaine de la documentation technique. Notre but est de comprendre
+    comment on *structure* avec XML le *contenu* de ce type de documentation.
+    
+    Avec OpenOffice, créez quelques documents *texte* (ou reprenez quelques-uns
+    de vos documents Word, ça marche aussi), et sauvegardez-les dans ``bureautique``
+    *en format DocBook* (quand vous faites "enregistrer sous"). 
+         
+    Maintenant, avec un éditeur de texte simple (ou, mieux, avec un éditeur de documents XML,
+    il y en a un dans Eclipse par exemple),
+    éditez les fichiers et essayez de comprendre comment ils sont structurés. Vous devriez
+    obtenir quelque chose comme ça.
+    
+    .. code-block:: xml
+       
+       <?xml version="1.0" encoding="UTF-8"?>
+       
+      <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
+           "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
+           
+       <article lang="fr-FR">
+        <para>Voici mon document principal</para>
+        <para>Mon cher ami, je suis honoré....</para>
+        <para>Ceci est un titre</para>
+        <para>Blablabla</para>
+        <para>Et ceci est un sous-titre</para>
+        <para>Encore du blabla</para>
+      </article>
+      
+    C'est du XML, formatté selon les règles et contraintes spécifiques au *dialecte* DocBook.
+    Mais ce n'est pas très satisfaisant en terme de *précision* de la structuration. On
+    ne distingue pas par exemple les titres des sous-titres ou paragraphes simples.
+      
+    Nous allons faire mieux. OpenOffice (comme Word) s'appuie sur des *styles*
+    pour la mise en forme du document. L'outil qui exporte en DocBook prend en compte
+    certains de ces styles pour interpréter le fragment de texte correspondant et savoir
+    s'il s'agit d'un titre, d'une note en bas de page, de la légende d'une figure, etc.
+    
+    Pour charger les styles, téléchargez le modèle *DocBook pour OpenOffice*,  disponible
+    à http://xml.openoffice.org/xmerge/downloads/DocBookTemplate.stw
+    (voir aussi http://www.openoffice.org/xml/xmerge/docbook/UserGuide.html pour plus d'explications). Cliquez sur le
+    lien ci-dessus: les styles DocBook sont chargés dans OpenOffice.
+     
+    Quand vous ouvrez ensuite un document DocBook, les styles DocBook pré-définis sont disponibles
+    pour le document ouvert. En appliquant un de ces styles à un fragment de texte, vous obtiendrez
+    dans le document XML correspondant un balisage XML exprimant la mise en forme souhaitée.
+    
+    .. code-block:: xml
+    
+      <?xml version="1.0" encoding="UTF-8"?>
+
+      <!DOCTYPE article
+        PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
+          "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
+      <article lang="">
+       <articleinfo>
+        <title>Titre de mon document</title>
+        <subtitle>Sous-titre de mon document</subtitle>
+       </articleinfo>
+       <sect1>
+         <title>Titre de ma première section</title>
+         <para>Contenu de ma section 1. Cette <emphasis>partie</emphasis> est en italiques. </para>
+          <para>Ceci est ma section 2</para>
+       </sect1>
+      </article>
+    
+    Vous pouvez, pour débuter, récupérer notre document exemple à
+    http://b3d.bdpedia.fr/files/dbook.xml. Faites des modifications en appliquant des styles
+    DocBook et sauvegardez-le
+    dans vos documents bureautiques. Vous pouvez trouver une liste des styles DocBook
+    à http://www.openoffice.org/xml/xmerge/docbook/DocBookTags.html. Par exemple:
+    
+      * Styles de caractères: mettez des lettres ou chiffres en exposant (``superscript``  ou indice ``subscript``);
+      * Styles de paragraphes: insérez une note de base de page; insérez un lien hypertexte; 
+      * Insérez un tableau.
+      
+    À chaque étape, regardez le contenu de votre document DocBook pour comprendre comment sont codés
+    les parties du document en fonction de leur *sémantique*.
+            
+    .. note:: Le format natif de OpenOffice, ODF est en fait un *zip* de plusieurs fichiers, parmi lesquel
+       on trouve ``content.xml`` qui représente le contenu du document. On peut l'extraire avec::
+       
+         unzip <nomfichier.odt> content.xml 
+
+.. admonition:: Exercice: première application, affichage dans un navigateur
+
+   Maintenant que vous avez des documents DocBook, vous pouvez exploiter chacun  comme
+   un contenu structuré apte à être traité par n'importe quelle application. 
+   Notre première exploitation est très simple: nous allons afficher
+   vos documents dans un navigateur (Firefox par exemple) en appliquant une mise en forme
+   au contenu. Cette mise en forme est définie par une *feuille de style*: ajoutez
+   simplement les deux lignes suivantes *après le prologue* de votre document XML.
+   
+   .. code-block:: xml
+      
+     <?xml-stylesheet type="text/css"
+         href="http://WWW.sabi.co.UK/style/docbook.css"?>
+
+   Ouvrez ensuite ce document avec FireFox ou Chrome ou autre, et appréciez le résultat.
+   Vous êtes libres de chercher d'autres feuilles de styles pour obtenir des mises en forme
+   différentes.
+  
+.. admonition:: Exercice : produire des graphiques en SVG
+
+   Autre domaine: nous allons produire quelques fichiers graphiques au format SVG. Récupérez
+   le logiciel InkScpape à http://www.inkscape.org. Installez-le  et produisez 
+   quelques dessins simples. Vous pouvez commencer par récupérer l'exemple de base
+   disponible à http://b3d.bdpedia.fr/files/basic.svg.
+   
+   Les navigateurs comme FireFox disposent d'un outil interne de rendu SVG: vous pouvez
+   ouvrir directement le fichier SVG et visualiser le graphique.
+
+       
+.. admonition:: Exercice: comprendre les espaces de nom
+
+   Voici un document représentant une formule mathématique.
+   
+   .. code-block:: xml
+
+    <math>
+     <mrow>
+       <msup>
+         <mfenced>
+           <mrow>
+             <mi>a</mi>
+             <mo>+</mo>      
+             <mi>b</mi>
+           </mrow>
+         </mfenced>
+         <mn>2</mn>
+       </msup>
+     </mrow>
+    </math> 
+
+   Sauvegardez ce document dans un fichier ``formule.xml`` (par exemple)
+   et ouvrez-le avec Firefox. Alors?
+    
+   Aide: l'espace de noms de MathML est ``http://www.w3.org/1998/Math/MathML``. Faites
+   la mofification nécessaire pour afficher la formule avec Firefox (qui contient 
+   un moteur de rendu MathML !).
+    
+    
+.. admonition:: Exercice: XHTML = HTML + ? 
+
+   Voici un autre document, c'est du XHTML.
+   
+   .. code-block:: xml
+    
+    <?xml version="1.0" encoding="UTF-8"?>
+    <html>
+    <body>
+	  Liste courte
+	  <ul>
+		<li>Diagramme de classes</li>
+		<li>Diagramme de cas d'utilisation</li>
+		<li>Diagramme de séquence</li>
+		<li>Diagramme d'activité</li>
+		<li>Diagramme d'états-transitions</li>
+		<li>Diagramme de communication</li>
+		<li>Diagramme de composants</li>
+		<li>Diagramme de déploiement</li>
+		<li>Diagramme de structure composite</li>
+		<li>Diagramme global d'interaction</li>
+		<li>Diagramme de packages</li>
+		<li>Diagramme de temps</li>
+	  </ul>
+	</body>
+	
+   À vous de jouer: essayez d'afficher correctement dans Firefox ce document, sous la forme d'une liste.
+	
+
+.. admonition:: Exercice: et avec plusieurs espaces de noms?
+
+   Les espaces de nom permettent de faire cohabiter dans un même document plusieurs
+   systèmes de balise. Application: vous voulez afficher dans du XML un de vos documents SVG. Voici une
+   manière de faire.
+    
+   .. code-block:: xml
+	  
+      <?xml version="1.0" encoding="UTF-8"?>
+
+      <html xmlns="http://www.w3.org/1999/xhtml">
+       <head>
+        <title>SVG et XHTML</title>
+       </head>
+       <body>
+        <h1>SVG et XHTML</h1>
+
+         <svg xmlns="http://www.w3.org/2000/svg> 
+           <circle cx="150" cy="100" r="50" /> 
+         </svg>
+
+        </body>
+       </html>
+     
+   Vérifiez que l'affichage est correct. Puis modifiez ce fichier pour déclarer
+   l'espace de nom SVG *dans le prologue* du document XML. Petite aide: il faut
+   déclarer un préfixe ``svg`` et l'utiliser judicieusement.
+   
+   Enfin, insérez dans un de vos documents HTML le contenu de l'un des fichiers SVG
+   créés avec InkScape. Indication: la balise ``<object>`` permet d'insérer un
+   document XML dans un autre.
+   
+   Au passage, posez-vous la question suivante: si j'insère un document XML dans un autre
+   document XML, le résultat est-il un document XML?
+
+   

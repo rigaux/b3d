@@ -1,0 +1,34 @@
+
+\begin{tikzpicture}
+[level distance=10mm,
+every node/.style={inner sep=3pt},
+level 1/.style={sibling distance=55mm},
+level 2/.style={sibling distance=30mm},
+level 3/.style={sibling distance=20mm}]
+\node {entry}
+	child {node {name}	
+		child {node  {fn}
+			child {node {Jean}}
+		}
+		child {node {ln}
+			child {node  {Doe}}
+			}
+	}
+	child {node {work}
+			child {node {INRIA}}
+			child {node {address}
+				child {node {city}
+				  child {node{Cachan}}
+					}
+				child {node {zip}
+				  child{node{94235}}
+				}
+			}
+			child {node {email}
+			  child{node{j@inria.fr}}
+			}			
+	}
+		child{node{purpose}
+		  child {node{like to teach}}
+	};
+\end{tikzpicture}

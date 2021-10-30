@@ -1,0 +1,19 @@
+\begin{tikzpicture}
+\begin{small}
+\tikzstyle{every text node part}=[font=\bf]
+\tikzstyle{every lower node part}=[font=\itshape]
+
+\node [\elShape,fill=\elFill]  {\tikzEl{elt1}} 
+[
+level distance=1.8cm,
+level 1/.style={sibling distance=40mm},
+level 2/.style={sibling distance=30mm},
+level 3/.style={sibling distance=20mm}
+]
+        child {\tikzText{Contenu texte}}
+        child {\tikzElement{elt2}   
+            child {\tikzText{Autre contenu}}
+    }
+ ;
+\end{small}
+\end{tikzpicture}

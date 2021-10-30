@@ -1,0 +1,271 @@
+
+
+\section{Partitionnement par intervalle}
+
+\subsection{Indexation distribuée}
+
+
+\begin{frame}
+\frametitle{Appliquons ces principes à la distribution des données}
+
+A quelques variantes près, on procède comme pour un index non-dense.
+
+\begin{itemize}
+  \item La collection est triée sur la clé.
+   
+        \smallskip
+   
+       Au moins partiellement (cf. plus loin)
+       
+  \item On la découpe en fragments d'une taille maximale pré-déterminée (de 64MO à qq GO)
+   
+   \smallskip
+   
+        Chaque frament couvre donc un intervalle $[min_f, max_f[$
+        
+   \item Les fragments sont distribués équitablement sur les serveurs
+
+    \smallskip
+    
+         Un ou plusieurs fragments par serveur.
+
+   \item Un index sur les fragments est maintenu par le routeur.
+ 
+    \smallskip
+   
+      \alert{Souvenez-vous\,: l'index est tout petit par rapport à la collection}
+      
+\end{itemize} 
+
+\alert{Le routeur reçoit les requêtes et détermine le(s) serveur(s) à solliciter.}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{L'architecture, avec partionnement par intervalle}
+
+Le routeur connaît les intervalles, et les serveurs associés.
+
+\figSlide{partition-range}
+
+\begin{remark}
+\begin{itemize}
+   \item Chaque serveur maintient un index local sur ses fragments.
+   \item Les fragments sont autant que possible conservés en mémoire.
+  \item Parmi les variantes\,: les fragments sur les serveurs peuvent être triés ou pas. 
+\end{itemize}
+\end{remark}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Dynamicité: comment évolue le système\,?}
+
+L'opération de base est le \alert{split}, division d'un gros fragment en deux petits.
+
+\figSlide{partition-split}
+
+\alert{L'équilibrage} consiste à répartir équitablement les fragments.
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Les opérations du routeur}
+
+% A two-columns presentation
+\begin{tabular}{l|p{6cm}}
+   \parbox{5cm}{
+$get(k)$: chercher l'intervalle qui contient $k$, transmettre
+au serveur correspondant.
+
+\smallskip
+
+$put(k, d)$: identifier le serveur avec $k$, transmettre l'insertion
+ 
+ \smallskip
+ 
+ $delete(k)$: idem
+ 
+ \smallskip
+ 
+ $range(k_1, k_2)$: transmettre à tous les serveurs gérant un intervalle chevauchant $[k_1, k_2]$
+ 
+ \smallskip
+ 
+ Toute autre opération\,: transmettre à tous les serveurs.
+   }  % Inclusion of an XML file
+  & 
+  \parbox{6cm}{
+ 
+\begin{tabular}{r|l}
+Intervalle  & Serveur\\
+\hline
+$]-\infty, a]$ & A  \\
+$[a+1, b]$ & B  \\
+$[b+1, c]$ & C  \\
+$[c+1, d]$ & B  \\
+$[d+1, \infty[$ & A  \\
+\hline
+\end{tabular}
+
+}
+
+\end{tabular}
+
+\end{frame}
+
+
+\section{Etude de cas 2\,: \mongodb/}
+
+ 
+\begin{frame}
+\frametitle{Le \textit{sharding} de \mongodb/}
+
+On crée des \textit{replica set} qui vont chacun stocker un sous-ensemble des fragments.
+
+\vfill
+
+Un serveur spécial, le \textit{config server} (répliqué), se charge de stocker la table de routage.
+
+\vfill
+
+Chaque application discute avec un processus routeur, \textit{mongos} 
+
+\vfill
+
+\figSlideWithSize{mongosharding}{8cm}
+
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+\frametitle{Allons-y pour un petit test}
+
+On lance un \textit{config server}
+
+\begin{smallverbatim}
+mkdir /data/configdb
+mongod --configsvr --dbpath /data/configdb --port 27019
+\end{smallverbatim}
+
+On lance un routeur en lui indiquant où se trouve(nt) le(s) \textit{config server}(s)
+
+\begin{smallverbatim}
+mongos --configdb localhost:27019
+\end{smallverbatim}
+
+Et deux serveurs (il faudrait des \textit{replica sets} complets en production)
+\begin{smallverbatim}
+mongod --dbpath /data/node1 --port=30001
+mongod --dbpath /data/node3 --port=30002
+\end{smallverbatim}
+
+A partir de \textit{mongos}, déclarons les deux serveurs comme \textit{shards}.
+
+\begin{smallverbatim}
+mongo --port 27017
+sh.addShard("localhost:30000")
+sh.addShard("localhost:30001")
+sh.enableSharding("nfe204")
+\end{smallverbatim}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Choisir la clé de partitionnement}
+
+On indique la clé de partitionnement avec la commande suivante\,:
+
+\begin{smallverbatim}
+sh.shardCollection("nfe204.videos", { "title": 1 } )
+\end{smallverbatim}
+
+Attention au choix de la clé
+
+\begin{itemize}
+  \item Les clés-séquences\,:  on envoie toujours les insertions au même serveur\,; bon ou pas?
+  \item Les clés à faible cardinalité (ex: pays)\,: pas très bon non plus, car 
+               il pourra être difficile de faire un \textit{split}
+\end{itemize}
+
+Bonne option: appliquer un hachage pour bien distribuer les insertions\,:
+
+\begin{smallverbatim}
+sh.shardCollection("nfe204.videos", { "title": "hashed" } )
+\end{smallverbatim}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Inspecter la configuration}
+
+Liste des \textit{shards}
+\begin{smallverbatim}
+db.runCommand({listshards: 1})
+\end{smallverbatim}
+
+Statut général du cluster
+\begin{smallverbatim}
+sh.status()
+\end{smallverbatim}
+
+Les fragments sont dans une collection \textit{chuncks}.
+
+\begin{smallverbatim}
+use config
+db.chuncks.count()
+db.chuncks.findOne()
+\end{smallverbatim}
+\end{frame}
+
+
+\section{Etude de cas 1\,: BigTable (HBase, Cassandra, ...)}
+
+\begin{frame}
+\frametitle{BigTable\,: la structure} 
+
+C'est une collection \alert{triée}, dont chaque ligne est indexée par une clé.
+
+
+ \figSlideWithSize{bigtable}{8cm}
+ 
+La table est partionnée en fragments (\textit{tablets}) qui sont eux-mêmes indexés 
+par une racine. 
+
+\vfill
+
+Les fragments pleins subissent un \alert{split}, le nouveau fragment est propagé 
+au père.
+
+
+\end{frame}
+ 
+
+\begin{frame}
+\frametitle{Le routeur}
+
+Le routeur est incorporé au \textit{driver} et maintient une \alert{image} de l'arbre.
+
+
+\figSlideWithSize{clientImage}{7cm}
+
+Cette image peut être \alert{partielle} et \alert{obsolète}. Elle est \alert{ajustée}
+à chaque requête.
+
+\end{frame}
+ 
+\begin{frame}
+\frametitle{Exemple d'un ajustement}
+
+Une requête Client transmise sur la base de l'image échoue, car l'arbre a 
+beaucoup évolué.
+
+\figSlide{imageadjust}
+
+L'ajustement consiste à remonter/descendre dans l'arbre.
+
+\end{frame}
+

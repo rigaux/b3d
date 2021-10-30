@@ -1,0 +1,985 @@
+
+\section{Introduction}
+
+
+\begin{frame}
+\frametitle{Le partitionnement (\textit{sharding})}
+
+Le partitionnement consiste à  
+
+\begin{itemize}
+  \item \alert{découper} une (grande) collection
+      en \alert{fragments} en fonction d'une \alert{clé}\,;
+      \item placer chaque fragment sur un \alert{serveur}\,;
+      \item Maintenir un \alert{répertoire} indiquant  que telle \alert{clé} se trouve dans tel \alert{fragment}
+          sur tel \alert{serveur}
+\end{itemize}
+ 
+\vfill
+
+Le partitionnement apporte la \alert{répartition de charge} (\textit{load balancing})
+
+\vfill
+
+Il doit être \alert{dynamique} (ajout/retrait de serveurs) pour s'adapter ``élastiquement'' 
+ 
+ \vfill
+ 
+ S'applique à des collections de paires (clé, valeur), où valeur est n'importe quelle information structurée.
+\end{frame}
+
+\begin{frame}
+\frametitle{Architecture d'un système avec partitionnement}
+
+\figSlide{archi-partition}
+      
+\begin{itemize}
+  \item Routeur = \textit{Master}, \textit{Balancer}, \textit{Config server}, ...
+  \item Fragment = \textit{chunk}, \textit{tablet}, \textit{region}, \textit{bucket}, ...
+\end{itemize}
+
+\begin{remark}
+Chaque serveur gère une réplication locale pour tolérance aux pannes.
+\end{remark}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Techniques de partitionnement}
+
+\begin{itemize}
+   \item par \alert{intervalle}\,: documents triés sur la clé, puis groupés par intervalles.
+   
+     Exemples représentatifs\,: \mongodb/, HBase (BigTable).
+     
+   \item par \alert{hachage} sur la clé, avec répertoire de hachage.
+   
+       Exemples\,: \textit{memcached}, \textit{chord}, \textit{Dynamo/S3/Voldemort}, beaucoup d'autres.
+ \end{itemize}
+ 
+
+\begin{remark}
+Se référer aux techniques d'indexation par arbre-B et par hachage dans des environnements centralisés.
+\end{remark}
+\end{frame}
+
+\begin{frame}
+\frametitle{Opérations}
+
+Les opérations de type ``dictionnaire'' peuvent être transmises à \alert{un seul} serveur\,:
+
+\begin{itemize}
+   \item $get(k): v$, recherche par clé
+   \item $put (k, v)$, insertion
+   \item $delete(k)$, suppression
+   \item $range(k_1, k_2)$, recherche par intervalle (peut impliquer plusieurs serveurs, ne marche pas avec le hachage)
+\end{itemize}
+
+\vfill
+
+\alert{Pour toutes les autres opérations}\,: tous les serveurs effectuent l'opération localement.
+
+\vfill
+
+Exemple\,: recherche sur une clé secondaire, s'effectue sur \alert{tous} les serveurs, avec si possible des index locaux.
+\end{frame}
+
+\begin{frame}
+\frametitle{Notre application}
+
+On veut gérer (légalement) une collection de vidéos.
+
+\begin{itemize}
+  \item chaque vidéo occupe en moyenne 500 MO
+  \item on associe chaque vidéo à quelques méta données (titre, auteur, année, etc.)
+  \item 1\,000 vidéos = 500 GO (1/2 TO), pas de souci avec un (bon) serveur.
+  \item 1\,000\,000 vidéos = 500 TO (1/2 PO), il faut distribuer.
+\end{itemize}
+
+\begin{remark}
+Dès qu'on parle de système distribué, il faut envisager le coût en stockage de la réplication. Multiplier
+par 2 ou 3...
+\end{remark}
+
+
+\begin{noteblock}{Besoins}
+Chercher une vidéo par son titre, les vidéos par année, intervalle d'années, etc.
+\end{noteblock}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Pour illustrer}
+
+Un tout petit échantillon.
+
+\begin{center}
+\begin{small}
+\begin{tabular}{r|l|c|c||r|l|c|c}
+id &titre & année  & mp4  & id & titre & année  & mp4  \\
+\hline
+1 & Vertigo  & 1958 & ... & 9 & Annie Hall & 1977 & ... \\
+2 & Brazil & 1984 & ... & 10&Jurasic Park & 1992 & ... \\
+3&Twin Peaks & 1990 & ...&  11&Metropolis & 1926 & ... \\
+4&Underground & 1995 & ... & 12&Manhattan & 1979 & ... \\
+5&Easy Rider & 1969 & ... & 13&Reservoir Dogs & 1992 & ... \\
+6&Psychose & 1960 & ... & 14&Impitoyable & 1992 & ... \\
+7&Greystoke & 1984 & ... & 15&Casablanca & 1942 & ... \\
+8&Shining & 1980 & ... & 16&Smoke & 1995 & ... \\
+\hline
+\end{tabular}
+\end{small}
+\end{center}
+
+Quelle clé considère-t-on\,? On va y revenir.
+
+\end{frame}
+\section{Partitionnement par intervalle}
+
+\subsection{Quelques rappels}
+
+
+\begin{frame}
+\frametitle{Première étape\,: il faut trier}
+
+Il faut disposer d'une structure triant les documents sur la clé. Deux possibilités\,:
+
+\vfill
+
+\alert{1) On trie la collection (clé, document)}
+
+\begin{itemize}
+  \item indexation dite ``plaçante'': l'emplacement d'un document est déterminé par sa clé.
+  \item efficace en recherche (pas d'indirection)
+  \item peu efficace en mise à jour (nécessite des déplacements)  
+  \item on peut créer un seul index plaçant par collection
+\end{itemize}
+
+\alert{2) On trie une structure indépendante constituée des paires (clé, adresse) }
+
+\begin{itemize}
+  \item indexation non-plaçante\,: les documents peuvent être insérés n'importe où (efficace)
+  \item un peu moins efficace en recherche (on trouve une adresse dans l'index, pas le document lui-même)
+  \item autant d'index que l'on veut
+\end{itemize}
+
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Seconde étape (optionelle)\,: on crée des niveaux d'index}
+
+Illustration avec \alert{collection triée}, la clé est le titre.
+
+\figSlideWithSize{idxnondense}{10cm}
+
+On a découpé en \alert{4 fragments}, 
+indexés avec un niveau.
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Quelques calculs, cas d'une collection triée}
+
+On a un million de vidéos, soit $2^{20}$, \alert{triés} sur la clé.
+
+\vfill
+
+\alert{Sans index}
+\begin{itemize}
+  \item Recherche par dichotomie, soit 20 accès disques pour trouver une vidéo
+  \item Temps\,: 20 fois 10 ms = 200 ms (au pire du pire)
+\end{itemize} 
+
+\alert{Avec index}
+\begin{itemize}
+  \item Mon index comprend 1 million de paires (clé, adresse)
+  \item Supposons qu'une adresse occupe 8 octets, la clé 8 octets aussi\,: l'index occupe 16 MO 
+  \item Temps\,: recherche quasi instantanée dans l'index, 1 accès au disque (10 ms au pire) 
+\end{itemize} 
+
+\begin{noteblock}{Conclusion}
+L'index est tout petit (tient en mémoire), permet des accès très rapides même sur de très grandes collections.
+\end{noteblock}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{A quoi sert de \alert{trier} la collection\,?}
+
+Différence (subtile)\,: si la collection est triée, je peux créer
+un \alert{index non-dense}, sinon l'index \alert{doit} être dense.
+
+\vfill
+\alert{Index non-dense}
+
+\begin{itemize}
+  \item Je découpe ma collection en \alert{fragments} (quelques MO ou dizaines de MO)
+  \item Chaque fragment couvre un intervalle
+  \item \alert{J'indexe seulement les intervalles}
+\end{itemize} 
+
+Exemple dans le cas précédent: je découpe ma collection en fragments de 4 films; j'indexe
+250\,000 fragments (1M/4).
+
+\vfill
+
+\alert{Si la collection n'est pas triée, je dois créer un index dense} (pas le choix)
+\begin{itemize}
+  \item Chaque document est représenté dans l'index
+\end{itemize} 
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Exemple d'un index dense}
+
+On indexe sur l'année, en y mettant \alert{toutes} les clés.
+
+\figSlideWithSize{idxdense2}{10cm}
+
+Presque aussi efficace, sauf pour les recherches par intervalle.
+\end{frame}
+
+\subsection{Indexation distribuée}
+
+
+\begin{frame}
+\frametitle{Appliquons ces principes à la distribution des données}
+
+A quelques variantes près, on procède comme pour un index non-dense.
+
+\begin{itemize}
+  \item La collection est triée sur la clé.
+   
+        \smallskip
+   
+       Au moins partiellement (cf. plus loin)
+       
+  \item On la découpe en fragments d'une taille maximale pré-déterminée (de 64MO à qq GO)
+   
+   \smallskip
+   
+        Chaque frament couvre donc un intervalle $[min_f, max_f[$
+        
+   \item Les fragments sont distribués équitablement sur les serveurs
+
+    \smallskip
+    
+         Un ou plusieurs fragments par serveur.
+
+   \item Un index sur les fragments est maintenu par le routeur.
+ 
+    \smallskip
+   
+      \alert{Souvenez-vous\,: l'index est tout petit par rapport à la collection}
+      
+\end{itemize} 
+
+\alert{Le routeur reçoit les requêtes et détermine le(s) serveur(s) à solliciter.}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{L'architecture, avec partionnement par intervalle}
+
+Le routeur connaît les intervalles, et les serveurs associés.
+
+\figSlide{partition-range}
+
+\begin{remark}
+\begin{itemize}
+   \item Chaque serveur maintient un index local sur ses fragments.
+   \item Les fragments sont autant que possible conservés en mémoire.
+  \item Parmi les variantes\,: les fragments sur les serveurs peuvent être triés ou pas. 
+\end{itemize}
+\end{remark}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Dynamicité: comment évolue le système\,?}
+
+L'opération de base est le \alert{split}, division d'un gros fragment en deux petits.
+
+\figSlide{partition-split}
+
+\alert{L'équilibrage} consiste à répartir équitablement les fragments.
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Les opérations du routeur}
+
+% A two-columns presentation
+\begin{tabular}{l|p{6cm}}
+   \parbox{5cm}{
+$get(k)$: chercher l'intervalle qui contient $k$, transmettre
+au serveur correspondant.
+
+\smallskip
+
+$put(k, d)$: identifier le serveur avec $k$, transmettre l'insertion
+ 
+ \smallskip
+ 
+ $delete(k)$: idem
+ 
+ \smallskip
+ 
+ $range(k_1, k_2)$: transmettre à tous les serveurs gérant un intervalle chevauchant $[k_1, k_2]$
+ 
+ \smallskip
+ 
+ Toute autre opération\,: transmettre à tous les serveurs.
+   }  % Inclusion of an XML file
+  & 
+  \parbox{6cm}{
+ 
+\begin{tabular}{r|l}
+Intervalle  & Serveur\\
+\hline
+$]-\infty, a]$ & A  \\
+$[a+1, b]$ & B  \\
+$[b+1, c]$ & C  \\
+$[c+1, d]$ & B  \\
+$[d+1, \infty[$ & A  \\
+\hline
+\end{tabular}
+
+}
+
+\end{tabular}
+
+\end{frame}
+
+
+\section{Etude de cas 1\,: BigTable (HBase, Cassandra, ...)}
+
+\begin{frame}
+\frametitle{BigTable\,: la structure} 
+
+C'est une collection \alert{triée}, dont chaque ligne est indexée par une clé.
+
+
+ \figSlideWithSize{bigtable}{8cm}
+ 
+La table est partionnée en fragments (\textit{tablets}) qui sont eux-mêmes indexés 
+par une racine. 
+
+\vfill
+
+Les fragments pleins subissent un \alert{split}, le nouveau fragment est propagé 
+au père.
+
+
+\end{frame}
+ 
+
+\begin{frame}
+\frametitle{Le routeur}
+
+Le routeur est incorporé au \textit{driver} et maintient une \alert{image} de l'arbre.
+
+
+\figSlideWithSize{clientImage}{7cm}
+
+Cette image peut être \alert{partielle} et \alert{obsolète}. Elle est \alert{ajustée}
+à chaque requête.
+
+\end{frame}
+ 
+\begin{frame}
+\frametitle{Exemple d'un ajustement}
+
+Une requête Client transmise sur la base de l'image échoue, car l'arbre a 
+beaucoup évolué.
+
+\figSlide{imageadjust}
+
+L'ajustement consiste à remonter/descendre dans l'arbre.
+
+\end{frame}
+
+\section{Etude de cas 2\,: \mongodb/}
+
+ 
+\begin{frame}
+\frametitle{Le \textit{sharding} de \mongodb/}
+
+On crée des \textit{replica set} qui vont chacun stocker un sous-ensemble des fragments.
+
+\vfill
+
+Un serveur spécial, le \textit{config server} (répliqué), se charge de stocker la table de routage.
+
+\vfill
+
+Chaque application discute avec un processus routeur, \textit{mongos} 
+
+\vfill
+
+\figSlideWithSize{mongosharding}{8cm}
+
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+\frametitle{Allons-y pour un petit test}
+
+On lance un \textit{config server}
+
+\begin{smallverbatim}
+mkdir /data/configdb
+mongod --configsvr --dbpath /data/configdb --port 27019
+\end{smallverbatim}
+
+On lance un routeur en lui indiquant où se trouve(nt) le(s) \textit{config server}(s)
+
+\begin{smallverbatim}
+mongos --configdb localhost:27019
+\end{smallverbatim}
+
+Et deux serveurs (il faudrait des \textit{replica sets} complets en production)
+\begin{smallverbatim}
+mongod --dbpath /data/node1 --port=30001
+mongod --dbpath /data/node3 --port=30002
+\end{smallverbatim}
+
+A partir de \textit{mongos}, déclarons les deux serveurs comme \textit{shards}.
+
+\begin{smallverbatim}
+mongo --port 27017
+sh.addShard("localhost:30000")
+sh.addShard("localhost:30001")
+sh.enableSharding("nfe204")
+\end{smallverbatim}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Choisir la clé de partitionnement}
+
+On indique la clé de partitionnement avec la commande suivante\,:
+
+\begin{smallverbatim}
+sh.shardCollection("nfe204.videos", { "title": 1 } )
+\end{smallverbatim}
+
+Attention au choix de la clé
+
+\begin{itemize}
+  \item Les clés-séquences\,:  on envoie toujours les insertions au même serveur\,; bon ou pas?
+  \item Les clés à faible cardinalité (ex: pays)\,: pas très bon non plus, car 
+               il pourra être difficile de faire un \textit{split}
+\end{itemize}
+
+Bonne option: appliquer un hachage pour bien distribuer les insertions\,:
+
+\begin{smallverbatim}
+sh.shardCollection("nfe204.videos", { "title": "hashed" } )
+\end{smallverbatim}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Inspecter la configuration}
+
+Liste des \textit{shards}
+\begin{smallverbatim}
+db.runCommand({listshards: 1})
+\end{smallverbatim}
+
+Statut général du cluster
+\begin{smallverbatim}
+sh.status()
+\end{smallverbatim}
+
+Les fragments sont dans une collection \textit{chuncks}.
+
+\begin{smallverbatim}
+use config
+db.chuncks.count()
+db.chuncks.findOne()
+\end{smallverbatim}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Partitionnement par hachage}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Rappels}
+
+
+\begin{frame}
+\frametitle{A la base\,: table de hachage et fichiers}
+
+On \textit{calcule} la position d'un enregistrement
+d'après la clé.
+\begin{itemize}
+  \item un \textit{fonction de hachage} $h$ associe des
+         valeurs de clé à des adresses de bloc
+   \item $h$ doit répartir uniformément les enregistrements
+            dans les $n$ blocs alloués à la structure
+  \item recherche d'un enregistrement =$>$ calcul de l'endroit
+          où il se trouve.
+\end{itemize}
+Simple et efficace\,!
+\end{frame}
+
+
+%------------------------------------------------------------
+\begin{frame}{Exemple}
+
+On veut créer une structure de hachage pour nos 16 films
+(hyp.\,: 4 enregistrements   par page)
+\begin{itemize}
+  \item on alloue 5 pages (pour garder une marge de man{\oe}uvre)
+  \item un répertoire à 5 entrées (0 à 4) pointe vers les pages
+   \item On définit la fonction $h(titre) = rang(titre[0])\, mod\, 5$
+\end{itemize}
+
+\end{frame}
+
+%------------------------------------------------------------
+\begin{frame}{Le résultat}
+
+  \figSlideWithSize{hachage}{10cm}
+
+\end{frame}
+
+
+\begin{frame}{Recherches}
+
+\begin{itemize}
+  \item Par clé\,? Oui:\\
+     \texttt{SELECT * FROM  Film WHERE titre = 'Impitoyable'}
+
+   \item Par préfixe\,? Ici, oui.\\
+      \texttt{SELECT * FROM  Film WHERE titre LIKE 'M\%'}
+
+   \item Par intervalle\,: non\,!\\
+
+\texttt{SELECT *
+FROM  Film
+WHERE titre BETWEEN 'Annie Hall' AND 'Easy Rider'}
+  
+\end{itemize}
+
+\end{frame}
+%------------------------------------------------------------
+\begin{frame}{Mises à jour\,: ça se gâte}
+
+La structure simple décrite précédemment n'est pas
+\textbf{dynamique}
+\begin{itemize}
+  \item On ne peut pas changer un enregistrement de place
+
+   \item Donc  il faut créer un chaînage de pages quand
+             une page déborde
+
+  \item Et donc les performances se dégradent...
+\end{itemize}
+
+\end{frame}
+%------------------------------------------------------------
+\begin{frame}{Exemple\,: insertion de Citizen Kane}
+
+  \figSlideWithSize{hachage-2}{10cm}
+
+\end{frame}
+
+%------------------------------------------------------------
+\begin{frame}{Hachage dynamique}
+
+Objectif\,: réorganiser la table de hachage en fonction
+des insertions et suppressions. 
+
+\begin{itemize}
+  \item le nombre d'entrées dans le répertoire est une puissance
+          de 2
+  \item la fonction $h$ donne toujours un entier sur 4 octets (32 bits)  
+\end{itemize}
+Idée de base\,: 
+ on utilise les $n$ premiers bits du résultat de la fonction, avec
+$n < 32$
+
+\end{frame}
+%------------------------------------------------------------
+\begin{frame}{Exemple\,: le hachage des 16 films}
+
+\begin{center}
+\begin{tabular}{l|c}
+titre & $h$(titre)   \\
+\hline
+Vertigo     & 01110010  \\
+Brazil      & 10100101  \\
+Twin Peaks  & 11001011  \\
+Underground & 01001001  \\
+Easy Rider  & 00100110 \\
+Psychose    &  01110011 \\
+Greystoke   &  10111001 \\
+Shining     &  11010011 \\
+\hline
+\end{tabular}
+\end{center}
+
+\end{frame}
+%------------------------------------------------------------
+\begin{frame}{Construction de la table}
+
+On départ on utilise seulement le premier bit
+de la fonction
+\begin{itemize}
+  \item Deux valeurs possibles\,: 0 et 1
+  \item Donc deux entrées, et deux blocs
+  \item L'affectation d'un enregistrement dépend
+        du premier bit de sa fonction de hachage  
+\end{itemize}
+
+=$>$ pour l'instant on reste dans un cadre classique
+
+\end{frame}
+%------------------------------------------------------------
+\begin{frame}{Avec 5 films}
+
+  \figSlide{hashext-1}
+
+\end{frame}
+%------------------------------------------------------------
+\begin{frame}{Insertions}
+
+Supposons 3 films par bloc. L'insertion de Psychose
+(valeur 01110011) entraîne le débordement du premier bloc.
+
+\begin{itemize}
+  \item On double la taille du répertoire
+  \item On alloue un nouveau bloc pour l'entrée 01
+  \item Les entrées 10 et 11 pointent sur le \textit{même} bloc.
+\end{itemize}
+On agrandit seulement ce qui est nécessaire.
+
+\end{frame}
+%------------------------------------------------------------
+\begin{frame}{Illustration}
+
+  \figSlide{hashext-2}
+
+\end{frame}
+%------------------------------------------------------------
+\begin{frame}{Insertions suivantes}
+
+Plusieurs cas
+\begin{itemize}
+  \item on insère dans un bloc plein, mais plusieurs
+           entrées pointent dessus
+  \begin{itemize}
+    \item on alloue un nouveau bloc, et on répartit les pointeurs
+  \end{itemize}
+  \item on insère dans un bloc plein, associé à une entrée
+  \begin{itemize}
+    \item on double à nouveau le nombre d'entrées
+  \end{itemize}
+Problème\,: le répertoire peut devenir très grand.
+\end{itemize}
+
+\end{frame}
+%------------------------------------------------------------
+\begin{frame}{Greystoke 10111001 et Shining 11010011}
+
+  \figSlide{hashext-3}
+
+\end{frame}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Hachage distribué}
+
+
+\begin{frame}
+\frametitle{Systèmes distribués basés sur le hachage}
+
+Idée simple\,: tout le monde utilise la même fonction de hachage, les ``blocs''
+sont les serveurs, et tout marche bien.
+
+\vfill
+
+\alert{Presque\,!} A ceci près que\,:
+
+\begin{itemize}
+  \item le système est nécessairement \alert{dynamique}\,; il faudra ajouter ou retirer
+  des serveurs.
+
+\item attention aux clients qui pouraient utiliser une fonction de hachage \alert{obsolète}\,: il faut
+   leur garantir que leurs requêtes aboutissent quand même.
+   
+\end{itemize}
+
+\vfill
+
+En 1997, un article a proposé une solution maintenant très largement utilisé\,: le
+\alert{hachage cohérent} ou \textit{Consistent haching}.
+
+
+\begin{itemize}
+  \item D'abord conçu et utilisé pour des \alert{caches distribués} (\textit{memcached})
+
+  \item Popularisé pour la gestion de données par le système Dynamo (Amazon, 2007)
+
+  \item Maintenant intégré à de très nombreux systèmes\,: Voldemort, Riak, Chord, ...
+ 
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Consistent hashing}
+
+Soit $N$ le nombre de serveurs. La fonction suivante 
+$$hash(key) \to modulo (key, N) = i$$
+associe une paire $(key, value)$ au $S_i$.
+
+\vfill
+
+\alert{Problème}: si $N$ change, ou si un client utilise un valeur incorrecte de $N$, le hachage devient
+\alert{incohérent}.
+
+\vfill
+
+Avec le  \alert{Consistent hashing}, ajouter ou retirer un serveur n'affecte la collection
+que de façon \alert{marginale}.
+
+\begin{itemize}
+  \item on prend une fonction \alert{permanente}, $h$, appliquée aux clés \alert{et} aux serveurs
+          vers l'espace d'adressage  $A=[0, 2^{64}-1$];
+  \item $A$ est organisé comme un anneau parcouru dans le sens des aiguilles d'une montre\,;
+  \item si $S$ et $S'$ sont deux serveurs adjacents sur l'anneau, toutes les clés de l'intervalle 
+   $]h(S), h(S')]$ appartiennent à $S'$.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Illustration}
+
+Exemple: l'objet $A$ appartient au serveur IP1-2; l'objet $B$ au serveur (??)  
+
+\vfill
+
+\figSlideWithSize{consist-hashing}{7cm}
+
+\vfill
+
+Si un serveur est ajouté ou retiré, une réorganisation \alert{locale} est suffisante.
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Quelques détails vraiment utiles}
+
+Comment fonctionne la tolérance aux pannes\,? Comment fonctionne l'équilibrage\,?
+
+
+\vfill
+
+% A two-columns presentation
+\begin{tabular}{l|p{6cm}}
+   \parbox{6cm}{
+
+
+\alert{Panne} $\Rightarrow$ géré par la réplication (surprise!)\,; 
+par exemple on copie sur la machine suivante dans l'anneau, etc.
+
+
+  \vfill
+  
+\alert{Equilibrage} $\Rightarrow$ un même serveur (physique) est distribué
+en plusieurs points (virtuels) sur l'anneau.
+
+\begin{itemize}
+  \item plus il y a de points, plus le serveur recevra de données\,;
+  \item en cas de panne, réoganisation répartie plus justement.
+\end{itemize}
+  
+   }  % Inclusion of an XML file
+  & 
+  \parbox{5cm}{\figSlideWithSize{ch-refinement}{5cm} }
+\end{tabular}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Mais où est donc la table de hachage\,?}
+
+\alert{Qui nous dit quelle est la liste des serveurs et leur intervalle}\,?
+
+\smallskip
+
+Il nous faut un \alert{routeur}.
+
+\smallskip
+
+\figSlideWithSize{archi-consistenthash}{8cm} 
+\smallskip
+
+Autres solutions\,: (i) la table est répliquée sur chaque n{\oe}ud (acceptable
+quand on n'ajoute/retire pas de serveurs tout le temps), (ii) le routeur est intégré au client.
+
+
+
+\end{frame}
+
+\subsection{Etude de cas\,: Chord}
+
+\begin{frame}[fragile]
+\frametitle{Implementation: Chord Ring}
+
+
+The hash function $h$ takes the URL of a peer and maps
+it to the address space $[0 .. 2^m-1]$. Hashing is based on 
+arithmetic modulo $2^m$. 
+
+\begin{center}
+h : pId $\rightarrow$ $pId\ mod\ 2^m$
+\end{center}
+
+$h$ distributes the peers around a \emph{ring}.
+We assume no two peers have the same $h(pId)$ ($m$ large enough). 
+
+\begin{tabular}{m{.4\hsize}m{.4\hsize}}
+   \parbox{\hsize}{The Chord Ring with $m=3, 2^m=8$.
+Each peer with id $n$ is located
+at node $n\ mod\ 8$ on the ring. \\
+Ex: peer 22 is assigned to node~6.
+}  % Inclusion of an XML file
+  & 
+   \figSlideWithSize{chord}{5cm} % Inclusion of a PDF file
+\end{tabular}
+
+%\vspace*{-2cm}
+
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Distribute the keys to the peers}
+
+Keys are hashed with function $h$ with range $[0..2^m-1]$\\
+
+Rule: a key k is assigned to the unique peer p such that  
+\begin{itemize}
+\item h(p) $\leq$ h(k)
+\item \alert{and} there is no p' such that h(p) $<$ h(p') $\leq$ h(k) 
+\end{itemize}
+
+We say that p is \emph{responsible} for key k.
+\begin{tabular}{m{.4\hsize}m{.5\hsize}}
+   \parbox{\hsize}{Assignment of item to peer: item 13
+   is hashed to $h(13) = 5$ and assigned to the
+   peer p with the largest $h(p) \leq 5$.
+}  % Inclusion of an XML file
+  & 
+   \figSlideWithSize{chord2}{5cm} % Inclusion of a PDF file
+\end{tabular}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Routing tables}
+
+For each peer p, $friends_p$ contains (at most) $\log 2^m = m$ peer addresses.
+
+For each i in [1..m], the i$^{th}$ friend p$_i$ is such that 
+\begin{itemize}
+\item h(p$_i$) $\leq$ h(p)+$2^{i-1}$ 
+\item there is no p' such that h(p$_i$) $<$ h(p') $\leq$
+h(p)+$2^{i-1}$ 
+\end{itemize}
+
+In other words:  p$_i$ is the peer responsible  for key $h(p) + 2^{i-1}$.
+
+\begin{examples}[Let $m=10$, $2^m = 1024$; consider peer p with $h(p) =
+10$.]
+
+\begin{itemize}
+  \item The first friend p$_1$ is the peer resp.  for $10 + 2^0 = 11$
+ \item The second friend p$_2$ is the peer resp.  for  $10 + 2^1 = 12$
+ \item The third friend p$_3$ is the peer resp.  for  $10 + 2^2 = 14$
+ \item  friend p$_7$ is the peer resp.  for  $10 + 2^6 = 74$
+ \item  The last friend p$_{10}$ is the peer resp.  for  $(10 + 512) = 522$
+\end{itemize}
+\end{examples}
+Exercise: express the gap between friends[i] and friends[i+1]
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Understanding routing tables}
+
+Important properties:
+\begin{enumerate}
+  \item a peer maintains a small routing table, e.g., 16 friends
+          for each peer, in a ring with $2^{16} = 65,536$ nodes;
+  \item each peer knows better the peers close on the ring that the peers
+        far away;
+   \item a peer p cannot (in general) find directly the peer p'
+      responsible for a key k; \emph{but p can find a friend which holds a more
+      accurate information about k.}
+\end{enumerate}
+
+\begin{tabular}{m{.4\hsize}m{.4\hsize}}
+   \parbox{\hsize}{The figure shows the friends of
+   peer p16, located at node 0 (note the collisions). p16
+   does \emph{not} know p22.\\
+   
+   Exercise: what are the friends of p11, located at node 3? 
+}  % Inclusion of an XML file
+  & 
+   \figSlideWithSize{chord-friends}{5cm} % Inclusion of a
+\end{tabular}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Searching Chord: The \textit{get} algorithm}
+
+Peer p looks for index(k):
+\begin{itemize}
+  \item if p is responsible for k, we are done;
+\item else  let $i$ such that  h(p)+$2^{i-1}$ $\leq$ h(k) < h(p)+$2^{i}$ :
+forward the search to the friend p$_i$.
+\end{itemize}
+
+Fact: the search range is (at worse) halved at each step $\rightarrow$ the
+search converges in $O(\log 2^m) = O(m)$ hops.
+
+
+\begin{examples}[p16 receives a request for item k, with
+      h(k)=7.]
+
+\begin{tabular}{m{.5\hsize}m{.4\hsize}}
+   \begin{enumerate}
+     \item p16 forwards the request to p11, its third friend (why?).
+     \item then p11 forwards to p22, its third friend (why?).
+     \item p22  find item k locally.
+   \end{enumerate}
+      
+Exercise:  develop an example of the worst case with $m=10$.
+ % Inclusion of an XML file
+  & 
+   \figSlideWithSize{chord-get}{5cm} % Inclusion of a
+\end{tabular}
+\end{examples}
+\end{frame}
+
+
+\end{document}
+
+

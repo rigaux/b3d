@@ -1,0 +1,418 @@
+
+
+\section{Parlons du Web et du REST}
+
+
+
+\begin{frame}{Ce qu'il faut savoir (pour nous)}
+
+
+Web = immense base de données documentaire! Les notions
+essentielles.
+
+\begin{redbullet}
+
+  \item Le Web est constitué de \alert{ressources}.
+
+    Une ressource est une entité fournissant des services et communiquant
+    par message.
+    
+   
+   \item Les ressources sont identifiées et accessibles à des \alert{URL}.
+   
+   \url{https://www.example.com:443/chemin/vers/doc?nom=b3d&type=json\#fragment}
+
+
+   \item Les messages sont codés selon un \alert{protocole}, HTTP.
+   
+   
+   Très utile (indispensable?): l'outil cURL pour parler le HTTP avec la ligne
+      de commande.
+
+   \item Un "message" est une enveloppe dont le contenu est un \alert{document}.
+   
+   Souvent le document est en HTML (affichage). Mais cela peut être un \alert{document structuré}.
+
+\end{redbullet}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{L'architecture REST}
+
+REST = une définition de services Web basée sur les standards du Web.
+
+\begin{redbullet}
+  \item on s'adresse à des ressources qui fournissent des services;
+  \item les messages se font en HTTP, et sont (le plus souvent) \alert{structurés} en XML ou JSON;
+  \item les documents structurés fournis par une ressource sont (le plus souvent)
+     produits \alert{à la volée} (par \alert{calcul}: distinction entre service et ressource statique).
+\end{redbullet}
+
+Très répandu! Excellent moyen de récupérer des informations directement exploitables
+par une machine (pas comme HTML).
+\end{frame}
+
+\begin{frame}{Ressources et opérations}
+
+
+\figSlideWithSize{REST}{12cm}
+
+\vfill
+
+Quatre opérations (celles de HTTP).
+\begin{description}
+  \item[\texttt{GET}] \alert{lit} (la représentation d')une ressource.
+  \item[\texttt{PUT}] \alert{crée} une nouvelle ressource (ou, plus flexible: la remplace).
+  \item[\texttt{POST}] envoie un message (\alert{demande de service}) à une ressource.
+  \item[\texttt{DELETE}] \alert{détruit} une ressource.
+\end{description}
+ 
+\end{frame}
+
+
+
+
+\begin{frame}{Un peu de rigueur}
+
+Qu'est-ce qu'un bon (un vrai) service REST?
+
+\begin{redbullet}
+  \item Des ressources clairement organisées \alert{et stables}.
+  \item Des services bien conçus (simples, clairs, concis) \alert{et stables}.
+  \item Respect de la sémantique des 4 opérations. Notamment:
+  
+  \begin{itemize}
+    \item \texttt{GET}: \alert{lecture seule}, pas d'effet de bord (état des ressources inchangé).
+    \item \texttt{PUT}: \alert{création}, donc idempotent (plusieurs appels = même effet qu'un seul). 
+    \item \texttt{POST}: \alert{envoi de message}: s'adresse à une ressource existante (modification possible de l'état des ressources).
+  \end{itemize}
+\end{redbullet}
+
+Ce sont des principes: détails sujets à de longues discussions...
+
+\end{frame}
+
+\begin{frame}[fragile]{Où sont les services REST?}
+
+Ils sont partout! Beaucoup d'applications Web (Twitter, Facebook par
+exemple) ont une interface HTML \alert{et} une interface REST.
+
+\vfill
+
+Essayons: quel temps fait-il à Paris aujourd'hui?
+
+\begin{minted}{bash}
+curl -X GET api.openweathermap.org/data/2.5/weather?q=Paris
+\end{minted}
+
+Et à Londres? Et ailleurs?
+
+\vfill
+
+Vous essaierez (au moins) les services de géolocalisation de Google. 
+
+\vfill
+Beaucoup d'autres services partout\,: \url{http://programmableweb.com}
+
+\vfill
+
+De quoi se constituer au fil du temps une base de documents à analyser.
+
+\end{frame}
+
+\section{Un système NoSQL basé sur REST: CouchDB}
+
+\begin{frame}
+\frametitle{CouchDB, en bref}
+
+Un système typiquement NoSQL.
+
+\begin{redbullet}
+  \item gère des documents structurés (JSON);
+ 
+  \item pas de schéma, pas de langage d'interrogation, entièrement \alert{non} normalisé.
+  
+  \item échanges client/serveur basés sur REST;
+
+  \item passe en mode distribué facilement (à vérifier).
+  
+  \item applique quelques techniques courantes de calcul distribué (MapReduce).
+\end{redbullet}
+
+\vfill
+
+Pas le système le plus répandu, mais facile à mettre en œuvre, intéressant à étudier.
+
+\end{frame}
+
+
+\begin{frame}{Serveurs, bases, documents}
+
+Souvenez-vous: on s'adresse à des \alert{ressources}
+\vfill
+
+\figSlideWithSize{CouchDB}{10cm}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Démonstration (REST)}
+
+Vérifions que le serveur (ici, machine locale) est prêt à nous parler.
+
+\begin{minted}{text}
+$ curl -X GET http://localhost:5984
+{"couchdb":"Welcome","version":"1.0.1"}
+\end{minted}
+
+\vfill
+Création d'une base de données = \texttt{PUT} d'une nouvelle ressource. 
+
+\begin{minted}{text}
+$ curl -X PUT http://localhost:5984/films
+\end{minted}
+
+\vfill 
+
+Récupérons la nouvelle ressource (sa représentation) avec \texttt{GET}.
+
+Création d'une base de données = \texttt{PUT} d'une nouvelle ressource. 
+
+\begin{minted}{text}
+$ curl -X GET http://localhost:5984/films
+\end{minted}
+
+\vfill
+
+Création d'un document = \texttt{PUT} d'une nouvelle ressource dans la base de données. 
+
+\begin{minted}{text}
+$ curl -X PUT http://localhost:5984/films/doc1 
+      -d '{"clef": "valeur"}'
+{"ok":true,"id":"doc1","rev":"1-25eca"}
+\end{minted}
+\vfill
+
+Notez le champ \texttt{rev}. Et bien sûr on peut lire la nouvelle ressource.
+
+\begin{minted}{text}
+$ curl -X GET http://localhost:5984/films/doc1
+\end{minted}
+
+\end{frame}
+
+
+\begin{frame}[fragile]{Ajout de documents complets}
+
+Envoi de messages \texttt{PUT} 
+(à la nouvelle ressource) ou \texttt{POST} (à la base
+de données).
+
+\vfill
+
+On adresse un \texttt{PUT} à une \alert{nouvelle} ressource
+(il faut donc produire l'URL).
+
+\begin{minted}{bash}
+curl -X PUT http://localhost:5984/films/us 
+         -d @movie_52.json -H "Content-Type: application/json" 
+\end{minted}
+
+
+
+\vfill
+
+On adresse un \texttt{POST} à la base de données.
+
+\begin{minted}{bash}
+$ curl -X POST  http://localhost:5984/films/ -d @movie_52.json \
+      -H "Content-Type: application/json"
+\end{minted}
+
+Réponse: 
+
+\begin{minted}{json}
+     {
+      "ok":true,
+      "id":"movie:52",
+      "rev":"1-68d58b7e3904f702a75e0538d1c3015d"
+     }
+\end{minted}
+
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Mise à jour}
+
+CouchDB est un système \alert{multiversions}
+
+\vfill
+
+Mettre à jour un document = ajouter une version à une version existante;
+
+
+\begin{minted}{bash}
+$ curl -X PUT http://localhost:5984/films/us -d @newDoc.json 
+        -H "Content-Type: image/jpg" 
+{"ok":true,"id":"tsn","rev":"2-26863"}
+\end{minted}
+
+\vfill
+Détruire avec \texttt{DELETE} = ajouter une version marquée "détruite".
+
+\begin{minted}{bash}
+$ curl -X DELETE http://localhost:5984/films/us?rev=2-26863
+{"ok":true,"id":"tsn","rev":"3-48e92b"}
+\end{minted}
+
+\end{frame}
+
+
+\begin{frame}{Bilan}
+
+À retenir:
+
+\begin{redbullet}
+  \item REST = échange de documents sur le Web.
+  \item Possibilité de constituer à peu de frais une base documentaire.
+  \item  Opérations de type "dictionnaire": le minimum syndical des bases NoSQL.
+  \item CouchDB: un système original concrétisant une vision de Web comme
+      un serveur de documents structurés.
+      
+\end{redbullet}
+
+À vous de jouer: reproduire les commandes CouchDB, trouver et interroger des services REST
+en JSON ou XML.
+
+
+\end{frame}
+\end{document}
+
+\begin{frame}[fragile]
+\frametitle{Views in \couchdb/}
+
+A \alert{view} is the result of a \mapreduce/ job = a list of $(key, value)$
+pairs.
+
+\vfill
+
+Views are \alert{materialized} and indexed on the key by a B+tree.
+
+\vfill
+A \map/ function
+
+
+\begin{lstlisting}[language=JavaScript]
+function(doc)
+{
+   emit(doc.title, doc.director)
+}
+\end{lstlisting}
+
+\vfill
+A \reduce/ function
+
+
+\begin{lstlisting}[language=JavaScript]
+function (key, values) {
+    return values.length;
+}
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Accessing views}
+
+Here is a view (without reduce function).
+
+\begin{lstlisting}[language=JavaScript]
+function(doc)
+{           
+   for (i in doc.actors) {    
+      actor = doc.actors[i];
+      emit({"fn": actor.first_name, "ln": actor.last_name}, doc.title) ;         
+   }           
+}
+\end{lstlisting}
+
+\vfill
+
+Save it in the \alert{design document} named \texttt{examples}, and name the
+view \texttt{actors}. The view can be queried with:
+
+\begin{minted}{text}
+$ curl IP/movies/_design/examples/_view/actors
+{"total_rows":16,"offset":0,
+"rows":[
+ {"id":"bed7",
+   "key":{"fn":"Andrew","ln":"Garfield"},"value":"The Social network"},
+ {"id":"91631b",
+   "key":{"fn":"Clint","ln":"Eastwood"},"value":"Unforgiven"},
+   ...
+\end{minted}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Querying views}
+
+A view is a B+tree index. So:
+
+\begin{lstlisting}[language=JavaScript]
+function(doc)
+{           
+  emit(doc.genre, doc.title) ;   
+}           
+\end{lstlisting}
+is equivalent to 
+
+\begin{lstlisting}[language=SQL]
+create index on movies (genre);
+\end{lstlisting}
+
+\vfill
+
+Recall the B+trees support key and range queries:
+
+
+\begin{minted}{text}
+$ curl $IP/movies/_design/examples/_view/genre?key=\"Drama\"
+{"total_rows":5,"offset":2,"rows":[
+{"id":"9163", "key":"Drama","value":"Marie Antoinette"},
+{"id":"bed7", "key":"Drama","value":"The Social network"}
+]}
+\end{minted}
+
+For range queries, send the two parameters \texttt{startkey}
+and \texttt{endkey}.
+
+\end{frame}
+
+\section{Distribution}
+
+\begin{frame}[fragile]
+\frametitle{The replication primitive}
+
+\couchdb/ supports natively one-way \alert{replication} from one instance to
+another.
+
+
+\begin{minted}{text}
+curl -X POST $COUCHADDRESS/_replicate \
+   -d '{"source": "movies",  "target": "backup", 
+        "continuous": true}' \
+   -H "Content-Type: application/json"
+\end{minted}
+
+\vfill
+
+That's all: any change in \texttt{movies} is automatically reported in
+\texttt{backup}.
+
+\end{frame}
+

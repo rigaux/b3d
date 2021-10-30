@@ -1,0 +1,105 @@
+
+
+\begin{frame}
+\frametitle{Hiérarchie des mémoires: en centralisé}
+
+
+\figSlideWithSize{hiermem}{8cm}
+
+\vfill
+
+Classique: un SGBD place en mémoire les données les plus utilisées
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Hiérarchie des mémoires: dans le \textit{cloud}}
+
+Différence essentielle: le réseau (hiérarchique)
+
+\vfill
+
+\figSlideWithSize{hiermem-cloud}{10cm}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Performances\,: ordres de grandeur}
+
+\begin{center}
+
+\begin{small}
+
+\begin{tabular}{l|p{2cm}|p{4cm}|p{3cm}}
+{\bf Type} & \textbf{Taille} & {\bf Latence} & \textbf{Débit} \\
+\hline
+RAM & O(10 GOs) & $\approx 10^{-8} \mathrm{s}$ (10 nanosec.); & $\approx 10 G0/s$ \\ 
+SSD & O(100 GOs) & $\approx 10^{-4} \mathrm{s}$ (0,1 millisec.); & Qq GO/s \\ 
+Disque & O(1 TOs) & $\approx 10^{-3}\mathrm{s}$ (10 millisec.);&  100 MO/s \\ 
+\hline
+\end{tabular}
+
+\end{small}
+\end{center}
+
+\vfill
+
+Pour le réseau: 
+\begin{redbullet}
+  \item compter 10 Gbits/s (intra)-baie; 
+  \item diviser par 5 ou 10 pour le débit inter-baies.
+\end{redbullet}
+
+\vfill
+
+\begin{remblock}{Retenir}
+\begin{redbullet}
+  \item Accès (aléatoire) au disque\,: très lent par rapport à un accès en RAM.
+  \item Débit du disque\,: faible (100 MO/s au mieux)
+  \item SSD: 100 fois plus rapide qu'un disque (latence), 10 fois plus en débit
+\end{redbullet}
+\end{remblock}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Performances dans un \textit{cloud}}
+
+\begin{small}
+\begin{tabular}{l|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}}
+{\bf Type} & \textbf{RAM locale} & \textbf{Disque local} & \textbf{RAM baie}  & \textbf{Disque baie} 
+    & \textbf{RAM cloud}  & \textbf{Disque cloud}   \\
+\hline
+Latence ($\mu$s) & 0,1 & 10 000  & 300  & 10 000  & 500   &  10 000\\
+Débit (MO/s) & 10 000 & 100  & 125  & 100  & 25   & 20\\
+\hline
+\end{tabular}
+
+\end{small}
+
+
+\begin{remblock}{Localité des données (\textit{data locality})}
+Toujours tenter de traiter les données \alert{localement}, par le CPU 
+du serveur stockant les données.
+\begin{redbullet}
+  \item Pas toujours possible, mais \emph{best effort} pour des systèmes comme Hadoop.
+  \item \alert{Implique un déplacement des traitements vers les données} (en analytique)
+ \end{redbullet}
+\end{remblock}
+
+\vfill
+
+\begin{defblock}{Essentiel}
+\begin{redbullet}
+  \item Systèmes temps réel: \alert{placer les données en RAM} (latence reste faible).
+  \item Systèmes analytiques: \alert{placer les données séquentiellement sur le disque} 
+\end{redbullet}
+\end{defblock}
+
+
+\end{frame}
+
+\end{document}
+
+

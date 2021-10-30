@@ -1,0 +1,521 @@
+{
+  "_id": "artists_import", 
+ "artists": [
+	{
+	    "_id": "artist:6",
+	    "last_name": "Cameron",
+	    "first_name": "James",
+	    "birth_date": "1954"	
+	},
+	{
+	    "_id": "artist:3",
+	    "last_name": "Hitchcock",
+	    "first_name": "Alfred",
+	    "birth_date": "1899"	
+	},
+	{
+	    "_id": "artist:4",
+	    "last_name": "Scott",
+	    "first_name": "Ridley",
+	    "birth_date": "1937"	
+	},
+	{
+	    "_id": "artist:5",
+	    "last_name": "Weaver",
+	    "first_name": "Sigourney",
+	    "birth_date": "1949"	
+	},
+	{
+	    "_id": "artist:10",
+	    "last_name": "Woo",
+	    "first_name": "John",
+	    "birth_date": "1946"	
+	},
+	{
+	    "_id": "artist:11",
+	    "last_name": "Travolta",
+	    "first_name": "John",
+	    "birth_date": "1954"	
+	},
+	{
+	    "_id": "artist:12",
+	    "last_name": "Cage",
+	    "first_name": "Nicolas",
+	    "birth_date": "1964"	
+	},
+	{
+	    "_id": "artist:13",
+	    "last_name": "Burton",
+	    "first_name": "Tim",
+	    "birth_date": "1958"	
+	},
+	{
+	    "_id": "artist:14",
+	    "last_name": "Depp",
+	    "first_name": "Johnny",
+	    "birth_date": "1964"	
+	},
+	{
+	    "_id": "artist:15",
+	    "last_name": "Stewart",
+	    "first_name": "James",
+	    "birth_date": "1908"	
+	},
+	{
+	    "_id": "artist:16",
+	    "last_name": "Novak",
+	    "first_name": "Kim",
+	    "birth_date": "1925"	
+	},
+	{
+	    "_id": "artist:18",
+	    "last_name": "Spacey",
+	    "first_name": "Kevin",
+	    "birth_date": "1959"	
+	},
+	{
+	    "_id": "artist:20",
+	    "last_name": "Eastwood",
+	    "first_name": "Clint",
+	    "birth_date": "1930"	
+	},
+	{
+	    "_id": "artist:21",
+	    "last_name": "Hackman",
+	    "first_name": "Gene",
+	    "birth_date": "1930"	
+	},
+	{
+	    "_id": "artist:22",
+	    "last_name": "Freeman",
+	    "first_name": "Morgan",
+	    "birth_date": "1937"	
+	},
+	{
+	    "_id": "artist:24",
+	    "last_name": "Ford",
+	    "first_name": "Harrison",
+	    "birth_date": "1942"	
+	},
+	{
+	    "_id": "artist:25",
+	    "last_name": "Hauer",
+	    "first_name": "Rutger",
+	    "birth_date": "1944"	
+	},
+	{
+	    "_id": "artist:27",
+	    "last_name": "Willis",
+	    "first_name": "Bruce",
+	    "birth_date": "1955"	
+	},
+	{
+	    "_id": "artist:31",
+	    "last_name": "Fincher",
+	    "first_name": "David",
+	    "birth_date": "1962"	
+	},
+	{
+	    "_id": "artist:32",
+	    "last_name": "Pitt",
+	    "first_name": "Brad",
+	    "birth_date": "1963"	
+	},
+	{
+	    "_id": "artist:34",
+	    "last_name": "Annaud",
+	    "first_name": "Jean-Jacques",
+	    "birth_date": "1943"	
+	},
+	{
+	    "_id": "artist:35",
+	    "last_name": "Connery",
+	    "first_name": "Sean",
+	    "birth_date": "1930"	
+	},
+	{
+	    "_id": "artist:36",
+	    "last_name": "Slater",
+	    "first_name": "Christian",
+	    "birth_date": "1969"	
+	},
+	{
+	    "_id": "artist:37",
+	    "last_name": "Tarantino",
+	    "first_name": "Quentin",
+	    "birth_date": "1963"	
+	},
+	{
+	    "_id": "artist:38",
+	    "last_name": "Jackson",
+	    "first_name": "Samuel L.",
+	    "birth_date": "1948"	
+	},
+	{
+	    "_id": "artist:39",
+	    "last_name": "Arquette",
+	    "first_name": "Rosanna",
+	    "birth_date": "1959"	
+	},
+	{
+	    "_id": "artist:40",
+	    "last_name": "Thurman",
+	    "first_name": "Uma",
+	    "birth_date": "1970"	
+	},
+	{
+	    "_id": "artist:63",
+	    "last_name": "Fishburne",
+	    "first_name": "Laurence",
+	    "birth_date": "1961"	
+	},
+	{
+	    "_id": "artist:64",
+	    "last_name": "De Palma",
+	    "first_name": "Brian",
+	    "birth_date": "1940"	
+	},
+	{
+	    "_id": "artist:65",
+	    "last_name": "Cruise",
+	    "first_name": "Tom",
+	    "birth_date": "1962"	
+	},
+	{
+	    "_id": "artist:68",
+	    "last_name": "Kurozawa",
+	    "first_name": "Akira",
+	    "birth_date": "1910"	
+	},
+	{
+	    "_id": "artist:69",
+	    "last_name": "Harris",
+	    "first_name": "Ed",
+	    "birth_date": "1950"	
+	},
+	{
+	    "_id": "artist:88",
+	    "last_name": "Perkins",
+	    "first_name": "Anthony",
+	    "birth_date": "1932"	
+	},
+	{
+	    "_id": "artist:89",
+	    "last_name": "Miles",
+	    "first_name": "Vera",
+	    "birth_date": "1929"	
+	},
+	{
+	    "_id": "artist:90",
+	    "last_name": "Leigh",
+	    "first_name": "Janet",
+	    "birth_date": "1927"	
+	},
+	{
+	    "_id": "artist:94",
+	    "last_name": "Taylor",
+	    "first_name": "Rod",
+	    "birth_date": "1930"	
+	},
+	{
+	    "_id": "artist:95",
+	    "last_name": "Hedren",
+	    "first_name": "Tippi",
+	    "birth_date": "1931"	
+	},
+	{
+	    "_id": "artist:96",
+	    "last_name": "Ricci",
+	    "first_name": "Christina",
+	    "birth_date": "1980"	
+	},
+	{
+	    "_id": "artist:97",
+	    "last_name": "Walken",
+	    "first_name": "Christopher",
+	    "birth_date": "1943"	
+	},
+	{
+	    "_id": "artist:98",
+	    "last_name": "Keitel",
+	    "first_name": "Harvey",
+	    "birth_date": "1939"	
+	},
+	{
+	    "_id": "artist:99",
+	    "last_name": "Roth",
+	    "first_name": "Tim",
+	    "birth_date": "1961"	
+	},
+	{
+	    "_id": "artist:100",
+	    "last_name": "Penn",
+	    "first_name": "Chris",
+	    "birth_date": "1966"	
+	},
+	{
+	    "_id": "artist:101",
+	    "last_name": "Kubrick",
+	    "first_name": "Stanley",
+	    "birth_date": "1928"	
+	},
+	{
+	    "_id": "artist:102",
+	    "last_name": "Kidman",
+	    "first_name": "Nicole",
+	    "birth_date": "1967"	
+	},
+	{
+	    "_id": "artist:103",
+	    "last_name": "Nicholson",
+	    "first_name": "Jack",
+	    "birth_date": "1937"	
+	},
+	{
+	    "_id": "artist:105",
+	    "last_name": "Grant",
+	    "first_name": "Cary",
+	    "birth_date": "1904"	
+	},
+	{
+	    "_id": "artist:106",
+	    "last_name": "Saint",
+	    "first_name": "Eva Marie",
+	    "birth_date": "1924"	
+	},
+	{
+	    "_id": "artist:107",
+	    "last_name": "Mason",
+	    "first_name": "James",
+	    "birth_date": "1909"	
+	},
+	{
+	    "_id": "artist:110",
+	    "last_name": "DiCaprio",
+	    "first_name": "Leonardo",
+	    "birth_date": "1974"	
+	},
+	{
+	    "_id": "artist:109",
+	    "last_name": "Winslet",
+	    "first_name": "Kate",
+	    "birth_date": "1975"	
+	},
+	{
+	    "_id": "artist:122",
+	    "last_name": "Ferrara",
+	    "first_name": "Abel",
+	    "birth_date": "1951"	
+	},
+	{
+	    "_id": "artist:124",
+	    "last_name": "Snipes",
+	    "first_name": "Wesley",
+	    "birth_date": "1962"	
+	},
+	{
+	    "_id": "artist:131",
+	    "last_name": "Kassowitz",
+	    "first_name": "Matthieu",
+	    "birth_date": "1967"	
+	},
+	{
+	    "_id": "artist:132",
+	    "last_name": "Cassel",
+	    "first_name": "Vincent",
+	    "birth_date": "1966"	
+	},
+	{
+	    "_id": "artist:151",
+	    "last_name": "Dullea",
+	    "first_name": "Keir",
+	    "birth_date": "1936"	
+	},
+	{
+	    "_id": "artist:152",
+	    "last_name": "Lockwood",
+	    "first_name": "Gary",
+	    "birth_date": "1937"	
+	},
+	{
+	    "_id": "artist:153",
+	    "last_name": "Sellers",
+	    "first_name": "Peter",
+	    "birth_date": "1925"	
+	},
+	{
+	    "_id": "artist:154",
+	    "last_name": "Scott",
+	    "first_name": "George",
+	    "birth_date": "1927"	
+	},
+	{
+	    "_id": "artist:155",
+	    "last_name": "Hayden",
+	    "first_name": "Sterling",
+	    "birth_date": "1916"	
+	},
+	{
+	    "_id": "artist:167",
+	    "last_name": "De Niro",
+	    "first_name": "Robert",
+	    "birth_date": "1943"	
+	},
+	{
+	    "_id": "artist:168",
+	    "last_name": "Grier",
+	    "first_name": "Pam",
+	    "birth_date": "1949"	
+	},
+	{
+	    "_id": "artist:169",
+	    "last_name": "Fonda",
+	    "first_name": "Bridget",
+	    "birth_date": "1964"	
+	},
+	{
+	    "_id": "artist:170",
+	    "last_name": "Keaton",
+	    "first_name": "Michael",
+	    "birth_date": "1951"	
+	},
+	{
+	    "_id": "artist:173",
+	    "last_name": "Collette",
+	    "first_name": "Tony",
+	    "birth_date": "1972"	
+	},
+	{
+	    "_id": "artist:174",
+	    "last_name": "Leighton",
+	    "first_name": "Eric",
+	    "birth_date": "1962"	
+	},
+	{
+	    "_id": "artist:187",
+	    "last_name": "Raimi",
+	    "first_name": "Sam",
+	    "birth_date": "1959"	
+	},
+	{
+	    "_id": "artist:188",
+	    "last_name": "Maguire",
+	    "first_name": "Tobey",
+	    "birth_date": "1975"	
+	},
+	{
+	    "_id": "artist:212",
+	    "last_name": "Jackson",
+	    "first_name": "Samuel",
+	    "birth_date": "1948"	
+	},
+	{
+	    "_id": "artist:213",
+	    "last_name": "Liu",
+	    "first_name": "Lucy",
+	    "birth_date": "1968"	
+	},
+	{
+	    "_id": "artist:214",
+	    "last_name": "Carradine",
+	    "first_name": "David",
+	    "birth_date": "1936"	
+	},
+	{
+	    "_id": "artist:215",
+	    "last_name": "Madsen",
+	    "first_name": "Michael",
+	    "birth_date": "1958"	
+	},
+	{
+	    "_id": "artist:216",
+	    "last_name": "Hannah",
+	    "first_name": "Daryl",
+	    "birth_date": "1960"	
+	},
+	{
+	    "_id": "artist:217",
+	    "last_name": "Buscemi",
+	    "first_name": "Steve",
+	    "birth_date": "1957"	
+	},
+	{
+	    "_id": "artist:218",
+	    "last_name": "Bunker",
+	    "first_name": "Edward",
+	    "birth_date": "1933"	
+	},
+	{
+	    "_id": "artist:236",
+	    "last_name": "Eisenberg",
+	    "first_name": "Jesse",
+	    "birth_date": "1983"	
+	},
+	{
+	    "_id": "artist:237",
+	    "last_name": "Mara",
+	    "first_name": "Rooney",
+	    "birth_date": "1985"	
+	},
+	{
+	    "_id": "artist:238",
+	    "last_name": "Garfield",
+	    "first_name": "Andrew",
+	    "birth_date": "1983"	
+	},
+	{
+	    "_id": "artist:239",
+	    "last_name": "Timberlake",
+	    "first_name": "Justin",
+	    "birth_date": "1981"	
+	},
+	{
+	    "_id": "artist:240",
+	    "last_name": "Coppola",
+	    "first_name": "Sofia",
+	    "birth_date": "1971"	
+	},
+	{
+	    "_id": "artist:242",
+	    "last_name": "Schwartzman",
+	    "first_name": "Jason",
+	    "birth_date": "1980"	
+	},
+	{
+	    "_id": "artist:243",
+	    "last_name": "Cronenberg",
+	    "first_name": "David",
+	    "birth_date": "1943"	
+	},
+	{
+	    "_id": "artist:244",
+	    "last_name": "Mortensen",
+	    "first_name": "Vigo",
+	    "birth_date": "1958"	
+	},
+	{
+	    "_id": "artist:245",
+	    "last_name": "Bello",
+	    "first_name": "Maria",
+	    "birth_date": "1967"	
+	},
+	{
+	    "_id": "artist:246",
+	    "last_name": "Hurt",
+	    "first_name": "William",
+	    "birth_date": "1950"	
+	},
+	{
+	    "_id": "artist:247",
+	    "last_name": "Dunst",
+	    "first_name": "Kirsten",
+	    "birth_date": "1982"	
+	},
+	{
+	    "_id": "artist:248",
+	    "last_name": "Dafoe",
+	    "first_name": "Willem",
+	    "birth_date": "105"	
+	}
+]
+}

@@ -1,0 +1,30 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{p}{\PYGZob{}}
+  \PYG{n+nt}{\PYGZdq{}\PYGZus{}id\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mi}{978}\PYG{p}{,}
+  \PYG{n+nt}{\PYGZdq{}sujet\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}Impôts\PYGZdq{}}\PYG{p}{,}
+  \PYG{n+nt}{\PYGZdq{}questions\PYGZdq{}}\PYG{p}{:} \PYG{p}{[}
+     \PYG{p}{\PYGZob{}}
+       \PYG{n+nt}{\PYGZdq{}question\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}Payez\PYGZhy{}vous trop d\PYGZsq{}impôts?\PYGZdq{}}\PYG{p}{,}
+       \PYG{n+nt}{\PYGZdq{}contributions\PYGZdq{}}\PYG{p}{:} \PYG{p}{[}
+          \PYG{p}{\PYGZob{}}\PYG{n+nt}{\PYGZdq{}citoyen\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}chocho@monsite.com\PYGZdq{}}\PYG{p}{,}
+            \PYG{n+nt}{\PYGZdq{}texteContrib\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}C\PYGZsq{}est insuportable\PYGZdq{}}
+          \PYG{p}{\PYGZcb{},}
+         \PYG{p}{\PYGZob{}}\PYG{n+nt}{\PYGZdq{}citoyen\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}alain@dugenou.com\PYGZdq{}}\PYG{p}{,}
+             \PYG{n+nt}{\PYGZdq{}texteContrib\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}Moi ca me va\PYGZdq{}}
+         \PYG{p}{\PYGZcb{}}
+        \PYG{p}{]}
+      \PYG{p}{\PYGZcb{},}
+      \PYG{p}{\PYGZob{}}
+       \PYG{n+nt}{\PYGZdq{}question\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}Faut\PYGZhy{}il arrêter le pétrole\PYGZdq{}}\PYG{p}{,}
+       \PYG{n+nt}{\PYGZdq{}contributions\PYGZdq{}}\PYG{p}{:} \PYG{p}{[}
+          \PYG{p}{\PYGZob{}}\PYG{n+nt}{\PYGZdq{}citoyen\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}chocho@monsite.com\PYGZdq{}}\PYG{p}{,}
+            \PYG{n+nt}{\PYGZdq{}texteContrib\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}Surtout pas\PYGZdq{}}
+          \PYG{p}{\PYGZcb{},}
+         \PYG{p}{\PYGZob{}}\PYG{n+nt}{\PYGZdq{}citoyen\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}d@alta.com\PYGZdq{}}\PYG{p}{,}
+             \PYG{n+nt}{\PYGZdq{}texteContrib\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}Bien sûr\PYGZdq{}}
+         \PYG{p}{\PYGZcb{}}
+        \PYG{p}{]}
+      \PYG{p}{\PYGZcb{}}
+    \PYG{p}{]}
+\PYG{p}{\PYGZcb{}}
+\end{Verbatim}

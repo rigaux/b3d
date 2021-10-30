@@ -1,0 +1,275 @@
+
+
+\section{Le poids des mots}
+
+\begin{frame}{Pondération des termes}
+
+Le classement s'appuie sur l'idée qu'il est possible 
+d'identifier \alert{l'importance des termes} dans un document. Deux
+idées essentielles:
+
+\vfill
+
+Plus un terme est \alert{fréquent dans un document}, plus il est représentatif du contenu du document.
+
+\begin{itemize}
+   \item Ex.: \emph{contrepoint} apparaît 10 fois dans le document $d$, $\Rightarrow$ $d$
+      est un document important pour une recherche sur ``contrepoint''.
+      \item \alert{Normalisation}\,: si $d$ est très long, il est normal de trouver plus d'occurrences
+         des termes\,; on peut décider de \emph{normaliser} cet indicateur pour éviter ce biais.
+\end{itemize}
+
+\vfill
+
+Plus un terme est \alert{rare dans la collection}, plus sa présence dans un document est importante.
+
+\begin{itemize}
+   \item Ex.: \emph{musicologie} apparaît 100 fois dans une grande collection, 4 fois dans le document $d$ $\Rightarrow$ $d$
+      est un document important pour une recherche sur ``musicologie''.
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}[fragile]{Premier indicateur\,: la \alert{fréquence du terme}}
+
+Soit un document $d$, $t$ un terme. 
+
+\vfill
+
+La \alert{fréquence} du terme $t$ dans $d$,  noté $n_{t,d}$, est simplement
+le nombre d'occurrences de $t$ dans $d$.
+
+\begin{noteblock}{Attention}
+On parle bien de \alert{termes}, résultats de la normalisation lexicale (racinisation,
+élimination des mots inutiles, etc.)
+\end{noteblock}
+
+\vfill
+
+Exemple\,: soit $d$ le document  suivant\,:
+
+\begin{smallverbatim}
+Spider Cochon Spider Cochon, il peut marcher au plafond, 
+Est ce qu'il peut faire une toile ? Bien sûr que non, 
+c'est un cochon. Prends garde ! Spider Cochon est là !
+\end{smallverbatim}
+
+\medskip
+
+Donc $tf(\rm{cochon}, d)=4$
+
+\end{frame}
+
+
+\begin{frame}{Deuxième indicateur\,: \alert{fréquence inverse des documents}}
+
+Soit $t$ un terme, une collection $D$. On mesure sa \alert{rareté} de $t$
+par l'inverse de sa fréquence dans $D$.
+
+\begin{itemize}
+
+\item Le nombre total de documents est $|D|$ 
+
+\item le nombre de documents avec $t$ est $|\{d'\in D, |, n_{t,d'}>0\}|$
+
+
+\end{itemize}
+
+\vfill
+
+La rareté de $t$ est donc mesurée par\,:
+
+$$\frac{|D|}{|\{d'\in D\,|\,n_{t,d'}>0\}|}$$
+
+\vfill
+
+\alert{Ajustement}. La valeur obtenu par la formule ci-dessus croît très vite avec la
+taille de la collection. On ajuste en prenant le logarithme et on obtient
+la \alert{fréquence inverse des documents} (\emph{inverse document frequency}, idf) 
+
+\[\mathop{\mathrm{idf}}(t)=\log\frac{|D|}{\left|\left\{d'\in
+D\,|\,n_{t,d'}>0\right\}\right|}.\]
+
+\end{frame}
+
+\begin{frame}{Pondération par TF-IDF}
+
+Le poids d'un terme dans un document est représenté par l'indicateur  \alert{Term Frequency---Inverse Document Frequency} (tf-idf)
+ \[
+\mathop{\mathsf{tf{}idf}}(t,d)={\color{magenta}n_{t,d}}\cdot
+\color{orange}\log\frac{|D|}{\left|\left\{d'\in D\,|\,n_{t,d'}>0\right\}\right|}\]
+\begin{center}\begin{tabular}{cl}
+$n_{t,d}$& nombre d'occurrences de $t$ dans $d$\\
+$D$& ensemble de tous les documents
+\end{tabular}
+\end{center}
+
+\begin{itemize}
+  \item le tf-idf décroît quand un terme est présent dans beaucoup de documents\,;
+  \item il décroît également quand il est peu présent dans un document\,;
+  \item il est maximal pour les termes peu fréquents apparaissant beaucoup dans un document particulier.
+\end{itemize}
+
+\begin{block}{Descripteurs}
+Le tf.idf remplace l'indicateur 0/1 dans la matrice d'incidence.
+\end{block}
+\end{frame}
+
+
+\begin{frame}[fragile]{Pondérons nos cochons}
+
+Voici des documents A, B et C.
+
+\begin{smallverbatim}
+Spider Cochon Spider Cochon, il peut marcher au plafond, 
+Est ce qu'il peut faire une toile ? Bien sûr que non, 
+c'est un cochon. Prends garde ! Spider Cochon est là !
+\end{smallverbatim}
+
+\begin{smallverbatim}
+Un petit cochon, pendu au plafond
+\end{smallverbatim}
+
+\begin{smallverbatim}
+Les Trois Petits Cochons est un conte traditionnel européen 
+mettant en scène trois jeunes cochons et un loup.
+\end{smallverbatim}
+
+\begin{exoblock}
+Calculer le tf et l'idf pour les termes "cochon", "loup" et "plafond" 
+et pour chaque document. En déduire la matrice d'incidence.
+\end{exoblock}
+
+% Idf(cochon)=1; idf(plafond) = 3/2, idf(loup)=3
+% Pour A: cochon 4 | plafond 1 * 3/2 | loup 0
+% Pour B: cochon 1 | plafond 1 *  3/2 | loup 0
+% Pour C: cochon 2 | plafond 0 | loup 1 * 4
+\end{frame}
+
+
+\section{Similarité basée sur le tf-idf}
+
+
+\begin{frame}{Calcul de la similarité}
+
+À ce stade, on peut \alert{décrire} un document par un \alert{vecteur} composé
+des \alert{poids} de tous ses termes. 
+
+\medskip
+
+\begin{center}
+Descr(C) = ['cochon': 2, 'plafond': 0, 'loup': 4]
+\end{center}
+
+\vfill
+
+Le poids est à 0 pour les termes qui n'apparaissent pas dans le document. On a un 
+espace vectoriel $E = \mathbb{N}^{|V|}$, $V$ étant le vocabulaire.
+
+\medskip
+\begin{center}
+['cochon': 0,  ..., 'jaguar': 4, ..., 'loup': 0, ..., 'python': 2, ...., 'mouton': 0]
+\end{center}
+
+\begin{itemize}
+  \item L'espace a \alert{beaucoup} de dimensions (des millions d'axes / termes). 
+   \item Chaque vecteur 
+est principalement constitué de 0.
+\end{itemize}
+
+\begin{noteblock}{Distance Euclidienne?}
+Potentiellement très coûteuse à calculer, et introduit un biais lié à la longueur
+des documents. 
+\end{noteblock}
+\end{frame}
+
+
+%%%%%%%%
+\begin{frame}{Classement par cosinus}
+
+Plus deux documents sont ``proches'' l'un de l'autre, plus l'angle de leurs vecteurs descripteurs est petit. 
+
+\vfill
+
+ 
+\figSlideWithSize{CosineSim}{7cm}
+
+
+
+\alert{Rappel}\,: le cosinus est une fonction décroisante sur l'intervalle $[0, 90]$.
+
+\end{frame}
+
+
+\begin{frame}{La similarité cosinus}
+
+La \alert{similarité cosinus} est un bon candidat pour mesurer la proximité des
+vecteurs dans $E\mathbb{N}^{|V|}$
+
+
+\vfill
+
+\begin{itemize}
+  \item Indifférent la la \alert{longueur} (norme) des vecteurs.
+  \item Maximal si même direction (angle = 0, cosinus = 1)
+  \item Minimal si directions "orthogonales" (pas de terme en commun)
+  \item Varie continuement entre 0 et 1.
+  
+\end{itemize}
+
+\begin{block}{En pratique}
+Calcul efficace car nécessite seulement les coordonnées non nulles.
+\end{block}
+\end{frame}
+
+
+\begin{frame}{Calcul du cosinus de deux vecteurs}
+
+Produit scalaire de deux vecteurs (niveau 3ème !)
+
+\[
+    v_1 . v_2  = ||v_1|| \times ||v_2|| \times cos \theta = \sum_{i=1}^n v_1[i] \times v_2[i]
+\]
+où $\theta$ désigne l'angle entre les deux vecteurs et $||v||$ la norme d'un vecteur.
+
+\vfill
+
+Donc:
+
+\[
+   cos { } \theta  = \frac{\sum_{i=1}^n v_1[i] \times v_2[i]}{||v_1|| \times ||v_2||}
+\]
+
+\begin{block}{Normalisation}
+La division par la norme revient à éliminer le biais lié à la longueur des documents.
+\end{block}
+\end{frame}
+
+
+\begin{frame}{Calcul du cosinus, en pratique}
+
+\alert{Première étape}\,: on calcule la \alert{norme} du vecteur 
+représentant chaque document, on la stocke.
+\medskip
+
+Norme du vecteur $\vec{d}$:
+
+      $$||\vec{d}|| = \sqrt{\Sigma_i d_i^2}$$
+      
+\vfill
+      
+\alert{Seconde étape}\,: $d$ le document, $q$ la requête; on prend
+les vecteurs $\vec{q}$ (calculé à la volée) et $\vec{d}$ (stocké dans un \alert{index}). 
+      
+\[
+      \frac{1}{||\vec{d}||} \times \frac{1}{||\vec{q}||}         \times \Sigma_i d_i q_i
+\]      
+      
+\begin{block}{Approximation}
+On peut ignorer la norme de la requête (qui est constante), et la racine carré
+pour la calcul des normes: c'est le classement qui nous intéresse.
+\end{block}
+           
+\end{frame}
+

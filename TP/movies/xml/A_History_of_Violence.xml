@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+  <movie>
+    <title>A History of Violence</title>
+    <year>2005</year>
+    <country>USA</country>
+    <genre>Crime</genre>
+    <summary>Tom Stall, a humble family man and owner of a 
+	popular neighborhood restaurant, lives a quiet but 
+	fulfilling existence in the Midwest. One night Tom 
+	foils a crime at his place of business and, to his 
+	chagrin, is plastered all over the news for his 
+	heroics. Following this, mysterious people follow 
+	the Stalls' every move, concerning Tom more than 
+	anyone else. As this situation is confronted, more 
+	lurks out over where all these occurrences have 
+	stemmed from compromising his marriage, family 
+	relationship and the main characters' former 
+	relations in the process.</summary>
+	<director  id='1' >
+	    <last_name>Cronenberg</last_name>
+	    <first_name>David</first_name>
+	    <birth_date>1943</birth_date>
+	</director>
+	<actor  id='2' >
+	    <first_name>Vigo</first_name>
+	    <last_name>Mortensen</last_name>
+	    <birth_date>1958</birth_date>
+	    <role>Tom Stall</role>
+	</actor>
+	<actor  id='3' >
+	    <first_name>Maria</first_name>
+	    <last_name>Bello</last_name>
+	    <birth_date>1967</birth_date>
+	    <role>Eddie Stall</role>
+	</actor>
+	<actor  id='4' >
+	    <first_name>Ed</first_name>
+	    <last_name>Harris</last_name>
+	    <birth_date>1950</birth_date>
+	    <role>Carl Fogarty</role>
+	</actor>
+	<actor  id='5' >
+	    <first_name>William</first_name>
+	    <last_name>Hurt</last_name>
+	    <birth_date>1950</birth_date>
+	    <role>Richie Cusack</role>
+	</actor>
+
+  </movie>
+

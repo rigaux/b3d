@@ -1,0 +1,132 @@
+Bonjour à toutes et tous,
+
+Bienvenus dans cette session FOD de l'UE NFE204. Pour cette UE dont je suis responsable, nous avons produit 
+avec mes collègues tout un ensemble de supports de cours qui sont tous accessibles à partir d'un unique
+site que je vous suggère de marquer dès maintenant:
+
+    http://b3d.bdpedia.fr
+
+Je vous invite en particulier à prendre connaissance du contenu, du plan et des objectifs du cours en lisant
+l'introduction:
+
+     http://b3d.bdpedia.fr/intro.html
+     
+Vous trouverez donc sur ce site un support rédigé complet, structuré en chapitres et sessions. Pour chaque session, vous
+trouverez au début un lien vers une vidéo d'une trentaine de minutes (moyenne) couvrant le sujet de la session. En fin
+de session  vous trouverez des exercices et quiz. Les solutions des exercices seront dévoilées au fur et à mesure
+de l'avancement.
+
+Le cours propose par ailleurs des exercices de mise en pratique avec des systèmes qui, TOUS, sont libres de droits et
+installables sous tous les systèmes (Windows, MacOS et Linux). Je travaille moi-même sous MacOS, et je m'avoue
+incapable de vous aider pour les problèmes d'installation sous Windows, mais vous devez pouvoir vous en tirer 
+en vous entraidant, ou en recourant au Web.
+
+Dans le cadre de la FOD, je vous propose un plan d'avancement que je vous rappelerai régulièrement, ponctué par des 
+séances de regroupement vidéo où je répondrai à vos questions. En ce qui concerne la charge de travail, il faut compter
+un chapitre par semaine en en moyenne, ce qui représente une charge de travail significative et surtout régulière: 
+ne vous laissez par déborder dès le début.
+
+Je vous invite également à utiliser le forum pour poser des questions, et à éviter d'essayer de dialoguer directement
+avec moi (ou entre vous) par mail: cela permet à tout le monde d'en bénéficier.
+
+Veuillez noter dès maintenant la date du premier regroupement vidéo:
+
+  - Séance 1:  8 mars 2105, à 19 heures.
+
+Voici la liste des jalons que je vous propose pour vous aider à planifier la progression du cours. 
+
+Jalons
+
+======
+
+1) Fin février 2015
+   Objectifs: disposer d'un jeu de données en XML et d'un autre en JSON. Cf. exercices
+
+2) 8 mars 2015
+   Installation de baseX et MongoDB
+   Chargement de la base des films dans les deux systèmes
+
+3) 16 mars 2015
+   XPath, à connaître
+   XQuery, à parcourir (optionnel)
+   MongoDB: à pratiquer
+  
+   Ecouter la vidéo sur MapReduce.
+  
+3) 30 mars 2015
+   Pratiquer MapReduce sur Mongo  et/ou CouchDB
+
+4) Fin avril 2015
+
+   Chapitres sur la recherche d'information et exercices associés
+     
+5) Fin mai 2015
+
+   Chapitres sur les systèmes distribués exercices associés        
+  
+Plan et avancement
+==================
+
+1.    Introduction
+       
+        Vidéo publiée: http://avc.cnam.fr/univ-r_av/avc/courseaccess?id=2059
+       
+2    Documents structurés
+  
+        S1: documents structurés: http://avc.cnam.fr/univ-r_av/avc/courseaccess?id=2057
+        S2: codage en XML: http://avc.cnam.fr/univ-r_av/avc/courseaccess?id=2065
+        S3: codage en JSON: http://avc.cnam.fr/univ-r_av/avc/courseaccess?id=2065
+
+3.    Bases documentaires et NoSQL
+        S1: Le Web !  http://avc.cnam.fr/univ-r_av/avc/courseaccess?id=2095
+        S2: BaseX, une base XML http://avc.cnam.fr/univ-r_av/avc/courseaccess?id=2125
+        S3: MongoDB, une base JSON http://avc.cnam.fr/univ-r_av/avc/courseaccess?id=2126
+
+4.    Interrogation de bases documentaires
+        S1: XPath http://avc.cnam.fr/univ-r_av/avc/courseaccess?id=2162
+        S2: XQuery http://avc.cnam.fr/univ-r_av/avc/courseaccess?id=2134
+        S3: Le langage d'interrogation de MongoDB http://avc.cnam.fr/univ-r_av/avc/courseaccess?id=2135
+       
+5.    MapReduce, premiers pas
+        S1: MapReduce avec les mains http://avc.cnam.fr/univ-r_av/avc/courseaccess?id=2150
+        S2: MapReduce et MongoDB http://avc.cnam.fr/univ-r_av/avc/courseaccess?id=2195
+        S3: MapReduce et CouchDB http://avc.cnam.fr/univ-r_av/avc/courseaccess?id=2196
+               
+6.    Introduction à la recherche d'information
+       S1: principes http://avc.cnam.fr/univ-r_av/avc/courseaccess?id=2226
+       S2: pratique (ElasticSearch) http://avc.cnam.fr/univ-r_av/avc/courseaccess?id=2230
+               
+7.    Solr, un moteur de recherche
+       S1: Installation http://avc.cnam.fr/univ-r_av/avc/courseaccess?id=2261
+       S2: Schéma  http://avc.cnam.fr/univ-r_av/avc/courseaccess?id=2262
+       S3: Analyse (ElasticSearch) http://avc.cnam.fr/univ-r_av/avc/courseaccess?id=2263
+     
+8.    Recherche avec classement
+       S1: Principes de la recherche avec classement http://avc.cnam.fr/univ-r_av/avc/courseaccess?id=2281
+       S2: Recherche plein texte  http://avc.cnam.fr/univ-r_av/avc/courseaccess?id=2280
+       S3: Classement avec Solr (pratique, pas de vidéo)
+      
+9.    Le Cloud, nouvelle machine de calcul
+       S1: Infrastructure de cloud http://avc.cnam.fr/univ-r_av/avc/courseaccess?id=2352
+       S2: Scalabilité http://avc.cnam.fr/univ-r_av/avc/courseaccess?id=2377
+       S3: Performances du Cloud  http://avc.cnam.fr/univ-r_av/avc/courseaccess?id=2376
+
+      
+10.    La réplication
+       S1: Réplication et reprise sur panne http://avc.cnam.fr/univ-r_av/avc/courseaccess?id=2392
+       S2: Réplication dans MongoDB http://avc.cnam.fr/univ-r_av/avc/courseaccess?id=2393
+       S3: ElasticSearch  http://avc.cnam.fr/univ-r_av/avc/courseaccess?id=2394
+   
+11.     Le partitionnement
+        S1: Les bases http://avc.cnam.fr/univ-r_av/avc/courseaccess?id=2395
+       S2: Partitionnement par intervalle http://avc.cnam.fr/univ-r_av/avc/courseaccess?id=2396
+       S3: Partitionnement par hachage  http://avc.cnam.fr/univ-r_av/avc/courseaccess?id=2397
+      
+12.     Calcul distribué
+        S1: MapReduce en distribué http://avc.cnam.fr/univ-r_av/avc/courseaccess?id=2418
+       S2: Pig Latin par intervalle http://avc.cnam.fr/univ-r_av/avc/courseaccess?id=2419
+       S3: Introduction à Spark http://avc.cnam.fr/univ-r_av/avc/courseaccess?id=2423
+
+ 
+
+Et les TP bien entendu.

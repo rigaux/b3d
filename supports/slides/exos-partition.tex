@@ -1,0 +1,130 @@
+\documentclass{article}
+
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{epsfig}
+\usepackage{graphics}
+\usepackage{latexsym}
+\usepackage{amssymb}
+\usepackage{comment}
+\usepackage{fancyvrb}
+\usepackage{moreverb}
+\usepackage{mathptmx}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{latexsym,color}
+\usepackage[french]{babel}
+\usepackage{pstricks,pst-node,pst-text,pst-3d,pst-tree,pst-grad}
+\usepackage{xcolor}
+
+
+\newcommand{\fig}[2]
+{
+ \begin{figure*}[hbt]
+  \begin{center}
+  \includegraphics[width=10cm]{#1}
+  \caption{\label{#1}  #2}
+  \end{center}
+ \end{figure*}
+}
+
+% small et verbatim: to be coherent with \file
+\newenvironment{smallverbatim}%
+{\endgraf\small\verbatimtab}{\endverbatimtab}
+
+
+\definecolor{mygray}{gray}{0.90}
+\definecolor{mygreen}{rgb}{0,0.5,0}
+\definecolor{maroon}{rgb}{0.5,0,0}
+\usepackage{listings}
+
+
+\title{Questions et exercices sur l'indexation par partitionnement}
+\author{Philippe Rigaux}
+
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\textbf{Indiquez votre nom}\,:
+
+
+\begin{enumerate}
+
+ \section{Distribution par partitionnement}
+
+  \item \textbf{Expliquez brièvement le rôle du routeur}
+  
+  \vspace*{4cm}
+  
+  \item \textbf{Quelles opérations ne sollicitent qu'un seul serveur\,?}
+  
+  \vspace*{4cm}
+  
+\section{Partitionnement par intervalle}
+  
+  
+ \item \textbf{Peut-on créer un index non-dense sur une collection non-triée\,?}
+ 
+   \vspace*{4cm}
+  
+  
+ \item \textbf{Pourquoi indexer les fragments, et pas les documents eux-mêmes\,?}
+ 
+   \vspace*{4cm}
+ 
+ \item \textbf{La clé de ma collection de vidéos est le titre. Est-il possible de faire
+      une recherche par année dans un système distribué\,?}
+ 
+   \vspace*{4cm}
+    
+ \item \textbf{Un même serveur peut-il gérer plusieurs fragments\,?}
+   
+   \vspace*{4cm}
+      
+ \item \textbf{Est-il nécessaire de trier un fragment\,?}
+   
+   \vspace*{4cm}
+   
+ \item \textbf{Décrivez brièvement l'opération de split.}
+   
+   \vspace*{4cm}
+    
+    \section{Hachage cohérent}
+    
+    \item Si on prend une fonction de hachage basée sur la fonction modulo $N$, où $N$ est le nombre 
+       de serveurs, que se passe-t-il si on ajoute des serveurs sans changer la fonction\,?
+       
+          \vspace*{4cm}
+       
+       \item Si on change la fonction en (modulo $N+1$), que se passe-t-il pour les données déjà insérées\,?
+       
+          \vspace*{4cm}
+       
+       \item Dans un structure Chord, exprimez la distance entre  \emph{friends}$[i]$ et
+  \emph{friends}$[i+1]$ sur l'anneau de hachage, et montrez qu'une opération de recherche coinverge
+      en temps logarithmique.
+      
+         \vspace*{4cm}
+
+\begin{figure*}[hbt]
+  \begin{center}
+   \includegraphics[width=8cm]{images/chord-friends}
+  \caption{\label{figex:chord}  Un anneau Chord}
+  \end{center}
+ \end{figure*}
+       
+      \item Soit l'anneau Chord de la figure~\ref{figex:chord}.Quels sont les amis
+         du pair 
+$p11$, situé à la position 3? 
+        \vspace*{4cm}
+
+\item Développez un exemple d'une recherche dans Chord avec $m=10$, dans le pire des cas.
+
+\end{enumerate}
+
+
+\end{document}

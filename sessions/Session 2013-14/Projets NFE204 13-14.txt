@@ -1,0 +1,215 @@
+Coupart (le 17 décembre)
+========================
+
+Hadoop/Hive + Tableaux
+
+Les jeux, excellents
+
+===============
+21 JANVIER 2014
+===============
+
+Ling, Nathalie, le 21 janvier  (11-12)
+=======================================
+ 
+  Elastic Search. 10 mns de présentation générale
+ 
+   Aspects distribués. 2 parmi les 4 suivants, 5 mns chacun
+       Percolation
+        Classement
+          Distribution des documents
+        Reprise sur panne
+        
+    Exposé un peu limité, suis trop ses transparents
+    Explication de la fonction percolateur: pas bon
+    Exemple d'une application où les requêtes percolateur sont utiles?
+    Pourquoi on ferait sans routage?
+    
+    Questions: que se passe-t-il si le Master se plante?
+        Pourquoi on a un type dans ES?
+    
+    Assez faible quand même: 11 pour l'encourager.
+    
+Guarisma, Boris, le 21 janvier
+===============================
+
+	Très pédagogique, excellent orateur, très clair.
+   Apache/Mahout
+   L'algorithme de k-means avec Mahout
+   
+   Vraiment excellent, note maximale: 18
+   
+    Cherche un job dans le BigData
+    
+Blondeau, Raphaël, le 21 janvier
+================================
+
+Le sujet de projet que j’ai choisi est le projet Voldemort. Je ferais une présentation de la genèse 
+en parlant de dynamo d’amazon, puis une présentation plus précise de Voldemort.
+Je ferai une demonstration sur la base des exemples traités avec mongoDB à titre d’illustration.
+     
+     Très bonne présentation également, dans un style un peu différent. 18 aussi?
+     
+Simon, Frédéric, le 21 janvier
+==============================
+
+On part d'une appli qui fait un inventaire des softs installés et on essaie
+de la transposer en NoSQL/MongoDB pour voir comment ça passe.
+
+  1. Présentation de l'appli et de ses requêtes
+  2. Structure et requêtes de la base NoSQL
+  3. Tests de performance
+  
+Assez intéressant, l'appli est très simple, bien adaptée à une transcription Mongo. Pas mal
+
+C'est bien présenté, il y a du boulot derrière, le gars est à l'aise. Disons 15 ?
+
+  ECM (Enterprise Content Management) = GED + gestion de processus / workflows
+  
+Scotto di Fasano, Rodolphe.
+===========================
+
+Sujet sur Alfresco. Cible pas très bien définie donc se lance dans des énumérations
+par forcément très intéressante. Semble ne pas trop savoir ce qu'il veut nous dire.
+
+Présente beaucoup de choses, tout est un peu superficiel.
+
+Bon, disons un peu baclé, ça vaut 12.
+
+
+===============
+28 JANVIER 2014
+===============
+        
+ISMAEL MONDIU
+=============
+
+Présentation de ORACLE RAC (Real Application Clusters)
+
+Que se passe t il pour les transactions (Master Master)?
+
+C'est son boulot, très compétent, bonne note: 16 ?
+
+Mocquet, Guillaume, le 28 janvier
+=================================
+
+   Chaine d'indexation basée sur Elastic Search + visualisation avec Kibana.
+   
+   Application de surveillance de l'activité d'un Data Center gérant des sites
+    Web. 
+        0. - Contexte, virtualisation
+        1. - Présentation de l'application
+        2. - Les données et leur injection dans ES
+        3. - Les requêtes et l'outil de visualisation
+
+Kibana est un système de centralisation de logs, basé sur ElasticSearch.
+
+Présentation un peu longue, mais bien faite. Fait l'effort de synthétiser
+à la fin. Je dirais 15 ou 16, le suivant est un peu mieux.
+
+
+Ly, Stéphane
+=============
+  
+Concernant le projet/présentation, est-ce qu'une présentation du "Google Search Appliance", 
+la solution de "moteur de recherche universel" de google pour l'entreprise peut convenir ?
+
+la présentation s'articulerait comme ceci:
+
+- Introduction : bref historique sur Google et moteur de recherche
+- principe généraux du Google Search Appliance 
+- les principales fonctionnalités
+- l'administration. Exemple de mise en oeuvre chez GMF Assurances.
+- positionnement commercial, coût d'acquisition
+- Conclusion 
+    
+Très pro, très à l'aise. Pfff ils sont bns ces gars là.
+
+Rien à redire. 16 ou 17
+
+
+Hodé, Patrice
+=============
+
+Application de WebServices avec une base MongoDB
+piloté par les outils Eclipse (plugins MonjaDB et Soap) et SoapUI.
+ 
+ Appli ultra-simple, orienté démonstration de l'architecture.
+ 
+Bon la présentation des Web Services est pas super claire. 
+
+Ensuite il présente une appli SOAP écrite avec Eclipse.
+Vocabulaire très confus, présentation aussi. 
+En fait le sujet est assez peu intéressant.
+
+Bon je pense que ça vaut 13, peut être 14 si je veux être gentil
+
+
+Riso-Levi, David, 21 janvier
+=============================
+   Présentation de Neo4J.
+       Langage création, navigation, interrogation
+        Démonstration d'utilisation
+        Par qui et pourquoi c'est utilisé.
+
+Le pauvre gars patauge un peu, aucun esprit de synthèse. Balance des informations
+en vrac sans qu'on sache où il veut en venir.
+
+C'est un peu bordélique, mais il comprend quand même de quoi il parle
+
+Très brut de décoffrage, mais bon, prometteur - > 12
+
+--------------------------------
+
+Doman, le 28 janvier
+=====================
+
+Présentation de ReThink. Idée directrice: comparaison avec MongoDB.
+
+
+Toukara, Lamine
+================
+
+Solutions Microsoft en matière de Big Data
+
+Les parties que je compte inclure sont les suivantes :
+
+* Architecture et concepts de la solution Microsoft Big Data.
+Gestion des données relationnelles, Fast Track
+Gestion des données non structurées
+
+* Intégration entre les outils Hadoop/Jive/Mahout et la partie Azure, notion d'élasticité
+
+* StreamInsight : Architecture, notion de flux, source d'évènements,
+récepteurs évènements, adaptateurs, gestion des requêtes (filtrage, agrégation).
+
+* Outils d'analyse de données : Microsoft SSAS, MDX et DMX (je suis prudent sur ce dernier
+point qui est complexe et je ne suis pas sur d'avoir le temps nécessaire).
+
+Merci de me confirmer que cette table convient et à quelle date je peux passer.
+
+ 
+Bouttement, Pascal
+===================
+
+Je vous propose de présenter le system de cache/mémoire distribuée 
+Oracle Cohérence.
+
+J'ai utilisé ce composant pour l'implémentation de clustering sur des 
+composants Webmethods.
+
+Vous trouverez un résumé ici:
+
+http://en.wikipedia.org/wiki/Oracle_Coherence
+
+Puis faire un comparatif entre ce type de techno et Hadoop/MapReduce
+ 
+--------------------------------------------------
+  
+  
+  
+  FAIRE UN SONDAGE POUR SAVOIR LES SUJETS A RAPPELER
+  
+
+  
+  

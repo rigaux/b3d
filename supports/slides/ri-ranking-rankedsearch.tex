@@ -1,0 +1,226 @@
+
+
+
+\section{Requêtes avec classement}
+
+\begin{frame}{Classement par pertinence}
+
+Les requêtes Booléennes classent les documents en deux catégories\,: ceux qui satisfont la requête, et les autres. C'est 1, ou c'est 0.
+
+\vfill
+
+Le \alert{classement par pertinence} (\textit{ranked search}) trie un résultat en fonction d'un ``poids'' (\textit{weight}) 
+mesurant le degré de pertinence d'un document pour une recherche.
+
+
+\vfill
+
+Plusieurs approches complémentaires pour évaluer la pertinence d'un document $d$ pour une recherche $q$\,:
+
+\begin{itemize}
+  \item par \alert{similarité} entre $d$ et $q$\,;
+  \item par \alert{l'importance} de $d$, évaluée par exemple par
+       sa position dans une collection structurée  (e.g., graphe, cf. PageRank)\,;
+  \item en prenant en compte  l'utilisateur (\alert{profil}, \alert{boucles de pertinence}, etc.). Cf. l'analyse des \alert{clics}\,!
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Recherche par similarité}
+
+
+La requête $q$ \alert{et} le document $d$ sont placés 
+     dans un même \alert{Espace métrique}, doté d'une fonction de distance $m_E$. 
+
+\vfill
+
+Une fonction $f$ produit un \alert{descripteur} (le plus souvent sous la forme d'un vecteur
+appelé \textit{features vector})
+à partir d'un document.
+     
+\vfill
+
+La \alert{similarité}, ou \alert{score}, est l'inverse de la distance.
+
+\[sim(q,d) = \frac{1}{m_E(f(q),f(d))}\]
+
+
+\begin{block}{Langage de requêtes ultra-simplifié}
+La requête est exprimée par un ensemble de mots-clés, et interprétée comme un "document" simplifié.
+\end{block}
+
+\end{frame}
+
+
+\begin{frame}{Quelques caractéristiques}
+
+Avec l'approche par similarité, le résultat (c.à.d. les documents qui ont un score non nul) 
+est potentiellement \alert{très grand}.
+
+\vfill
+
+Il est impératif de \alert{classer} le résultat par ordre de score croissant, et
+de présenter les $k$ prtemiers à l'utilisateur (typ., $k \simeq 10-20$).
+
+\vfill
+
+Souvenez-vous: rappel et précision 
+
+\begin{itemize}
+  \item La \alert{précision} est la fraction du résultat qui est vraiment pertinente.
+  
+  $$precision =\frac{|relevant| \cap |retrieved|}{|retrieved|}$$
+
+\item Le \alert{rappel} est la fraction des documents pertinents présente dans le résultat.
+$$recall =\frac{|relevant| \cap |retrieved|}{|relevant|}$$
+\end{itemize}
+\end{frame}
+
+
+
+
+\begin{frame}{Vocabulaire usuel}
+
+On place \alert{documents} et \alert{requête} dans un \alert{espace métrique}, souvent un \alert{espace vectoriel}.
+
+\vfill
+
+L'essentiel: une fonction de \alert{similarité}, définie à partir d'une distance, ou directement.
+
+\vfill
+
+Les éléments de cet espace sont appelés \alert{descripteurs} ou \alert{vecteurs de caractéristiques}
+(\textit{features vector}).
+
+\vfill
+
+Le \alert{score} $sim(q,d)$ mesure la pertinence d'un document $d$ par rapport à une requête (besoin) $q$.
+
+\vfill
+
+Le résultat est \alert{classé} sur le score; les $k$ premiers documents sont présentés.
+
+\end{frame}
+
+\section{Première approche, recherche plein texte}
+
+
+
+\begin{frame}{Soyons concrets: première approche pour la recherche plein texte}
+
+Supposons connu l'ensemble de tous les termes $V=\{t_1, t_2, \cdots, t_n\}$
+ de tous les termes utilisables pour la rédaction d'un
+document.
+
+\vfill
+
+Exemple: $V$ = \{"papa", "maman", "gateau", "chocolat", "haut", "bas"\}
+
+\vfill
+
+On définit $E=\{0, 1\}^{n}$ comme l'espace de tous les vecteurs
+constitués de $n$ coordonnées valant soit 0, soit 1. Ce sont nos descripteurs.
+
+\vfill
+
+Exemple: vecteurs  constitués de 6 coordonnées valant soit 0, soit 1. 
+
+\vfill
+
+Fonction $f$ associant  un document $d$ à son descripteur $v = f(d)$.
+
+\[
+      v[i] = \left\{
+                \begin{array}{ll}
+                  1 \text{ si $d$ contient le terme $t_i$}\\
+                  0 \text{ sinon}
+                \end{array}
+              \right.
+\]
+
+\begin{block}{Jusque là, rien de nouveau}
+C'est la représentation déjà vue pour les matrices d'incidences.
+\end{block}
+\end{frame}
+
+\begin{frame}{Exemple(s)}
+
+Rappel: on a $V$ = \{"papa", "maman", "gateau", "chocolat", "haut", "bas"\}
+
+\vfill
+
+
+Soit le document $d_{maman}$=\texttt{maman est en haut, qui fait du gateau}
+
+\vfill
+
+alors $f(d_{maman}) = [0, 1, 1, 0, 1, 0]$
+
+\begin{exoblock}
+À vous de jouer: $d_{papa}$= \texttt{papa est en bas, qui fait du chocolat}
+\end{exoblock}
+ 
+\vfill
+
+Deux remarques:
+
+\begin{itemize}
+  \item On ignore certains mots (les "mots inutiles" ou \alert{stop words})
+  \item L'ordre des mots dans le document est \alert{ignoré} (approche "\textit{bag of words}")
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{La distance}
+
+Dans un espace vectoriel, on peut penser à prendre la \alert{distance Euclidienne}. Si
+$v_1$ et  $v_2$  sont deux vecteurs:
+
+   $$E(v_1, v_2) = \sqrt{(v_1^1 - v^1_2)^2 + (v^2_1 - v^2_2)^2 + \cdots + (v_1^n - v^n_2)^2}$$
+
+\vfill
+
+Et la similarité est l'inverse de la distance
+
+\[
+      sim(v_1, v_2) = \left\{
+                \begin{array}{ll}
+                  \infty \text{ si $v^i_1=v^i_2$ pour tout $i$ }\\
+                  \frac{1}{E(v_1, v_2)}  \text{ sinon}
+                \end{array}
+              \right.
+\]
+
+\vfill
+
+Exemple, pour $q$ = "\texttt{maman haut chocolat}", $v_q = [0, 1, 0, 1, 1, 0]$
+
+  $$sim (v_q, d_{maman}) = \frac{1}{\sqrt{2}}$$
+  
+\begin{exoblock}
+À vous de calculer  $sim (v_q, d_{papa})$
+\end{exoblock}
+\end{frame}
+
+\begin{frame}{Quelques points à retenir}
+
+\begin{block}{Important}
+Une différence concrète très sensible (illustrée ci-dessus) avec 
+les requêtes Booléennes est qu’il n’est pas nécessaire qu’un document contienne tous les termes de la requête pour que son score soit différent de 0.
+\end{block}
+
+\begin{itemize}
+   \item   "chocolat", un des mots-clés de $q$, 
+   n’apparaît pas dans le document $d_{maman}$, malgré tout classé en tête;
+\end{itemize}
+
+\vfill
+
+Approche présenté ici: simple mais \alert{nombreux inconvénients} (exercices).  
+
+\vfill
+
+Ignore l'impact de :  la taille des documents,
+la taille du vocabulaire, le nombre d'occurrences d'un terme dans un document
+et la rareté de ce terme dans la collection.
+
+\end{frame}

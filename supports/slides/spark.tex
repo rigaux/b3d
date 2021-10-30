@@ -1,0 +1,153 @@
+
+\begin{frame}{Qu'est-ce que Spark?}
+
+Un \alert{moteur d'exécution} basé sur des opérateurs de haut niveau, comme Pig.
+
+\vfill
+
+Comprend des opérateurs Map/Reduce, et d'autres opérateurs de second ordre.
+
+\vfill
+
+\alert{Introduit un concept de collection résidente en mémoire} (RDD) 
+qui améliore considérablement certains traitements, dont ceux basés sur des itérations.
+
+\vfill
+\begin{blocgauche}
+De nombreuses librairies pour la fouille de données (MLib), le traitement des graphes,
+le traitement de flux (\textit{streaming}).
+\end{blocgauche}
+\end{frame}
+
+\section{Les RDD}
+
+\begin{frame}{Les \textit{Resilient Distributed Datasets} (RDD)}
+
+C'est le concept central : \alert{Un RDD est une collection (pour en rester à notre vocabulaire) calculée
+à partir d'une source de données} (MongoDB, un flux, un autre RDD) .
+
+\vfill
+
+Un RDD peut être marqué comme \alert{persistant}: il est alors placé en mémoire RAM et conservé par Spark.
+\vfill
+
+Spark conserve
+\alert{l'historique des opérations} qui a permis de constituer un RDD, et la reprise sur panne s'appuie
+sur  cet historique afin de reconstituer  le RDD en cas de panne.
+
+\vfill
+\begin{blocgauche}
+Un RDD est un "bloc" \alert{non modifiable}. Si nécessaire il est \alert{entièrement recaculé}.
+\end{blocgauche}
+\end{frame}
+
+
+\begin{frame}{Un \textit{workflow} avec RDD dans Spark}
+
+Des \alert{transformations} (opérateurs comme dans Pig) créent des RDD à partir d'une ou deux sources
+de données.
+
+\vfill
+
+\figSlideWithSize{spark-rdd}{10cm}
+
+\vfill
+\begin{blocgauche}
+Les RDD persistants sont en préservés en mémoire RAM, et peuvent être réutilisés par plusieurs 
+traitements.
+\end{blocgauche}
+\end{frame}
+
+\begin{frame}{Exemple: analyse de fichiers log}
+ 
+On veut analyser le fichier journal (\textit{log}) d'une application dont un des modules (M) est suspect.
+
+\vfill
+
+On construit  un programme qui charge le  \textit{log}, ne conserve
+que les messsages produits par le module \textit{M} et les analyse.
+
+\vfill
+
+On peut analyser par produit, par utilisateur, par période, etc.
+
+
+\vfill
+
+\figSlideWithSize{spark-log}{9cm}
+
+\end{frame}
+
+
+\begin{frame}[fragile]{Spécification avec Spark}
+
+Première phase pour construire \texttt{logM}
+
+\begin{minted}{scala}
+    // Chargement de la collection
+    log = load ("app.log") as (...)
+    // Filtrage des messages du module M
+    logM = filter log with log.message.contains ("M")    
+    // On rend logM persistant !
+    logM.persist();
+\end{minted}
+
+\vfill
+
+Analyse à partir de \texttt{logM}
+
+\begin{minted}{scala}
+   // Filtrage par produit
+    logProduit = filter logM 
+       with log.message.contains ("product P")   
+    // .. analyse du contenu de logProduit     
+\end{minted}
+
+\end{frame}
+
+\section{Reprise sur panne}
+
+\begin{frame}{Reprise sur panne dans Spark}
+
+Un RDD est une collection \alert{partitionnée}.
+
+\vfill
+
+\figSlideWithSize{spark-failover}{8cm}
+
+\vfill
+
+\begin{blocgauche}
+Panne au niveau d'un nœud implique un recalcul basé sur le  fragment $F$  persistant qui précède 
+ce nœud dans le workflow.
+\end{blocgauche}
+\end{frame}
+
+\section{Une session introductive}
+
+\begin{frame}[fragile]{\textit{Dataframes} et \textit{Datasets}}
+
+Un RDD, du point de vue du programmeur, c'est un conteneur d'objets java.
+
+\vfill
+
+Le type précis de ces objets n'est pas connu par Spark. Du coup:
+
+\begin{itemize}
+  \item Tout ce que Spark peut faire, c'est appliquer la sérialisation/désérialisation java 
+  \item Aucun accès aux objets grâce à un langage déclaratif n'est possible.
+  \item Et donc pas d'optimisation, et la nécessité de tout écrire sous forme de fonctions java. 
+\end{itemize}
+
+\vfill
+
+Depuis la version 1.6: on dispose de RDD améliorés: les \textit{Datasets}. On peut les traiter
+comme des tables relationnelles. 
+
+
+
+\vfill
+\begin{blocgauche}
+Finalement, le schéma c'est utile, et le relationnel, c'est bien!
+\end{blocgauche}
+\end{frame}

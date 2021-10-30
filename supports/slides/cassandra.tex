@@ -1,0 +1,569 @@
+
+\section{Introduction}
+
+\begin{frame}{Qu'est-ce que Cassandra\,?}
+	
+	Cassandra\footnote{\url{https://github.com/apache/cassandra/tree/trunk/lib}\\}, conçu à l'origine par \textit{Facebook}, maintenant un projet de la fondation \textit{Apache} (2008),
+	distribué par la société \textit{Datastax}.
+	
+	\begin{itemize}
+		\item Initialement basé sur le système \textit{BigTable} de Google (stockage orienté colonnes) ;
+		\item Maintenant basé sur le système \textit{DynamoDB} (hachage)\\$\Rightarrow$ stockage \textbf{orienté "clé/valeur"} ;
+		\item \`A fortement évolué vers un \textit{modèle relationnel étendu}\\ (N1NF =\textit{Non First Normal Form}) ;
+		\item Un des rares systèmes NoSQL à proposer un typage fort ;
+		\item Un langage de définition de schéma et de requêtes, CQL (pas de jointure).
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Scalable et distribué}	
+	
+	Construit dès l'origine comme un système \alert{scalable} et \alert{distribué}.
+	
+	\begin{itemize}
+		\item Propose des méthodes de passage à l'échelle inspirées du système Dynamo (Amazon) ;
+		\item Distribution par hachage (\textit{consistent hashing})\,;
+		\item Tolérance aux pannes par réplication en mode multi-nœuds.
+	\end{itemize}   
+	
+	Très utilisé, réputé très performant.
+	
+\end{frame}
+
+\begin{frame}[fragile]{Table de hachage distribuée}
+\begin{center}
+\includegraphics[height=.6\textheight]{img/anneau.pdf}
+\end{center}
+$2^{64}$ noeuds, parcours par sauts (jusqu'à la moitié de l'anneau), réplication, tolérance aux pannes...
+\end{frame}
+
+\section[Modèle \& Requêtes]{Modèle de données \& Interrogation}
+
+\subsection[Concepts]{Concepts clés}
+\begin{frame}
+	\frametitle{Modèle = relationnel + types complexes}
+	
+	\begin{itemize}
+		\item \textit{Bases de données} : \alert{Keyspace}
+		\item \textit{Tables} : \alert{Table} ou \alert{Column Family}
+		\item \textit{Lignes} : \alert{Row} (valeurs simples ou complexes)
+	\end{itemize}
+		
+	\vfill
+	
+	\alert{Perspective A}: c'est du relationnel étendu en rompant la première règle de normalisation (type atomique).
+	
+	\vfill
+	
+	\alert{Perspective B}: chaque ligne est un document structuré (imbrication)
+	
+	\vfill
+	
+	\begin{block}{\danger Attention \danger}
+		Vocabulaire confus et parfois déroutant: \\\textit{Keyspace}, \textit{columns}, \textit{column families}...
+	\end{block}
+	
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Paires et documents}
+	
+	La structure de base est la paire (clé, valeur)
+	
+	\begin{itemize}
+		\item \textbf{Clé}\,: un identifiant
+		\item \textbf{Valeur} atomique (entier, chaîne de caractères), ou\\
+		Valeur complexe (dictionnaire, ensemble, liste)
+	\end{itemize}
+	
+	\vfill
+	
+	Une ligne (\textit{row}, document) est un identifiant (\textit{row key}) associé à un ensemble de paires (clé, valeur).
+	
+	\vfill
+	
+	Les lignes sont \alert{typées} par un schéma, y compris les données imbriquées.
+	
+	\vfill
+	
+	Cassandra n'autorise pas l'insertion de données ne respectant pas le schéma.
+\end{frame}
+
+\subsection[KeySpace]{Création d'une base de données : KeySpace}
+
+\begin{frame}[fragile]
+	\frametitle{Application !}
+	
+	Création d'un \textbf{keyspace} :
+\footnotesize
+\begin{minted}{sql}
+CREATE KEYSPACE IF NOT EXISTS Compagnie 
+    WITH REPLICATION={'class':'SimpleStrategy','replication_factor':3};
+\end{minted}
+\normalsize
+
+	\vfill
+	
+Création d'une \textbf{Column Family} / table (sans imbrication) :
+\footnotesize
+\begin{minted}{sql}
+CREATE TABLE Vols (
+    idVol INT, dateDepart DATE, distance INT,  duree FLOAT,
+    depart CHAR(3), arrivee CHAR(3), pilote INT, 
+    copilote INT, officier INT, ChefCabine1 INT, ChefCabine2 INT,
+    primary key (idVol) 
+);
+
+CREATE INDEX vol_pilote ON Vols (pilote);
+\end{minted}
+\normalsize
+\vfill
+\end{frame}
+
+
+\begin{frame}[fragile]
+	\frametitle{Insertions}
+	
+	A la SQL
+
+\footnotesize
+\begin{minted}{sql}
+INSERT INTO Vols (idVol, dateDepart, distance,  duree, depart,
+        arrivee, pilote, copilote, officier, ChefCabine1, ChefCabine2)
+    VALUES (1, '2016-10-15', 344, 1.3, 'CDG', 'LCY', 1, 2, 3, 4, 5);
+\end{minted}
+\normalsize
+	
+	\vfill
+	
+	Avec JSon
+\footnotesize
+
+\begin{minted}{sql}
+INSERT INTO Vols JSON '{
+    "idVol" : 1, "dateDepart" : "2016-10-15", "distance":344, 
+    "duree" : 1.3, "depart" : "CDG", "arrivee" : "LCY", 
+    "pilote" : 1, "copilote" : 2, "officier" : 3,
+    "ChefCabine1" : 4, "ChefCabine2" : 5}';
+\end{minted}
+\end{frame}
+
+
+\begin{frame}[fragile]
+	\frametitle{Interrogation}
+	Le langage \textbf{CQL} : \textit{Cassandra Query Language}\\
+	Très proche du SQL (version simplifiée pour le NoSQL)
+	
+	\vfill
+	\footnotesize
+	\begin{minted}{sql}
+	SELECT * FROM Vols WHERE idVol = 1;
+	\end{minted}
+	\normalsize
+	
+	\vfill
+	Résultat :
+	\scriptsize
+	\begin{verbatim}
+idVol | dateDepart  | distance |  duree | depart | arrivee | pilote | copilote | officier | ChefCabine1 | ChefCabine2
+---------------------------------------------------------------------------------
+    1 |   2016-10-15|      344 |    1.3 |    CDG |     LCY |      1 |        2 |           3 |           4 |           5 |            6
+	\end{verbatim}
+	
+\end{frame}
+
+\begin{frame}[fragile]{Données temporelles}
+Toute valeur est associée à un \alert{TIMESTAMP}.
+
+Estampillage automatique (ms) lors de la mise à jour. Possible de spécifier avec la requête :\\
+\footnotesize
+\begin{minted}{sql}
+UPDATE Vols USING TIMESTAMP 2345
+    SET pilote=18 WHERE idVol = 1;
+\end{minted}
+
+\begin{center}
+\includegraphics[width=8cm]{img/versionsTTL.pdf}
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]{Données temporelles}
+Récupérer la date de modification :
+\footnotesize
+\begin{minted}{sql}
+SELECT writetime(depart), writetime(pilote), writetime(copilote)
+FROM Vols WHERE idVol=1;
+\end{minted}
+\begin{verbatim}
+writetime(depart) | writetime(pilote) | writetime(copilote)
+-----------------------------------------------------------
+             1234 |              2345 |               3456
+\end{verbatim}
+\normalsize
+On peut supprimer une valeur définie un instant T :
+\footnotesize
+\begin{minted}{sql}
+DELETE pilote USING TIMESTAMP 1234 FROM Vols WHERE idVol=1;
+\end{minted}
+\normalsize
+
+Cette valeur n'est pas interrogeable (clause WHERE).
+\end{frame}
+
+\begin{frame}[fragile]{Données temporaires}
+	Possible de gérer des données volatiles: \alert{TTL}
+
+	Utilisation identique à TIMESTAMP, donne le nombre de secondes où la valeur est visible.
+
+\footnotesize
+\begin{minted}{sql}
+UPDATE Vols USING TTL 3600
+    SET pilote=18 WHERE idVol = 1;
+\end{minted}
+\end{frame}
+	
+\subsection[Nesting]{Imbrication}
+
+\begin{frame}[fragile]{NoSQL : pas de jointure}
+Du fait de données distribuées, une jointure n'est pas envisageable.
+
+Il est donc préférable de \alert{regrouper} les données le plus possible dans des lignes.
+	
+	\begin{itemize}
+		\item Conception orientée sur les requêtes les plus fréquentes de l'application
+		\item Souvent favoriser la dimension la plus grande (meilleure distribution)
+		\item \danger Le nouveau schéma génère de la redondance et des possibilités d'incohérence
+	\end{itemize}
+	
+	\vfill
+	
+	Au pire, on représente les mêmes données sous plusieurs formes (vues matérialisées).
+	
+	\begin{itemize}
+		\item Tous les vols, avec leurs hôtesses (solution envisageable)
+		\item A chaque hôtesse, la liste de ses vols
+	\end{itemize}
+	
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Différentes solutions}
+Pour \textbf{un} attribut peut être associé :
+\begin{enumerate}
+	\item \textbf{SET} : ensemble valeurs (non ordonnées)
+	\item \textbf{LIST} : liste de valeurs (ordonnées)
+	\item \textbf{MAP} : hashMap clé/valeur
+	\item \textbf{SubType} : ligne imbriquée
+\end{enumerate}
+\footnotesize
+\begin{minted}{sql}
+CREATE TABLE Vols (
+    idVol INT, dateDepart DATE, distance INT,  duree FLOAT,
+    depart CHAR(3), arrivee CHAR(3), pilote INT, 
+    copilote INT, officier INT, ChefCabine1 INT, ChefCabine2 INT,
+    hotesses XXX,
+    primary key (idVol) 
+);
+\end{minted}
+\normalsize
+\end{frame}
+	
+\begin{frame}[fragile]
+\frametitle{SET : hotesses set$<$int$>$}
+\begin{itemize}
+	\item \textit{Insertion} :\color{fondCnamGris3}
+
+	\footnotesize
+	INSERT INTO Vols (..., hotesses) VALUES (..., \{6, 7, 8\});
+	\normalsize\color{black}
+
+	\item \textit{Mise à jour} :\color{fondCnamGris3}
+	
+	\footnotesize
+	UPDATE Vols SET hotesses = hotesses + \{9\} WHERE idVol = 1;\\
+	UPDATE Vols SET hotesses = hotesses - \{8\} WHERE idVol = 1;\\
+	UPDATE Vols SET hotesses = \{10\} WHERE idVol = 1;\\
+	DELETE hotesses FROM Vols WHERE idvol = 1; 
+	\normalsize\color{black}
+
+	\item \textit{Liste des hotesses} :\color{fondCnamGris3}
+
+	\footnotesize
+	SELECT idVol, hotesses FROM Vols WHERE idVol = 1; 
+	\normalsize\color{fondCnamGris2}
+	\scriptsize
+\begin{verbatim}
+idVol |  hotesses
+------------------
+    1 | {6, 7, 8}
+\end{verbatim}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[fragile]
+	\frametitle{LIST : hotesses list$<$int$>$}
+	\begin{itemize}
+		\item \textit{Insertion} :\color{fondCnamGris3}
+		
+		\footnotesize
+		INSERT INTO Vols (..., hotesses) VALUES (..., [6, 7, 8]);
+		\normalsize\color{black}
+		
+		\item \textit{Mise à jour} :\color{fondCnamGris3}
+		
+		\footnotesize
+		UPDATE Vols SET hotesses = hotesses + [9] WHERE idVol = 1;\\
+		UPDATE Vols SET hotesses[1] = 8 WHERE idVol = 1;\\
+		UPDATE Vols SET hotesses = [10] WHERE idVol = 1;\\
+		DELETE hotesses[0] FROM Vols WHERE idvol = 1; 
+		\normalsize\color{black}
+		
+		\item \textit{Liste des hotesses} :\color{fondCnamGris3}
+		
+		\footnotesize
+	SELECT idVol, hotesses FROM Vols WHERE idVol = 1; 
+	\normalsize\color{fondCnamGris2}
+	\scriptsize
+\begin{verbatim}
+idVol | hotesses
+-------------------
+    1 | [6, 7, 8]
+\end{verbatim}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+	\frametitle{MAP : hotesses map$<$text, int$>$}
+	\begin{itemize}
+		\item \textit{Insertion} :\color{fondCnamGris3}
+		
+		\footnotesize
+		INSERT INTO Vols (..., hotesses) VALUES (..., \{"h1" : 6, "h2" : 7,\\
+		\hspace*{3cm}"h3" : 8\}]);
+		\normalsize\color{black}
+		
+		\item \textit{Mise à jour} :\color{fondCnamGris3}
+		
+		\footnotesize
+		UPDATE Vols SET hotesses = hotesses + \{"h4" : 9\} WHERE idVol = 1;\\
+		UPDATE Vols SET hotesses["h1"] = 10 WHERE idVol = 1;\\
+		UPDATE Vols SET hotesses = \{"h1" : 9\} WHERE idVol = 1;\\
+		DELETE hotesses["h2"] FROM Vols WHERE idvol = 1; 
+		\normalsize\color{black}
+		
+		\item \textit{Liste des hotesses} :\color{fondCnamGris3}
+		
+		\footnotesize
+		SELECT idVol, hotesses FROM Vols WHERE idVol = 1; 
+		\normalsize\color{fondCnamGris2}
+		\scriptsize
+		\begin{verbatim}
+idVol |                      hotesses
+--------------------------------------
+    1 | {"h1" : 6, "h2" : 7, "h3" : 8}
+		\end{verbatim}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+	\frametitle{SubType : hotesse frozen$<$hotesseType$>$}
+	\begin{itemize}
+		\item Création du \textit{type} à imbriquer :\color{fondCnamGris3}
+		
+		\footnotesize
+		CREATE TYPE hotesseType (ID int, nom text, prenom text);
+		\normalsize\color{black}
+		
+		Il faut "\textit{figer}" le type : (frozen$<$hotesseType$>$).
+
+		\item \textit{Insertion} :\color{fondCnamGris3}		
+		
+		\footnotesize
+		INSERT INTO Vols (..., hotesses) VALUES (..., \{"ID" : 6,\\
+		\hspace*{3cm}"nom" : "Walthéry", "prenom" : "Natacha"\});
+		\normalsize\color{black}
+		
+		\item \textit{Mise à jour} :\color{fondCnamGris3}
+		
+		\footnotesize
+		UPDATE Vols SET hotesse["nom"] = "Walter" WHERE idVol = 1;\\
+		DELETE hotesse FROM Vols WHERE idvol = 1; 
+		\normalsize\color{black}
+		
+		\item \textit{Liste des hotesses} :\color{fondCnamGris3}
+		
+		\footnotesize
+		SELECT idVol, hotesse.nom, hotesse.prenom FROM Vols WHERE idVol=1; 
+		\normalsize\color{fondCnamGris2}
+		\scriptsize
+		\begin{verbatim}
+idVol | hotesse.nom | hotesse.prenom
+--------------------------------------
+    1 |    Walthéry |        Natacha
+		\end{verbatim}
+	\end{itemize}
+\end{frame}
+
+
+\subsection[Queries]{Requêtes simples}
+
+\begin{frame}[fragile]{CQL 3.3}
+\begin{itemize}
+	\item SELECT ...\\
+	\uncover<2-|handout:1>{\hspace*{.5cm}Attributs / sur clés et indexes : DISTINCT, COUNT(*)\\}
+	\item FROM \\
+	\uncover<3-|handout:1>{\hspace*{.5cm}Une seule table possible}
+	\item ( WHERE ... )?\\
+	\uncover<4-|handout:1>{\hspace*{.5cm}Voir transparent suivant}
+	\item ( ORDER BY ... )?\\
+	\uncover<5-|handout:1>{\hspace*{.5cm}Clé primaire (ASC/DESC), ou si prédicat sur clé primaire}
+	\item ( LIMIT ... )?\\
+	\uncover<6-|handout:1>{\hspace*{.5cm}Clé primaire (ASC/DESC), ou si prédicat sur clé primaire}
+	\item ( ALLOW FILTERING )?\\
+	\uncover<7-|handout:1>{\hspace*{.5cm}Prédicats sans indexes secondaires}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Clause $WHERE$}
+\begin{itemize}
+	\item \textbf{Clé primaire = valeur} : Le plus efficace
+	\item \textbf{token(Clé primaire) $>$ valeur} : Liste de tokens par noeud
+	\item \textbf{attribut = valeur} + \textbf{INDEX} : Moins efficace
+	\item \textbf{attribut = valeur} + \textbf{ALLOW FILTERING} : Pas efficace\\test sur tous les noeuds
+	\item \textbf{Données imbriquées} :
+	\begin{itemize}
+		\item \textsc{SET} : \textit{CONTAINS}
+		\item \textsc{LIST} : \textit{CONTAINS}
+		\item \textsc{MAP} : \textit{CONTAINS KEY}\\ou clé directement : hotesse.prenom = 'Natacha'\\
+		Les clés peuvent être indexées
+		\item \textsc{SubType} : att = valeur (tuple imbriquée = BLOB)
+		\item[\Rightarrow] Le \textit{MAP} est à privilégier
+	\end{itemize}
+\end{itemize}
+\end{frame}
+
+\section{Installation}
+
+\subsection{Serveur Cassandra + Client}
+\begin{frame}
+	\frametitle{Installation du serveur Cassandra}
+	
+	\begin{itemize}
+		\item \alert{Docker} : chercher l'image officielle (la première), télécharger, lancer
+		et c'est tout !
+		\item \alert{Windows} : DataStax server\footnote{Guide\;complet\;windows\;: \url{http://www.datastax.com/2012/01/getting-started-with-apache-cassandra-on-windows-the-easy-way}}.
+		\danger Fichier de 1Go !
+		\item \alert{Linux}: Package à installer\footnote{\url{https://cassandra.apache.org/download/}}
+		\item \alert{MacOS} : DataStax server\footnote{Guide\;complet\;Mac\;: \url{http://www.datastax.com/2012/01/getting-started-with-apache-cassandra-on-windows-the-easy-way}}
+		ou avec Python (pip)\footnote{pip\;install\;: \url{https://dbglory.wordpress.com/2015/02/22/installing-cassandra-on-mac-os-x/}\\}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Client}
+\textbf{Interface client}
+\begin{itemize}
+	\item \alert{CQLSH} : ligne de commande (disponible sous Docker, ou executable pour les autres)
+	\item \alert{DevCenter} : Application de DataStax\footnote{\url{https://academy.datastax.com/downloads/ops-center?destination=downloads/ops-center&dxt=DevCenter#devCenter}\\} (\textit{eclipse like}). Compte nécessaire.
+	\item Autres interfaces mais licences limitées.
+\end{itemize}
+\vfill
+
+\textbf{Connexion client}
+\begin{itemize}
+	\item \alert{port 9042} par défaut
+	\item Attention à la redirection sous Docker
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Application}
+\textbf{Drivers}
+\begin{itemize}
+	\item PlanetCassandra.org\footnote{Drivers: \url{http://www.planetcassandra.org/apache-cassandra-client-drivers/}\\~} : 	Java, Python, Ruby, C\#, Node.js, PHP, C++, Spark, ...
+	\item Connexion avec host+port
+	\item Exec, Statement, PreparedStatement
+	\item ResultSet
+\end{itemize}
+\end{frame}
+
+\section[Scalable]{Scalabilité \& Tolérance aux pannes}
+\subsection{Distribution \& Réplication}
+\begin{frame}[fragile]{Distribution \& Réplication}
+\textbf{Consistent Hashing}
+\begin{itemize}
+	\item Anneau avec table de hachage distribuée (sauts)\\
+	Hachage continu pour les plages de valeurs (token)
+	\item Réplication des données dans l'anneau : \textit{Replication Factor} (3 par défaut)\\
+	Réplicats répondent aux requêtes
+\end{itemize}
+\textbf{Cohérence}
+\begin{itemize}
+	\item Nombre de réplicats à contacter : \textsc{QUORUM}
+	\item \texttt{Anti Entropy Service} (AES) \Rightarrow ~garanti le taux de réplication
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Consistent Hashing}
+\begin{columns}
+	\column[c]{.5\textwidth}
+	\begin{itemize}
+		\item \alert<1|handout:0>{Distribution de données}
+		\item \alert<2-3|handout:1>{Rapidité} \color{gray}\footnotesize (max $log_2(N)$ sauts) \normalsize \color{black}
+		\item \alert<4|handout:2>{Réplication}
+		\item \alert<5|handout:3>{Tolérance aux pannes}
+		\item \alert<6-7|handout:4-5>{Elasticité}
+		\item \alert<8|handout:0>{Non centralisée}
+	\end{itemize}
+	\column[c]{.5\textwidth}
+\begin{center}
+	\includegraphics<1,8|handout:0>[height=.6\textheight]{img/anneau.pdf}
+	\includegraphics<2|handout:1>[height=.6\textheight]{img/anneau1.pdf}
+	\includegraphics<3|handout:0>[height=.6\textheight]{img/anneau2.pdf}
+	\includegraphics<4|handout:2>[height=.6\textheight]{img/anneauReplicas.pdf}
+	\includegraphics<5|handout:3>[height=.6\textheight]{img/anneauPanne.pdf}
+	\includegraphics<6|handout:4>[height=.6\textheight]{img/anneauElasticite1.pdf}
+	\includegraphics<7|handout:5>[height=.6\textheight]{img/anneauElasticite2.pdf}
+	\end{center}
+\end{columns}
+
+\end{frame}
+
+\subsection{Cohérence}
+\begin{frame}[fragile]{Cohérence : Gestion du Quorum}
+\textbf{R + W $>$ N}
+	\begin{itemize}
+		\item \textbf{N} : Taux de réplication
+		\item \textbf{W} : Nb minimum d'écritures devant accuser de réception
+		\item \textbf{R} : Nb copies d'une donnée à consulter pour une requête
+		\item Ecritures et lectures en parallèle
+		\item Si W + R $<$= N \Rightarrow ~Cohérence éventuelle\\\footnotesize (pannes, charge, nb réplicas)\normalsize
+	\end{itemize} 
+\begin{columns}<2-|handout:1->
+	\column[c]{.6\textwidth}
+\textbf{Exemple}
+\begin{itemize}
+	\item Soit N=3
+	\item \alert<3|handout:1>{MAJ: pilote=18}\\
+	\uncover<3-|handout:1->{2 acquittements (\textbf{W=2})}
+	\item<4-|handout:1-> 2 lectures en parallèle (\textbf{R=2})
+	\item<5-|handout:1-> 2+2$>$3 \Rightarrow ~retourne : 18
+\end{itemize}
+	\column[c]{.4\textwidth}
+	\includegraphics<2|handout:1>[height=.5\textwidth]{img/coherence1.pdf}
+	\includegraphics<3-|handout:2>[height=.5\textwidth]{img/coherence2.pdf}
+\end{columns}
+
+\end{frame}
+
+\begin{frame}[fragile]{Cohérence : Options de Cohérence}
+\begin{itemize}
+	\item 	\begin{minted}{sql}
+	CONSISTENCY <level> ;
+	\end{minted}
+	\textit{level} : \footnotesize \textsc{ANY, ONE, TWO, THREE, QUORUM, ALL}\normalsize
+	\item \textbf{\textsc{ONE/ANY}} : par défaut, au moins 1 acquittement	\footnotesize (Bon compromis)\normalsize
+	\item \textbf{\textsc{ALL}} : W tous acquittés, 1 seul R \footnotesize (Système avec peu d'écritures)\normalsize
+	\item \textbf{\textsc{QUORUM}} : N/2 + 1 (pour R et W) \\\footnotesize (Véritable quorum, possibilité d'incohérence - faible)\normalsize
+	
+\end{itemize}
+\end{frame}

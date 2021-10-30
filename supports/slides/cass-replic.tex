@@ -1,0 +1,146 @@
+
+
+
+\section{Distribution \& Réplication}
+
+%%%
+\begin{frame}[fragile]{Réplication}
+
+La réplication est fixée au niveau du \textit{keyspace}: 3 par défaut.
+	
+\vfill
+
+On indique également une \textit{replication strategy}.
+
+\begin{minted}{sql}
+     CREATE keyspace repli 
+              with replication = {'class':'SimpleStrategy', 
+                                 'replication_factor':3};
+\end{minted}
+
+\vfill
+
+La stratégie de réplication "simple" copie sur les successeurs du nœud-cible de l'insertion.
+
+\vfill
+
+Une stratégie plus complexe tient compte de la topologie du réseau (niveaux \textit{racks}
+et \textit{data centers}). 
+
+\end{frame}
+
+
+\begin{frame}[fragile]{Ecriture et cohérence des données}
+
+Cassandra propose un mécanisme avancé de gestion du compromis entre cohérence et latence. 
+
+
+\vfill
+
+\figSlideWithSize{cassandra-log}{10cm}
+
+
+
+\end{frame}
+
+\begin{frame}[fragile]{Paramétrage de la cohérence en écriture}
+
+Le niveau indique le nombre d'acquittements que le coordinateur doit rececoir des nœuds de stockage avant d'acquitter
+à son tour le client.
+
+\begin{itemize}
+   \item \texttt{ANY}:  on accepte 0 acquittements! Le document est conservé  dans une zone temporaire, en attente d'une nouvelle tentative d'écriture...
+
+    \item \texttt{ONE} : Au moins un acquittement
+
+    \item \texttt{QUORUM} : Au moins $\lfloor replication/2 \rfloor +1$ acquittements, soit 2 pour un facteur de réplication 3.
+    
+    \item \texttt{ALL} : La réponse au client sera assurée lorsque la ressource aura été écrite dans tous les réplicas. 
+\end{itemize}
+
+\vfill
+
+Rappel: plus on demande d'acquittements, plus on privilégie la cohérence sur la latence.
+
+\vfill
+
+Cassandra, système réputé très rapide en insertions.
+
+\end{frame}
+
+ 
+\begin{frame}[fragile]{Les stratégies en lecture}
+
+Même type de paramétrage en lecture. La version avec l'estampille la plus récente est renvoyée au client.
+
+\begin{itemize}
+    \item \texttt{ONE} : le coordinateur transmet la première réponse reçue.
+
+    \item \texttt{QUORUM} : Le coordinateur reçoit la réponse de au moins $\lfloor replication/2 \rfloor +1$  
+       réplicas, et renvoie au client la ressource avec l'estampille la plus récente.
+    
+    \item \texttt{ALL} : Le coordinateur attend d'avoir reçu la réponse  de tous les réplicas. 
+\end{itemize}
+
+\vfill
+
+Même remarque: compromis latence/cohérence
+\end{frame}
+ 
+
+\begin{frame}[fragile]{Comment régler les paramètres?}
+
+Soit
+
+\vfill
+
+    \begin{itemize}
+        \item \textbf{N} : Taux de réplication
+        \item \textbf{W} : Nb minimum d'écritures devant accuser de réception
+        \item \textbf{R} : Nb copies d'une donnée à consulter pour une requête
+    \end{itemize} 
+
+\alert{Alors, si $ W + R > N$, on assure la cohérence des lectures.}
+
+
+
+\vfill
+
+Intuition: il existe un recouvrement entre les réplicas lus et les derniers réplicas écrits, 
+de sorte qu'au moins une lecture va accéder à la dernière version.
+
+\end{frame}
+
+
+\begin{frame}[fragile]{Illustration}
+
+Exemple
+
+\vfill
+
+\begin{itemize}
+    \item Soit N=3, W=ALL, R=1: toute lecture lit un document à jour
+    \item Soit N=3, W=1, R=ALL: une des lectures lit le document à jour, et c'est celui-ci qui est renvoyé
+    \item Soit N=3, W=QUORUM, R=QUORUM: une des lectures lit forcément lune des versions  à jour, et c'est celui-ci qui est renvoyé
+    
+\end{itemize}
+
+\vfill
+Simple et élégant !
+\end{frame}
+
+
+\end{document}
+
+\begin{frame}[fragile]{Cohérence : Options de Cohérence}
+\begin{itemize}
+	\item 	\begin{minted}{sql}
+	CONSISTENCY <level> ;
+	\end{minted}
+	\textit{level} : \footnotesize \textsc{ANY, ONE, TWO, THREE, QUORUM, ALL}\normalsize
+	\item \textbf{\textsc{ONE/ANY}} : par défaut, au moins 1 acquittement	\footnotesize (Bon compromis)\normalsize
+	\item \textbf{\textsc{ALL}} : W tous acquittés, 1 seul R \footnotesize (Système avec peu d'écritures)\normalsize
+	\item \textbf{\textsc{QUORUM}} : N/2 + 1 (pour R et W) \\\footnotesize (Véritable quorum, possibilité d'incohérence - faible)\normalsize
+	
+\end{itemize}
+\end{frame}

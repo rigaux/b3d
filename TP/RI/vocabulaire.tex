@@ -1,0 +1,72 @@
+
+\section{Vocabulaire de termes}
+\label{LI}
+
+Pour les exercices suivant, nous allons nous reposer sur des textes extraits du web parlant d'un même sujet. Le but est d'en extraire les mots pour constituer un vocabulaire et un index de termes.
+
+\paragraph{docID 1 (66 mots) :}
+\texttt{On ne parle plus de ralentissement de la croissance, mais de recession véritable. En France, selon l'Insee, le PIB va diminuer de 0,8 points.  Il en est de même au niveau de l'ensemble des pays industrialisés : pour la première fois depuis 1945, leurs PIB diminueront sur toute une année. Quant aux économies du Sud, si elles vont continuer à croître c'est de façon ralentie.}
+
+\paragraph{docID 2 (68 mots) :}
+\texttt{Devant ces mauvais chiffres de la croissance, le gouvernement ne mesure pas ce que cela signifie pour des dizaines de millions de Français en terme de difficultés pour vivre. Pas de récession mais une croissance ralentie, disent-ils... Le gouvernement refuse d'engager un plan de relance de l'économie et veut s'en prendre aux déficits publics en réduisant les dépenses. Pour le gouffre des financiers, les sommes elles sont débloquées ! }
+
+\paragraph{docID 3 (97 mots) :}
+\texttt{Le gouvernement a revu en nette baisse ses prévisions. De son côté, l'INSEE prend acte du fait que "la croissance cale en zone euro" et que la France n'est pas épargnée par la crise. Même si l'INSEE juge pour l'instant prématuré d'employer le terme de "récession", le PIB de la France devrait continuer à diminuer, perdant 0,1 point aux troisième et quatrième trimestres après une baisse de 0,3 point au deuxième trimestre. La récession est le plus souvent définie par au moins deux trimestres consécutifs de recul du PIB.}
+
+\paragraph{docID 4 (93 mots) :}
+\texttt{Il n'est pas encore certain que la crise immobilière et financière provoque une récession, c'est-à-dire un recul de la production durant au moins deux semestres consécutifs et pas seulement un ralentissement de sa croissance. Selon le secrétaire d'Etat américain aux finances, Henri Paulson, même si les USA connaissent une récession, celle-ci sera faible dans son ampleur et sa durée, suivie d'une reprise qui ne serait lente que pendant un an ou deux. C'est le temps qu'il faudra pour absorber le choc et réaliser les ajustements nécessaires.}
+
+\begin{enumerate}
+  \item Soit le vocabulaire extrait des textes précédents préliminaire suivant~:\\
+\small \texttt{On, Il, ils, elles, un, une, ne, parle, plus, pas, Pas, à, de, De, des, du, n', c', C', d', l', s', qu', le, Le, la, ce, ces, ses, son, leurs, en, au, aux, est-à-dire, celle-ci, et, que, qui, mais, si, même, Même, Devant, après, pour, Pour, Quant, sur, depuis, a, est, sera, serait, sont, va, vont, faudra, dans, devrait, encore, durant, pendant, selon, Selon, toute, certain, souvent, moins, seulement, lente, ralentie, ralentissement, croissance, recession, récession, véritable, France, Français, Insee, INSEE, PIB, diminuer, diminueront, point, points, niveau, ensemble, pays, industrialisés, première, fois, an, année, économie, économies, Sud, continuer, croître, façon, mauvais, chiffres, gouvernement, mesure, signifie, dizaines, millions, terme, difficultés, vivre, disent, refuse, engager, plan, relance, veut, prendre, prend, déficits, publics, réduisant, dépenses, gouffre, finances, financiers, sommes, débloquées, revu, nette, baisse, prévisions, côté, acte, fait, cale, zone, euro, épargnée, crise, juge, instant, prématuré, employer, perdant, deux, deuxième, troisième, quatrième, trimestre, trimestres, semestres, définie, consécutifs, recul, immobilière, provoque, production, secrétaire, Etat, américain, Henri, Paulson, USA, connaissent, faible, ampleur, durée, suivie, reprise, temps, absorber, choc, réaliser, ajustements, nécessaires} \normalsize
+
+	\item La taille de ce vocabulaire est de 176 termes (\textit{Tous les mots sont pris})
+
+	\item Quelles sont les conséquences de la non prise en compte de la casse et de la suppression des accents et caractères spéciaux ? \textit{(tout le texte est alors mise en minuscules)}
+\begin{correction}Les mots tels que Insee et INSEE seront alors reconnu comme un seul et même mot. De même pour tous les mots de début de phrases : De/de, Même/même.\\
+		De plus, les erreurs d'accents comme "récession/recession" seront alors supprimées.\\
+		Par contre, un des problèmes qui peut arriver est de transformer le $USA$ en $usa$ qui devient alors un verbe en français.
+\end{correction}
+
+	\item Constituer une liste de "\textit{Stop Words}". Quelle est alors la taille de l'index après la suppression des \textit{Stop Words} ?
+\begin{correction}Attention, dans la liste de stop words, doit-on prendre des termes comme 'un' qui correspond aussi à un nombre ?\\
+		\textbf{116 termes}, avec une liste de \textit{Stop Words} :\\
+		\tiny on, il, ils, elles, une, ne, plus, pas, à, de, des, du, n', c', d', l', s', qu', le, la, ce, ces, ses, son, leurs, en, au, aux, est-à-dire, celle-ci, et, que, qui, mais, si, même, devant, apres, pour, quant, sur, depuis, a, est, sera, serait, sont, va, vont, dans, encore, durant, pendant, selon, toute, certain, souvent, moins, seulement \normalsize
+\end{correction}
+	\item Quelles sont les conséquences d'une lemmatisation des mots du vocabulaire ? Donner plusieurs exemples dans les documents proposés.
+\begin{correction} Grâce à la lemmatisation, nous allons pouvoir mettre tous les verbes à l'infinitif, tous les déclinaisons des mots vont revenir à leur racine.\\
+Exemple de 'lente/ralentie/ralentissement'
+Par contre, certains mots vont être dénaturés alors qu'ils ne le devraient pas : insee (si le lemmatiseur est mauvais, il considérera que c'est le verbe inser au passé simple féminin.). En effet, les noms de famille et d'organisations ne sont plus reconnues.
+\end{correction}
+	\item Quelle est la nouvelle taille du vocabulaire ? \textit{(hors stop words et avec lemmatisation)}
+\begin{correction}\textbf{103 termes}\\
+\tiny parler, avoir, etre, aller, falloir, devoir, plus, moins, seul, lent, croissance, recession, vrai, france, inser, pib, diminuer, point, point, niveau, ensemble, pays, industrialiser, premier, fois, an, annee, economie, sud, continuer, croitre, facon, mauvais, chiffre, gouvernement, mesurer, signifier, dizaine, million, terme, difficulte, vivre, dire, refuser, engager, plan, relance, vouloir, prendre, deficit, public, reduire, depense, gouffre, finance, somme, débloquer, revu, net, baisse, prevision, cote, act, faire, cale, zone, euro, epargner, crise, juge, instant, prematurer, employer, perdre, deux, trois, quatre, trimestre, semestre, definir, consecutif, recul, immobilier, provoquer, production, secretaire, Etat, amerique, henri, paulson, usa, connaitre, faible, ampleur, durer, suivre, repris, temps, absorber, choc, realiser, ajustement, necessaire\normalsize
+\end{correction}
+	\item Créer un fichier inverse avec les termes du document (nous prendrons le sous-ensemble suivant : 
+crise, croissance, finance, france, insee, lent, gouvernement, pib). Vous y associerez les valeurs de TF et DF.
+\label{LI_q}
+\begin{correction}~\\
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Terme}&{\bf df}&\textbf{docIds (tf)}\\
+\hline
+\hline
+crise & 2/4 & 3 (1/97) , 4 (1/93)\\
+\hline
+croissance & 4/4 & 1 (1/66), 2 (2/68), 3 (1/97), 4 (1/93)\\
+\hline
+finance & 2/4 & 2 (1/68), 4 (2/93)\\
+\hline
+france & 3/4 & 1 (1/66), 2 (1/68), 3 (2/97)\\
+\hline
+gouvernement & 2/4 & 2 (2/68), 3 (2/97)\\
+\hline
+insee & 2/4 & 1 (3/66), 3 (2/97)\\
+\hline
+lent & 3/4 & 1 (2/66), 2 (1/68), 4 (2/93)\\
+\hline
+pib & 2/4 & 1 (2/66), 3 (2/97)\\
+\hline
+\end{tabular}
+\end{correction}
+\end{enumerate}

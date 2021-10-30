@@ -1,0 +1,31 @@
+Programmes soutenances
+-----------------------
+
+
+===============
+21 JANVIER 2014
+===============
+
+Ling, Nathalie, Elastic Search. 
+
+Guarisma, Boris,  Apache/Mahout
+
+Blondeau, Raphaël, Voldemort
+Simon, Frédéric, portage d'un application SGBD relationnel vers MongoDB
+Scotto di Fasano, Rodolphe. Alfresco
+
+Riso-Levi, David, Présentation de Neo4J.
+
+===============
+28 JANVIER 2014
+===============
+        
+Mondiu, Ismaël, Oracle Data guard, Oracle RAC et Oracle ASM
+Mocquet, Guillaume,  Chaine d'indexation basée sur Elastic Search + visualisation avec Kibana.
+Ly, Stéphane, le Google Search Appliance
+Hodé, Patrice, Application de WebServices avec une base MongoDB
+
+Doman, Présentation de ReThink (?)
+
+Toukara, Lamine, Solutions Microsoft en matière de Big Data                    NON
+Bouttement, Pascal, le système de cache/mémoire distribuée  Oracle Cohérence.  NON

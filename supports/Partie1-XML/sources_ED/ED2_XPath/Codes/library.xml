@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE library SYSTEM "library.dtd">
+<library>
+  <document 
+      callnumber="ABI01" 
+      language="english" 
+      publishedby="AW">
+    <ISBN>0-201-53771-0</ISBN>
+    <author>S. Abiteboul</author>
+    <author>R. Hull</author>
+    <author>V. Vianu</author>
+    <title>Foundations of Databases</title>
+  </document>
+  <document 
+      callnumber="BAA01" 
+      language="english" 
+      status="new"
+      related="ABI01"
+      publishedby="CUP">
+    <ISBN>0-521-78176-0</ISBN>
+    <author>F. Baader</author>
+    <author>D. Nardi</author>
+    <author>R. J. Brachman</author>
+    <author>W. Nutt</author>
+    <author>F. M. Donini</author>
+    <author>U. Sattler</author>
+    <author>D. Calvanese</author>
+    <author>R. Molitor</author>
+    <author>G. De Giacomo</author>
+    <author>R. Kusters</author>
+    <author>F. Wolter</author>
+    <author>D. L. McGuinness</author>
+    <author>P. F. Patel-Scheinder</author>
+    <author>R. Moller</author>
+    <author>V. Haarslev</author>
+    <author>I. Horrocks</author>
+    <author>A. Borgida</author>
+    <author>C. A. Welty</author>
+    <author>A. Rector</author>
+    <author>E. Franconi</author>
+    <author>M. Lenzerini</author>
+    <author>R. Rosati</author>
+    <title>The Description Logic Handbook</title>
+    <date>2003</date>
+  </document>
+  <document 
+      callnumber="ANT01" 
+      status="new"
+      language="english" 
+      publishedby="MITP"
+      related="BAA01 ABI01">
+    <ISBN>0-262-01210-3</ISBN>
+    <author>G. Antoniou</author>
+    <author>F. van Harmelen</author>
+    <title>A Semantic Web Primer</title>
+  </document>
+  <publisher id="AW" name="Addison-Wesley Publishing Company" />
+  <publisher id="CUP" name="Cambridge University Press" />
+  <publisher id="MITP" name="The MIT Press" />
+</library>
+

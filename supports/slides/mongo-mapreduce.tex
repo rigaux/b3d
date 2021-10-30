@@ -1,0 +1,296 @@
+
+
+\begin{frame}[fragile]
+\frametitle{Rappels: Notions et vocabulaire}
+
+Vous devriez savoir: 
+\begin{redbullet}
+  \item \alert{Item (entrée)}, \alert{document} en ce qui nous concerne.
+  
+  \item \alert{Fonction de Map}, implante la transformation appliquée à un item pendant la phase de Map.
+
+  \item \alert{Paire intermédiaire}, c'est le résultat de la fonction de Map. 
+  
+  Une paire intermédiaire $(k, v)$ comprend l'identifiant (étiquette) du groupe auquel
+  $v$ appartient.
+
+  \item \alert{Groupe intermédiaire}, ensemble des valeurs produites par la fonction
+  de Map et partageant le même identifiant de groupe.
+  
+    \item \alert{Fonction de Reduce}, implante la transformation appliquée un groupe
+    pendant la phase de Reduce.
+    
+\end{redbullet}
+
+\alert{Ne pas retenir (pour l'instant)}: comment tout cela s'exécute en distribué, avec
+parallélisation et reprise sur panne.
+
+\end{frame}
+
+
+\section{Frameworks MapReduce: MongoDB}
+
+
+
+\begin{frame}[fragile]
+\frametitle{La notion de \textit{framework}}
+
+\textit{Framework} = environnement assumant les aspects \alert{génériques} d'un traitement.
+
+\vfill
+Ici: tout ce qui n'est pas le cuisinier, le pressoir .
+
+\figSlideWithSize{jusfruits+}{9cm}
+
+\begin{redbullet}
+  \item Impose un modèle d'exécution contraint.
+  \item Mais il suffit de fournir la spécification \alert{fonctionnelle}: $F_{map}()$ et $F_{red}()$
+\end{redbullet}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Exemple: compter les fruits sains, par catégorie}
+
+$F_{map}()$ qui teste si un produit 
+est pourri et \alert{émet} une paire intermédiaire.
+
+\begin{minted}[baselinestretch=.9,
+               fontsize=\small,
+               framesep=2mm]{javascript}
+function controleFruit (fruit)
+{
+   if (fruit.statut != pourri) {
+     emit (fruit.type, 1)
+   }
+}
+\end{minted}
+
+
+Chaque groupe intermédiaire contient autant de 1 que de fruits sains.
+\vfill
+
+$F_{red}()$  additionne
+les valeurs dans un groupe.
+
+\begin{minted}[baselinestretch=.9,
+               fontsize=\small,
+               framesep=2mm]{javascript}
+function compterPomme (typeFruit, groupe)
+{
+  return <typeFruit, sum(groupe)>
+}
+\end{minted}
+
+La fonction est appliquée à \alert{chaque} groupe.
+
+\smallskip
+
+Il reste à soumettre ces deux fonctions au \textit{framework}. \alert{Clair?}
+
+\end{frame}
+
+\section{Application avec MongoDB}
+
+
+\begin{frame}[fragile]
+\frametitle{MapReduce et MongoDB}
+
+MongoDB comprend un moteur de calcul MapReduce. 
+
+\vfill
+
+
+Les fonctions doivent être écrites en Javascript.
+
+\vfill
+
+Dans ce qui suit: deux exemples de traitements MapReduce pour
+
+\begin{redbullet}
+  \item Comprendre les principes, le raisonnement.
+  \item Réaliser les limites quand il s'agit d'obtenir des traitements un peu complexes.
+  \item Méditer sur l'utilité de la chose...
+\end{redbullet}
+
+Fonctions fournies: à tester avec l'utilitaire \texttt{mongo} ou avec RoboMongo (ou tout
+autre client).
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Exemple: regroupement de films}
+
+On veut regrouper les films par réalisateur
+
+\vfill
+
+
+La fonction $F_{map}$.
+
+\begin{minted}[baselinestretch=.9,
+               fontsize=\small,
+               framesep=2mm]{javascript}
+var mapRealisateur = function() {
+                  emit(this.director._id, this.title);
+          };
+\end{minted}
+
+\vfill
+
+La fonction $F_{red}$.
+
+\begin{minted}[baselinestretch=.9,
+               fontsize=\small,
+               framesep=2mm]{javascript}
+   var reduceRealisateur = function(directorId, titres) {
+      var res = new Object();
+      res.director = directorId;
+      res.films = titres;
+      return res;
+    };
+\end{minted}
+
+\vfill
+
+Soumission au \textit{framework}
+
+\begin{minted}[baselinestretch=.9,
+               fontsize=\small,
+               framesep=2mm]{javascript}
+ db.movies.mapReduce(mapRealisateur,  reduceRealisateur, {out: {"inline": 1}} )
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Le résultat}
+
+Chaque exécution de $F_{red}$ produit un document de la forme.
+\begin{minted}[baselinestretch=.9,
+               fontsize=\small,
+               framesep=2mm]{javascript}
+{
+	"_id" : "artist:3",
+	"value" : {
+		"director" : "artist:3",
+		"films" : [
+			"Vertigo",
+			"Psychose",
+			"Les oiseaux",
+			"Pas de printemps pour Marnie",
+			"La mort aux trousses"
+		]
+	}
+}
+\end{minted}
+
+\vfill
+
+On aimerait connaître le réalisateur: exercice!
+
+\vfill
+
+Options d'exécution: voir le support.
+
+
+\end{frame}
+
+
+\section{Jointures avec MapReduce}
+
+
+\begin{frame}[fragile]
+\frametitle{Jointure: la méthode}
+
+Notre
+base est celle contenant les films \alert{avec références}. 
+
+\vfill
+
+Films et artistes sont dans des documents \alert{distincts}.
+Le but est  d'obtenir pour chaque artiste la liste des films qu'il/elle a réalisé.
+
+\vfill
+
+\alert{Principe (général)}:  on exploite 
+le mécanisme de regroupement pour associer, dans un même groupe les informations à combiner.
+
+\vfill
+
+On va créer autant de groupes que d'artiste. Dans chaque groupe on place:
+
+\begin{redbullet}
+  \item l'artiste dont l'identifiant correspond à l'identifiant du groupe;
+  \item les films (0, 1 ou plusieurs) dont l'identifiant \alert{du metteur en scène}
+    correspond à l'identifiant du groupe.
+\end{redbullet}
+
+Méthode très représentative de l'application de  MapReduce à des algorithmes complexes (pas trop quand même).
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Illustration: groupement d'un metteur en scène et de ses films}
+
+\figSlideWithSize{jointure-mr}{10cm}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{En pratique: la fonction de Map}
+
+\begin{minted}[baselinestretch=.9,
+               fontsize=\small,
+               framesep=2mm]{javascript}
+   var mapJoin = function() {
+      // Est-ce que l'id du document contient le mot "artist"?
+      if (this._id.indexOf("artist") != -1) {
+        // Oui ! C'est un artiste. Ajoutons-lui son type.
+        this.type="artist";        
+        // On produit une paire avec pour id celle de l'artiste
+        emit(this._id, this);
+      }
+      else {
+        // Non: c'est un film. Ajoutons-lui son type.
+       this.type="film";
+       // Simplifions un peu le document pour l'affichage
+       delete this.summary;
+       delete this.actors;
+        // On produit une paire avec pour id celle du metteur en sc.
+       emit(this.director._id, this);
+     }
+    };
+\end{minted}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{En pratique: la fonction de Reduce}
+
+\begin{minted}[baselinestretch=.9,
+               fontsize=\small,
+               framesep=2mm]{javascript}
+   var reduceJoin = function(id, items) {
+   
+     var director = null, films={result: []}
+      
+     // On cherche l'artiste dans cette liste    
+     for (var idx = 0; idx < items.length; idx++) {
+       if (items[idx].type=="artist") {
+            director = items[idx];
+        }
+     }             
+           
+     // Maintenant, 'director' contient l'artiste : on l'affecte aux films   
+     for (var idx = 0; idx < items.length; idx++) {
+        if (items[idx].type=="film"  && director != null) {
+            items[idx].director = director;
+            films.result.push (items[idx]);
+         }             
+      }
+      return films; 
+    };
+\end{minted}
+
+\end{frame}

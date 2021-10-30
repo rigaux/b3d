@@ -1,0 +1,18 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:svg="http://www.w3.org/2000/svg">
+      
+  <head>
+    <title>Un objet SVG</title>
+  </head>
+  <body>
+    <h1>Un objet SVG</h1>
+    
+    <svg:svg>
+     <svg:circle cx="150" cy="100" r="50" />
+    </svg:svg>
+     
+   <!--   <object type="image/svg+xml" data="svg.xml">Mon bô dessin</object>-->
+    
+
+  </body>
+</html>

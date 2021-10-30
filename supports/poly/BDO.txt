@@ -1,0 +1,9 @@
+Comprendre les nouvelles méthodes de modélisation de l’information adaptés aux systèmes distribués NoSQL afin de maîtriser la conception des bases de données massives non relationnelles. 
+
+Etudier les langages d’interrogation de quelques systèmes représentatifs pour être en mesure d’identifier leurs avantages et limites, notamment au regard de la norme d’interrogation SQL. 
+
+Connaître les bases de systèmes d’indexation, afin notamment de savoir organiser des moteurs de recherche puissants et efficaces  
+
+Maîtriser les principales techniques de stockage distribué dans un environnement de type cloud (réplication, partitionnement, reprise sur panne) pour savoir organiser de grandes bases de données sûres et scalables. 
+
+Comprendre les principales opérations de calcul distribués, notamment Map Reduce et les opérateurs de systèmes comme Spark et Flink dans le but de savoir exprimer des algorithmes simples de traitement de données, passant à l’échelle. 

@@ -1,0 +1,459 @@
+\renewcommand{\titreDiapos}{Essai}% fallback definition
+
+\section{Sujet du cours}
+
+
+\begin{frame}{Le sujet, en bref}
+
+\begin{defblock}{Documents, collections massives, stockage et calcul distribués}
+Représentation d'entités sous forme de  \alert{documents}
+pour la gestion de \alert{collections} à très grande échelle dans des environnements distribués.
+\end{defblock}
+
+\vfill
+
+Les grands thèmes:
+
+\begin{redbullet}
+  \item modélisation sous forme  de \alert{document}, structuré, semi-structuré, non structuré; 
+  \item \alert{recherche d'information}  dans de très grandes collections;
+  \item \alert{distribution du stockage} pour maintenir de très grands volumes de données;
+  \item \alert{distribution des calculs}, notamment pour les méthodes analytiques.
+\end{redbullet}
+
+\vfill
+\begin{blocgauche}
+Des mots-clés à comprendre (et à critiquer): données structurées/non structurées, bases NoSQL, Cloud, BigData,
+moteurs de recherche, etc.
+\end{blocgauche}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Point de départ\,: bases relationnelles}
+
+Les \alert{bases relationnelles} = applications
+gérant des informations \alert{structurées} et \alert{régulières}\,: applications de ``gestion'',
+ Web,  mobiles.
+
+\vfill
+
+\begin{redbullet}
+  \item Une modélisation normalisée.
+  \item Un langage (SQL) très bien défini, normalisé lui aussi.
+  \item De très bonnes performances, obtenues \alert{automatiquement}.
+  \item Une gestion robuste de la concurrence d'accès.
+\end{redbullet}
+
+
+\vfill
+
+\alert{Attention à bien apprécier ce qu'on gagne / perd en passant au "NoSQL"} (on gagne
+marginalement, on perd beaucoup)
+
+\vfill
+\begin{blocgauche}
+Révisions nécessaires? Mieux vaut s'en apercevoir \alert{maintenant}. Révisions
+sur \url{http://www.bdpedia.fr}
+\end{blocgauche}
+
+\end{frame}
+
+\begin{comment}
+\begin{frame}
+\frametitle{Problématique 1\,: La notion de ``document''}
+
+Document = unité d'information autonome ou quasi-autonome.
+
+\begin{redbullet}
+  \item Peu ou pas de référence à d'autres documents.
+  
+\item Peu ou pas de structure; ou une structure très flexible.
+
+\item Un contenu souvent à orientation multimédia.
+
+\end{redbullet}
+
+\alert{Examples (1)}: documents textuels, types documents Web.
+   
+\vfill
+   
+\alert{Examples (2)}:  images,  documents
+audios,  vidéos\,; pas de structure explicite, production de descripteurs synthétiques pour
+   tenter de les indexer.
+
+\vfill
+
+\alert{Examples (3)}: jeux en ligne\,: artifacts graphiques, actions
+utilisateur.
+
+
+\vfill
+
+\alert{Examples (4)}: tous les fichiers de votre ordinateur...
+
+\vfill
+
+\begin{blocgauche}
+Impose de repenser la notion de \alert{modèle}, schéma et représentation des données.
+\end{blocgauche}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Problématique 2\,: recherche d'information}
+
+Dans les collections documentaires, peu ou pas de structure fixe,
+
+\begin{redbullet}
+  \item SQL inadapté.
+  \item Recherche \guill{exacte} souvent insatisfaisante.
+\end{redbullet}
+
+\medskip
+
+La recherche
+s'effectue souvent \alert{par similarité}
+
+\begin{redbullet}
+  \item on fournit un document ``requête''.
+  \item le système recherche les documents \alert{proches} du document-requête.
+ \end{redbullet}
+
+\vfill
+
+\begin{blocgauche}
+Par exemple, quand on recherche sur le Web:
+
+
+\begin{redbullet}
+  \item Un ensemble de mots-clés: c'est le document requête\,;
+  \item le moteur de recherche trouve les documents les plus proches (on verra comment)\,;
+ \end{redbullet}
+\end{blocgauche}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Problématique 3\,: stockage à très grande échelle}
+
+On atteint facilement des \alert{volumes} extrêmement importants (Téraoctets+)
+
+\begin{redbullet}
+  \item les moteurs de recherche qui collectent des \alert{documents}
+  disponibles sur le Web.
+  \item  les applications utilisées à l'échelle du Web\,; commerce
+  électronique (Amazon); réseaux sociaux (Facebook).
+  \item  données gérées par les jeux en ligne.
+\end{redbullet}
+
+
+\vfill
+
+\begin{blocgauche}
+ Nouveaux systèmes, dits ``NoSQL'' sont conçus pour gérer de vastes collections
+ de documents de manière scalable
+ \begin{redbullet}
+    \item pour les accès temps réel;
+    \item pour les traitements analytiques (MapReduce).
+ \end{redbullet}
+\end{blocgauche}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Problématique 4\,: calcul  à très grande échelle}
+
+Des environnements de développement et d'exécution
+\alert{distribués} pour traiter les grands volumes de données.
+
+
+ \begin{redbullet}
+    \item traitement de flux;
+    \item traitement de grands masses de données statiques.
+ \end{redbullet}
+ 
+\vfill
+
+
+À chaque fois, les principes, et une illustration  avec les systèmes.
+\begin{redbullet}
+  \item MapReduce
+  \item  Traitement de flux avec FLink
+  \item  Traitement de données massives avec Spark
+\end{redbullet}
+
+
+\begin{blocgauche}
+\end{blocgauche}
+
+\end{frame}
+\end{comment}
+%%%%%%%%%%%%%%%%%%%%%
+\section{Objectifs}
+
+
+\begin{frame}
+\frametitle{Plan du cours}
+
+\alert{Quatre parties, 3 semaines chacune, 1 jalon à la fin de chaque partie }
+
+\begin{redbullet}
+  \item \alert{Représentation de documents textuels}\,: les formats XML et JSON; la modélisation
+    de documents, les langages 
+     de manipulation.
+
+  \item \alert{Recherche d'information dans les bases documentaires}\,:  moteurs 
+    de recherche, index, algorithmes.
+    
+   \item \alert{Stockage distribué}. Systèmes 
+    distribués; NoSQL. 
+   
+   \item \alert{Calcul distribué}. MapReduce, et au-delà
+\end{redbullet}
+
+\vfill
+\alert{Connaissances pratiques (en cours, en TP, chez vous)}
+
+\begin{redbullet}
+  \item Des systèmes "NoSQL"; (MongoDB, CouchDB, Cassandra) 
+  \item Des moteurs de recherche (Solr, ElasticSearch).
+   \item  Systèmes distribués : MongoDB, 
+      ElasticSearch, Cassandra.
+    \item Traitement massif: Hadoop, Spark, Flink
+\end{redbullet}
+
+\end{frame}
+
+
+\section{Prérequis}
+
+\begin{frame}{Prérequis}
+
+\begin{redbullet}
+   \item \alert{Compréhension des bases relationnelles}, soit au moins la conception d'un schéma, 
+      SQL, ce qu'est un index et des notions de base sur les transactions.
+      
+      $\Rightarrow$ si nécessaire, voir \url{http://www.bdpedia.fr}
+      
+   \item \alert{Une aisance minimale dans un environnement de développement}. Editer un fichier, lancer une commande, 
+      ne pas paniquer devant un nouvel outil, savoir résoudre un problème avec un minimum de tenacité, etc.      
+
+    $\Rightarrow$   Vous devez reproduire les exemples donnés.
+      
+\end{redbullet}
+
+\begin{blocgauche}
+La connaissance de langage de programmation comme Java ou Python est un plus
+pour  consolider 
+      vos nouvelles connaissances. 
+\end{blocgauche}
+
+\end{frame}
+
+
+\subsection{Environnement de travail}
+\begin{frame}{Environnement matériel et logiciel}
+
+\alert{Le cours repose beaucoup sur la mise en pratique}. 
+
+\begin{redbullet}
+  \item au Cnam, tout vous est fourni;
+  \item Cnam à distance, ou en auditeur libre, il vous faut une machine  dotée d'au moins 8 GO de mémoire (Linux, Mac/OS ou Windows).
+\end{redbullet}
+
+\vfill
+
+\alert{Tous les logiciels utilisés sont libres de droits}. Nous travaillons essentiellement avec
+\begin{redbullet}
+   \item \href{http://lucene.apache.org/solr}{Solr}, et  \href{http://elasticsearch.org}{ElasticSearch} 
+      pour l'indexation de documents.
+   \item \href{http://mongodb.com}{MongoDB}, Cassandra,  et plusieurs autres outils NoSQL. 
+   \item \href{http://flink.apache.org}{Flink} et \href{http://spark.apache.org}{Spark}.
+   \end{redbullet}
+
+\vfill
+
+\begin{blocgauche}
+L'installation de ces outils (et leur utilisation) peut se faire avec \alert{Docker}, un
+gestionnaire de systèmes distribués \alert{virtuels}.
+\end{blocgauche}
+\end{frame}
+
+
+\section{Organisation}
+\begin{frame}{Comment travailler}
+
+Le cours est découpé en \alert{chapitres}, couvrant un sujet bien déterminé, et en \alert{sessions}.
+
+\smallskip
+
+\alert{L'unité de travail est la session}. Chaque session
+demande quelques heures   de travail personnel
+
+\vfill
+
+
+Pour assimiler une session vous pouvez combiner les ressources suivantes:
+
+\begin{redbullet}
+  \item \alert{La lecture} du \href{http://b3d.bdpedia.fr}{support en ligne}, 
+       également disponible en \href{http://b3d.bdpedia.fr/files/b3d.pdf}{PDF} ou en 
+       \href{http://b3d.bdpedia.fr/files/b3d.epub}{ePub}.
+    \item \alert{Le suivi du cours}, en vidéo ou en présentiel.
+   \item \alert{Le test des exemples de code} fournis dans chaque session.
+   \item \alert{La réalisation des exercices} proposés en fin de session.
+\end{redbullet}
+
+\vfill
+\begin{blocgauche}
+\alert{La réalisation des exercices et des manipulations est essentielle}.
+\end{blocgauche}
+
+\end{frame}
+
+\begin{frame}{Mener votre travail personnel}
+
+Vous devez maîtriser le contenu des sessions \alert{dans l'ordre
+où elles sont proposées}.
+
+\vfill
+
+\alert{Commencez par lire le support}, jusqu'à ce que les principes vous paraissent clairs.
+
+\vfill
+
+\alert{Reproduisez les exemples de code}. Tous les exemples donnés sont testés et doivent donc fonctionner.
+
+\vfill
+
+\begin{blocgauche}
+\alert{Cherchez
+à résoudre les problèmes par vous-mêmes} au besoin: c'est le meilleur moyen de comprendre.
+
+\vfill
+
+\alert{Finissez par les exercices}. Faites les vous-mêmes, avant de regarder la solution.
+
+\vfill
+
+\alert{Répondez au Quiz} proposé en fin des principaux chapitres.
+\end{blocgauche}
+
+\end{frame}
+
+
+\begin{comment}
+
+\begin{frame}
+\frametitle{Evaluation\,: option 1, le projet}
+
+\alert{Objectif}: un sujet qui vous intéresse, en liaison avec les
+techniques avancées de gestion de données, et vous préparez un
+rapport (app. 20 pages). 
+Travail \alert{personnel}, plagiat \alert{éliminatoire}
+
+\vfill
+
+Exemple: vous étudiez le dernier système NoSQL à la mode (pas celui vu en cours!)
+
+\vfill
+\begin{redbullet}
+  \item Une partie \alert{pratique}\,: choix d'un jeu de données, insertion, manipulations
+  \item Une partie \alert{étude} d'un aspect technique (interrogation, distribution, tolérance aux pannes, ...)
+\end{redbullet}
+
+\vfill
+\begin{blocgauche}
+C'est vous qui proposez le sujet\,! Site de soumission ouvert 
+\url{http://deptfod.cnam.fr/soumissions}
+
+\end{blocgauche}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Evaluation\,: option 2, le  hackathon}
+
+\alert{Objectif}: travailler \alert{en groupe} pour mettre en place un \alert{vrai}
+système distribué à la fin du cours, en une séance.
+
+\vfill
+Thèmes proposés (\url{http://b3d.bdpedia.fr/hackathon.html})
+
+\vfill
+\begin{redbullet}
+  \item Traitement massif de flux Twitter avec Kafka et Spark
+  \item Une \textit{blockchain} basée sur un système NoSQL
+  \item Autre idée\,?
+\end{redbullet}
+
+\vfill
+
+Travail collaboratif
+
+\begin{redbullet}
+  \item Réunion du groupe au moins toutes les deux semaines
+  \item Outils comme Slack, Git, environnements virtuels
+\end{redbullet}
+
+
+\vfill
+\begin{blocgauche}
+Il faut constituer les groupes rapidement, travailler en continu. Rush final à
+la fin de l'année, présentation en janvier.
+\end{blocgauche}
+
+\end{frame}
+
+
+\begin{frame}{Evaluation}
+
+Pour les auditeurs du Cnam, l'évaluation de l'UE combine\,:
+
+\begin{redbullet}
+  \item Pour 1/3: 
+      \begin{itemize}
+         \item Soit une note portant sur le \alert{rapport écrit} du projet (coeff. 1/3).
+         \item Soit une note sur la participation au hackathon (avec présentation orale et rapport)
+         \end{itemize}
+  \item  La note d'un examen de contrôle (coeff. 2/3).
+\end{redbullet}
+
+\vfill
+
+Projet / hackathon sont  suivis et évalués par les enseignants du Cnam.
+
+\vfill
+
+Voir support en ligne pour les annales, et les instructions détaillées.
+
+\vfill
+
+\alert{Bon travail!}
+\end{frame}
+
+
+\section{Les ressources}
+
+\begin{frame}{Ressources}
+
+Contact avec les enseignants: Raphaël Fournier-S'niehotta et Philippe Rigaux (prénom.nom@cnam.fr).
+
+\begin{redbullet}
+  \item Support de cours en HTML: \url{http://b3d.bdpedia.fr/}
+    \item Support de cours en PDF: \url{http://b3d.bdpedia.fr/files/b3d.pdf}
+    \item Support de cours en ePub: \url{http://b3d.bdpedia.fr/files/b3d.epub}
+\end{redbullet}
+
+\vfill
+
+Pour ceux/celles qui suivent le cours au Cnam: \url{http://lecnam.net}.
+
+\end{frame}
+
+
+\end{comment}
+

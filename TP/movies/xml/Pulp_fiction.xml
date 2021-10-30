@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<movies>
+  <movie>
+    <title>Pulp fiction</title>
+    <year>1994</year>
+    <genre>Action</genre>
+    <summary>Jules Winnfield and Vincent Vega are two hitmen who are out to retrieve a suitcase stolen from their employer, mob boss Marsellus Wallace. Wallace has also asked Vincent to take his wife Mia out a few days later when Wallace himself will be out of town. Butch Coolidge is an aging boxer who is paid by Wallace to lose his next fight. The lives of these seemingly unrelated people are woven together comprising of a series of funny, bizarre and uncalled-for incidents.</summary>
+    <country>USA</country>
+	<director id="37">
+	    <last_name>Tarantino</last_name>
+	    <first_name>Quentin</first_name>
+	    <birth_date>1963</birth_date>
+	</director>
+	<actor id="11">
+	    <first_name>John</first_name>
+	    <last_name>Travolta</last_name>
+	    <birth_date>1954</birth_date>
+	    <role>Vincent Vega</role>
+	</actor>
+	<actor id="27">
+	    <first_name>Bruce</first_name>
+	    <last_name>Willis</last_name>
+	    <birth_date>1955</birth_date>
+	    <role>Butch Coolidge</role>
+	</actor>
+	<actor id="37">
+	    <first_name>Quentin</first_name>
+	    <last_name>Tarantino</last_name>
+	    <birth_date>1963</birth_date>
+	    <role>Jimmy Dimmick</role>
+	</actor>
+	<actor id="38">
+	    <first_name>Samuel L.</first_name>
+	    <last_name>Jackson</last_name>
+	    <birth_date>1948</birth_date>
+	    <role>Jules Winnfield</role>
+	</actor>
+	<actor id="39">
+	    <first_name>Rosanna</first_name>
+	    <last_name>Arquette</last_name>
+	    <birth_date>1959</birth_date>
+	    <role>Jody</role>
+	</actor>
+	<actor id="40">
+	    <first_name>Uma</first_name>
+	    <last_name>Thurman</last_name>
+	    <birth_date>1970</birth_date>
+	    <role>Mia Wallace</role>
+	</actor>
+	<actor id="97">
+	    <first_name>Christopher</first_name>
+	    <last_name>Walken</last_name>
+	    <birth_date>1943</birth_date>
+	    <role>Capt. Koons</role>
+	</actor>
+	<actor id="98">
+	    <first_name>Harvey</first_name>
+	    <last_name>Keitel</last_name>
+	    <birth_date>1939</birth_date>
+	    <role>Winston "The Wolf" Wolfe</role>
+	</actor>
+	<actor id="99">
+	    <first_name>Tim</first_name>
+	    <last_name>Roth</last_name>
+	    <birth_date>1961</birth_date>
+	    <role>Pumpkin (Ringo)</role>
+	</actor>
+
+  </movie>
+</movies>

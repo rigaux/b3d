@@ -1,0 +1,54 @@
+Les dates indiquent la fin d'acquisition du chapitre indiqué
+
+Vendredi 8 octobre: Chapitre Docker
+
+PARTIE 1
+========
+
+Jeudi 14 octobre: modélisation de documents structurés (chapitre 3)
+
+  14 octobre => regroupement par visio
+  
+Jeudi 21 octobre: interrogation de bases structurées (chapitre 4)
+
+  21 octobre => regroupement par visio
+  
+Jeudi 28 octobre: Map Reduce (chapitre 5) 
+
+    28 octobre: regroupement physique au Cnam
+
+PARTIE 2
+========
+
+** Regroupements visio annoncés prochainement**
+
+Jeudi 4 novembre: introduction RI, chapitre 8
+Jeudi 11 novembre: indexation documents, chapitre 9
+Jeudi 18 novembre: recherche avec classement, chapitre 10
+
+   25 novembre => regroupement physique au Cnam
+   
+PARTIE 3
+========
+
+
+** Regroupements visio annoncés prochainement**
+
+Jeudi 2 décembre:   Cloud, chapitre 13
+Jeudi 9 décembre:   Réplication, chapitre 14
+Jeudi 16 décembre:   Partitionnement, chapitre 15
+
+   16 décembre: regroupement physique au Cnam
+  
+PARTIE 4
+========
+
+** Regroupements visio annoncés prochainement**
+
+Jeudi 23 décembre:  Hadoop, chapitre 16
+Jeudi 30 décembre  Spark, chapitre 17
+Jeudi 6 janvier  Flink, chapitre 18
+
+  Dernier regroupement physique annoncé ultérieurement
+  
+

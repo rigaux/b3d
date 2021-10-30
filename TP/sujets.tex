@@ -1,0 +1,36 @@
+\documentclass{book}
+\usepackage[latin1]{inputenc}
+\usepackage{comment}
+\RequirePackage {epsfig}
+\RequirePackage  [dvips] {color}
+\usepackage{hyperref}
+\usepackage{pibdb-eds}
+
+%\excludecomment{correction}
+%\excludecomment{solution}
+
+\begin{document}
+
+\title{\includegraphics[height=2cm]{LeCnamLOGO.ps}\\~\\
+\begin{tikzpicture}[remember picture, overlay]
+        \node[\paperwidth,rectangle,
+              rounded corners=20pt,inner sep=11pt,
+              fill=fondCnam]
+              {\color{fond2Cnam}Bases de Données Avancées};
+       \end{tikzpicture}
+}
+\author{\color{fondCnam}\Large NFE204\\~\\\color{fondCnam}Exercices\\~\\\color{fondCnam}CNAM Paris}
+\date{}
+\maketitle
+
+\begingroup
+\setlength {\parskip} {0cm}     % sommaire "tasse"
+\let\cleardoublepage ~
+\tableofcontents
+\endgroup
+
+\input{XML/XML.tex}
+\input{XPath/XPath.tex}
+\input{RI/RI.tex}
+\input{Distribution/distri.tex}
+\end{document}

@@ -1,0 +1,240 @@
+\section{Principes}
+
+\begin{frame}
+\frametitle{Principe du partitionnement par hachage}
+
+On prend la clé; on l'interprète comme un entier, on calcule le
+reste $r$ de la division par $N$: le document est affecté au fragment $r$.
+
+\vfill
+
+\figSlideWithSize{partition-hachage}{10cm}
+
+\vfill
+
+\begin{remblock}{}Simple mais...
+Fonctionne très bien pour $N$, le nombre de fragments, \alert{fixe}.
+\end{remblock}
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Les opérations}
+
+Implantation très simple et très efficace.
+
+\begin{redbullet}
+  \item $get(i)$: calculer $r = h(i)$, et accéder au  
+    fragment dont l'adresse est $a_r$, chercher le document en mémoire;
+  \item $put(i, d)$: calculer $r = h(i)$, 
+    insérer $d$ dans le fragment dont l'adresse est  $a_r$;
+  \item $delete(i)$: comme la recherche, avec effacement du document trouvé;
+  \item $range(i, j)$: \alert{pas possible avec une structure par hachage}, il 
+    faut faire un parcours séquentiel complet.
+\end{redbullet}     
+
+\vfill
+
+\begin{remblock}{Elasticité}
+Si $N$ change: tout devient faux. 
+\end{remblock}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Le problème}
+
+
+Tout repose  sur l'hypothèse que la fonction $h()$ est \alert{immuable}.
+
+\vfill
+ Soit $N=5$, donc  $h(i) = i \mod 5$. Soit un flux
+continu d'insertion et de recherche de documents, parmi lesquelles
+l'insertion, puis la recherche de l'identifiant 17. 
+ 
+\begin{redbullet}
+   \item  on effectue \textit{put(17, d)}, $d$ est inséré dans $F_2$ (tout le monde suit?) ;
+  \item les insertions continuent, jusqu'à la nécessité d'ajouter
+      un sixième fragment: maintenant $h(i) = i \mod 6$.
+   \item on effectue $get(17)$, on cherche dans $F_5$
+      (vous voyez pourquoi?) qui ne contient pas $d$.
+\end{redbullet}      
+
+\alert{Pas de solution simple!!}
+\end{frame}
+
+\begin{frame}
+\frametitle{Systèmes distribués basés sur le hachage}
+
+Idée simple\,: tout le monde utilise le même hachage, les ``blocs''
+sont les serveurs.
+
+\vfill
+
+Le système est nécessairement \alert{dynamique} (ajout  de serveurs), donc
+on ne peut pas utiliser une fonction de hachage basée directement sur $N$, 
+qui varie.
+
+
+\vfill
+
+En 1997, un article a proposé une solution maintenant très largement utilisé\,: le
+\alert{hachage cohérent} ou \textit{Consistent haching}.
+
+
+\begin{redbullet}
+  \item D'abord conçu et utilisé pour des \alert{caches distribués} (\textit{memcached})
+
+  \item Popularisé pour la gestion de données par le système Dynamo (Amazon, 2007)
+
+  \item Maintenant intégré à de très nombreux systèmes\,: Voldemort, Riak, Cassandra, ...
+ 
+\end{redbullet}
+\end{frame}
+
+\section{Le hachage cohérent}
+
+\begin{frame}
+\frametitle{Hachage cohérent (\textit{consistent hashing})}
+
+On  prend une valeur de $N$ très grande et immuable, p.e. $2^{64}$
+
+\begin{redbullet}
+  \item la fonction de hachage  $h(v) = v \mod N $ est \alert{fixe},
+    appliquée aux clés \alert{et} aux serveurs (identifiées par leur IP)
+          vers l'espace d'adressage  $A=[0, 2^{64}-1$];
+  \item $A$ est organisé comme un anneau parcouru dans le sens des aiguilles d'une montre\,;
+\end{redbullet}
+
+\vfill
+
+Serveurs et document sont un emplacement dans $A$ défini par $h$.
+\alert{Il n'y a \alert{aucune chance} qu'un serveur ait la même valeur de hachage qu'un 
+serveur, d'où}
+\vfill
+
+\begin{remblock}{Régle d'affectation des documents aux serveurs}
+Si $S$ et $S'$ sont deux serveurs adjacents sur l'anneau, toutes les clés de l'intervalle 
+   $]h(S), h(S')]$ appartiennent à $S'$.
+\end{remblock}
+\end{frame}
+
+\begin{frame}
+\frametitle{Illustration}
+
+Serveurs \alert{et} documents sont placés sur l'anneau.
+
+\vfill
+
+\figSlideWithSize{ch-general}{8cm}
+
+\vfill
+
+Notez le déséquilibre des fragments (pour l'instant).
+\end{frame}
+
+
+\begin{frame}
+\frametitle{La table de hachage}
+
+% A two-columns presentation
+\begin{tabular}{l|p{6cm}}
+   \parbox{5cm}{
+   
+    Elle établit une correspondance
+entre le découpage de l'anneau en arcs de cercle, et l'association de chaque
+arc à un serveur.
+
+\medskip
+
+\begin{tabular}{r|l}
+Intervalle  & Serveur\\
+\hline
+$]c, a]$ & S1 \\
+$]a, b]$ & S2  \\
+$]b, c]$ & S3  \\
+\hline
+\end{tabular}
+
+   }  % Inclusion of an XML file
+  & 
+  \parbox{6.5cm}{
+   \parbox{5cm}{\figSlideWithSize{ch-general}{6cm} }
+}
+
+\end{tabular}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Quelques détails vraiment utiles}
+
+Comment fonctionne la tolérance aux pannes\,? Comment fonctionne l'équilibrage\,?
+
+
+\vfill
+
+% A two-columns presentation
+\begin{tabular}{l|p{6cm}}
+   \parbox{6cm}{
+
+
+\alert{Panne} $\Rightarrow$ géré par la réplication (surprise!)\,; 
+par exemple on copie sur la machine suivante dans l'anneau, etc.
+
+
+  \vfill
+  
+\alert{Equilibrage} $\Rightarrow$ un même serveur (physique) est distribué
+en plusieurs points (virtuels) sur l'anneau.
+
+\begin{redbullet}
+  \item plus il y a de points, plus le serveur recevra de données\,;
+  \item en cas de panne, réoganisation répartie plus justement.
+\end{redbullet}
+  
+   }  % Inclusion of an XML file
+  & 
+  \parbox{6.5cm}{\figSlideWithSize{ch-multipos}{6cm} }
+\end{tabular}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Ajout et suppression de serveurs}
+
+
+\figSlideWithSize{ch-ajout}{12cm}
+
+\vfill
+
+Une réorganisation \alert{locale} est suffisante ($S_3$ transmet à $S_4$).
+
+\end{frame}
+
+\section{Elastic Search}
+
+
+\begin{frame}
+\frametitle{Mais où est donc la table de hachage\,?}
+
+\alert{Qui nous dit quelle est la liste des serveurs et leur intervalle}\,?
+
+\smallskip
+
+Il nous faut un \alert{routeur}.
+
+\smallskip
+
+\figSlideWithSize{archi-consistenthash}{8cm} 
+\smallskip
+
+Autres solutions\,: (i) chaque nœud est un routeur (acceptable
+quand on n'ajoute/retire pas de serveurs tout le temps), (ii) le routeur est intégré au client.
+
+\end{frame}
+
+

@@ -1,0 +1,9 @@
+\begin{tikzpicture}[level 1/.style={sibling distance=2.5cm},label distance=.3cm,baseline=(r)]
+
+\node (r) {}
+  child { node[label=80:name] {Alan} }
+  child { node[label=85:tel] {7786} }
+  child { node[label=100:email] {agg@abc.com} }
+;
+
+\end{tikzpicture}

@@ -1,0 +1,74 @@
+\section{PageRank}
+
+\subsection{PageRank}
+
+Voici un graphe représentant les hyperliens entre les pages d'un site web :\\
+
+\fig{RI/PageRank1.eps}{Graphe d'hyperliens entre des pages}{6cm}
+
+\begin{enumerate}
+	\item Rappeler la loi de probabilité de passer d'une page $i$ à une page $j$.
+	\begin{correction}
+		P$_{ij} = \frac{\alpha}{N} + \frac{I (1 - \alpha)}{K}$\\
+		Où $N$ est le nombre de pages, $K$ le nombre d'hyperliens de la page $i$.\\
+		I est égal 1 si $j$ est une des cibles des hyperliens, 0 sinon.
+	\end{correction}
+
+	\item Construire la matrice NxN de probabilités de passages d'une page à une autre, avec $\alpha = \frac{1}{2}$
+	\begin{correction}Nous avons N=4, K$_A$=2, K$_B$=2, K$_C$=2, K$_D$=1\\
+		\begin{tabular}{|c|c|c|c|}
+		\hline
+		1/8 & 3/8 & 1/8 & 3/8\\
+		\hline
+		1/8 & 1/8 & 3/8 & 3/8\\
+		\hline
+		1/8 & 3/8 & 1/8 & 3/8\\
+		\hline
+		5/8 & 1/8 & 1/8 & 1/8\\
+		\hline
+		\end{tabular}
+	\end{correction}
+
+	\item Calculer le PageRank de la matrice à l'aide du vecteur (1 0 0 0). Vous arrondirez chaque calcul avec 3 chiffres après la virgule.
+	\begin{correction}Etapes :\\
+\begin{tabular}{|c|llll|}
+\hline
+1&   1        &0        &0        &0 \\
+\hline
+1&		0,125&	0,375&	0,125&	0,375\\
+\hline
+2&		0,313&	0,188&	0,219&	0,281\\
+\hline
+3&		0,266&	0,258&	0,172&	0,305\\
+\hline
+4&		0,278&	0,235&	0,190&	0,299\\
+\hline
+5&		0,275&	0,242&	0,184&	0,301\\
+\hline
+6&		0,276&	0,240&	0,186&	0,301\\
+\hline
+7&		0,276&	0,241&	0,185&	0,301\\
+\hline
+8&		0,276&	0,241&	0,186&	0,301\\
+\hline
+9&		0,276&	0,241&	0,186&	0,301\\
+\hline
+\end{tabular}
+	\end{correction}
+\end{enumerate}
+
+\subsection{Pertinence du contenu d'une page Web}
+
+\begin{enumerate}
+\item En reprenant le résultat de la recherche par cosinus (section~\ref{cos}, question~\ref{cos_q}) sur les documents $doc_1$ (site A), $doc_2$ (site B), $doc_3$ (site C), $doc_4$ (site D), et en multipliant le score de cosinus par le pageRank du site hébergeant ce texte, donner l'ordre final de votre recherche.
+\begin{correction}
+Nous obtenons ainsi un PageRank pour chaque page de :
+\begin{itemize}
+\item $doc_1$ : 0,276 $\times$ 0,126 = 0,035
+\item $doc_3$ : 0,186 $\times$ 0,094 = 0,018
+\item $doc_2$ : 0,241 $\times$ 0,036 = 0,009
+\item $doc_4$ : 0,301 $\times$ 0,021 = 0,006
+\end{itemize}
+\end{correction}
+
+\end{enumerate}

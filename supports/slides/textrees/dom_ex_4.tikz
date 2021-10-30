@@ -1,0 +1,13 @@
+\begin{tikzpicture}
+\begin{small}
+\tikzstyle{every text node part}=[font=\bf]
+\tikzstyle{every lower node part}=[font=\itshape]
+
+\node [\rootShape,fill=\rootFill] {\tikzRoot}
+[level distance=1.5cm]
+        child {\tikzElement{elt}   
+            child {\tikzText{Contenu du  \linebreak document}}
+    }
+ ;
+\end{small}
+\end{tikzpicture}

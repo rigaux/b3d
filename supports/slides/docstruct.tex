@@ -1,0 +1,277 @@
+
+
+
+\section{Représentation de documents}
+
+\begin{frame}
+\frametitle{Représentation de documents textuels}
+
+La représentation des données est basée sur des \alert{graphes}, permettant de représenter des
+données régulières ou irrégulières.
+
+\vfill
+
+\alert{Notions essentielles}
+
+\begin{description}
+  \item[Les données sont auto-décrites.] Le contenu vient avec sa propre
+  description.
+  
+ \item[Structures riches.] Le contenu se décrit avec des listes, des
+ enregistrements imbriqués, des ensembles.
+
+  \item[Typage flexible.] Les données peuvent être typées (``c'est un entier''),
+  et/ou structurées (``cette partie du graphe \alert{doit} avoir telle forme''), et/ou ni l'un ni
+  l'autre. Dans ce dernier cas c'est à l'application d'effectuer le contrôle.
+ 
+   \item[Sérialisation.] Structure \alert{et} contenu doivent pouvoir être transformés
+      ensemble en une chaîne de caractères autonome.
+
+\end{description}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Commençons avec JSON}
+
+Point de départ\,: \alert{listes associatives}, ensemble de paires (clé, valeur).
+
+\begin{minted}{javascript}
+{"nom": "Philippe", 
+ "tel": 2157786,  
+ "email": "philippe@cnam.fr"}
+\end{minted}
+
+Extension naturelle\,: les valeurs sont elles-mêmes d'autres structures.
+
+\begin{minted}{javascript}
+{"nom": {"prenom": "Philippe",  "famille": "Rigaux"},
+ "tel": 2157786,
+ "email": "philippe@cnam.fr"}
+\end{minted}
+
+Autre extension: imbrication de listes.
+
+\begin{minted}{javascript}
+    {"nom": "Philippe", "tels": [2157786, 2498762] }
+\end{minted}
+
+\begin{remblock}{Remarque}
+Les exemples ci-dessus montrent un \alert{codage de l'information} sous forme
+d'une chaîne 
+de caractères stockable sur disque et échangeable par réseau.
+\end{remblock}
+\end{frame}
+
+\begin{frame}
+\frametitle{Vue conceptuelle: modélisation  arborescente}
+
+Le codage représente un \alert{arbre}. Les étiquettes sont
+sur les arêtes, les valeurs sur les feuilles.
+
+
+\includegraphics[width=11cm]{label_on_edges1}
+
+\begin{remblock}{Important}
+Le codage distingue bien une \alert{structure} (l'arbre) et un 
+\alert{contenu} (le texte dans les feuilles). Toutes les  \alert{opérations} (de recherche, de navigation, ...)
+s'appuient sur la structure.
+\end{remblock}
+\end{frame}
+
+\begin{frame}
+\frametitle{Autre possibilité\,: les étiquettes sont des  n{\oe}uds}
+
+On peut représenter à la fois la structure et les valeurs 
+comme des n{\oe}uds.
+
+\medskip
+
+\includegraphics[width=9cm]{simple_xml_tree}
+
+\medskip
+
+\begin{remblock}{Remarque}
+C'est le choix de représentation du langage XML: toute l'information (structure et contenu)
+est stockée sous forme de n{\oe}ud.
+\end{remblock}
+
+\end{frame}
+
+\begin{frame}{JSON, Javascript Object Notation}
+
+\begin{redbullet}
+\item JavaScript Object Notation;
+\item Initialement créé pour la sérialisation et l'échange d'objets JavaScript;
+\item Langage pour l'échange de données semi-structurées (et éventuellement structurées);
+\item Format texte indépendant du language de programmation utilisé pour le manipuler.
+\end{redbullet}
+
+\vfill 
+
+Utilisation première : échange de données dans un environnement Web (par exemple applications Ajax)\\
+
+\vfill
+
+Extension : sérialisation
+ et stockage de données 
+
+\end{frame}
+
+\definecolor{lightgray}{rgb}{.9,.9,.9}
+\definecolor{darkgray}{rgb}{.4,.4,.4}
+\definecolor{purple}{rgb}{0.65, 0.12, 0.82}
+
+
+\begin{frame}[containsverbatim,fragile,allowframebreaks]{Les bases de JSON}
+
+Structure de base: paire  \textit{clef-valeur} (\textit{key-value})
+
+
+\begin{minted}{javascript}
+"title": "The Social network"
+\end{minted}
+
+\bigskip
+
+\alert{Qu'est-ce qu'une valeur?} On distingue les
+ valeurs \alert{atomiques} et les valeurs \alert{complexes} (construites)
+
+\medskip
+Valeurs atomiques\,: cha\^ines de caractères (entourées 
+par les classiques guillemets anglais (droits)), nombres (entiers, flottants) 
+et valeurs booléennes (\texttt{true} ou \texttt{false}).
+
+\begin{minted}{javascript}
+"year": 2010
+\end{minted}
+
+
+\begin{minted}{javascript}
+"oscar": false
+\end{minted}
+
+\framebreak
+
+Valeurs complexes\,: les \alert{objets}.
+Un \textit{objet} est un ensemble de paires clef-valeur.
+
+\vfill
+
+Au sein d'un ensemble de paires, une clef apparait au plus une fois 
+(NB : les types de valeurs peuvent être distincts).
+
+\begin{minted}{javascript}
+{"last_name": "Fincher", "first_name": "David"}
+\end{minted}
+
+\vfill
+
+Un objet peut être utilisé comme valeur (dite \textit{complexe}) dans une paire clef-valeur.
+
+\begin{minted}{javascript}
+"director": { 
+  "last_name": "Fincher",
+  "first_name": "David", 
+  "birth_date": 1962
+}
+\end{minted}
+
+\framebreak
+
+Valeurs complexes\,: les \alert{tableaux}.
+
+\bigskip
+
+Un \textit{tableau} (\textit{array}) est une liste 
+ de valeurs (dont le type n'est pas forcément le même).
+
+\begin{minted}{javascript}
+"actors": ["Eisenberg", "Mara", "Garfield", "Timberlake"]
+\end{minted}
+
+\bigskip
+
+Imbrication sans limite\,: tableaux de tableaux, tableaux d'objets contenant eux-mêmes des tableaux, etc.
+\framebreak
+
+Un \textit{document} est un objet. Il peut être défini par des objets et tableaux imbriqu\' es autant de fois que nécessaire.
+
+\begin{minted}[baselinestretch=.9,
+               fontsize=\small,
+               framesep=2mm]{javascript}
+{
+  "title": "The Social network", 
+  "summary": "On a fall night in 2003, Harvard undergrad and \n
+         programming genius Mark Zuckerberg sits down at his \n 
+         computer and heatedly begins working on a new idea. (...)",
+  "year": 2010, 
+  "director": {"last_name": "Fincher",
+                    "first_name": "David"},
+  "actors": [ 
+        {"first_name": "Jesse", "last_name": "Eisenberg"}, 
+        {"first_name": "Rooney", "last_name": "Mara"}
+    ]
+}
+\end{minted}
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+\frametitle{Flexibilité de la représentation\,: un rapport écrit}
+
+\begin{minted}[baselinestretch=.9,
+               fontsize=\small,
+               framesep=2mm]{javascript}
+{
+    "author": "Philippe Rigaux"
+    "date": "04/10/2065",
+    "title": "BD documentaires",
+    "content": {
+       "para": "...",
+       "para": "...",
+       "section": {
+          "title": "...",
+          "para": "...",
+          "figure" {"caption": "...", "content:"},
+          "para": "...",
+          "section": {...}
+       }
+    }
+}
+\end{minted}
+
+\begin{redbullet}
+  \item Imbrication très libre d'éléments représentant des composants d'un rapport.
+  \item Pas ou peu de \alert{référence} (mais on pourrait l'envisager pour l'auteur).
+\end{redbullet}
+\end{frame}
+
+
+
+
+\begin{frame}[fragile]
+\frametitle{Ce qu'il faut retenir}
+
+Les documents semi-structurés se caractérisent par les aspects suivants.
+
+\begin{redbullet}
+  \item Une structure \alert{flexible} (présence/absence, variations), \alert{complexe} (imbrication),
+   et \alert{auto-décrite}.
+  \item Une double représentation: un vue conceptuelle (arbre) et son codage (forme sérialisée).
+    \item \alert{Valable} pour les documents "multimédia" au sens large: rapports, images, vidéos.
+ \end{redbullet}
+ 
+\vfill
+La notion d'autonomie (pas d'association entre documents) est essentielle.
+\begin{redbullet}
+       \item Autonomie? On peut mettre en {\oe}uvre un \alert{passage à l'échelle par
+       distribution}. Typique des systèmes NoSQL.
+       \item Pas d'autonomie: un jour ou l'autre il faudra faire des jointures; 
+          les systèmes NoSQL ne sont pas bon pour ça.
+ \end{redbullet}
+
+\end{frame}
+

@@ -1,0 +1,432 @@
+
+\begin{frame}
+\frametitle{Le partitionnement (\textit{sharding})}
+
+Le partitionnement consiste à  
+
+\begin{itemize}
+  \item \alert{découper} une (grande) collection
+      en \alert{fragments} en fonction d'une \alert{clé}\,;
+      \item placer chaque fragment sur un \alert{serveur}\,;
+      \item Maintenir un \alert{répertoire} indiquant  que telle \alert{clé} se trouve dans tel \alert{fragment}
+          sur tel \alert{serveur}
+\end{itemize}
+ 
+\vfill
+
+Le partitionnement apporte la \alert{répartition de charge} (\textit{load balancing})
+
+\vfill
+
+Il doit être \alert{dynamique} (ajout/retrait de serveurs) pour s'adapter ``élastiquement'' 
+ 
+ \vfill
+ 
+ S'applique à des collections de paires (clé, valeur), où valeur est n'importe quelle information structurée.
+\end{frame}
+
+\begin{frame}
+\frametitle{Opérations}
+
+Les opérations de type ``dictionnaire'' peuvent être transmises à \alert{un seul} serveur\,:
+
+\begin{itemize}
+   \item $get(k): v$, recherche par clé
+   \item $put (k, v)$, insertion
+   \item $delete(k)$, suppression
+   \item $range(k_1, k_2)$, recherche par intervalle (peut impliquer plusieurs serveurs, ne marche pas avec le hachage)
+\end{itemize}
+
+\vfill
+
+\alert{Pour toutes les autres opérations}\,: tous les serveurs effectuent l'opération localement.
+
+\vfill
+
+Exemple\,: recherche sur une clé secondaire, s'effectue sur \alert{tous} les serveurs, avec si possible des index locaux.
+\end{frame}
+
+\section{Par tri}
+
+\begin{frame}
+\frametitle{Première étape\,: il faut trier}
+
+Il faut disposer d'une structure triant les documents sur la clé. Deux possibilités\,:
+
+\vfill
+
+\alert{1) On trie la collection (clé, document)}
+
+\begin{itemize}
+  \item indexation dite ``plaçante'': l'emplacement d'un document est déterminé par sa clé.
+  \item efficace en recherche (pas d'indirection)
+  \item peu efficace en mise à jour (nécessite des déplacements)  
+  \item on peut créer un seul index plaçant par collection
+\end{itemize}
+
+\alert{2) On trie une structure indépendante constituée des paires (clé, adresse) }
+
+\begin{itemize}
+  \item indexation non-plaçante\,: les documents peuvent être insérés n'importe où (efficace)
+  \item un peu moins efficace en recherche (on trouve une adresse dans l'index, pas le document lui-même)
+  \item autant d'index que l'on veut
+\end{itemize}
+
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Seconde étape (optionelle)\,: on crée des niveaux d'index}
+
+Illustration avec \alert{collection triée}, la clé est le titre.
+
+\figSlideWithSize{idxnondense}{10cm}
+
+On a découpé en \alert{4 fragments}, 
+indexés avec un niveau.
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Quelques calculs, cas d'une collection triée}
+
+On a un million de vidéos, soit $2^{20}$, \alert{triés} sur la clé.
+
+\vfill
+
+\alert{Sans index}
+\begin{itemize}
+  \item Recherche par dichotomie, soit 20 accès disques pour trouver une vidéo
+  \item Temps\,: 20 fois 10 ms = 200 ms (au pire du pire)
+\end{itemize} 
+
+\alert{Avec index}
+\begin{itemize}
+  \item Mon index comprend 1 million de paires (clé, adresse)
+  \item Supposons qu'une adresse occupe 8 octets, la clé 8 octets aussi\,: l'index occupe 16 MO 
+  \item Temps\,: recherche quasi instantanée dans l'index, 1 accès au disque (10 ms au pire) 
+\end{itemize} 
+
+\begin{noteblock}{Conclusion}
+L'index est tout petit (tient en mémoire), permet des accès très rapides même sur de très grandes collections.
+\end{noteblock}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{A quoi sert de \alert{trier} la collection\,?}
+
+Différence (subtile)\,: si la collection est triée, je peux créer
+un \alert{index non-dense}, sinon l'index \alert{doit} être dense.
+
+\vfill
+\alert{Index non-dense}
+
+\begin{itemize}
+  \item Je découpe ma collection en \alert{fragments} (quelques MO ou dizaines de MO)
+  \item Chaque fragment couvre un intervalle
+  \item \alert{J'indexe seulement les intervalles}
+\end{itemize} 
+
+Exemple dans le cas précédent: je découpe ma collection en fragments de 4 films; j'indexe
+250\,000 fragments (1M/4).
+
+\vfill
+
+\alert{Si la collection n'est pas triée, je dois créer un index dense} (pas le choix)
+\begin{itemize}
+  \item Chaque document est représenté dans l'index
+\end{itemize} 
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Exemple d'un index dense}
+
+On indexe sur l'année, en y mettant \alert{toutes} les clés.
+
+\figSlideWithSize{idxdense2}{10cm}
+
+Presque aussi efficace, sauf pour les recherches par intervalle.
+\end{frame}
+
+
+\section{Par hachage}
+
+
+\begin{frame}
+\frametitle{A la base\,: table de hachage et fichiers}
+
+On \textit{calcule} la position d'un enregistrement
+d'après la clé.
+\begin{itemize}
+  \item un \textit{fonction de hachage} $h$ associe des
+         valeurs de clé à des adresses de bloc
+   \item $h$ doit répartir uniformément les enregistrements
+            dans les $n$ blocs alloués à la structure
+  \item recherche d'un enregistrement =$>$ calcul de l'endroit
+          où il se trouve.
+\end{itemize}
+Simple et efficace\,!
+\end{frame}
+
+
+%------------------------------------------------------------
+\begin{frame}{Exemple}
+
+On veut créer une structure de hachage pour nos 16 films
+(hyp.\,: 4 enregistrements   par page)
+\begin{itemize}
+  \item on alloue 5 pages (pour garder une marge de man{\oe}uvre)
+  \item un répertoire à 5 entrées (0 à 4) pointe vers les pages
+   \item On définit la fonction $h(titre) = rang(titre[0])\, mod\, 5$
+\end{itemize}
+
+\end{frame}
+
+%------------------------------------------------------------
+\begin{frame}{Le résultat}
+
+  \figSlideWithSize{hachage}{10cm}
+
+\end{frame}
+
+
+\begin{frame}{Recherches}
+
+\begin{itemize}
+  \item Par clé\,? Oui:\\
+     \texttt{SELECT * FROM  Film WHERE titre = 'Impitoyable'}
+
+   \item Par préfixe\,? Ici, oui.\\
+      \texttt{SELECT * FROM  Film WHERE titre LIKE 'M\%'}
+
+   \item Par intervalle\,: non\,!\\
+
+\texttt{SELECT *
+FROM  Film
+WHERE titre BETWEEN 'Annie Hall' AND 'Easy Rider'}
+  
+\end{itemize}
+
+\end{frame}
+%------------------------------------------------------------
+\begin{frame}{Mises à jour\,: ça se gâte}
+
+La structure simple décrite précédemment n'est pas
+\textbf{dynamique}
+\begin{itemize}
+  \item On ne peut pas changer un enregistrement de place
+
+   \item Donc  il faut créer un chaînage de pages quand
+             une page déborde
+
+  \item Et donc les performances se dégradent...
+\end{itemize}
+
+\end{frame}
+%------------------------------------------------------------
+\begin{frame}{Exemple\,: insertion de Citizen Kane}
+
+  \figSlideWithSize{hachage-2}{10cm}
+
+\end{frame}
+
+%------------------------------------------------------------
+\begin{frame}{Hachage dynamique}
+
+Objectif\,: réorganiser la table de hachage en fonction
+des insertions et suppressions. 
+
+\begin{itemize}
+  \item le nombre d'entrées dans le répertoire est une puissance
+          de 2
+  \item la fonction $h$ donne toujours un entier sur 4 octets (32 bits)  
+\end{itemize}
+Idée de base\,: 
+ on utilise les $n$ premiers bits du résultat de la fonction, avec
+$n < 32$
+
+\end{frame}
+%------------------------------------------------------------
+\begin{frame}{Exemple\,: le hachage des 16 films}
+
+\begin{center}
+\begin{tabular}{l|c}
+titre & $h$(titre)   \\
+\hline
+Vertigo     & 01110010  \\
+Brazil      & 10100101  \\
+Twin Peaks  & 11001011  \\
+Underground & 01001001  \\
+Easy Rider  & 00100110 \\
+Psychose    &  01110011 \\
+Greystoke   &  10111001 \\
+Shining     &  11010011 \\
+\hline
+\end{tabular}
+\end{center}
+
+\end{frame}
+%------------------------------------------------------------
+\begin{frame}{Construction de la table}
+
+On départ on utilise seulement le premier bit
+de la fonction
+\begin{itemize}
+  \item Deux valeurs possibles\,: 0 et 1
+  \item Donc deux entrées, et deux blocs
+  \item L'affectation d'un enregistrement dépend
+        du premier bit de sa fonction de hachage  
+\end{itemize}
+
+=$>$ pour l'instant on reste dans un cadre classique
+
+\end{frame}
+%------------------------------------------------------------
+\begin{frame}{Avec 5 films}
+
+  \figSlide{hashext-1}
+
+\end{frame}
+%------------------------------------------------------------
+\begin{frame}{Insertions}
+
+Supposons 3 films par bloc. L'insertion de Psychose
+(valeur 01110011) entraîne le débordement du premier bloc.
+
+\begin{itemize}
+  \item On double la taille du répertoire
+  \item On alloue un nouveau bloc pour l'entrée 01
+  \item Les entrées 10 et 11 pointent sur le \textit{même} bloc.
+\end{itemize}
+On agrandit seulement ce qui est nécessaire.
+
+\end{frame}
+%------------------------------------------------------------
+\begin{frame}{Illustration}
+
+  \figSlide{hashext-2}
+
+\end{frame}
+%------------------------------------------------------------
+\begin{frame}{Insertions suivantes}
+
+Plusieurs cas
+\begin{itemize}
+  \item on insère dans un bloc plein, mais plusieurs
+           entrées pointent dessus
+  \begin{itemize}
+    \item on alloue un nouveau bloc, et on répartit les pointeurs
+  \end{itemize}
+  \item on insère dans un bloc plein, associé à une entrée
+  \begin{itemize}
+    \item on double à nouveau le nombre d'entrées
+  \end{itemize}
+Problème\,: le répertoire peut devenir très grand.
+\end{itemize}
+
+\end{frame}
+%------------------------------------------------------------
+\begin{frame}{Greystoke 10111001 et Shining 11010011}
+
+  \figSlide{hashext-3}
+
+\end{frame}
+
+
+
+
+\section{Et en distribué?}
+
+
+\begin{frame}
+\frametitle{Architecture d'un système avec partitionnement}
+
+\figSlide{archi-partition}
+      
+\begin{itemize}
+  \item Routeur = \textit{Master}, \textit{Balancer}, \textit{Config server}, ...
+  \item Fragment = \textit{chunk}, \textit{tablet}, \textit{region}, \textit{bucket}, ...
+\end{itemize}
+
+\begin{remark}
+Chaque serveur gère une réplication locale pour tolérance aux pannes.
+\end{remark}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Techniques de partitionnement}
+
+\begin{itemize}
+   \item par \alert{intervalle}\,: documents triés sur la clé, puis groupés par intervalles.
+   
+     Exemples représentatifs\,: \mongodb/, HBase (BigTable).
+     
+   \item par \alert{hachage} sur la clé, avec répertoire de hachage.
+   
+       Exemples\,: \textit{memcached}, \textit{chord}, \textit{Dynamo/S3/Voldemort}, beaucoup d'autres.
+ \end{itemize}
+ 
+
+\begin{remark}
+Se référer aux techniques d'indexation par arbre-B et par hachage dans des environnements centralisés.
+\end{remark}
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Notre application}
+
+On veut gérer (légalement) une collection de vidéos.
+
+\begin{itemize}
+  \item chaque vidéo occupe en moyenne 500 MO
+  \item on associe chaque vidéo à quelques méta données (titre, auteur, année, etc.)
+  \item 1\,000 vidéos = 500 GO (1/2 TO), pas de souci avec un (bon) serveur.
+  \item 1\,000\,000 vidéos = 500 TO (1/2 PO), il faut distribuer.
+\end{itemize}
+
+\begin{remark}
+Dès qu'on parle de système distribué, il faut envisager le coût en stockage de la réplication. Multiplier
+par 2 ou 3...
+\end{remark}
+
+
+\begin{noteblock}{Besoins}
+Chercher une vidéo par son titre, les vidéos par année, intervalle d'années, etc.
+\end{noteblock}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Pour illustrer}
+
+Un tout petit échantillon.
+
+\begin{center}
+\begin{small}
+\begin{tabular}{r|l|c|c||r|l|c|c}
+id &titre & année  & mp4  & id & titre & année  & mp4  \\
+\hline
+1 & Vertigo  & 1958 & ... & 9 & Annie Hall & 1977 & ... \\
+2 & Brazil & 1984 & ... & 10&Jurasic Park & 1992 & ... \\
+3&Twin Peaks & 1990 & ...&  11&Metropolis & 1926 & ... \\
+4&Underground & 1995 & ... & 12&Manhattan & 1979 & ... \\
+5&Easy Rider & 1969 & ... & 13&Reservoir Dogs & 1992 & ... \\
+6&Psychose & 1960 & ... & 14&Impitoyable & 1992 & ... \\
+7&Greystoke & 1984 & ... & 15&Casablanca & 1942 & ... \\
+8&Shining & 1980 & ... & 16&Smoke & 1995 & ... \\
+\hline
+\end{tabular}
+\end{small}
+\end{center}
+
+Quelle clé considère-t-on\,? On va y revenir.
+
+\end{frame}

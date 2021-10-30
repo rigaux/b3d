@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<movie>
+  <title>Spider-Man</title>
+  <year>2002</year>
+  <country>USA</country>
+  <genre>Action</genre>
+  <summary>On a school field trip, Peter Parker (Maguire) is 
+    bitten by a genetically modified spider. He wakes 
+    up the next morning with incredible powers. After 
+    witnessing the death of his uncle (Robertson), 
+    Parkers decides to put his new skills to use in 
+    order to rid the city of evil, but someone else 
+    has other plans. The Green Goblin (Dafoe) sees 
+    Spider-Man as a threat and must dispose of him. </summary>
+  <director id='21'>
+    <last_name>Raimi</last_name>
+    <first_name>Sam</first_name>
+    <birth_date>1959</birth_date>
+  </director>
+  <actor id='19'>
+    <first_name>Kirsten</first_name>
+    <last_name>Dunst</last_name>
+    <birth_date>1982</birth_date>
+    <role>Mary Jane Watson</role>
+  </actor>
+  <actor id='22'>
+    <first_name>Tobey</first_name>
+    <last_name>Maguire</last_name>
+    <birth_date>1975</birth_date>
+    <role>Spider-Man / Peter Parker</role>
+  </actor>
+  <actor id='23'>
+    <first_name>Willem</first_name>
+    <last_name>Dafoe</last_name>
+    <birth_date>1955</birth_date>
+    <role>Green Goblin / Norman Osborn</role>
+  </actor>
+</movie>

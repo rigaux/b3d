@@ -1,0 +1,221 @@
+
+\section{La réplication, pourquoi?}
+
+\begin{frame}
+\frametitle{Répliquer, à quoi ça sert\,?}
+
+Outil indispensable, universel pour la robustesse des systèmes distribués.
+
+\begin{redbullet}
+  \item \alert{Tolérance aux pannes}
+  
+     Vous cherchez un document sur $S_1$, qui est en panne\,? On le trouvera sur $S_2$
+     
+ \item \alert{Distribution des lectures}
+ 
+    Répartissons les lectures sur $S_1, S_2, \ldots, S_n$ pour satisfaire les millions de requêtes de nos clients.
+    
+ \item \alert{Distribution des écritures\,?}
+ 
+    Oui, mais attention, il faut \alert{réconcilier} les données ensuite.
+    
+     \item et autres avantages, comme la construction d'un index sur un des serveurs sans affecter les autres, 
+     
+ \end{redbullet}
+
+Le bon niveau de réplication? \alert{Trois copies pour une sécurité totale; deux au minimum}.
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Méthode générale de réplication}
+
+Une \alert{application} (le client) demande au \alert{système} (le serveur) $S_1$ \alert{l'écriture}
+d'un document (unité d'information).
+
+\begin{redbullet}
+  \item le serveur écrit le document sur le disque\,; 
+  \item \alert{$S_1$ transmet la demande d'écriture à un ou plusieurs autres serveurs $S_2, \ldots, S_n$}, créant
+     des \alert{replicas} ou \alert{copies}\,;
+  \item $S_1$ ``rend la main'' au client.
+\end{redbullet}
+
+Essentiel, réplication synchrone/asynchrone\,?
+
+\begin{redbullet}
+  \item \alert{synchrone}: $S_1$ \alert{attend} confirmation de $S_2, \ldots, S_n$ avant de rendre la main\,; 
+ \item \alert{asynchrone}: $S_1$ rend la main \alert{sans attendre}. 
+ \end{redbullet}
+
+\begin{remblock}{Conséquences}
+Une réplication \alert{asynchrone} est beaucoup plus rapide, mais elle favorise les \alert{incohérences}, au moins
+temporaires.
+\end{remblock}
+
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Pour éviter la latence disque: le fichier journal}
+
+Technique universellement utilisée en centralisé
+
+\vfill
+
+
+\figSlideWithSize{log}{11cm}
+
+\vfill
+
+Permet de se ramener à des entrées/sorties \alert{séquentielles}.
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Réplication avec écritures synchrones}
+
+Le client est acquitté quand \alert{tous} les serveurs ont effectué l'écriture.
+
+\vfill
+
+\figSlideWithSize{replication-synchrone}{10cm}
+
+\vfill
+
+Sécurité totale; cohérence forte; \alert{très lent}.
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Réplication avec écritures asynchrones}
+
+Le client est acquitté quand \alert{un} des serveurs a effectué l'écriture. Les autres
+écritures se font indépendamment.
+
+\vfill
+
+\figSlideWithSize{replication-asynchrone}{10cm}
+
+\vfill
+
+Sécurité partielle; cohérence faible; \alert{Efficace}.
+
+\end{frame}
+
+\section{Cohérence des données}
+
+
+\begin{frame}
+\frametitle{Parlons cohérence}
+
+La cohérence est la capacité d’un système de gestion de données à refléter fidèlement les opérations d’une application.
+ 
+\begin{redbullet}
+  \item toute opération (validée) est immédiatement visible et permanente. 
+  \item si je fais une écriture de $d$ suivie d’une lecture, je dois constater les modifications effectuées; 
+  \item si je refais une lecture un peu plus tard, ces modifications doivent toujours être présentes.
+\end{redbullet}
+
+\alert{Cohérence forte = } une des fonctionnalités marquantes des systèmes relationnels.
+
+\begin{remblock}{Dans les systèmes NoSQL}
+\alert{La cohérence forte est sacrifiée au profit des performances.} 
+\end{remblock}
+\end{frame}
+
+\begin{frame}
+\frametitle{Architectures avec réplication: topologie et (a)synchronicité}
+
+\figSlideWithSize{coherence}{11cm}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Soyons cohérents (ou pas...)}
+
+Plusieurs niveaux de cohérence dans les systèmes distribués / NoSQL.
+
+\vfill
+
+\begin{redbullet}
+  \item \alert{Cohérence forte} (ACID) --  nécessite une réplication synchrone,
+     et potentiellement des verrouillages complexes (\textit{two phases commit}).
+       
+  \item \alert{Cohérence faible} -- on accepte le risque de lectures ne reflétant pas les mises à jour.
+  
+  \item \alert{Cohérence à terme} (\textit{Eventual consistency}) -- le système
+     garantit que les incohérences ne sont que transitoires. 
+\end{redbullet}
+
+\begin{remblock}{Le NoSQL}
+Les systèmes NoSQL dans l'ensemble abandonnent la cohérence forte pour
+favoriser la réplication asynchrone, et donc le débit en écriture/lecture.
+\end{remblock}
+
+\end{frame}
+
+\section{Reprise sur panne}
+
+\begin{frame}
+\frametitle{Réplication et reprise sur panne}
+
+Principe général: tout le monde est interconnecté et échange des messages
+(\textit{heartbeat}.
+
+\figSlideWithSize{heartbeat}{10cm}
+
+\vfill
+
+  Si un \alert{esclave} tombe en panne, le système continue à fonctionner, \alert{tant qu'il est en contact
+    avec une majorité d'esclaves}
+ 
+ \vfill
+ 
+ Si le \alert{maître} tombe en panne, les \alert{esclaves} doivent \alert{élire} 
+ un nouveau maître.
+
+\end{frame}
+
+\begin{frame}{Cas du partitionnement réseau}
+
+Un \alert{partitionnement} divise la grappe en deux groupes.
+
+\figSlideWithSize{reprise}{10cm}
+
+\begin{remblock}{Principe de majorité}
+Seul le groupe représentant la \alert{majorité} des participants initiaux peut élire
+un maître.
+\end{remblock}
+
+Election: algorithme de négociation, voir par exemple Paxos.
+
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Culture, culture\,: le théorème CAP}
+
+Un ``théorème'' qui dit qu'un système distribué ne peut satisfaire à la fois
+
+\begin{redbullet}
+  \item La cohérence (\alert{C})
+  
+  \item La disponibilité (\alert{A}\textit{vailability})
+   \item La tolérance au  \alert{P}artitionnement 
+  
+\end{redbullet}
+
+Exprime une limitation intrinsèque aux systèmes distribués, applicable à tout système
+NoSQL, et expliquant qu'il faut toujours faire un compromis.
+
+\end{frame}
+
+
+\end{document}
+
+

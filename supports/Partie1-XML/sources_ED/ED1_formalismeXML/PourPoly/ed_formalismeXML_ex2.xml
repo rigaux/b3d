@@ -1,0 +1,34 @@
+<?xml version="3.0" encoding="utf-8"?>  (1) Version inexistante
+ <logiciel Comptabilite>
+   <version>1<version/> (2) balise vide au lieu de fermante 
+   <user>
+     <uid>bgirot</uid>
+   </user>
+   <contact>
+     <lastName>Girot</lastName>
+     <firstName>Bernadette</FirstName> (3) case sensitive, la balise ne ferme pas
+     <email>ggirot@petites.fleurs.com</email>
+   </contact>
+   <author autId="ghuret" lastName="Huret" firstName="George" organism="">
+     <company>
+       <labId>3987</labId>
+       <name>Analyse Informatique des Données & Information</name> (4) &=caractère à échaper
+       <shortName></shortName>
+     </company>
+   </author>
+   <author autId="mgirard" lastName="Girard" firstName="Matin" firstName="Matin" organism=""> (5) deux fois firstname
+     <company>
+       <labId>6670</labId>
+<name>La compta en vogue</name>
+       <shortName>Vogu'la compta</shortName>
+     </company>
+     <company>
+       <labId>4621</labId>
+       <name>En avant les chiffres</name>
+       <shortName>EAC</shortName>
+   </author>  (6) author fermé avant company
+     </company>
+</logiciel Comptabilite> (7) espace 
+ <date_mise_en_service>  (8) deux éléments racine
+   2007-09-17
+ </date_mise_en_service>

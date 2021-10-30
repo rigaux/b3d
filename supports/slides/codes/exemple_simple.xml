@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+    <!-- Auteur : M. Philippe Rigaux -->
+
+    <cours code="NFE204">
+	  <formation name="CNAM Paris"></formation>
+	  <titre>
+	    NFE204 - Bases de donn&#233;es documentaires et distribu&#233;es.
+	  </titre>
+	  <notion>Documents structur&#233;s</notion>
+	  <notion>Bases documentaires</notion>
+	  <notion>Syst&#232;mes NoSQL</notion>
+     </cours>

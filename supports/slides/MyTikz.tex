@@ -1,0 +1,98 @@
+
+
+%%% TIKZ parameters and macros
+
+\newcommand{\rootShape}{ellipse}
+\newcommand{\rootFill}{blue!15}
+\newcommand{\elShape}{ellipse split}
+\newcommand{\elFill}{green!15}
+\newcommand{\txtShape}{ellipse split}
+\newcommand{\txtFill}{red!10}
+\newcommand{\attrShape}{ellipse split}
+\newcommand{\attrFill}{red!20}
+
+\newcommand{\textWidthTikz}{1cm}
+\newcommand{\tikzLevelDistance}{15mm}
+\newcommand{\tikzSiblingDistanceOne}{50mm}
+\newcommand{\tikzSiblingDistanceTwo}{35mm}
+\newcommand{\tikzSiblingDistanceThree}{15mm}
+\newcommand{\tikzSiblingDistanceFour}{15mm}
+
+%%
+%% @par1 = id @par2=name
+\newcommand{\tikzElementWithID}[2]{node[\elShape,fill=\elFill] (#1)
+{\tikzEl{#2}}}
+\newcommand{\tikzElement}[1]{node[\elShape,fill=\elFill] {\tikzEl{#1}}}
+
+\newcommand{\tikzText}[1]{node[\txtShape,fill=\txtFill] {\tikzTx{#1}}}
+\newcommand{\tikzAttr}[1]{node[\attrShape,fill=\attrFill,dotted] {\tikzAt{#1}}}
+
+\newcommand{\tikzRoot}{\domtype{Document}}
+
+
+\newcommand{\tikzEl}[1]{%
+  \domtype{Element}
+   \nodepart{lower} {#1}
+}
+
+\newcommand{\tikzTx}[1]{%
+  \domtype{Text}
+   \nodepart{lower} {#1}
+}
+
+\newcommand{\tikzAt}[1]{%
+  \domtype{Attr.}
+   \nodepart{lower} {#1}
+}
+
+%
+% A DOM tree in tikz, in a floating figure
+%
+\newcommand{\tikzDomTree}[2]{%
+\begin{figure}
+\begin{center}
+
+\begin{small}
+\input{../textrees/#1.tikz}
+\end{small}
+   \caption{\label{#1} #2}
+   
+\end{center}
+  \end{figure}
+}
+
+%
+% Without the floating env.
+%
+\newcommand{\tikzDomTreeHere}[1]{%
+\begin{center}
+
+\input{../textrees/#1.tikz}
+
+\end{center}
+}
+
+
+%%
+%% Style definition
+%
+
+\tikzstyle{every text node part}=[font=\bf]
+\tikzstyle{every lower node part}=[font=\itshape]
+
+%% Tikz style for drawing DOM trees
+\tikzstyle{domtree}=[fill=red!60,rectangle,inner sep=1pt,level
+distance=\tikzLevelDistance]
+
+%% Tikz style for ontologies
+\tikzstyle{onto}=[inner sep=1pt,level
+distance=\tikzLevelDistance, sibling distance=15mm]
+
+%% ikz style for the root node
+\tikzstyle{rootnode}=[\rootShape,fill=\rootFill]
+
+ \tikzstyle{level 1}=[sibling distance=\tikzSiblingDistanceOne]
+  \tikzstyle{level 2}=[sibling distance=\tikzSiblingDistanceTwo]
+  \tikzstyle{level 3}=[sibling distance=\tikzSiblingDistanceThree]
+  \tikzstyle{level 4}=[sibling distance=\tikzSiblingDistanceFour]
+  

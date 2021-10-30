@@ -1,0 +1,588 @@
+
+
+
+\section{Rappels conception relationnelle}
+
+\begin{frame}
+\frametitle{Rappel sur la conception relationnelle}
+
+Pour l'essentiel.
+
+\begin{redbullet}
+  \item déterminer les "entités" (film, réalisateurs, acteurs) pertinentes pour l'application; 
+  \item définir une méthode d'identification de chaque entité;  
+  \item préserver le lien entre les entités.
+\end{redbullet}
+
+\vfill
+
+Exemple pour notre application "Les films"
+
+\begin{redbullet}
+  \item  On distingue  deux types d'entités: les films et les réalisateurs.
+  \item On les identifie par un numéro incrémental (l'id)
+  \item On référence, dans chaque film, le réalisateur grâce à son identifiant.
+\end{redbullet}
+
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+\frametitle{Illustration}
+
+\alert{La table des films}
+
+\medskip
+
+\begin{small}
+   \begin{tabular}[!ht]{l|l|l}
+    \textbf{id} & \textbf{titre} & \textbf{année} \\
+     \hline
+    1 & Alien & 1979 \\
+    2 & Vertigo & 1958 \\
+    3 & Psychose & 1960 \\
+    4 & Kagemusha & 1980 \\
+    5 & Volte-face & 1997 \\
+    6 & Pulp Fiction & 1995 \\
+     \hline
+   \end{tabular}
+   \end{small}
+ \medskip
+ 
+\alert{La table des artistes}
+\medskip
+
+\begin{small}
+   \begin{tabular}[!ht]{l|l|l|l}
+    \textbf{id} & \textbf{nom} & \textbf{prénom} &  \textbf{année} \\
+     \hline
+    101 & Scott & Ridley & 1943 \\
+    102 & Hitchcock & Alfred & 1899 \\
+    103 & Kurosawa & Akira & 1910 \\
+    104 & Woo & John & 1946 \\
+    105 & Tarantino & Quentin & 1963 \\
+     \hline
+   \end{tabular}
+ \end{small}
+\medskip
+
+\alert{Il manque le lien entre les films et les artistes.}
+
+\end{frame}
+ 
+ 
+\begin{frame}[fragile]
+\frametitle{Le système de référencement en relationnel}
+
+\alert{La table des films.}
+
+\medskip
+
+ \begin{small}
+   \begin{tabular}[!ht]{l|l|l|l}
+    \textbf{id} & \textbf{titre} & \textbf{année} & \textbf{idRéalisateur} \\
+     \hline
+    1 & Alien & 1979 & \alert{101} \\
+    2 & Vertigo & 1958 & \alert{102}\\
+    3 & Psychose & 1960 & \alert{102} \\
+    4 & Kagemusha & 1980 & \alert{103} \\
+    5 & Volte-face & 1997 & \alert{104} \\
+    6 & Pulp Fiction & 1995 & \alert{105} \\
+     \hline
+   \end{tabular}
+   \end{small}
+ \medskip
+ 
+\alert{La table des artistes}
+\medskip
+
+\begin{small}
+   \begin{tabular}[!ht]{l|l|l|l}
+    \textbf{id} & \textbf{nom} & \textbf{prénom} &  \textbf{année} \\
+     \hline
+    \alert{101} & Scott & Ridley & 1943 \\
+    \alert{102} & Hitchcock & Alfred & 1899 \\
+    \alert{103} & Kurosawa & Akira & 1910 \\
+    \alert{104} & Woo & John & 1946 \\
+    \alert{105} & Tarantino & Quentin & 1963 \\
+     \hline
+   \end{tabular}
+\end{small}
+\medskip
+
+\alert{Ce n'est pas un lien physique, mais il permet des jointures.}
+
+\end{frame}
+ 
+ 
+\begin{frame}
+\frametitle{Méthode générale: schémas entité/association}
+
+Exemple pour notre base de films.
+
+\vfill
+
+\figSlideWithSize{films}{9cm}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Schémas relationnels}
+
+Exemple pour notre base de films.
+
+\vfill
+\begin{minted}{sql}
+create table Artiste  (idArtiste integer not null,
+                       nom varchar (30) not null,
+                       prenom varchar (30) not null,
+                       anneeNaiss integer,
+                       primary key (idArtiste),
+                       unique (nom, prenom))
+\end{minted}
+
+\vfill
+
+Exprime des \alert{contraintes}: clé primaire, unicité (nom, prénom), typage, valeurs obligatoires.
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Schémas relationnels (2)}
+
+La table des films:
+
+\vfill
+\begin{minted}{sql}
+create table Film  (idFilm integer not null, 
+                   titre    varchar (50) not null,
+                   annee    integer not null,
+                   idRealisateur    integer not null,
+                   genre varchar (20) not null,
+                   resume      varchar(255),
+                   codePays    varchar (4),
+                   primary key (idFilm),
+                   foreign key (idRealisateur) 
+                       references Artiste);
+\end{minted}
+
+\vfill
+La \alert{contrainte d'intégrité référentielle} \texttt{foreign key} garantit la cohérence
+du référencement.
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{La normalisation relationnelle}
+
+En relationnel, toutes les données sont "à plat". Cela tend à multiplier le nombre
+de tables contenant les informations sur une même entité.
+
+\vfill
+
+Exemple: pour représenter toutes les informations sur un film, il faut
+
+\begin{redbullet}
+  \item La table \texttt{Film} (une ligne pour le film)
+  \item La table \texttt{Artiste} (une ligne pour le réalisateur, autant de lignes que d'acteurs)
+  \item La table \texttt{Role} (autant de lignes que de rôles)
+  \item et la table \texttt{Pays}, et d'autres encore...
+\end{redbullet}
+
+\vfill
+
+Il faut beaucoup \alert{d'écritures}, et autant de \alert{lectures} pour reconstituer
+l'information.
+
+\end{frame}
+
+
+\begin{frame}{Représentation relationnelle du film (Pulp Fiction)}
+
+\begin{columns}
+    \begin{column}{0.2\textwidth}
+Les films:
+\end{column}
+  \begin{column}{0.7\textwidth}
+   \begin{tabular}[!ht]{l|l|l|l}
+      id & titre & année & idReal\\
+     \hline
+    17 & Pulp Fiction & 1994 & 37\\
+     \hline
+   \end{tabular}
+   \end{column}
+   \end{columns}
+   
+\bigskip
+
+\begin{columns}
+    \begin{column}{0.2\textwidth}
+Les artistes: 
+\end{column}
+  \begin{column}{0.7\textwidth}
+
+   \begin{tabular}[!ht]{l|l|l|l}
+    id & nom & prénom & naissance\\
+     \hline
+    37 & Tarantino & Quentin & 1963\\
+    11 & Travolta & John & 1954\\
+    27 & Willis & Bruce & 1955\\
+     \hline
+   \end{tabular}
+\end{column}
+\end{columns}
+
+  \bigskip
+
+\begin{columns}
+    \begin{column}{0.2\textwidth}
+Les rôles
+\end{column}
+  \begin{column}{0.7\textwidth}
+
+   \begin{tabular}[!ht]{l|l|l}
+    idFilm & idArtiste & rôle\\
+     \hline
+    17 & 11 & Vincent Vega \\
+    17 & 27 & Butch Coolidge\\
+   17 & 37 & Jimmy Dimmick\\
+     \hline
+   \end{tabular}
+  \end{column}
+\end{columns}
+
+\end{frame} % ending frame Exemple de structure relationnelle
+
+
+\begin{frame}[fragile]{Impact de la normalisation}
+
+\begin{remblock}{Essentiel: effet de la normalisation}
+\begin{redbullet}
+  \item il faut effectuer \alert{plusieurs écritures} pour une même entité (transactions)
+  \item il faut effectuer des \alert{jointures} pour reconstituer une entité.
+\end{redbullet}
+\end{remblock}
+
+\vfill
+
+Reconstitution de l'information sur un film en SQL:
+
+\begin{minted}{sql}
+select titre, nom, prenom, role
+from Film, Artiste, Role
+where role='Vincent Vega'
+and Film.id = Role.idFilm
+and Artiste.id = Role.idActeur
+\end{minted}
+
+\end{frame}
+
+
+%%%%%%%%%%%%
+\section{Modélisation NoSQL}
+
+
+\begin{frame}[fragile]
+\frametitle{Puissance du modèle semi-structuré}
+
+Les documents structurés ne sont pas soumis aux contraintes de normalisation.
+
+
+\vfill
+
+Un attribut peut avoir \alert{plusieurs valeurs} (en utilisant la structure de tableau)
+\begin{minted}[baselinestretch=.9,
+               fontsize=\small,
+               framesep=2mm]{javascript}
+    {
+      "title": "Pulp fiction",
+      "year": "1994",
+      "genre": ["Action", "Policier", "Comedie"]
+      "country": "USA"
+    }
+\end{minted}
+
+
+\vfill
+
+En relationnel, il faudrait ajouter deux tables.
+
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Puissance du modèle semi-structuré (2)}
+
+Il est également facile de représenter des données régulières. 
+
+\medskip
+
+   \begin{tabular}[!ht]{l|l|l}
+    \textbf{id} & \textbf{nom} & \textbf{prénom} \\
+     \hline
+    37 & Tarantino & Quentin \\
+     \hline
+    167 & De Niro & Robert \\
+     \hline
+    168 & Grier & Pam \\
+     \hline
+   \end{tabular}
+   
+ \vfill
+ 
+Facile à représenter sous forme d'un document (très régulier).
+
+\medskip
+   
+\begin{minted}[baselinestretch=.9,
+               fontsize=\small,
+               framesep=2mm]{javascript}
+ [
+   artiste:  {"id": 37, "nom": "Tarantino", "prenom": "Quentin"},
+   artiste:  {"id": 167, "nom": "De Niro", "prenom": "Robert"},
+   artiste:  {"id": 168, "nom": "Grier", "prenom": "Pam"} 
+ ] 
+\end{minted}
+
+\vfill
+
+Table relationnelle = arbre de hauteur constante. Trois niveaux: ligne, attribut, valeur.
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Plus puissant que la représentation relationnelle?}
+
+
+\begin{remblock}{On peut donc aussi représenter des données régulières}
+Probablement pas du tout efficace. \alert{Pourquoi\,?}
+\end{remblock}
+
+$\Rightarrow$ peut être utile pour échanger des informations\,; pas pour les
+stocker.
+
+\vfill
+
+\begin{beamerboxesrounded}{Premier constat}
+
+\begin{redbullet}
+  \item Dans une base relationnelle, les données sont très contraintes / structurées: \alert{on peut stocker
+  séparément la structure (le schéma) et le contenu (la base)}.
+  \item Une représentation arborescente XML / JSON est plus appropriée pour des données de structure
+       \alert{complexe} et / ou \alert{flexible}.
+\end{redbullet}
+\end{beamerboxesrounded}
+
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Documents structurés = imbrication des structures}
+
+Grâce à \alert{l'imbrication des structures}, il est possible de
+représenter dans une même unité un film \alert{et} son metteur en scène.
+
+\smallskip
+
+\begin{minted}[baselinestretch=.9,
+               fontsize=\small,
+               framesep=2mm]{javascript}
+{ "title": "Pulp fiction",
+    "year": "1994",
+    "genre": "Action",
+    "country": "USA",
+    "director": {"last_name": "Tarantino",
+	               "first_name": "Quentin",
+	               "birth_date": "1963"	
+               }
+}
+\end{minted}
+
+\smallskip
+
+Dans les bases documentaires\,: on essaie de créer des unités d'information \alert{autonomes} 
+pour limiter les écritures et éviter d'avoir à faire des jointures.
+
+\begin{remblock}{Intérêt?}
+Les systèmes NoSQL sont conçus pour passer à l'échelle par distribution. C'est en
+partie incompatible avec les jointures et les transactions.
+\end{remblock}
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+\frametitle{Représentation sous forme de document structuré}
+
+On peut coder toutes les informations sur un film.
+\begin{minted}[baselinestretch=.9,
+               fontsize=\footnotesize,
+               framesep=2mm]{javascript}
+{   "_id": "movie:17",
+    "title": "Pulp Fiction",
+    "year": "1994",
+    "director": 	{
+	    "last_name": "Tarantino", "first_name": "Quentin", 
+	    "birth_date": "1963"	
+	    },
+    "actors": [
+       {
+         "first_name": "John", "last_name": "Travolta", 
+         "birth_date": "1954",  "role": "Vindent Vega"	
+       },
+       {
+        "first_name": "Bruce", "last_name": "Willis", 
+        "birth_date": "1955", "role": "Butch Coolidge"	
+       },
+       {
+        "first_name": "Quentin", "last_name": "Tarantino", 
+        "birth_date": "1963", "role": "Jimmy Dimmick"	
+       }
+     ]
+}
+\end{minted}
+
+\end{frame}
+
+
+\begin{frame}[fragile]{Bilan - à retenir}
+
+Les avantages de la représentation par document structuré.
+
+\begin{redbullet}
+
+  \item \alert{Plus besoin de jointure (?)} : il est inutile de faire des jointures pour reconstituer
+    l'information puisqu'elle n'est plus dispersée, comme en relationnel, dans plusieurs
+    tables.
+   
+   \item \alert{Plus besoin de transaction (?)}: une écriture (du document) suffit; 
+    une lecture suffit pour récupérer l'ensemble des informations.
+    
+  \item \alert{Adaptation à la distribution}. Si les documents sont autonomes, il est très facile
+    des les déplacer pour les répartir au mieux dans un système distribué.
+\end{redbullet}
+
+\vfill
+
+Un système NoSQL est beaucoup plus facile à implanter qu'un système relationnel. Une
+opération \textit{put()}, une opération \textit{get()} et c'est parti.
+
+\end{frame}
+
+
+\begin{frame}[fragile]{Les inconvénients du modèle}
+
+La représentation par document a deux inconvénients forts. 
+
+\begin{redbullet}
+  \item \alert{Chemin d'accès privilégié}: les   films apparaissent près de la racine des documents, les artistes 
+    sont enfouis dans les profondeurs;
+    
+     L'accès aux films est donc privilégié
+
+ \item \alert{Les entités ne sont plus autonomes}: 
+   pas moyen de créer un réalisateur s'il n'y a pas au moins un film.
+
+    
+  \item \alert{Redondance}: la même information doit être représentée
+    plusieurs fois, ce qui est tout à fait fâcheux (Quentin Tarantino est représenté deux fois).
+ \end{redbullet}
+ 
+\vfill
+
+La redondance mène à des incohérences.
+
+\vfill
+
+Privilégier un chemin d'accès est bon pour certaines applications, mauvais pour d'autres.
+
+\vfill
+
+Comment faire pour obtenir la liste des films de Quentin Tarantino avec
+la représentation précédente?
+\end{frame}
+
+\begin{frame}[fragile]{Les autres inconvénients}
+
+\alert{Pas de langage de requête?}
+
+Il faut faire un programme pour tout, même la moindre mise à jour!
+
+\vfill
+\alert{Pas de schéma}?
+
+On peut mettre n'importe quoi dans la base; c'est l'application qui doit faire les contrôles et les corrections.
+
+\vfill
+
+\alert{Pas de transaction?}
+
+Ne convient pas pour beaucoup d'applications (commerce électronique).
+
+
+\end{frame}
+
+\section{Bilan, NoSQL ou relationnel?}
+
+\begin{frame}[fragile]
+\frametitle{Bilan, NoSQL ou relationnel?}
+
+Quand utiliser (ou pas) une base documentaire\,?
+
+\begin{redbullet}
+  \item \alert{Des données très spécifiques, peu ou faiblement structurées} (texte, données multimédia, graphes)
+  
+  \item \alert{Peu de mises à jour, beaucoup de lectures.}; la redondance ne pose pas de problème.
+  
+  \item \alert{on veut traiter de très gros volumes de manière ``scalable''}.     
+
+
+  \item \alert{De forts besoins en temps réel}.     
+\end{redbullet}
+
+Conditions non remplies\,: un système relationnel est probablement une bien meilleure option.
+
+\begin{remblock}{Bien retenir}
+NoSQL = \textit{Not Only SQL}. Personne (de sérieux) ne prétend que ces systèmes vont
+remplacer les systèmes relationnels, sauf pour certaines niches.
+\end{remblock}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Quelques éléments de réflexion}
+
+
+ \alert{Toujours se poser (au moins) les questions suivantes}:
+
+\begin{redbullet}
+  \item S'agit-il de représenter une structure régulière (p.e. une table)?
+  
+    Dans ce cas il n'est pas nécessaire d'intégrer la structure et le contenu.
+        
+  \item Est-ce que je dois souvent modifier les données existantes?
+  
+    Dans ce cas j'ai sans doute besoin de transactions, et je risque de payer cher toute redondance.
+    
+  \item La structure d'un document est-elle fixe et prévisible?
+  
+  Si oui, le relationnel est bien adapté.
+\end{redbullet}
+
+\vfill
+
+\begin{remblock}{La principale niche des bases NoSQL}
+Comme entrepôts de données où on accumule des informations dans l'optique de traitements analytiques.
+\end{remblock}
+
+
+\end{frame}
+
+
+

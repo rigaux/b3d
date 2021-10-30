@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!DOCTYPE mail [
+<!ELEMENT mail (header,body)>
+<!ELEMENT header (from,to+,cc*,bcc*,subject)>
+<!ELEMENT from (#PCDATA)>
+<!ELEMENT to (#PCDATA)>
+<!ELEMENT cc (#PCDATA)>
+<!ELEMENT bcc (#PCDATA)>
+<!ELEMENT subject (#PCDATA)>
+<!ELEMENT body (#PCDATA)>
+<!ENTITY author "moi même">
+]>
+
+<mail>
+  <header>
+    <from>etudiant@dauphine.fr</from>
+    <to>philippe.rigaux@cnam.fr</to>
+    <cc>membre1@gmail.com</cc>
+    <cc>membre2@yahoo.fr</cc>
+    <subject>NFE204 - proposition d'un sujet de reflexion</subject>
+  </header>
+  <body>
+    Bonjour,
+    Nous proposons le sujet ...
+    Le groupe est composé de
+    ...
+    ...
+    
+    Cordialement,
+    ...
+  </body>
+</mail>

@@ -1,0 +1,13 @@
+\begin{tikzpicture}
+\begin{small}
+\tikzstyle{every text node part}=[font=\bf]
+\tikzstyle{every lower node part}=[font=\itshape]
+
+\node [\elShape,fill=\elFill]  {\tikzEl{elt1}} 
+[level distance=2cm, sibling distance=2cm]
+        child[sibling distance=2.3cm] {\tikzAttr{att1: '12'}}
+        child [sibling distance=2.3cm] {\tikzAttr{att2: 'fr'}}
+        child [sibling distance=2.3cm]{\tikzText{Du texte}} 
+  ;
+\end{small}
+\end{tikzpicture}

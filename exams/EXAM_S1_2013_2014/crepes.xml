@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<recipe measures="FR">
+  <title>Crêpes</title>
+  <catalogued_in>
+    <catalog name="plat">autre</catalog>
+    <catalog name="difficulté">moyenne</catalog>
+    <catalog name="toques">2</catalog>
+  </catalogued_in>
+  <ingredient_lines>
+    <yield piece="pers.">6</yield>
+    <ingredient_line>
+      <quantity unit="g">150</quantity>
+      <ingredient>sucre</ingredient>
+    </ingredient_line>
+    <ingredient_line>
+      <quantity unit="g">750</quantity>
+      <ingredient>farine</ingredient>
+    </ingredient_line>
+    <ingredient_line>
+      <quantity piece=" ">8</quantity>
+      <ingredient>oeuf</ingredient>
+    </ingredient_line>
+    <ingredient_line>
+      <quantity piece="c. à soupe">4</quantity>
+      <ingredient>huile</ingredient>
+    </ingredient_line>
+    <ingredient_line>
+      <quantity unit="l">2</quantity>
+      <ingredient>lait</ingredient>
+    </ingredient_line>
+    <ingredient_line>
+      <quantity piece="c. à soupe">1</quantity>
+      <ingredient>gros sel</ingredient>
+    </ingredient_line>
+  </ingredient_lines>
+  <instructions>Mélanger oeufs battus en omelette et sucre. Ajoutez farine, blé noir, huile  et lait.
+  </instructions>
+</recipe>

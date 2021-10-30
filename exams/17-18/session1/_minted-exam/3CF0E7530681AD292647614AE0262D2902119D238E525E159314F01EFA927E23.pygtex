@@ -1,0 +1,12 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{CREATE} \PYG{k}{TABLE} \PYG{n}{playlists} \PYG{p}{(}
+  \PYG{n}{id} \PYG{n+nb}{int}\PYG{p}{,}
+  \PYG{n}{song\PYGZus{}order} \PYG{n+nb}{int}\PYG{p}{,}
+  \PYG{n}{song\PYGZus{}id} \PYG{n+nb}{int}\PYG{p}{,}
+  \PYG{n}{title} \PYG{n+nb}{text}\PYG{p}{,}
+  \PYG{n}{album} \PYG{n+nb}{text}\PYG{p}{,}
+  \PYG{n}{name} \PYG{n+nb}{text}\PYG{p}{,}
+  \PYG{n}{age} \PYG{n+nb}{int}\PYG{p}{,}
+  \PYG{n}{creator} \PYG{n+nb}{text}\PYG{p}{,}
+  \PYG{k}{PRIMARY} \PYG{k}{KEY}  \PYG{p}{(}\PYG{n}{id}\PYG{p}{,} \PYG{n}{song\PYGZus{}order} \PYG{p}{)} \PYG{p}{);}
+\end{Verbatim}

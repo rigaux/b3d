@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:simpleType name="identType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9]-[0-9]{4}(-[A-E])?"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="quantityType">
+    <xs:restriction base="xs:positiveInteger">
+      <xs:maxInclusive value="100"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="deviseType">
+    <xs:restriction base="xs:NMTOKEN">
+      <xs:enumeration value="USD"/>
+      <xs:enumeration value="EUR"/>
+      <xs:enumeration value="GBP"/>
+      <xs:enumeration value="JPY"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:complexType name="priceType">
+    <xs:simpleContent>
+      <xs:extension base="xs:decimal">
+	<xs:attribute name="Devises" type="deviseType" use="optional" default="EUR"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  
+  <xs:complexType name="produitType">
+    <xs:sequence>
+      <xs:element name="lib" type="xs:string" minOccurs="1" />
+      <xs:element name="Quantity" type="quantityType" minOccurs="1" />
+      <xs:element name="Price" type="priceType" minOccurs="1" maxOccurs="4"/>
+      <xs:element name="Date" type="xs:date" minOccurs="0" maxOccurs="1"/>		
+    </xs:sequence>
+    <xs:attribute name="ID" type="identType" use="required" />
+  </xs:complexType>
+  
+  <xs:element name="Produits">
+    <xs:complexType>
+      <xs:sequence>
+      <xs:element name="Produit" type="produitType" minOccurs="0" maxOccurs="unbounded" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+</xs:schema>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<movie>
+    <title>The Social network</title>
+    <year>2010</year>
+    <genre>drama</genre>
+    <summary>On a fall night in 2003, Harvard undergrad and computer programming 
+    genius Mark Zuckerberg sits down at his computer and heatedly begins working on 
+    a new idea. In a fury of blogging and programming, what begins in his dorm room 
+    soon becomes a global social network and a revolution in communication. A mere 
+    six years and 500 million friends later, Mark Zuckerberg is the youngest 
+    billionaire in history... but for this entrepreneur, success leads to both 
+    personal and legal complications.</summary>
+
+    <country>USA</country>
+
+  <director  id='31' >
+      <last_name>Fincher</last_name>
+      <first_name>David</first_name>
+      <birth_date>1962</birth_date>
+  </director>
+  
+  <actor  id='236' >
+      <first_name>Jesse</first_name>
+      <last_name>Eisenberg</last_name>
+      <birth_date>1983</birth_date>
+      <role>Mark Zuckerberg</role>
+  </actor>  
+  <actor  id='237' >
+      <first_name>Rooney</first_name>
+      <last_name>Mara</last_name>
+      <birth_date>1985</birth_date>
+      <role>Erica Albright</role>
+  </actor>
+  <actor  id='238' >
+      <first_name>Andrew</first_name>
+      <last_name>Garfield</last_name>
+      <birth_date>1983</birth_date>
+      <role>   Eduardo Saverin </role>
+  </actor>
+  <actor  id='239' >
+      <first_name>Justin</first_name>
+      <last_name>Timberlake</last_name>
+      <birth_date>1981</birth_date>
+      <role>Sean Parker</role>
+  </actor>
+</movie>

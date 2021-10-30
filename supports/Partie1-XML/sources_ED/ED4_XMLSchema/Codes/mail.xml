@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<mail xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="mail.xsd">
+  <header>
+    <from>etudiant@dauphine.fr</from>
+    <to>virginie.thion-goasdoue@lamsade.dauphine.fr</to>
+    <to>manouvrier@lamsade.dauphine.fr</to>
+    <cuc>membre1@dauphine.fr</cuc>
+    <cc>membre2@dauphine.fr</cc>
+    <subject>Echange &amp; publication de données - désignation des groupes</subject>
+  </header>
+  <body>
+    Bonjour,
+    Le groupe est composé de
+    ...
+    ...
+    Cordialement,
+    Moi-même
+  </body>
+</mail>

@@ -1,0 +1,266 @@
+
+
+\section{Les espaces de nom (pénible, mais parfois utile)}
+
+
+\begin{frame}{Espaces de nom (namespaces)}
+
+Les espaces de noms permettent de :
+\begin{itemize}
+\item Lever les ambiguités sur les noms d'éléments et d'attributs
+\begin{itemize}
+\item Si \verb?nom\_elt? de $doc_1$ et \verb?nom\_elt? de $doc_2$ ne représentent pas la m\^eme information
+\item Si \verb?nom\_elt1? de $doc_1$ et \verb?nom\_elt2? de $doc_2$ représentent pas la m\^eme information mais sont définis différemment.
+\end{itemize}
+\item Fonction de regroupement des éléments
+\end{itemize}
+
+$\rightarrow$ De fa\c{c}on plus générale, sert à interpréter correctement les éléments. 
+
+\prof{cas1 : pe parachute (classique ou doré ?)
+cas 2 : pe adresses (\`a plat) ou découpées en sous-éléments
+Tr\`es utile pour l'intégration de docs issus du web (domaines différents, vocabulaires différents)
+Permet également une tra\c{c}abilité des balises
+M\^eme principe que les packages
+}
+\end{frame}
+
+
+% \begin{frame}{Espaces de nom (namespaces)}
+
+% \begin{tikzpicture}[%
+%   back line/.style={densely dotted},
+%   cross line/.style={preaction={draw=white, -,line width=6pt}}]
+%   \node (A) {};
+%   \node [right of=A] (B) {};
+%   \node [below of=A] (C) {};
+%   \node [right of=C] (D) {};
+ 
+%   \node (A1) [right of=A, above of=A, node distance=0.5cm] {};
+%   \node [right of=A1] (B1) {};
+%   \node [below of=A1] (C1) {};
+%   \node [right of=C1] (D1) {};
+ 
+% %  \draw[back line] (D1) -- (C1) -- (A1);
+%  % \draw[back line] (C) -- (C1);
+%   \draw[cross line] (D1) -- (B1) -- (A1) -- (A)  -- (B) -- (D) -- (C) -- (A);
+%   \draw (D) -- (D1) ;
+%   \draw (D1) -- (B1) -- (B) ;
+
+
+%   \node (A2) [right of=A, node distance=5cm] {toto};
+
+% \end{tikzpicture}
+
+% \end{frame}
+
+
+ 
+\begin{frame}{Espaces de nom (\textit{namespaces})}
+
+\begin{center}
+\figSized{images/ns1.jpg}{Espace de noms pour associer une sémantique aux éléments}{0.9}
+\end{center}
+
+\end{frame}
+
+
+\begin{frame}{Espaces de nom (namespaces)}
+
+\begin{center}
+\figSized{images/ns2.jpg}{Espace de noms pour associer une sémantique aux éléments}{0.9}
+\end{center}
+
+\end{frame}
+
+
+\begin{frame}{Espaces de nom (namespaces)}
+
+\begin{center}
+\figSized{images/ns3.jpg}{Espace de nom pour associer une sémantique aux éléments}{0.9}
+\end{center}
+
+\end{frame}
+
+
+\begin{frame}{Espaces de nom (namespaces)}
+
+\begin{center}
+\figSized{images/ns4.jpg}{Espace de nom pour associer une information de provenance aux éléments}{0.8}
+\end{center}
+
+
+\end{frame}
+
+
+
+\begin{frame}{Déclaration}
+
+Il existe deux façons d'associer un espace de noms à un (ou plusieurs éléments) dans un fichier XML :
+\begin{itemize}
+\item par défaut, ou
+\item explicitement.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}[containsverbatim]{Déclaration par défaut}
+
+\begin{lstlisting}
+<genie xmlns=''http://chezmoi.fr/''>
+   <prenom>Alan</prenom>
+   <nom>Turing</nom>
+</genie>
+\end{lstlisting}
+
+\verb?http://chezmoi.fr/? est le nom (identifiant) de l'espace de noms.\\
+
+\smallskip
+
+L'\textbf{élément genie} et \textbf{tous ses fils} sont dans l'espace de nom \url{http://chezmoi.fr/}.
+
+\vfill
+
+Les textes (Alan et Turing) ne sont dans aucun espace de nom puisque ce sont des \emph{données}.
+Ne s'applique pas non plus aux noms d'attributs et valeurs d'attributs.
+
+\vfill
+
+URI (Uniform Resource Identifier) : ce sont généralement des URL. Intérêt\,: si vous utilisez un nom de domaine qui vous appartient, garantie d'unicité.\\
+\prof{URL (Locator) garanti sans ambiguté par des agences chargées de distribuer les noms de domaine par niveau (par l'AFNIC -Association française pour le nommage Internet en coopération- pour exemple .fr et .re). Utilise le protocol http Pour la récupération de données sur internet. URL bien adapté car un propriétaire est associé à une URL. 
+	http://www.w3.org/1999/xhtml
+URN (Name) garanti sans ambiguite par des normes orientées métier par exemple, numéro ISBN garanti par l'AFNIL (Agence Francophone pour la Numérotation Internationale du Livre)
+urn:ISBN:0-395-36341-6.\\
+L'important est que ce soit un identifiant. D'autres protocoles peuvent être utilisés :
+mailto:virginie.thion@cnam.fr
+urn:isbn:0-201-53771-0
+geo:27.988056;86.925278}
+
+\vfill
+
+Cf. packages Java.
+
+\prof{URL bien adapté car un propriétaire est associé à une URL. 
+Petite subtilité : l'URL ne signifie pas qu'un document existe \`a l'adresse indiquée. Ce n'est qu'un identifiant.
+}
+
+\end{frame}
+
+\begin{frame}[containsverbatim]{Traduction par un interpréteur}
+
+\begin{lstlisting}
+<genie xmlns="http://chezmoi.fr/">
+   <prenom> Alan </prenom>
+   <nom> Turing </nom>
+</genie>
+\end{lstlisting}
+
+Ce que comprend (traduit) un interpréteur :
+
+\begin{lstlisting}
+<http://chezmoi.fr/genie>
+   <http://chezmoi.fr/prenom> Alan </http://chezmoi.fr/prenom>
+   <http://chezmoi.fr/nom> Turing </http://chezmoi.fr/nom>
+</http://chezmoi.fr/genie>
+\end{lstlisting}
+
+\bigskip
+
+Le \emph{nom étendu} \verb?http://chezmoi.fr/genie? est composé 
+\begin{itemize}
+\item du \emph{nom de l'espace de noms} associé à l'élément (\verb?http://chezmoi.fr/?) et 
+\item du \emph{nom local} de l'élément (\verb?genie?).
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}[containsverbatim]{Example de déclaration par défaut}
+
+\begin{lstlisting}[caption={Utilisation de l'espace de nom de MathML}]
+<msup xmlns="http://www.w3.org/1998/Math/MathML">
+    <mfenced>
+        <mrow>
+          <mi>a</mi>
+          <mo>+</mo>
+          <mi>b</mi>
+        </mrow>
+      </mfenced>
+      <mn>2</mn>
+    </msup>
+\end{lstlisting}
+
+\begin{exoblock}
+Comment ce code est-il traduit par un interpréteur ?
+\end{exoblock}
+
+\prof{ \tiny
+\verb?<http://www.w3.org/1998/Math/MathML/msup>?\\
+\verb?  <http://www.w3.org/1998/Math/MathML/mfenced>?\\
+\verb?     <http://www.w3.org/1998/Math/MathML/mrow>?\\
+\verb?        <http://www.w3.org/1998/Math/MathML/mi>a</http://www.w3.org/1998/Math/MathML/mi>?\\
+\verb?        <http://www.w3.org/1998/Math/MathML/mo>+</http://www.w3.org/1998/Math/MathML/mo>?\\
+\verb?        <http://www.w3.org/1998/Math/MathML/mi>b</http://www.w3.org/1998/Math/MathML/mi>?\\
+\verb?     </http://www.w3.org/1998/Math/MathML/mrow>?\\
+\verb?  </http://www.w3.org/1998/Math/MathML/mfenced>?\\
+\verb?  <http://www.w3.org/1998/Math/MathML/mn>2</http://www.w3.org/1998/Math/MathML/mn>?\\
+\verb?</http://www.w3.org/1998/Math/MathML/msup>?\\
+}
+
+\prof{Petite subtilité : l'URL ne signifie pas qu'un document existe à l'adresse indiquée. Ce n'est qu'un identifiant.
+}
+\end{frame}
+
+\begin{frame}[containsverbatim]{Déclaration explicite}
+
+\begin{lstlisting}[caption=Déclaration explicite d'un espace de nom]
+<genie xmlns:p=''http://chezmoi.fr/''>
+   <prenom>Alan</prenom>
+   <nom>Turing</nom>
+</genie>
+\end{lstlisting}
+Dans le code ci-dessus, l'espace de nom est \alert{déclaré} mais n'est \alert{appliqué} à aucun élément ni attribut. \\
+
+\vfill
+
+La déclaration comprend un \alert{préfixe}, ``\alert{p}'': une fois déclaré, il est employable dans tout élément. 
+
+\vfill
+Si un élément ou un attribut n'est pas prefixé, il n'est pas dans l'espace de nom.\\
+
+\begin{lstlisting}[caption=Déclaration explicite et application d'un espace de nom]
+<p:genie xmlns:p=http://chezmoi.fr/ p:date_naiss=''p:1912-06-23''>
+   <p:prenom>Alan</p:prenom>
+   <nom>Turing</nom>
+</p:genie>
+\end{lstlisting}
+
+\prof{Montrer : application à un élément, à un attribut, à une valeur d'attribut, et non application\\
+Explicite pour \\
+1) plus de souplesse (car les espaces de noms car par défaut, s'applique à tous les sous-éléments, ce qu'on ne désire pas forcément. )\\
+2) pouvoir appliquer les espaces de noms aux attributs et valeurs d'attributs
+}
+
+\end{frame}
+
+
+\begin{frame}[containsverbatim]{Déclaration explicite}
+
+\begin{lstlisting}
+<p:genie xmlns:p=http://chezmoi.fr/ p:date_naiss="p:1912-06-23">
+   <p:prenom> Alan </p:prenom>
+   <nom> Turing </nom>
+</p:genie>
+\end{lstlisting}
+
+Ce que traduit l'interpréteur :
+
+\begin{lstlisting}
+<http://chezmoi.fr/genie http://chezmoi.fr/date_naiss="http://chezmoi.fr/1912-06-23">
+   <http://chezmoi.fr/prenom> Alan </http://chezmoi.fr/prenom>
+   <nom> Turing </nom>
+</http://chezmoi.fr/genie>
+
+\end{lstlisting}
+\end{frame}
+

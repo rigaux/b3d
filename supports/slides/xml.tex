@@ -1,0 +1,614 @@
+\section{Un langage de représentation -- XML}
+
+\begin{frame}
+\frametitle{XML, format pour données ``semi-structurées''}
+
+XML est d'abord un standard du World-Wide-Web Consortium (W3C).
+
+\begin{itemize}
+  \item La sérialisation de documents XML est normalisée, ce qui permet
+       des échanges réseau sans perte d'information.
+ 
+  \item XML est un format générique, qui se spécialise ensuite en
+     \alert{``dialectes''} pour des domaines spécifiques (e.g., XHTML,
+     affichage dans un navigateur).
+
+  \item Le W3C a défini des standards associés: DOM (le ``modèle''), 
+   XSchema (le typage), XPath (navigation), XSLT (restructuration),
+     XQuery (requêtes), et beaucoup d'autres. Très compliqué, et surtout
+     très lourd.
+\end{itemize}
+
+\begin{remark}
+XML est une version simplifiée de \alert{SGML}.
+\end{remark}
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+\frametitle{Documents XML: structure et contenu}
+
+XML permet de \alert{structurer} du contenu textuel.
+
+\vfill
+
+Le contenu textuel:
+
+\begin{center}
+  Le film de SF Gravity,  
+  réalisé par Alfonso Cuaròn, est paru en l'an 2013.
+\end{center}
+
+\vfill
+
+Le même contenu, structuré en XML.
+
+\begin{lstlisting}
+    <?xml version="1.0" encoding="utf-8"?>
+
+    <film>
+      <titre>Gravity</titre>
+      <annee>2013</annee>
+      <genre>SF</genre>
+      <realisateur
+         nom="Cuaron"
+         prenom="Alfonso"/>
+    </film>
+\end{lstlisting}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Documents XML: modèle et sérialisation}
+
+\begin{description}
+
+\item [Modèle] Un document XML est un arbre, chaque n{\oe}ud a un type particulier.
+
+\item [Sérialisation] tout document XML peut être transformé en une chaîne
+   de caractères représentant l'arborescence du document.
+
+\end{description}
+
+La norme XML définit une \alert{syntaxe} pour coder des documents textuels
+hiérarchiques. Aucune interprétation n'est
+définie à priori.
+
+\vfill
+
+Les dialectes XML imposent des contraintes, et définissent une interprétation.
+
+\vfill
+
+\begin{beamerboxesrounded}{Le dialecte XHTML}
+Un document XHTML est un document XML. Il obéit à des contraintes de structure, et s'interprète
+sous forme de règles d'affichage à l'écran.
+\end{beamerboxesrounded}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Qui utilise XML?}
+
+XML est le standard (W3C) pour la représentation  de données textuelles.
+
+\vfill
+\alert{Exemples}\,: XHTML, DocBook, RSS, ...
+
+\vfill
+
+XML est AUSSI utilisé pour sérialiser des données applicatives, par exemple pour les données
+gérées par vos applications personnelles.
+
+
+\vfill
+
+\alert{Exemples}\,: Traitements de texte (Word), tableurs (Excel), calendriers, graphiques (en SVG), etc.
+
+\vfill
+
+\begin{beamerboxesrounded}{Dans tous les cas}
+La représentation en XML permet de \alert{réutiliser} le contenu, de \alert{l'échanger} avec d'autres applications.
+\end{beamerboxesrounded}
+
+\end{frame}
+
+\begin{frame}[fragile]{Exemple: flux de données RSS}
+
+Pour disséminer des informations en mode "push" (cf. Blogs, sites de news, etc.).
+
+\begin{lstlisting}[language=myXML]
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<rss version="2.0">
+<channel>
+	<title>Webdam Project</title>
+	<atom:link href="http://webdam.inria.fr/wordpress/?feed=rss2" 
+	            rel="self" type="application/rss+xml" />
+	<link>http://webdam.inria.fr/wordpress</link>
+	<description>Web Data Management</description>
+	<pubDate>Wed, 26 May 2010 09:30:54 +0000</pubDate>
+
+  <item>
+    <title>News for the beginning of the year</title>
+    <description>...</description>
+    <link>http://webdam.inria.fr/wordpress/?p=475</link>
+    <pubDate>Fri, 15 Jan 2010 08:48:45 +0000</pubDate>
+    <dc:creator>Serge</dc:creator>
+    <category>News</category>
+  </item>
+</channel>
+</rss>
+\end{lstlisting}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Scalable Vector Graphics (SVG)}
+
+Et oui, on peut représenter des données graphiques en XML !
+
+\bigskip
+
+\begin{tabular}{m{.7\hsize}|m{.2\hsize}}
+\begin{small}
+
+\begin{lstlisting}
+<?xml version="1.0" encoding="UTF-8" ?>
+<svg xmlns="http://www.w3.org/2000/svg">
+
+   <polygon points="0,0  50,0  25,50"
+        style="stroke:#660000;"/>
+
+  <text x="20" y="40">Some SVG text</text>
+</svg>
+\end{lstlisting} 
+\end{small}
+&
+\includegraphics{svg}
+\end{tabular}
+\end{frame}
+
+
+\begin{frame}[fragile]
+
+\frametitle{Music XML}
+
+Ou des partitions musicales.
+
+\medskip
+
+\begin{tabular}{m{.6\hsize}|m{.3\hsize}}
+\begin{small}
+
+\begin{lstlisting}
+<?xml version="1.0" encoding="UTF-8"?>
+
+<score-partwise version="2.0">
+  <part id="P1">
+      <attributes>
+        <divisions>1</divisions>
+      </attributes>
+      <note>
+        <pitch>
+          <step>C</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>4</duration>
+      </note>
+  </part>
+</score-partwise>
+\end{lstlisting}
+\end{small}
+
+&
+\includegraphics{musicxml}
+
+\end{tabular}
+\end{frame}
+
+
+
+\section{Formalisme XML: l'essentiel}
+
+
+
+\begin{frame}[fragile]
+\frametitle{Syntaxe XML}
+
+Un document XML est composé de :
+
+\vfill
+
+\alert{Un prologue}
+
+\begin{enumerate}
+\item déclaration de document XML \verb7<?xml version = "1.x" [encoding = "norme" ]? >7 
+
+\item suivie éventuellement (sans contrainte d’ordre) 
+
+\item d’une référence à une DTD \verb7<!DOCTYPE element racine SYSTEM "uri" >7 
+\item de commentaires \verb?<!-- texte --> ?
+\item d’instructions de traitement (par ex. appel à XSLT) \verb7<?instruction ... ? >7 
+
+\end{enumerate}
+
+\vfill
+
+\alert{Un corps}
+
+\begin{itemize}
+\item une imbrication d'\alert{éléments} et de \alert{textes}
+\end{itemize}
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%% BEGIN PHILIPPE
+
+
+
+\begin{frame}[fragile]
+\frametitle{Quelques exemples de base}
+
+Remarque: les retours à la ligne n'ont aucune signification.
+\begin{smallverbatim}
+  <document/>
+  
+  <document> Hello World! </document>
+  
+  <document>
+    <salutation> Hello World! </salutation> 
+  </document>
+  
+  <?xml version="1.0" encoding="utf-8" ?> 
+  <document>
+    <salutation color="blue"> Hello World! </salutation> 
+  </document>
+\end{smallverbatim}
+
+Le dernier exemple est le seul complètement correct\,: il comprend le prologue.
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Forme hiérarchique des documents\,: le modèle DOM}
+
+Un document XML est interprété comme un \alert{arbre}, basé sur
+ un modèle, le DOM (\alert{Document Object Model}) normalisé par le W3C.
+
+\vfill
+
+Dans le DOM, chaque n{\oe}ud de l'arbre a un \alert{type}, et une \alert{description} (nom, contenu)
+
+\vfill
+
+Les n{\oe}uds de type \domtype{Element} correspondent au balisage dans la forme sérialisée.
+
+\begin{enumerate}
+  \item ils définissent la \alert{structure} du document.
+  \item ils ont un \alert{nom} (mais pas de \alert{valeur})
+  \item ils ont un \alert{contenu}\,: le sous-arbre dont ils sont racine.
+\end{enumerate}
+\vfill
+Les n{\oe}uds de type \domtype{Text} correspondent au \alert{contenu textuel} du document.
+
+\begin{enumerate}
+  \item ils constituent les feuilles de l'arborescence (un n{\oe}ud \domtype{Text} n'a pas de fils);
+  \item ils ont une \alert{valeur} (mais pas de \alert{nom}).
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Correspondance forme sérialisée - forme DOM}
+
+
+Voici deux exemples de base illustrant la construction élément/texte.
+
+\begin{tabular}{m{.6\hsize}m{.4\hsize}}
+    
+\begin{tinyverbatim}
+<monElt>
+  Contenu textuel.
+</monElt>
+\end{tinyverbatim}
+
+ & 
+\begin{tinyverbatim}
+<maRacine>
+  Contenu textuel
+  <sousEl>
+    Autre contenu
+  </sousEl>
+</maRacine>
+\end{tinyverbatim}
+\end{tabular}
+ 
+ \vfill
+ 
+Et la représentation arborescente (DOM).
+\smallskip
+ 
+\includegraphics[width=10cm]{ElementEtText}
+ 
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Quelques remarques en vrac (anecdotique)}
+
+\begin{itemize}
+\item Les sous-éléments sont ordonnés.
+\item Pas de caract\`eres spéciaux (mais \verb?-?,\verb?_?,\verb?.?,\verb?/? autorisés) dans les noms des éléments, pas d'espaces.
+\item Un élément peut \^etre vide: \verb?<nom_elt></nom_elt>? 
+
+  Notation abrégée\,: \verb?<nom_elt/>? (Exemples d'éléments vides (XHTML): \verb?<br/>? ou \verb?<img width="100" height="57" src="logoCnam.jpg"/>?) 
+\item (Contrairement à HTML,) XML est \textit{case sensitive} donc \verb?<genie>? $\neq$ \verb?<Genie>? 
+\item Les caractères spéciaux peuvent \^etre remplacés par une \alert{référence}:
+\verb?&? doit \^etre remplacé par sa référence \verb?&amp;? (version numérique\,: \verb?&#28;?) \\
+\verb?<? devient \verb?&lt;? (ou \verb?&#60;?)\\
+\verb?>? devient \verb?&gt;? (ou \verb?&#62;?)\\
+\verb?"? devient \verb?&quot;? (ou \verb?&#39;?)\\
+\verb?'? devient \verb?&apos;? (ou \verb?&#34;?)\\
+
+\end{itemize}
+
+\end{frame}
+
+
+%%%%%%%%%%%%% 
+\begin{frame}[fragile]
+\frametitle{D'autres types de n{\oe}ud\,:  \textbf{Attribute} et \textbf{Document}}
+
+
+
+\begin{tabular}{m{.4\hsize}m{.5\hsize}}
+
+Les \alert{attributs} sont des paires clé/valeur attachées à un élément.
+
+Un attribut a une \alert{valeur}\,: un chaîne de caractères.
+
+ & 
+ 
+ 
+Un document XML sous forme sérialisée commence \alert{toujours} par un prologue
+représenté par un nœud de type \textbf{Document}.
+\smallskip
+\begin{center}
+\xmlinline{<?xml version="1.0"  encoding="utf-8" ?>}
+\end{center}
+
+\end{tabular}
+
+\vfill
+
+\includegraphics[width=10cm]{GravityDOM}
+ 
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Résumé de l'essentiel}
+
+
+\textbf{Forme sérialisée}
+\begin{itemize}
+  \item Un document débute par un prologue
+  \item Le contenu est enclos dans une unique balise ouvrante/fermante.
+  \item Chaque balise ouvrante   \texttt{<nom>}
+      \alert{doit} avoir une balise fermante \texttt{</nom>}; tout ce qui est entre les deux
+        est soit du texte, soit du balisage correctement ouvert/fermé.
+\end{itemize}
+
+\textbf{Forme arborescente (DOM)}
+\begin{itemize}
+  \item Un document est un \alert{arbre} avec une racine (du document) de type \nodetype{Document}
+        
+  \item La racine du document a un seul \alert{élément} fils, de type \domtype{Element}, appelé
+      \alert{l'élément racine}.
+             
+  \item Chaque \domtype{Element} est un sous-arbre représentant du contenu structuré
+     formé de nœuds \domtype{Element}, de nœuds \domtype{Text}, et parfois
+     de nœuds \domtype{Attribute}.
+\end{itemize}
+
+\end{frame}
+
+
+
+\begin{frame}{Document bien formé}
+
+Un document est bien formé s'il respecte la syntaxe XML. 
+
+
+\begin{itemize}
+\item \`a toute balise ouvrante est associée une balise fermante,
+\item les éléments sont imbriqués (pas de superposition), 
+
+\item présence d'\textbf{un seul élément racine},
+\item etc  (se référer \`a la syntaxe XML).
+\end{itemize}
+
+
+Un document XML se doit d'être bien formé (sinon inexploitable).
+
+\vfill
+\info{
+Pour tester si l'un de vos documents est bien formé :
+un vérificateur syntaxique est disponible \`a l'adresse \url{http://www.w3schools.com/xml/xml_validator.asp}.\\
+Vous pouvez également ouvrir votre fichier XML avec un navigateur web, 
+intégrant généralement un parser 
+XML (pour pouvoir \^etre parsé, un document doit \^etre bien formé).
+}
+
+ \end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%
+\section{Formalisme XML: moins important (mais parfois utile)}
+
+
+
+\begin{frame}[fragile]
+\frametitle{Les entités et les références}
+
+Les entités sont des symboles qui désignent des fragments. Utile pour réutiliser
+du contenu, sans le répéter.
+
+\vfill
+
+Une entité est \alert{déclarée} (dans le prologue), puis \alert{référencée}.
+ 
+\begin{lstlisting}[language=myXML]
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE a [
+  <!ENTITY  monNom "Charles Martel">
+  <!ENTITY  maSignature SYSTEM "signature.xml">
+]>
+
+<a>
+  Mon nom est &monNom;.
+
+  &maSignature;
+</a>
+\end{lstlisting}
+
+\end{frame}
+
+%------------------------------------------------------------
+\begin{frame}
+\frametitle{Entités prédéfinies}
+
+Tout un ensemble de symboles qui sont interprétées comme du marquage
+ / balisage si on les utilise directement.
+
+\vfill
+ Si on les veut \alert{littéralement}, il faut utiliser des références d'entités.
+
+\vfill
+ 
+\begin{tabular}{l|l|l}
+{\bf Déclaration} & {\bf Référence}&{\bf Symbole.}\\ 
+\hline 
+\texttt{<!ENTITY lt   "\&\#60;">}&\texttt{\&lt;}&\texttt{<}\\ 
+\texttt{<!ENTITY gt   "\&\#62;">}&\texttt{\&gt;}&\texttt{>}\\ 
+\texttt{<!ENTITY amp  "\&\#38;">}&\texttt{\&amp;}&\texttt{\&}\\ 
+\texttt{<!ENTITY apos "\&\#39;">}&\texttt{\&apos;}&\texttt{'}\\ 
+\texttt{<!ENTITY quot "\&\#34;">}&\texttt{\&quot;}&\texttt{"} \\ \hline
+\end{tabular}
+
+\end{frame}
+
+%------------------------------------------------------------
+\begin{frame}
+\frametitle{Commentaires et instructions de traitement}
+
+Les \alert{commentaires} peuvent être placés n'importe où dans la forme sérialisée.
+
+\vfill
+
+   \begin{center}
+      \xmlinline{<!{-}- C'est un commentaire  {-}->}
+    \end{center}
+
+\vfill
+
+  Ils apparaissent dans l'arbre DOM comme des n{\oe}uds de type \domtype{Comment}.
+
+\begin{remark}
+Très peu d'intérêt\,: on n'est pas censé \emph{lire} un document XML. Peut être remplacé par un
+élément de type \domtype{element} et de nom \texttt{comment}.
+\end{remark}
+\vfill
+
+\alert{Instructions de traitements}: commandes spécifiques à une application particulière.
+\vfill
+Typiquement, on demande à un processeur XSLT d'utiliser un programe \texttt{prog.xslt}\,:
+
+\begin{center}
+ \xmlinline{<?xml-stylesheet href="prog.xslt" type="text/xslt"?>}
+\end{center}
+
+\end{frame}
+
+
+%------------------------------------------------------------
+\begin{frame}[fragile]
+\frametitle{Sections litérales}
+
+Un analyseur (parseur) XML cherche à analyser tout le contenu pour détecter du marquage structurel.
+
+\vfill 
+\alert{Problème}: et si on ne veut \alert{pas} que le contenu soit analysé\,?
+
+\begin{tinyverbatim}
+<?xml version='1.0'?>
+<program>
+if ((i < 5) && (j > 6)) 
+   printf("error");
+</program>
+\end{tinyverbatim}
+
+\alert{Solution}: soit on utilise des entités (lourd), soit on insère la texte à protéger dans
+une \alert{section littérale}.
+
+\begin{tinyverbatim}
+<?xml version='1.0'?>
+<program>
+<![CDATA[if ((i < 5) && (j > 6)) 
+           printf("error");
+]]>
+</program>
+\end{tinyverbatim}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{C'est tout pour l'instant\,!}
+
+Ce qui précède suffit pour produire et comprendre à peu près tous les documents XML. 
+
+\vfill
+
+Autres aspects qui peuvent (quand même) s'avérer importants\,:
+
+\begin{enumerate}
+   \item \alert{Validation d'un document}. Comme déclarer qu'un document doit être conforme à une structure donnée? Comment le vérifier\,?
+   
+       $\Rightarrow$ typage de documents XML, avec les DTD ou XML Schéma (horreur!)
+       
+       \item \alert{Conflits de nom}. Comment bien interpréter une balise (nom d'élément) quand on assemble plusieurs documents\,?
+       
+       $\Rightarrow$  les \textit{namespaces} (espaces de noms).
+         
+     \item et autres aspects exotiques... 
+   
+\end{enumerate}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Ce qu'il faut retenir}
+
+XML = tentative la plus complète de formaliser un modèle de représentation semi-structuré.
+
+\begin{itemize}
+  \item Très complet.
+  \item Très lourd....  Syntaxe compliquée et redondante, éléments/attributs, beaucoup de détails peu utiles.
+\end{itemize}
+  
+L'essentiel:
+
+\begin{itemize}
+  \item La structuration en arbre; l'existence d'une syntaxe pour coder cet arbre (la forme sérialisée);
+  \item La notion de \alert{dialecte}, ou \alert{espace de nom}: des contraintes de nommage
+     et de structuration pour lesquelles les documents ont une interprétation.
+  \item JSON peut être vu comme une forme ultra-simplifiée; tend à remplacer XML 
+         (sauf pour les documents dits "rédactionnels").
+\end{itemize}
+
+\end{frame}

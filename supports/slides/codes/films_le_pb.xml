@@ -1,0 +1,76 @@
+<!-- 
+     f1 : Apocalypse Now, 1979, réalisation de Francis Ford Coppola
+     a1 : Harrison Ford (colonel Lucas)   naissance : 13 juillet 1942
+     a2 : Larry Fishburne (Tyrone « Clean » Miller)   naissance : 30 juillet 1965
+     
+     f2 : Star Wars, 1977, George Lucas
+     Harrison Ford (Han Solo)
+-->
+<essais>
+
+  <!-- Essai 1 film/acteurs -->
+  <les_films>
+    <film>
+      <titre> Apocalypse Now </titre>
+      <annee> 1979 </annee>
+      <realisation>Francis Ford Coppola</realisation>
+      <liste_acteurs>
+	<acteur>
+	  <nom>Harrison Ford</nom>
+	  <naissance>13 juillet 1942</naissance>
+	</acteur>
+	<acteur>
+	  <nom>Larry Fishburne</nom>
+	  <naissance>30 juillet 1965</naissance>
+	</acteur>
+      </liste_acteurs> 
+    </film>
+
+    <film>
+      <titre> Star Wars </titre>
+      <annee> 1977 </annee>
+      <realisation>George Lucas</realisation>
+      <liste_acteurs>
+	<acteur>
+	  <nom>Harrison Ford</nom>
+	  <naissance>13 juillet 1942</naissance>   <!-- Redondance ici !-->
+	</acteur>
+      </liste_acteurs> 
+    </film>
+  </les_films>
+
+  <!-- Essai 2 acteur/films -->
+  <les_acteurs>
+    <acteur>
+      <nom>Larry Fishburne</nom>
+      <naissance>30 juillet 1965</naissance>   
+    </acteur>
+    <liste_films>
+      <film>
+	<titre> Apocalypse Now </titre>
+	<annee> 1979 </annee>
+	<realisation>Francis Ford Coppola</realisation>
+      </film>
+    </liste_films> 
+    <acteur>
+      <nom>Harrison Ford</nom>
+      <naissance>13 juillet 1942</naissance>   
+    </acteur>
+    <liste_films>
+      <film>
+	<titre> Apocalypse Now </titre>   <!-- Redondance ici !-->
+	<annee> 1979 </annee>
+	<realisation>Francis Ford Coppola</realisation>
+      </film>
+      <film>
+	<titre> Star Wars </titre>
+	<annee> 1977 </annee>
+	<realisation>George Lucas</realisation>
+      </film>
+    </liste_films>
+  </les_acteurs>
+
+
+
+
+</essais>

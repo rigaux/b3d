@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+  <movie>
+    <title>Match Point</title>
+    <year>2005</year>
+    <country>USA</country>
+    <genre>Crime</genre>
+    <summary>Chris Wilton is a former tennis pro, looking to 
+	find work as an instructor. He meets Tom Hewett, a 
+	well-off pretty boy. Tom's sister Chloe falls in 
+	love with Chris but Chris has his eyes on Tom's 
+	fiancée, the luscious Nola. Both Chris and Nola 
+	know it's wrong but what could be more right than 
+	love? Chris tries to juggle both women but at some 
+	point, he must choose between them...</summary>
+	<director  id='14' >
+	    <last_name>Allen</last_name>
+	    <first_name>Woody</first_name>
+	    <birth_date>1935</birth_date>
+	</director>
+	<actor  id='15' >
+	    <first_name>Jonathan</first_name>
+	    <last_name>Rhys Meyers</last_name>
+	    <birth_date>1977</birth_date>
+	    <role>Chris Wilton</role>
+	</actor>
+	<actor  id='16' >
+	    <first_name>Scarlett </first_name>
+	    <last_name>Johansson</last_name>
+	    <birth_date>1984</birth_date>
+	    <role>Nola Rice</role>
+	</actor>
+
+  </movie>
+
