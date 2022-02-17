@@ -27,7 +27,7 @@ Introduction
 .. admonition::  Supports complémentaires:
 
     * `Diapositives: Présentation du cours <http://b3d.bdpedia.fr/files/slprescours.pdf>`_
-    * `Vidéo de présentation du cours <https://mdcvideos.cnam.fr/videos/?video=MEDIA170904102730399>`_
+    * `Vidéo de présentation du cours <https://mediaserver.cnam.fr/permalink/v1263e2af2a06w21nl9t/>`_
     
 Les bases relationnelles sont adaptées à des informations bien structurées, 
 décomposables en unités simples (chaînes de caractères, numériques), et représentables sous 

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.12.16)  19 JAN 2022 09:54
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.12.16)  11 FEB 2022 14:17
 entering extended mode
  \write18 enabled.
  %&-line parsing enabled.
@@ -1011,7 +1011,6 @@ File: lstlang1.sty 2015/06/04 1.6 listings language file
 (/usr/local/texlive/2016/texmf-dist/tex/latex/listings/lstmisc.sty
 File: lstmisc.sty 2015/06/04 1.6 (Carsten Heinz)
 )
-Excluding comment 'solution'
 (/usr/local/texlive/2016/texmf-dist/tex/latex/url/url.sty
 \Urlmuskip=\muskip11
 Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
@@ -1178,11 +1177,48 @@ Underfull \hbox (badness 10000) in paragraph at lines 165--174
 [][]
  []
 
-Excluding 'solution' comment. [1
+\openout4 = `exam.pyg'.
+
+runsystem(pygmentize -l json -f latex -P commandprefix=PYG -F tokenmerge -o "_m
+inted-exam/FB928EBB94DFEC97378607E3E2FE3CAB1E4498993A920972C9638EB11659686F.pyg
+tex" "exam.pyg" )...executed.
+
+
+(./_minted-exam/FB928EBB94DFEC97378607E3E2FE3CAB1E4498993A920972C9638EB11659686
+F.pygtex [1
 
 {/usr/local/texlive/2016/texmf-var/fonts/map/pdftex/updmap/pdftex.map} <./exam-
-21-presseuber.pdf>]
-Excluding 'solution' comment. Excluding 'solution' comment.
+21-presseuber.pdf>])
+\openout4 = `exam.pyg'.
+
+runsystem(pygmentize -l json -f latex -P commandprefix=PYG -F tokenmerge -o "_m
+inted-exam/1742EA356818E21FD3A37764A6372C581E4498993A920972C9638EB11659686F.pyg
+tex" "exam.pyg" )...executed.
+
+
+(./_minted-exam/1742EA356818E21FD3A37764A6372C581E4498993A920972C9638EB11659686
+F.pygtex)
+\openout4 = `exam.pyg'.
+
+runsystem(pygmentize -l javascript -f latex -P commandprefix=PYG -F tokenmerge 
+-o "_minted-exam/4E86FEF37B81671C1FA58D0289AF81FB54E18FBAC9FF795AFC04505C5B4784
+B9.pygtex" "exam.pyg" )...executed.
+
+
+(./_minted-exam/4E86FEF37B81671C1FA58D0289AF81FB54E18FBAC9FF795AFC04505C5B4784B
+9.pygtex
+LaTeX Font Info:    Font shape `T1/txtt/m/it' in size <10> not available
+(Font)              Font shape `T1/txtt/m/sl' tried instead on input line 3.
+) [2]
+\openout4 = `exam.pyg'.
+
+runsystem(pygmentize -l javascript -f latex -P commandprefix=PYG -F tokenmerge 
+-o "_minted-exam/13F7FD382B2663AD53BECB14F91CA35F54E18FBAC9FF795AFC04505C5B4784
+B9.pygtex" "exam.pyg" )...executed.
+
+
+(./_minted-exam/13F7FD382B2663AD53BECB14F91CA35F54E18FBAC9FF795AFC04505C5B4784B
+9.pygtex)
 \openout4 = `exam.pyg'.
 
 
@@ -1202,36 +1238,58 @@ Excluding 'solution' comment. Excluding 'solution' comment.
 
 
 (./_minted-exam/8794DDAC396943660CF82106B7B83C301E4498993A920972C9638EB11659686
-F.pygtex) Excluding 'solution' comment. Excluding 'solution' comment.
-Excluding 'comment' comment. [2] Excluding 'solution' comment.
-Excluding 'solution' comment. Excluding 'solution' comment.
+F.pygtex)
+\openout4 = `exam.pyg'.
+
+runsystem(pygmentize -l sql -f latex -P commandprefix=PYG -F tokenmerge -o "_mi
+nted-exam/4AE2FDF6C4DF5B67BA9ADE4B88968E1C02119D238E525E159314F01EFA927E23.pygt
+ex" "exam.pyg" )...executed.
+
+
+(./_minted-exam/4AE2FDF6C4DF5B67BA9ADE4B88968E1C02119D238E525E159314F01EFA927E2
+3.pygtex)
+\openout4 = `exam.pyg'.
+
+runsystem(pygmentize -l sql -f latex -P commandprefix=PYG -F tokenmerge -o "_mi
+nted-exam/2346475905245BBB782E1F16B2E4D61002119D238E525E159314F01EFA927E23.pygt
+ex" "exam.pyg" )...executed.
+
+
+(./_minted-exam/2346475905245BBB782E1F16B2E4D61002119D238E525E159314F01EFA927E2
+3.pygtex) Excluding 'comment' comment. [3] [4]
 runsystem(rm "exam.pyg")...executed.
 
 
 
 AED: lastpage setting LastPage
-[3] (./exam.aux) ) 
+[5] (./exam.aux)
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+ ) 
 Here is how much of TeX's memory you used:
- 10291 strings out of 493014
- 155295 string characters out of 6133350
- 278765 words of memory out of 5000000
- 13525 multiletter control sequences out of 15000+600000
- 45973 words of font info for 85 fonts, out of 8000000 for 9000
+ 10325 strings out of 493014
+ 157362 string characters out of 6133350
+ 280765 words of memory out of 5000000
+ 13537 multiletter control sequences out of 15000+600000
+ 48246 words of font info for 90 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 36i,8n,49p,790b,439s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/local/texlive/2016/texmf-dist/fonts/enc/dvips/base/8r.e
-nc}</usr/local/texlive/2016/texmf-dist/fonts/type1/public/txfonts/rtxi.pfb></us
-r/local/texlive/2016/texmf-dist/fonts/type1/public/txfonts/rtxr.pfb></usr/local
-/texlive/2016/texmf-dist/fonts/type1/public/txfonts/rtxsc.pfb></usr/local/texli
-ve/2016/texmf-dist/fonts/type1/public/txfonts/t1xbtt.pfb></usr/local/texlive/20
-16/texmf-dist/fonts/type1/public/txfonts/t1xtt.pfb></usr/local/texlive/2016/tex
-mf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2016/texmf-dist/fo
-nts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/
-urw/times/utmri8a.pfb>
-Output written on exam.pdf (3 pages, 71552 bytes).
+ 36i,8n,49p,790b,495s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/local/texlive/2016/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/t
+exlive/2016/texmf-dist/fonts/type1/public/txfonts/rtxi.pfb></usr/local/texlive/
+2016/texmf-dist/fonts/type1/public/txfonts/rtxmi.pfb></usr/local/texlive/2016/t
+exmf-dist/fonts/type1/public/txfonts/rtxr.pfb></usr/local/texlive/2016/texmf-di
+st/fonts/type1/public/txfonts/rtxsc.pfb></usr/local/texlive/2016/texmf-dist/fon
+ts/type1/public/txfonts/t1xbtt.pfb></usr/local/texlive/2016/texmf-dist/fonts/ty
+pe1/public/txfonts/t1xtt.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/pu
+blic/txfonts/t1xtt.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/t
+xfonts/txsy.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/urw/times/utmb8
+a.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></us
+r/local/texlive/2016/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on exam.pdf (5 pages, 87185 bytes).
 PDF statistics:
- 70 PDF objects out of 1000 (max. 8388607)
- 50 compressed objects within 1 object stream
+ 88 PDF objects out of 1000 (max. 8388607)
+ 63 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  6 words of extra memory for PDF output out of 10000 (max. 10000000)
 

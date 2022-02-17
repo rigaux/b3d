@@ -63,7 +63,7 @@ une consommation de ressources (mémoire et disque) très faible, ce que nous ap
 pour l'instant des "pseudos-serveurs" en attendant d'être plus précis.    
 Docker offre deux très grands avantages.
 
-  - il propose des pseudo-serveurs pré-configurés, prêts à l'emploi (les "imqges"), 
+  - il propose des pseudo-serveurs pré-configurés, prêts à l'emploi (les "images"), 
     qui s'installent en quelques clics; 
   - il est tout aussi facile d'installer *plusieurs* pseudos-serveurs communiquant
     les uns avec les autres et d'obtenir donc un système distribué complet, sur
@@ -134,7 +134,8 @@ Un peu de vocabulaire: dans tout ce qui suit,
     machine indépendante.
   - Le *client Docker* est l'utilitaire  grâce auquel on transmet au moteur 
     les commandes de gestion de ces conteneurs. 
-    Il peut s'agir soit de la ligne de commande (*Docker CLI*) ou de *kitematic*.
+    Il peut s'agir soit de la ligne de commande (*Docker CLI*) ou du *dashboard*
+    intégré au *Docker desktop*.
   
 
 .. _schema-docker:
@@ -181,7 +182,7 @@ Nous avons tous les composants à l'œuvre, essayons de bien comprendre.
    consiste à installer l'image dans le conteneur et à l'exécuter. Nous avons
    donc deux conteneurs avec l'image MySQL, et un troisième avec l'image Cassandra.
   
-Chacun de ces conteneurs dispose de sa propre adress IP. En supposant que
+Chacun de ces conteneurs dispose de sa propre adresse IP. En supposant que
 les ports par défaut sont utilisés, le premier serveur MySQL
 est donc accessible à l'adresse IPb, sur le port 3306, le second
 à l'adresse IPc, sur le même port. 
@@ -218,12 +219,12 @@ en prenant l'exemple de ma machine Mac OS X. Ce
 ne doit pas être fondamentalement différent sous les autres environnements. 
 
 
-.. note:: Vous préférerez sans doute à juste titre utiliser un outil graphique comme 
-   *kitematic*, décrit dans la prochaine section, mais avoir un aperçu de commandes transmises par ce dernier est toujours utile 
+.. note:: Vous préférerez sans doute à juste titre utiliser un outil graphique comme le
+   *Docker desktop*, décrit dans la prochaine section, mais avoir un aperçu de commandes transmises par ce dernier est toujours utile 
    pour comprendre ce qui se passe. 
 
-Lancement du Docker Desktop(Mac OS, Windows)
-============================================
+Lancement du Docker Desktop (Mac OS, Windows)
+=============================================
 
 Sous Mac OS ou Windows, vous disposez du *Docker Desktop* qui vous permet de 
 lancer la machine virtuelle et
@@ -240,7 +241,7 @@ la fenêtre des paramètres.
       Le site d'hébergement des images Docker.
 
 Pour communiquer avec le moteur Docker, on peut 
-utiliser un programme client en ligne de commqnde nommé simplement ``docker``.
+utiliser un programme client en ligne de commande nommé simplement ``docker``.
 L'image la plus simple est un *Hello world*, on l'instancie avec la commande suivante:
 
 .. code-block:: bash
@@ -392,7 +393,7 @@ Voici les options choisies:
    - ``--detach``  (ou ``-d``) indique que le conteneur
      est lancé en tâche de fond, ce qui évite de bloquer le terminal
    - on indique enfin l'image à utiliser, ainsi que la version: prenez ``latest`` (ou ne précisez rien)
-      sauf si  vous avez de bonnes raisons de faire autrement.
+     sauf si  vous avez de bonnes raisons de faire autrement.
 
 La première fois, l'image doit être téléchargée, ce qui peut prendre un certain temps. Par la suite, le
 lancement du conteneur instanciant l'image est quasi instantané.
@@ -475,64 +476,42 @@ devraient répondre.
 Ouf! Prenez le temps de bien comprendre, car une fois ces mécanismes assimilés,
 nous serons libérés de tout souci pour créer nos systèmes distribués et 
 les expérimenter par la suite. Et je vous rassure: l'ensemble est 
-géré de manière plus conviviale avec Kitematic (ce qui ne dispense pas de comprendre
+géré de manière plus conviviale avec le *dashboard* (ce qui ne dispense pas de comprendre
 ce qui se passe).
 
 
-*********
-Kitematic
-*********
+******************************
+Le tableau de bord (dashboard)
+******************************
 
 Plusieurs environnements graphiques existent pour interagir avec Docker. 
-Dans ce qui suit nous présentons Kitematic, l'interface "officielle" fournie avec Docker,
+Dans ce qui suit nous présentons le tableau  de bord
+(*dashboard*), l'interface "officielle" fournie avec l'outil *Docker desktop*,
 mais vous pouvez en tester d'autre si vous le souhaitez.
 En voici deux qui semblent intéressants.
 
    - Portainer disponible à https://www.portainer.io/
    - DockStation disponible https://dockstation.io/
 
-Kitematic est disponible sur Github: https://github.com/docker/kitematic. L'application  facilite la gestion des conteneurs
-et des images et fournit un tableau de bord sur le système distribué virtuel.
+Le *dashboard*  facilite la gestion des conteneurs
+et des images et fournit un tableau de bord sur le système 
+distribué virtuel
+(:numref:`dashboard`).
 
-.. _kitematic:
-.. figure:: ../figures/kitematic.png   
+.. _dashboard
+.. figure:: ../figures/docker-dashboard.jpg   
       :width: 70%
       :align: center
    
-      Le client Kitematic
-
-Installer un nouveau conteneur
-==============================
-
-Il suffit de cliquer sur ``New``: on obtient la liste des images disponibles (l'équivalent de ce qui est proposé
-sur http://hub.docker.com), avec une fonction de recherche. En cliquant sur une image, elle est tout d'abord
-téléchargée sur la machine Docker, puis instanciée dans un nouveau conteneur.
-
-.. _kitematic-new:
-.. figure:: ../figures/kitematic-new.png   
-      :width: 70%
-      :align: center
-      
-      Choix d'un nouveau conteneur / image
-
-Un lien mène de chaque image vers le catalogue des images (*hub*) Docker: il peut  être utile
-de consulter la documentation d'une image pour connaître ses caractéristiques.
-
-
-Gestion d'un conteneur
-======================
+      Le tableau de bord Docker
 
 En cliquant sur le nom de l'un des conteneurs disponibles, on dispose de toutes les options
-associées: démarrage (``start``), arrêt (``stop``), suppression du conteneur (la croix),
-accès à l'utilitaire de commandes sur le conteneur (``exec``), et enfin paramétrages
-divers (``settings``).
-
+associées.
 Un paramètre important est le renvoi du port de l'image instanciée dans le conteneur
 vers un port  de la machine Docker. Ce renvoi permet 
 d'accéder avec une application de la machine-hôte à l'instance de l'image comme
 si elle s'exécutait directement dans la machine Docker. Reportez-vous à
 la section précédente pour des explications complémentaires sur l'option ``--publish``.
-
 
 Quiz
 ====
@@ -565,7 +544,7 @@ Exercices
 =========
 
 Dans ces exercices vous devez mettre en ction les principes de Docker vus ci-dessus, et vous
-êtes également invités à découvrir l'outil ``docker-compose`` qui nous permet de configurer
+êtes également invités à découvrir l'outil ``docker compose`` qui nous permet de configurer
 une fois pour toutes un environnement distribué constitué de plusieurs serveurs.
 
 .. _Ex-S1-1:
@@ -596,7 +575,7 @@ une fois pour toutes un environnement distribué constitué de plusieurs serveur
 .. admonition:: Exercice `Ex-S2-1`_: installez MySQL
 
     - Après installation de Docker, créez un conteneur avec la dernière version de MySQL. Vous pouvez
-      utiliser la ligne de commande ou Kitematic.
+      utiliser la ligne de commande ou le *dashboard*.
       Installez également un client MySQL sur votre machine et connectez-vous à votre conteneur Docker.
       
     - Au lieu de lancer toujours la même ligne de commande, on peut créer un fichier de configuration
@@ -605,18 +584,19 @@ une fois pour toutes un environnement distribué constitué de plusieurs serveur
     
       .. code-block:: yaml
       
-            mysql1:
-               image: mysql:latest
-               ports:
-                  - "6603:3306"
-               environment:
-                  - "MYSQL_ALLOW_EMPTY_PASSWORD=1"
+			services:
+			  mysql1:
+			    image: mysql:latest
+			    ports:
+			      - "6603:3306"
+			    environment:
+			      - "MYSQL_ALLOW_EMPTY_PASSWORD=1"
       
       Vous pouvez alors lancer la création de votre conteneur avec la commande:
       
       .. code-block:: bash
       
-           docker-composer -f mysql-compose.yml run
+           docker compose -f mysql-compose.yml run
            
       Voici quelques exercices à faire:
       
