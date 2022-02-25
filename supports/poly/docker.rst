@@ -348,7 +348,7 @@ Installons un serveur Web
 Testons Docker avec un des services les plus simples qui soient: un serveur web,
 Apache. 
 La démarche générale pour une installation
-consiste à cherche l'image qui vous convient sur le site http://hub.docker.com qui donne
+consiste à cherche l'image qui vous convient sur le site https://hub.docker.com qui donne
 accès au catalogue des images Docker fournies par la communauté des utilisateurs. 
    
 

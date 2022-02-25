@@ -464,7 +464,7 @@ Quiz
 
     .. code-block:: json
     
-        {"B": {"X": "zsz", "Y": "123"}, "A": 1, "C": [67, 98, 89]}
+        {"B": {"X": "zsz", "Y": "123"}, "A": 1, "C": [98, 89, 67]}
 
     Représentent-ils le *même* document ?
     
@@ -478,7 +478,7 @@ Quiz
     Quelle est la profondeur maximale d'un arbre représentant un document structuré ?
     
     A) :eqt:`I`  Trois, puisqu'on peut imbriquer succesivement une paire clé-valeur, un dictionnaire et une liste
-    #) :eqt:`C`  Il n'y a pas de profondeur maximal
+    #) :eqt:`C`  Il n'y a pas de profondeur maximale
     #) :eqt:`I` Elle est définie par la taille de la mémoire RAM
 
 
@@ -1391,7 +1391,7 @@ Quiz
     A) :eqt:`I`  En relationnel, toutes les entités sont sur le même plan; avec les documents structurés
        elles sont hiérarchisées
     #) :eqt:`C`  On peut modéliser certaines bases de données dans un modèle et pas dans l'autre, et réciproquement
-    #) :eqt:`I`  Il faut plus d'écritures et de lectures en relationnel qu'en modélisation par documents structurée
+    #) :eqt:`I`  Il faut plus d'écritures et de lectures en relationnel qu'en modélisation par documents structuré
 
 .. eqt:: docstructB-6
 
