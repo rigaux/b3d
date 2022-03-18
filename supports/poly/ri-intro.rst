@@ -448,6 +448,7 @@ Quiz
     A) :eqt:`I`  On évalue la proximité entre le besoin exprimé et les documents du système
     #) :eqt:`C`  On cherche des documents de structure similaire à celui donné par la requête
     #) :eqt:`I`  On cherche des documents de contenu similaire à celui donné par la requête
+    #) :eqt:`I`  On cherche les paires de documents proches les uns des autres
 
 
 .. eqt:: ri-intro-2
@@ -477,7 +478,7 @@ Quiz
 
 .. eqt:: ri-intro-5
 
-    Quel est la précision si la recherche ne ramène aucun document?
+    Quelle est la précision si la recherche ne ramène aucun document?
     
     A) :eqt:`I` La précision est maximale, donc 1
     #) :eqt:`I` La précision est minimale, donc 0
@@ -490,6 +491,8 @@ Quiz
     
     A) :eqt:`I` Le rappel
     #) :eqt:`C` La précision 
+    #)  :eqt:`I` Le rapport rappel / précision
+    #)  :eqt:`I` Le rapport  précision / rappel
 
 .. eqt:: ri-intro-7
 

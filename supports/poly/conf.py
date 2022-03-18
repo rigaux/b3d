@@ -94,9 +94,9 @@ def setup(app):
     app.add_config_value('annales18', '', True)
     app.add_config_value('annales20', '', True)
 
-docstruct = 'private'
+docstruct = 'public'
+mongoquery = 'public'
 mongomapreduce = 'private'
-mongoquery = 'private'
 mrbasic = 'private'
 cassandratp = 'private'
 mongodbtp = 'private'
