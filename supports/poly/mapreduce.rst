@@ -1639,12 +1639,12 @@ Commençons par un exercice-type commenté.
     Nous disposons d'une matrice *M* de dimension :math:`N \times N`
     représentant les liens entres les :math:`N`  pages du Web, chaque lien étant
     qualifié par un facteur d'importance (ou "poids"). La matrice est représentée par une
-    collection math:`C`  dans laquelle chaque document est de la forme 
+    collection :math:`C`  dans laquelle chaque document est de la forme 
     {"id": \&23, "lig": *i*, "col": *j*, "poids": :math:`m_{ij}`}, et
     représente un lien entre la page :math:`P_i` et la page :math:`P_j` de poids :math:`m_{ij}`
 
-    Exemple: voici une matrice :math:`M` avec :math:`N=4`. La première cellule de le seconde ligne
-    est donc représentée par
+    Exemple: voici une matrice :math:`M` avec :math:`N=4`. La première cellule de la 
+    seconde ligne est donc représentée par
     un document {"id": \&t5x, "lig": 2, "col": 1, "poids": 7}
 
     .. math::
