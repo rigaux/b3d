@@ -218,15 +218,21 @@ Quiz
 
 .. eqt:: ri-rank1-1
 
-    Quelle est la différence entre un espace métrique et un espace vectoriel?
+    Quelle est la différence entre un espace métrique (EM) et un espace vectoriel (EV)?
    
-    A) :eqt:`I` Un espace métrique et constitué de données numériques ordonnées,
-       alors qu'il n'y a pas d'ordre entre vecteurs.
-    #) :eqt:`I` Un espace métrique dispose d'une fonction de distance entre ses objets
-       contrairement aux espaces vectoriels.
-    #) :eqt:`C` Dans un espace métrique les objets sont quelconques, et on connaît
-       une fonction de distance; dans un espace vectoriel les objets sont des vecteurs, et
-       il est facile de leur associer une fonction de distance.
+    A) :eqt:`I` Les données d'un EM sont ordonnées, contraitrement aux vecteurs
+    #) :eqt:`I` Il existe une fonction de distance dans un EM, et pas dans un EV
+    #) :eqt:`C` Un EV est un type particulier d'espace métrique
+
+.. eqt:: ri-rank1-12
+
+    Laquelle de ces propriétés n'est pas nécessaire pour une distance
+   
+    A) :eqt:`I` La symétrie
+    #) :eqt:`I` L'inégalité triangulaire
+    #) :eqt:`C` La valeur est comprise entre 0 et 1
+    #) :eqt:`I` La distance est nulle ssi les deux objets sont les mêmes
+
 
 .. eqt:: ri-rank1-2
 
@@ -235,8 +241,7 @@ Quiz
     A) :eqt:`I` Chaque texte est représenté par un sous-ensemble de ses mots, c'est le "sac"
     #) :eqt:`C` Le texte est considéré comme un ensemble de mots sans ordre, comme
        s'ils étaient dans un "sac"
-    #) :eqt:`I` L'espace dans lequel les textes sont projetés est constitué de mots, 
-       et cet espace est appelé "sac de mots".
+    #) :eqt:`I` Les textes sont projetés dans un espace vectoriel appelé "sac de mots".
 
 .. eqt:: ri-rank1-3
 
@@ -250,14 +255,51 @@ Quiz
     #) :eqt:`I` Parce que cela permet d'appliquer une même distance à des documents multimédia
        quelconques: images, vidéos, etc.
 
+
 .. eqt:: ri-rank1-4
+
+    Comment est interprétée une requête *q* ?
+   
+    A) :eqt:`I` C'est une séquence d"opérations à appliquer à la collection
+    #) :eqt:`I` C'est une spécification de critères de recherche filtrant la collection
+    #) :eqt:`C` C'est un document de même type que ceux de la collection
+    #) :eqt:`I` C'est une sous-chaîne des documents textuels de la collection
+   
+
+
+.. eqt:: ri-rank1-5
 
     Qu'est-ce qui détermine le classement du résultat?
    
     A) :eqt:`I` On calcule toutes les distances entre chaque paire de documents, et on trie.
     #) :eqt:`C` On calcule la distance par rapport à un document de référence: la requête
     #) :eqt:`I` Les documents qui contiennent le plus de termes sont classés en premier
+
+.. eqt:: ri-rank1-6
+
+    Qu'est-ce qu'un *stop word*
    
+    A) :eqt:`I` On exclut les documents qui contiennent ce mot
+    #) :eqt:`C` C'est un mot courant qui n'informe pas sur le document
+    #) :eqt:`I` C'est un mot qui déclenche l'arrêt de la recherche quand il est rencontré
+
+.. eqt:: ri-rank1-7
+
+    Un document doit contenir tous les mots de la requête pour être pertinent
+   
+    A) :eqt:`I` Vrai
+    #) :eqt:`C` Faux
+
+.. eqt:: ri-rank1-8
+
+    Quelle propriété de la distance euclidienne est vraie?
+   
+    A) :eqt:`I` On ne prend en compte que les 1
+    #) :eqt:`I` On ne prend en compte que les 0
+    #) :eqt:`C` On prend en compte toutes les coordonnées des vecteurs
+    #) :eqt:`I` On prend en compte les coordonnées du vecteur décrivant la requête
+
+
 **************************
 S2: recherche plein  texte
 **************************
@@ -590,6 +632,7 @@ Quiz
     A) :eqt:`I` Parce qu'il est rare dans le document
     #) :eqt:`C` Parce qu'il est rare dans la collection
     #) :eqt:`I` Parce qu'il est fréquent dans la collection et rare dans le document
+    #) :eqt:`I` Parce qu'il est rare dans la collection et fréquent dans le document
 
 
 .. eqt:: ri-tfidf-1a
@@ -617,7 +660,8 @@ Quiz
    
     A) :eqt:`I` La norme du vecteur multipliée par le cosinus
     #) :eqt:`I` L'idf du terme *t*
-    #) :eqt:`C` Le tf du terme *t*
+    #) :eqt:`I` Le tf du terme *t*
+    #) :eqt:`C` Le tf.idf du terme *t*
 
     .. _euclidiandistance:
     .. figure:: ../figures/euclidiandistance.png
