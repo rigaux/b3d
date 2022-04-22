@@ -1,0 +1,672 @@
+
+<!DOCTYPE html>
+
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Préliminaires: Docker &#8212; Bases de données documentaires et distribuées v&lt;release&gt; - Cours CNAM NFE204</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/agogo.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/translations.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Recherche" href="search.html" />
+    <link rel="next" title="Modélisation de bases NoSQL" href="docstruct.html" />
+    <link rel="prev" title="Introduction" href="intro.html" /> 
+  </head><body>
+    <div class="header-wrapper">
+      <div class="header">
+        <div class="headertitle"><a
+          href="index.html">Préliminaires: Docker</a></div>
+        <div class="rel">
+          <a href="intro.html" title="Introduction"
+             accesskey="P">précédent</a><font color="white"> |</font>
+          <a href="docstruct.html" title="Modélisation de bases NoSQL"
+             accesskey="N">suivant</a><font color="white"> |</font>
+          <a href="genindex.html" title="Index général"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+<script type="text/javascript" src="_static/dynsite.js"></script>
+
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="preliminaires-docker">
+<span id="chap-docker"></span><h1>Préliminaires: Docker<a class="headerlink" href="#preliminaires-docker" title="Lien permanent vers ce titre">¶</a></h1>
+<div class="admonition-supports-complementaires admonition">
+<p class="admonition-title">Supports complémentaires</p>
+<ul class="simple">
+<li><p><a class="reference external" href="http://b3d.bdpedia.fr/files/sldocker.pdf">Diapositives: introduction à Docker</a></p></li>
+<li><p><a class="reference external" href="https://mediaserver.cnam.fr/permalink/v125f359515b1gu2y6e0/">Vidéo de la session consacrée à Docker</a></p></li>
+</ul>
+</div>
+<p>La plupart des systèmes étudiés dans ce cours peuvent s’installer et s’exécuter
+avec l’environnement <em>Docker</em> (<a class="reference external" href="http://www.docker.com">http://www.docker.com</a>). Docker permet
+d’émuler un système distribué de serveurs.</p>
+<p>Un <em>serveur</em> est une entité
+qui fournit un service (!). Concrètement:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>un <em>serveur machine</em> est un ordinateur, tournant sous un système d’exploitation,
+et connecté en permanence au réseau via des <em>ports</em>; un serveur machine est
+identifiable sur le réseau par son adresse IP.</p></li>
+<li><p>un <em>serveur logiciel</em> est un processus exécuté en tâche de fond d’un serveur machine qui
+communique avec des <em>clients (logiciels)</em> via un port particulier.</p></li>
+<li><p>un <em>système distribué</em> est constitué de plusieurs serveurs qui communiquent les uns
+avec les autres.</p></li>
+<li><p>un <em>client (logiciel)</em> est un programme qui communique avec un serveur (logiciel);</p></li>
+<li><p>une <em>machine virtuelle</em> est un programme qui simule, sur une machine hôte,
+un autre ordinateur.</p></li>
+</ul>
+</div></blockquote>
+<div class="admonition-exemple admonition">
+<p class="admonition-title">Exemple.</p>
+<p>Un serveur web est un processus (Apache par exemple) qui communique sur le
+port 80 d’un serveur machine. Si ce serveur machine a pour IP 163.12.9.10, alors tout
+client web (Firefox par exemple) peut s’adresser au serveur web à l’adresse 163.12.9.10:80.</p>
+</div>
+<p>La  <a class="reference internal" href="#serveurs"><span class="std std-numref">Fig. 1</span></a> illustre ces concepts de base, que nous utiliserons maintenant
+intensivement sans plus d’explication. Elle montre dans une machine physique (le
+« système hôte ») deux machines virtuelles. Chacune de ces machines dispose
+d’une adresse IP qui lui est propre, et propose des services en écoute sur certains ports.
+Un serveur MongoDB est présent par exemple sur chacune des deux machines, en écoute
+sur le port par défaut 27017, la différentiation  des serveurs se faisant donc dans
+ce cas par l’adresse IP du serveur qui les héberge.</p>
+<p>Inversement, on peut avoir deux serveurs identiques sur une
+même machine, mais sur des ports différents. C’est ce qu’illustre
+la présence de deux serveurs ElasticSearch sur la seconde machine virtuelle,
+sur les ports respectifs 9200 et 9201.</p>
+<div class="figure align-center" id="id1">
+<span id="serveurs"></span><img alt="_images/Serveurs.jpg" src="_images/Serveurs.jpg" />
+<p class="caption"><span class="caption-number">Fig. 1 </span><span class="caption-text">Un exemple de système distribué, avec serveurs virtuels et clients</span><a class="headerlink" href="#id1" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<p>Avant de donner
+quelques explications plus élaborées, il vous suffit de considérer que Docker permet d’installer
+et d’exécuter très facilement, sur votre ordinateur personnel, et avec
+une consommation de ressources (mémoire et disque) très faible, ce que nous appellerons
+pour l’instant des « pseudos-serveurs » en attendant d’être plus précis.
+Docker offre deux très grands avantages.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>il propose des pseudo-serveurs pré-configurés, prêts à l’emploi (les « images »),
+qui s’installent en quelques clics;</p></li>
+<li><p>il est tout aussi facile d’installer <em>plusieurs</em> pseudos-serveurs communiquant
+les uns avec les autres et d’obtenir donc un système distribué complet, sur
+un simple portable (doté d’une puissance raisonnable).</p></li>
+</ul>
+</div></blockquote>
+<p>Docker permet de transformer un simple ordinateur personnel en <em>data center</em>! Bien entendu, il n’en a
+pas la puissance mais pour tester et expérimenter, c’est extrêmement pratique.</p>
+<p><strong>Installation</strong>: Docker existe sous tous les systèmes, dont Windows. Pour Windows et Mac OS, un installateur
+<em>Docker Desktop</em>
+est fourni à <a class="reference external" href="https://www.docker.com/products/docker-desktop">https://www.docker.com/products/docker-desktop</a>. Il contient tous les composants nécessaires
+à l’utilisation de Docker.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Merci de me signaler des compléments qui seraient utiles à intégrer dans le présent
+document, pour les environnements différents de Mac OS X, et notamment Windows.</p>
+</div>
+<div class="section" id="introduction-a-docker">
+<h2>Introduction à Docker<a class="headerlink" href="#introduction-a-docker" title="Lien permanent vers ce titre">¶</a></h2>
+<p>Essayons de comprendre ce qu’est Docker avant d’aller plus loin. Vous connaissez
+peut-être déjà la notion de <em>machine virtuelle</em> (VM). Elle consiste à simuler
+par un composant logiciel, sur une machine physique,  un ordinateur
+auquel on alloue une partie des ressources (mémoire, CPU). Partant
+d’une machine dotée par exemple de 4 disques et 256 GO de mémoire, on
+peut créer 4 VMs indépendantes avec chacune 1 disque et 64 GO de RAM. Ces
+VMs peuvent être totalement différentes les unes des autres. On peut en avoir
+une sous le système Windows, une autre sous le système Linux, etc.</p>
+<p>L’intérêt des VMs est principalement la souplesse et l’optimisation
+de l’utilisation des ressources matérielles. L’organisation en VMs
+rend plus facile la réaffectation, le changement du dimensionnement,
+et améliore le taux d’utilisation des dispositifs physiques (disque, mémoire,
+réseau, etc.).</p>
+<p>Les VMs ont aussi l’inconvénient d’être assez gourmandes en ressource, puisqu’il
+faut, à chaque fois, faire tourner un système d’exploitation complet, avec tout
+ce que cela implique, en terme d’emprise mémoire notamment.</p>
+<p>Docker propose une solution beaucoup plus légère, basée sur la capacité
+du système Linux à créer des espaces isolés auxquels on affecte une partie
+des ressources de la machine-hôte. Ces espaces, ou <em>containers</em> partitionnent
+en quelque sorte le système-hôte en sous-systèmes étanches, au sein desquels
+le nommage (des processus, des utilisateurs, des ports réseaux) est purement local.
+On peut par exemple faire tourner un processus <em>apache</em> sur le port 80
+dans le conteneur A, un autre processus <em>apache</em> sur le port 80 dans le conteneur B,
+sans conflit ni confusion.
+Tous les nommages sont en quelque sorte interprétés par rapport à un container donné (notion
+<em>d’espace de nom</em>).</p>
+<p><em>Les conteneurs Linux sont beaucoup plus légers en consommation de ressources que
+les VMs, puisqu’ils s’exécutent au sein d’un unique système d’exploitation</em>. Docker
+exploite cette spécificité du système Linux pour proposer un mode de virtualisation
+(que nous avons appelé « pseudo-serveur » en préambule) léger et flexible.</p>
+<div class="section" id="docker-et-ses-conteneurs">
+<h3>Docker et ses conteneurs<a class="headerlink" href="#docker-et-ses-conteneurs" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Docker (ou, très précisément, le <em>docker engine</em>) est un
+programme qui va nous permettre de créer des conteneurs  et d’y installer
+des environnements prêts à l’emploi, les <em>images</em>.
+Un peu de vocabulaire: dans tout ce qui suit,</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Le <em>système hôte</em> est le système d’exploitation principal gérant votre machine ;
+c’est par exemple Windows, ou Mac OS.</p></li>
+<li><p><em>Docker engine</em> ou <em>moteur docker</em>  est le programme qui gère les conteneurs;</p></li>
+<li><p>Un <em>conteneur</em> est une partie autonome du système hôte, se comportant comme une
+machine indépendante.</p></li>
+<li><p>Le <em>client Docker</em> est l’utilitaire  grâce auquel on transmet au moteur
+les commandes de gestion de ces conteneurs.
+Il peut s’agir soit de la ligne de commande (<em>Docker CLI</em>) ou du <em>dashboard</em>
+intégré au <em>Docker desktop</em>.</p></li>
+</ul>
+</div></blockquote>
+<div class="figure align-center" id="id2">
+<span id="schema-docker"></span><img alt="_images/schema-docker.png" src="_images/schema-docker.png" />
+<p class="caption"><span class="caption-number">Fig. 2 </span><span class="caption-text">Le système hôte, le <em>docker engine</em> et les conteneurs</span><a class="headerlink" href="#id2" title="Lien permanent vers cette image">¶</a></p>
+</div>
+</div>
+<div class="section" id="les-images-docker">
+<h3>Les images Docker<a class="headerlink" href="#les-images-docker" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Un conteneur Docker peut donc être vu comme un sous-système  autonome, mobilisant
+très peu de ressources car l’essentiel des tâches système est délégué au système
+dans lequel il est instancié. On dispose donc virtuellement d’un moyen
+de multiplier à peu de frais des pseudo-machines dans lesquelles on pourait installer
+« à la main » des logiciels divers et variés.</p>
+<p>Docker va un peu plus loin en proposant des installations pré-configurées, empaquetées
+de manière à pouvoir être placées très facilement dans un conteneur. On les appelle
+des <em>images</em>. On peut ainsi trouver des images avec pré-configuration de serveurs de
+données (Oracle, Postgres, MySQL), serveurs Web (Apache, njinx), serveurs NoSQL
+(mongodb, cassandra), moteurs de recherche (ElasticSearch, Solr). L’installation
+d’une image se fait très simplement, et soulage considérablement des tâches parfois
+pénibles d’installation directe.</p>
+<div class="figure align-center" id="id3">
+<span id="images-docker"></span><img alt="_images/images-docker.png" src="_images/images-docker.png" />
+<p class="caption"><span class="caption-number">Fig. 3 </span><span class="caption-text">Les images docker, constituant un pseudo système distribué</span><a class="headerlink" href="#id3" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<p>Une image se place dans un conteneur. On peut placer la même image dans plusieurs
+conteneurs et obtenir ainsi un système distribué. Examinons la
+<a class="reference internal" href="#images-docker"><span class="std std-numref">Fig. 3</span></a> montrant une configuration complète.
+Nous avons tous les composants à l’œuvre, essayons de bien comprendre.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Le système hôte exécute le <em>Docker Engine</em>, un processus qui gère les images
+et instancie les conteneurs.</p></li>
+<li><p>Docker a téléchargé (nous verrons comment plus tard) les images
+de plusieurs systèmes de gestion de données: MySQL, MongoDB (un système
+NoSQL que nous étudierons), et Cassandra.</p></li>
+<li><p>Ces images ont été <em>instanciées</em> dans des conteneurs A, B et C. L’instanciation
+consiste à installer l’image dans le conteneur et à l’exécuter. Nous avons
+donc deux conteneurs avec l’image MySQL, et un troisième avec l’image Cassandra.</p></li>
+</ul>
+</div></blockquote>
+<p>Chacun de ces conteneurs dispose de sa propre adresse IP. En supposant que
+les ports par défaut sont utilisés, le premier serveur MySQL
+est donc accessible à l’adresse IPb, sur le port 3306, le second
+à l’adresse IPc, sur le même port.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Le <em>docker engine</em> implante un système automatique
+de « renvoi » qui « publie » le service d’un conteneur sur
+le port correspondant du sysème hôte. Le premier
+conteneur MySQL par exemple est <em>aussi</em> accessible sur le port 3306
+de la machine hôte. Pour le second, ce n’est pas possible car le port
+est déjà occupé, et il faut donc configurer manuellement ce renvoi:
+nous verrons comment le faire.</p>
+</div>
+<p>L’ensemble constitue donc un système distribué virtuel, le tout s’exécutant
+sur la machine-hôte
+et gérable très facilement grâce aux utilitaires Docker. Nous avons par exemple dans
+chaque conteneur un serveur MySQL. Maintenant, on peut se connecter à ces serveurs
+à partir de la machine-hôte avec une application cliente (par exemple phpMyAdmin)
+et tester le système distribué, ce que nous ferons tout au long du cours.</p>
+<p>On peut instancier l’image de MongoDB dans 4 conteneurs et obtenir un <em>cluster</em> MongoDB
+en quelques minutes.  Evidemment, les performances globales ne dépasseront pas celle
+de l’unique machine hébergeant Docker. Mais pour du développement ou de l’expérimentation,
+c’est suffisant, et le gain en temps d’installation est considérable.</p>
+<p>En résumé: avec Docker, on dispose d’une boîte à outils pour émuler des environnements
+complexes avec une très grande facilité.</p>
+</div>
+</div>
+<div class="section" id="docker-en-ligne-de-commande">
+<h2>Docker en ligne de commande<a class="headerlink" href="#docker-en-ligne-de-commande" title="Lien permanent vers ce titre">¶</a></h2>
+<p>Dans ce qui suit, je vais illustrer les commandes avec l’utilitaire de commandes en ligne
+en prenant l’exemple de ma machine Mac OS X. Ce
+ne doit pas être fondamentalement différent sous les autres environnements.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Vous préférerez sans doute à juste titre utiliser un outil graphique comme le
+<em>Docker desktop</em>, décrit dans la prochaine section, mais avoir un aperçu de commandes transmises par ce dernier est toujours utile
+pour comprendre ce qui se passe.</p>
+</div>
+<div class="section" id="lancement-du-docker-desktop-mac-os-windows">
+<h3>Lancement du Docker Desktop (Mac OS, Windows)<a class="headerlink" href="#lancement-du-docker-desktop-mac-os-windows" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Sous Mac OS ou Windows, vous disposez du <em>Docker Desktop</em> qui vous permet de
+lancer la machine virtuelle et
+d’obtenir une interface graphique pour gérer votre <em>docker engine</em>.
+La <a class="reference internal" href="#docker-desktop"><span class="std std-numref">Fig. 4</span></a> montre
+la fenêtre des paramètres.</p>
+<div class="figure align-center" id="id4">
+<span id="docker-desktop"></span><a class="reference internal image-reference" href="_images/docker-desktop.png"><img alt="_images/docker-desktop.png" src="_images/docker-desktop.png" style="width: 70%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 4 </span><span class="caption-text">Le site d’hébergement des images Docker.</span><a class="headerlink" href="#id4" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<p>Pour communiquer avec le moteur Docker, on peut
+utiliser un programme client en ligne de commande nommé simplement <code class="docutils literal notranslate"><span class="pre">docker</span></code>.
+L’image la plus simple est un <em>Hello world</em>, on l’instancie avec la commande suivante:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run hello-world
+</pre></div>
+</div>
+<p>Le <code class="docutils literal notranslate"><span class="pre">run</span></code> est la commande d’instanciation d’une nouvelle image dans un conteneur Docker. Voici
+ce que vous devriez obtenir à la première exécution.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run hello-world
+
+   Unable to find image <span class="s1">&#39;hello-world:latest&#39;</span> locally
+   latest: Pulling from library/hello-world
+   4276590986f6: Pull <span class="nb">complete</span>
+   Status: Downloaded newer image <span class="k">for</span> hello-world:latest
+
+   Hello from Docker!
+</pre></div>
+</div>
+<p>Décryptons à nouveau. La machine Docker a cherché dans son répertoire local pour savoir si l’image
+<code class="docutils literal notranslate"><span class="pre">hello-world</span></code> était déjà téléchargée. Ici, comme c’est notre première exécution, ce n’est pas le
+cas (message <code class="docutils literal notranslate"><span class="pre">Unable</span> <span class="pre">to</span> <span class="pre">find</span> <span class="pre">image</span> <span class="pre">locally</span></code>). Docker va donc télécharger l’image et l’instancier.
+Le message <code class="docutils literal notranslate"><span class="pre">Hello</span> <span class="pre">from</span> <span class="pre">Docker.</span></code> s’affiche, et c’est tout.</p>
+<p>L’utilité est plus que limitée, mais cela montre à toute petite
+échelle le fonctionnement général: on choisit une image, on applique <code class="docutils literal notranslate"><span class="pre">run</span></code> et Docker se charge du reste.</p>
+<p>La liste des images est disponible avec la commande:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker images
+</pre></div>
+</div>
+<p>Voici le type d’affichage obtenu:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>REPOSITORY               TAG                 IMAGE ID            CREATED             SIZE
+docker101tutorial        latest              be967614122c        4 days ago          27.3MB
+mysql                    latest              e1d7dc9731da        12 days ago         544MB
+python                   alpine              0f03316d4a27        13 days ago         42.7MB
+nginx                    alpine              6f715d38cfe0        5 weeks ago         22.1MB
+docker/getting-started   latest              1f32459ef038        2 months ago        26.8MB
+hello-world              latest              bf756fb1ae65        8 months ago        13.3kB
+</pre></div>
+</div>
+<p>Une image est instanciée dans un conteneur avec la commande <code class="docutils literal notranslate"><span class="pre">run</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run --name <span class="s1">&#39;nom-conteneur&#39;</span> &lt;options&gt;
+</pre></div>
+</div>
+<p>Les options dépendent de l’image: voir les sections suivantes pour des exemples.
+La liste des conteneurs est disponible avec la commande:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker ps -a
+</pre></div>
+</div>
+<p>L’option <code class="docutils literal notranslate"><span class="pre">-a</span></code>  permet de voir tous les conteneurs, quel que soit leur statut (en arrêt, ou
+en cours d’exécution). On obtient l’affichage suivant:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>CONTAINER ID  IMAGE         COMMAND                  CREATED         STATUS                      PORTS  NAMES
+d1c2291dc9f9  mysql:latest  &quot;docker-entrypoint.s…&quot;   16 minutes ago  Exited (1) 9 minutes ago           mysql
+ec5215871db3  hello-world   &quot;/hello&quot;                 19 minutes ago  Exited (0) 19 minutes ago          relaxed_mendeleev
+</pre></div>
+</div>
+<p>Notez le premier champ, <code class="docutils literal notranslate"><span class="pre">CONTAINER</span> <span class="pre">ID</span></code> qui nous indique l’identifiant par
+lequel on peut transmettre des
+instructions au conteneur. Voici les plus utiles, en supposant que le conteneur est <code class="docutils literal notranslate"><span class="pre">d1c2291dc9f9</span></code>.
+Tout d’abord on peut
+l’arrêter  avec la commande <code class="docutils literal notranslate"><span class="pre">stop</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker stop d1c2291dc9f9
+</pre></div>
+</div>
+<p>Arrêter un conteneur ne signifie par qu’il n’existe plus, mais qu’il n’est plus actif.
+On peut le relancer avec la commande <code class="docutils literal notranslate"><span class="pre">start</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker start mon-conteneur
+</pre></div>
+</div>
+<p>Pour le supprimer, c’est la commande <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">rm</span></code>. Pour inspecter la configuration système/réseau d’un conteneur,
+Docker fournit la
+commande <code class="docutils literal notranslate"><span class="pre">inspect</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker inspect mon-conteneur
+</pre></div>
+</div>
+<p>On obtient un large document JSON. Parmi toutes les informations données,
+l’adresse IP du coneneur est particulièrement intéressante. On l’obtient avec</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>docker inspect &lt;container id&gt; | grep &quot;IPAddress&quot;
+</pre></div>
+</div>
+</div>
+<div class="section" id="installons-un-serveur-web">
+<h3>Installons un serveur Web<a class="headerlink" href="#installons-un-serveur-web" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Testons Docker avec un des services les plus simples qui soient: un serveur web,
+Apache.
+La démarche générale pour une installation
+consiste à cherche l’image qui vous convient sur le site <a class="reference external" href="https://hub.docker.com">https://hub.docker.com</a> qui donne
+accès au catalogue des images Docker fournies par la communauté des utilisateurs.</p>
+<p>Faites une recherche avec le mot-clé « httpd » (correspondant aux images
+du serveur web Apache). Comme on pouvait s’y attendre, de nombreuses images
+sont disponibles.
+La plus standard s’appelle tout simplement <code class="docutils literal notranslate"><span class="pre">httpd</span></code> (<a class="reference internal" href="#docker-httpd"><span class="std std-numref">Fig. 5</span></a>).</p>
+<div class="figure align-center" id="id5">
+<span id="docker-httpd"></span><a class="reference internal image-reference" href="_images/docker-httpd.png"><img alt="_images/docker-httpd.png" src="_images/docker-httpd.png" style="width: 70%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 5 </span><span class="caption-text">Les images de serveurs Apache.</span><a class="headerlink" href="#id5" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<p>Choisissez une image, et cliquez sur le bouton <code class="docutils literal notranslate"><span class="pre">Details</span></code>  pour
+connaître les options d’installation. En prenant
+l’image standard, on obtient la page de documentation illustrée par
+la  <a class="reference internal" href="#docker-httpd-install"><span class="std std-numref">Fig. 6</span></a></p>
+<div class="figure align-center" id="id6">
+<span id="docker-httpd-install"></span><a class="reference internal image-reference" href="_images/docker-httpd-install.png"><img alt="_images/docker-httpd-install.png" src="_images/docker-httpd-install.png" style="width: 70%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 6 </span><span class="caption-text">Documentation d’installation de l’image <code class="docutils literal notranslate"><span class="pre">httpd</span></code></span><a class="headerlink" href="#id6" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<p>Vous avez deviné ce qui reste à faire. Installez l’image dans un conteneur sur votre machine avec
+la commande suivante:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run --name serveur-web1 --detach httpd:latest
+</pre></div>
+</div>
+<p>Voici les options choisies:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> est le nom du conteneur: il peut remplacer l’id du conteneur quand on veut l’arrêter / le relancer, etc.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-e</span></code> est une option: ici on autorise le lancement d’un serveur MySQL sans mot de passe pour le compte “ROOT”
+ce qui est interdit par défaut</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--detach</span></code>  (ou <code class="docutils literal notranslate"><span class="pre">-d</span></code>) indique que le conteneur
+est lancé en tâche de fond, ce qui évite de bloquer le terminal</p></li>
+<li><p>on indique enfin l’image à utiliser, ainsi que la version: prenez <code class="docutils literal notranslate"><span class="pre">latest</span></code> (ou ne précisez rien)
+sauf si  vous avez de bonnes raisons de faire autrement.</p></li>
+</ul>
+</div></blockquote>
+<p>La première fois, l’image doit être téléchargée, ce qui peut prendre un certain temps. Par la suite, le
+lancement du conteneur instanciant l’image est quasi instantané.</p>
+<p>C’est tout! Vous avez installé et lancé un serveur web. Vous pouvez le vérifier avec
+la commande suivante qui donne la liste des conteneurs en cours d’exécution.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker ps
+</pre></div>
+</div>
+<p>Vous devriez obtenir le résultat suivant. Notez le port via lequel on
+peut accéder au serveur, et le nom
+du conteneur.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>CONTAINER ID  IMAGE        COMMAND            CREATED        STATUS        PORTS   NAMES
+d02a690e0253  httpd:latest &quot;httpd-foreground&quot; 3 minutes ago  Up 3 minutes  80/tcp  serveur-web1
+</pre></div>
+</div>
+<p>Notez que le serveur web est accessible sur le port 80 de la machine sur laquelle
+le <em>Docker Desktop</em>
+a été lancée, soit <code class="docutils literal notranslate"><span class="pre">localhost</span></code>. Comment est-ce possible alors que nous avons dit que
+que chaque conteneur était une petite machine indépendante et disposait donc
+de sa propre adresse IP? La réponse est que le Docker Desktop se charge
+automatiquement de <em>renvoyer</em> le port du conteneur
+vers <code class="docutils literal notranslate"><span class="pre">localhost</span></code>.</p>
+<p>Si on veut créer un système distribué constitué de plusieurs serveurs web,
+ce renvoi par défaut n’est plus possible puisque tous les serveurs se disputeraient
+l’accès au port 80 de la machine hôte.</p>
+</div>
+<div class="section" id="installons-plusieurs-serveurs-web">
+<h3>Installons plusieurs serveurs web<a class="headerlink" href="#installons-plusieurs-serveurs-web" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Docker fournit un mécanisme dit <em>de publication</em> pour indiquer sur quel
+port se met en écoute un conteneur. On indiaue simplement avec l’option
+<code class="docutils literal notranslate"><span class="pre">--publish</span></code> (ou <code class="docutils literal notranslate"><span class="pre">-p</span></code>) comment on associe un port du conteneur à un port du
+système hôte. Exemple:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run --name serveur-web2 --publish <span class="m">81</span>:80 --detach httpd:latest
+</pre></div>
+</div>
+<p>Ou plus simplement</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run --name serveur-web2 -p <span class="m">81</span>:80  -d httpd
+</pre></div>
+</div>
+<p>L’option <code class="docutils literal notranslate"><span class="pre">-p</span></code> indique que le port 80 du conteneur est renvoyé sur le port 81
+de la machine hôte.</p>
+</div>
+<div class="section" id="pour-acceder-aux-serveurs-il-faut-un-client">
+<h3>Pour accéder aux serveurs, il faut un client<a class="headerlink" href="#pour-acceder-aux-serveurs-il-faut-un-client" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Une fois que l’on a installé des services dans des conteneurs, il faut
+disposer de programmes clients pour pouvoir dialoguer avec eux. Ces programmes
+clients sont en général à installer directement sur la machine hôte.</p>
+<p>Dans le cas d’un serveur web, ou en général de tout service qui communique
+selon le protocole HTTP, un navigateur web fait parfaitement l’affaire.
+Avec votre navigateur préféré, essayer d’accéder aux adresses <a class="reference external" href="http://localhost:80">http://localhost:80</a>
+et <a class="reference external" href="http://localhost:81">http://localhost:81</a>: les services web Docker que vous venez d’installer
+devraient répondre.</p>
+<div class="figure align-center" id="id7">
+<span id="docker-httpd-client"></span><a class="reference internal image-reference" href="_images/docker-httpd-client.png"><img alt="_images/docker-httpd-client.png" src="_images/docker-httpd-client.png" style="width: 70%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 7 </span><span class="caption-text">Accès au service avec le nom du serveur et le port</span><a class="headerlink" href="#id7" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<p>Ouf! Prenez le temps de bien comprendre, car une fois ces mécanismes assimilés,
+nous serons libérés de tout souci pour créer nos systèmes distribués et
+les expérimenter par la suite. Et je vous rassure: l’ensemble est
+géré de manière plus conviviale avec le <em>dashboard</em> (ce qui ne dispense pas de comprendre
+ce qui se passe).</p>
+</div>
+</div>
+<div class="section" id="le-tableau-de-bord-dashboard">
+<h2>Le tableau de bord (dashboard)<a class="headerlink" href="#le-tableau-de-bord-dashboard" title="Lien permanent vers ce titre">¶</a></h2>
+<p>Plusieurs environnements graphiques existent pour interagir avec Docker.
+Dans ce qui suit nous présentons le tableau  de bord
+(<em>dashboard</em>), l’interface « officielle » fournie avec l’outil <em>Docker desktop</em>,
+mais vous pouvez en tester d’autre si vous le souhaitez.
+En voici deux qui semblent intéressants.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Portainer disponible à <a class="reference external" href="https://www.portainer.io/">https://www.portainer.io/</a></p></li>
+<li><p>DockStation disponible <a class="reference external" href="https://dockstation.io/">https://dockstation.io/</a></p></li>
+</ul>
+</div></blockquote>
+<p>Le <em>dashboard</em>  facilite la gestion des conteneurs
+et des images et fournit un tableau de bord sur le système
+distribué virtuel
+(<code class="xref std std-numref docutils literal notranslate"><span class="pre">dashboard</span></code>).</p>
+<div class="figure align-center" id="id8">
+<a class="reference internal image-reference" href="_images/docker-dashboard.jpg"><img alt="_images/docker-dashboard.jpg" src="_images/docker-dashboard.jpg" style="width: 70%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 8 </span><span class="caption-text">Le tableau de bord Docker</span><a class="headerlink" href="#id8" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<p>En cliquant sur le nom de l’un des conteneurs disponibles, on dispose de toutes les options
+associées.
+Un paramètre important est le renvoi du port de l’image instanciée dans le conteneur
+vers un port  de la machine Docker. Ce renvoi permet
+d’accéder avec une application de la machine-hôte à l’instance de l’image comme
+si elle s’exécutait directement dans la machine Docker. Reportez-vous à
+la section précédente pour des explications complémentaires sur l’option <code class="docutils literal notranslate"><span class="pre">--publish</span></code>.</p>
+<div class="section" id="quiz">
+<h3>Quiz<a class="headerlink" href="#quiz" title="Lien permanent vers ce titre">¶</a></h3>
+<blockquote>
+<div><p>Quelles phrases suivantes sont exactes à propos de la notion de serveur :</p>
+<ol class="upperalpha simple">
+<li><p>Un serveur est lancé à chaque fois qu’on fait appel à lui</p></li>
+<li><p>Un serveur est nécessairement connecté à un port réseau</p></li>
+<li><p>Il ne peut y avoir qu’un seul serveur d’un type donné (par exemple
+un serveur Web) sur une machine</p></li>
+</ol>
+<p>Quelles phrases suivantes sont exactes à propos de Docker :</p>
+<ol class="upperalpha simple">
+<li><p>La machine Docker est un serveur</p></li>
+<li><p>La machine Docker est un client</p></li>
+<li><p>La machine Docker s’exécute dans un conteneur</p></li>
+<li><p>La machine Docker s’exécute dans un système Linux</p></li>
+</ol>
+<p>Après avoir installé un serveur dans un conteneur Docker, que reste-t-il à faire:</p>
+<ol class="upperalpha simple">
+<li><p>Il faut configurer le serveur</p></li>
+<li><p>Il faut lancer le serveur</p></li>
+<li><p>Il faut installer au moins un programme client dans le conteneur Docker</p></li>
+<li><p>Il faut installer au moins un programme client sur la machine hôte</p></li>
+</ol>
+</div></blockquote>
+</div>
+<div class="section" id="exercices">
+<h3>Exercices<a class="headerlink" href="#exercices" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Dans ces exercices vous devez mettre en ction les principes de Docker vus ci-dessus, et vous
+êtes également invités à découvrir l’outil <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">compose</span></code> qui nous permet de configurer
+une fois pour toutes un environnement distribué constitué de plusieurs serveurs.</p>
+<div class="admonition-exercice-ex-s1-1-testons-notre-comprehension admonition" id="ex-s1-1">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-s1-1">Ex-S1-1</a>: testons notre compréhension</p>
+<p>Savez-vous répondre aux questions suivantes?</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Qu’est-ce qu’une machine Docker, où se trouve-t-elle, quel est son rôle?</p></li>
+<li><p>À quoi sert le terminal Docker, et qu’est-ce qui caractérise un tel terminal?</p></li>
+<li><p>Qu’est-ce que la machine hôte? Doit-elle forcément tourner sous Linux?</p></li>
+<li><p>Une instance d’image est-elle placée dans un conteneur, dans la machine hôte ou
+dans la machine Docker?</p></li>
+<li><p>Peut-on instancier une image dans plusieurs conteneurs?</p></li>
+</ul>
+</div></blockquote>
+<p>Si vous ne savez pas répondre, cela vaut la peine de relire ce qui précède, ou des ressources
+complémentaires sur le Web. Vous serez plus à l’aise par la suite si vous avez une
+idée claire de l’architecture et de ses concepts-clé.</p>
+</div>
+<div class="admonition-exercice-ex-s1-2-premiers-pas-docker admonition" id="ex-s1-2">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-s1-2">Ex-S1-2</a>: premiers pas Docker</p>
+<p>Maintenant, effectuez les opérations ci-dessus sur <em>votre</em> machine. Installez Docker,
+lancez le conteneur <code class="docutils literal notranslate"><span class="pre">hello-world</span></code>, affichez la liste des conteneurs, supprimez
+le conteneur <code class="docutils literal notranslate"><span class="pre">hello-world</span></code>.</p>
+</div>
+<div class="admonition-exercice-ex-s2-1-installez-mysql admonition" id="ex-s2-1">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-s2-1">Ex-S2-1</a>: installez MySQL</p>
+<ul>
+<li><p>Après installation de Docker, créez un conteneur avec la dernière version de MySQL. Vous pouvez
+utiliser la ligne de commande ou le <em>dashboard</em>.
+Installez également un client MySQL sur votre machine et connectez-vous à votre conteneur Docker.</p></li>
+<li><p>Au lieu de lancer toujours la même ligne de commande, on peut créer un fichier de configuration
+(dans un format qui s’appelle YAML) et l’exécuter avec l’utilitaire <code class="docutils literal notranslate"><span class="pre">docker-compose</span></code>. Voici un
+exemple de base: sauvegardez-le dans un fichier <code class="docutils literal notranslate"><span class="pre">mysql-compose.yml</span></code>.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">services</span><span class="p">:</span>
+  <span class="nt">mysql1</span><span class="p">:</span>
+    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mysql:latest</span>
+    <span class="nt">ports</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="s">&quot;6603:3306&quot;</span>
+    <span class="nt">environment</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="s">&quot;MYSQL_ALLOW_EMPTY_PASSWORD=1&quot;</span>
+</pre></div>
+</div>
+<p>Vous pouvez alors lancer la création de votre conteneur avec la commande:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker compose -f mysql-compose.yml run
+</pre></div>
+</div>
+<p>Voici quelques exercices à faire:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Testez que vous pouvez bien accéder à votre conteneur avec le client MySQL (quel est le port d’accès
+défini dans la configuration Yaml?)</p></li>
+<li><p>Configurez votre conteneur MySQL pour définir un compte d’accès <code class="docutils literal notranslate"><span class="pre">root</span></code> avec un mot
+de passe et donnez à la base le nom <code class="docutils literal notranslate"><span class="pre">nfe204</span></code> (aide: cherchez sur le Web les variables
+d’environnement MySQL)</p></li>
+<li><p>Configurez un ensemble de trois conteneurs MySQL. Vérifiez que vous pouvez vous connecter à chacun.</p></li>
+<li><p>Arrêtez/redémarrez le conteneur (cherchez la commande <code class="docutils literal notranslate"><span class="pre">docker-compose</span></code>), enfin supprimez-le.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div>
+<div class="admonition-exercice-ex-s2-1-installez-mongodb admonition" id="ex-s2-2">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-s2-1">Ex-S2-1</a>: installez MongoDB</p>
+<p>Même exercice, mais cette fois avec MongoDB, un système NoSQL très utilisé.
+Les principes sont les mêmes: vous récupérez une image de MongoDB, vous l’instanciez,
+vous configurez le port d’accès, et vous testez l’accès avec un client à partir
+de la machine-hôte.</p>
+<p>Pour MongoDB, voici quelques interfaces client: Studio 3T (ou Robo 3T pour une version non commerciale),
+Compass (livré avec Mongo en principe), NoSQLBooster, … cherchez les autres!</p>
+<p>Créez un fichier de configuration pour <code class="docutils literal notranslate"><span class="pre">docker-compose</span></code>  également, afin d’instancier
+trois conteneurs.</p>
+</div>
+</div>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+            <div>        
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Licence Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">
+  Ce cours</span> de <a xmlns:cc="http://creativecommons.org/ns#" href="http://www.bdpedia.fr" property="cc:attributionName" rel="cc:attributionURL">Philippe Rigaux</a> est mis à disposition selon les termes de la <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">licence Creative Commons Attribution - Pas d’Utilisation Commerciale - Partage dans les Mêmes Conditions 4.0 International</a>.
+</div>
+        <hr/>
+          <h3>Table Of Contents</h3>
+          <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Préliminaires: Docker</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#introduction-a-docker">Introduction à Docker</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#docker-et-ses-conteneurs">Docker et ses conteneurs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#les-images-docker">Les images Docker</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#docker-en-ligne-de-commande">Docker en ligne de commande</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#lancement-du-docker-desktop-mac-os-windows">Lancement du Docker Desktop (Mac OS, Windows)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#installons-un-serveur-web">Installons un serveur Web</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#installons-plusieurs-serveurs-web">Installons plusieurs serveurs web</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pour-acceder-aux-serveurs-il-faut-un-client">Pour accéder aux serveurs, il faut un client</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#le-tableau-de-bord-dashboard">Le tableau de bord (dashboard)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#quiz">Quiz</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#exercices">Exercices</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="docstruct.html">Modélisation de bases NoSQL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bddoc.html">Interrogation de bases NoSQL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mapreduce.html">MapReduce, premiers pas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cassandra_tp.html">Cassandra - Travaux Pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mongodb_tp.html">MongoDB - Travaux Pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ri-intro.html">Introduction à la recherche d’information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ri-indexation.html">Recherche d’information : l’indexation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ri-ranking.html">Recherche avec classement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ri-tpelasticdsl.html">Recherche d’information - TP ElasticSearch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ri-tpranking.html">Recherche d’information - TP ElasticSearch : pertinence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cloud.html">Le <em>cloud</em>, une nouvelle machine de calcul</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replication.html">Systèmes NoSQL: la réplication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sharding.html">Systèmes NoSQL: le partitionnement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calculdistr.html">Calcul distribué: Hadoop et MapReduce</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spark-batch.html">Traitement de données massives avec Apache Spark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="flink-streaming.html">Traitement de flux massifs avec Apache Flink</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pigtp.html">Pig : Travaux pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="projet.html">Projets NFE204</a></li>
+<li class="toctree-l1"><a class="reference internal" href="annales.html">Annales des examens</a></li>
+</ul>
+
+          <h3 style="margin-top: 1.5em;">Recherche</h3>
+          <form class="search" action="search.html" method="get">
+            <input type="text" name="q" />
+            <input type="submit" value="Go" />
+            <input type="hidden" name="check_keywords" value="yes" />
+            <input type="hidden" name="area" value="default" />
+          </form>
+          <p class="searchtip" style="font-size: 90%">
+      Saisissez un ou plusieurs mots-clés.
+          </p>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <a href="intro.html" title="Introduction"
+             >précédent</a> |
+          <a href="docstruct.html" title="Modélisation de bases NoSQL"
+             >suivant</a> |
+          <a href="genindex.html" title="Index général"
+             >index</a>
+        </div>
+
+        <div class="right">
+        <a href="index.html">Préliminaires: Docker</a><br/>
+          
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2014-2022, Nicolas Travers, Raphaël Fournier S&#39;niehotta et Philippe Rigaux.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>

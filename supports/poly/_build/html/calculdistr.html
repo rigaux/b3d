@@ -1,0 +1,1626 @@
+
+<!DOCTYPE html>
+
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Calcul distribué: Hadoop et MapReduce &#8212; Bases de données documentaires et distribuées v&lt;release&gt; - Cours CNAM NFE204</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/agogo.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/translations.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Recherche" href="search.html" />
+    <link rel="next" title="Traitement de données massives avec Apache Spark" href="spark-batch.html" />
+    <link rel="prev" title="Systèmes NoSQL: le partitionnement" href="sharding.html" /> 
+  </head><body>
+    <div class="header-wrapper">
+      <div class="header">
+        <div class="headertitle"><a
+          href="index.html">Calcul distribué: Hadoop et MapReduce</a></div>
+        <div class="rel">
+          <a href="sharding.html" title="Systèmes NoSQL: le partitionnement"
+             accesskey="P">précédent</a><font color="white"> |</font>
+          <a href="spark-batch.html" title="Traitement de données massives avec Apache Spark"
+             accesskey="N">suivant</a><font color="white"> |</font>
+          <a href="genindex.html" title="Index général"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+<script type="text/javascript" src="_static/dynsite.js"></script>
+
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="calcul-distribue-hadoop-et-mapreduce">
+<span id="chap-calcdistr"></span><h1>Calcul distribué: Hadoop et MapReduce<a class="headerlink" href="#calcul-distribue-hadoop-et-mapreduce" title="Lien permanent vers ce titre">¶</a></h1>
+<p>Nous abordons maintenant le domaine des <em>traitements analytiques à grande
+échelle</em> qui, contrairement à des fonctions de recherche qui
+s’intéressent à un document précis ou à un petit sous-ensemble d’une
+collection, parcourent l’intégralité d’un large ensemble pour en extraire
+des informations et construire des modèles statistiques ou analytiques.</p>
+<p>La préoccupation essentielle n’est pas ici la performance (de toute façon,
+les traitements durent longtemps) mais la garantie de scalabilité
+horizontale qui permet malgré tout
+d’obtenir des temps de réponse raisonnables, et <em>surtout</em> la garantie de terminaison
+en dépit des pannes pouvant affecter le système pendant le traitement.</p>
+<div class="figure align-center" id="id3">
+<span id="calculdistr"></span><a class="reference internal image-reference" href="_images/calculdistr.png"><img alt="_images/calculdistr.png" src="_images/calculdistr.png" style="width: 100%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 87 </span><span class="caption-text">Le calcul distribué, compagnon logique du stockage distribué</span><a class="headerlink" href="#id3" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<p>La <a class="reference internal" href="#calculdistr"><span class="std std-numref">Fig. 87</span></a> montre, en vert, le positionnement logique du calcul distribué
+par rapport aux systèmes de stockage distribué étudiés jusqu’ici. La <em>répartition des données</em>
+ouvre logiquement la voie à la <em>distribution des traitements sur les données</em>. L’un ne va pas
+sans l’autre: il serait peu utile d’appliquer un calcul distribué sur une source de données
+centralisée qui constituerait le goulot d’étranglement, et réciproquement.</p>
+<p>Ce chapitre va étudier les méthodes qui permettent de distribuer des calculs à très grande échelle
+sur des systèmes de stockage partitionnés et distribués. Tous les systèmes vus jusqu’à présent
+sont des candidats valables pour alimenter des calculs distribués, mais nous allons regarder
+cette fois HDFS, un système de fichiers  étroitement associé à Hadoop.</p>
+<p>Pour les calculs eux-mêmes, deux possibilités sont offertes: des opérateurs
+intégrés à un langage de programmation, dont MapReduce est l’exemple de base,
+ou des langages de workflow (ou à la SQL) qui permettent des spécifications de plus haut niveau.
+Nous étudierons Pig latin, un des premiers représentants du genre.</p>
+<p><em>Ce chapitre ne considère pas l’algorithmique analytique proprement dite, mais
+les opérateurs de manipulation de données qui fournissent l’information à
+ces algorithmes.</em>
+En clair, il s’agit de voir comment récupérer des sources de données,
+comment les filtrer, les réorganiser, les combiner, les enrichir, le tout en respectant les
+deux contraintes fondamentales de la scalabilité: parallélisation et tolérance aux pannes.</p>
+<div class="admonition-la-notion-d-operateur-de-second-ordre admonition">
+<p class="admonition-title">La notion d’opérateur de second ordre</p>
+<p>Les opérateurs décrits ici sont des <em>opérateurs de second ordre</em>. Contrairement
+aux opérateurs classiques qui s’appliquent directement à des données, un
+opérateur de second ordre prend des fonctions en paramètres et applique
+ces fonctions à des données au cours d’un traitement immuable
+(par exemple un parcours séquentiel).</p>
+</div>
+<p>Depuis 2004, le modèle phare d’exécution est MapReduce, déjà
+introduit dans le chapitre <a class="reference internal" href="bddoc.html#chap-bddoc"><span class="std std-ref">Interrogation de bases NoSQL</span></a> dans un contexte centralisé,
+et distribué en Open Source dans le système Hadoop. MapReduce est le premier modèle
+à combiner distribution massive et reprise sur panne dans le contexte d’un <em>cloud</em> de
+serveurs à bas coûts. Ses limites sont cependant évidentes: faible expressivité (très peu
+d’opérateurs) et performances médiocres.</p>
+<p>Très rapidement, des langages de plus haut niveau (Pig, Hive) ont été proposés, avec pour
+objectif notable l’expression d’opérateurs plus puissants (par exemple les jointures).  Ces opérateurs
+restent exécutables dans un contexte MapReduce, un peu comme SQL est exécutable dans un
+système basé sur des parcours de fichier.  Enfin, récemment, des systèmes proposant des alternatives plus riches
+à Hadoop ont commencé à émerger. La motivation essentielle est de fournir un support
+aux algorithmes fonctionnant par <em>itération</em>. C’est  le cas d’un grand nombre
+de techniques en fouilles de données qui affinent progressivement un résultat jusqu’à obtenir
+une solution optimale. MapReduce est (était) très mal adapté à ce type d’exécution. Les
+systèmes comme <a class="reference external" href="https://spark.apache.org/">Spark</a>   ou <a class="reference external" href="https://spark.apache.org/">Flink</a>
+constituent de ce point de vue un progrès majeur.</p>
+<p>Ce chapitre suit globalement cette organisation historique, en commençant par
+MapReduce, suivi du système HDFS/Hadoop, et finalement d’une présentation du langage Pig.
+Les systèmes itératifs feront l’objet des chapitres suivants.</p>
+<div class="section" id="s1-mapreduce">
+<h2>S1: MapReduce<a class="headerlink" href="#s1-mapreduce" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="admonition-supports-complementaires admonition">
+<p class="admonition-title">Supports complémentaires</p>
+<ul class="simple">
+<li><p><a class="reference external" href="http://b3d.bdpedia.fr/files/slmapred.pdf">Diapositives: MapReduce et traitements à grande échelle</a></p></li>
+<li><p><a class="reference external" href="https://mediaserver.cnam.fr/permalink/v125f35a420dbiiaq0nc/">Vidéo de la session MapReduce</a></p></li>
+</ul>
+</div>
+<p>Reportez-vous au chapitre <a class="reference internal" href="bddoc.html#chap-bddoc"><span class="std std-ref">Interrogation de bases NoSQL</span></a> pour une présentation du <em>modèle</em> MapReduce
+d’exécution.  Rappelons que MapReduce <em>n’est pas</em>
+un langage d’interrogation de données, mais un modèle d’exécution de <em>chaînes
+de traitement</em> dans lesquelles des données (massives) sont progressivement
+transformées et enrichies.</p>
+<p>Pour être concrets, nous allons prendre l’exemple (classique) d’un traitement s’appliquant
+à une collection de documents textuels et déterminant la <em>fréquence
+des termes dans les documents</em> (indicateur TF, cf. <a class="reference internal" href="ri-ranking.html#chap-ranking"><span class="std std-ref">Recherche avec classement</span></a>). Pour chaque terme présent dans la collection,
+on doit donc obtenir le nombre d’occurrences.</p>
+<div class="section" id="le-principe-de-localite-des-donnees">
+<h3>Le principe de localité des données<a class="headerlink" href="#le-principe-de-localite-des-donnees" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Dans une approche classique de traitement de données stockées
+dans une base, on utilise une architecture client-serveur dans
+laquelle l’application cliente reçoit les données du serveur.
+Cette méthode est difficilement applicable en présence d’un très gros volume
+de données, et ce d’autant moins que les collections sont stockées
+dans un système distribué. En effet:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>le transfert par le réseau d’une large collection devient très pénalisant
+à  grande échelle (disons, le TéraOctet);</p></li>
+<li><p>et surtout, la distribution des données est une opportunité pour effectuer
+les calculs <em>en parallèle</em> sur chaque machine de stockage, opportunité perdue
+si l’application cliente fait tout le calcul.</p></li>
+</ul>
+</div></blockquote>
+<p>Ces deux arguments se résument dans un principe dit de <em>localité des données</em>
+(<em>data locality</em>). Il peut s’énoncer ainsi: les meilleures performances
+sont obtenues quand chaque fragment de la collection est traité <em>localement</em>, minimisant
+les besoins d’échanges réseaux entre les machines.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Reportez-vous au chapitre <a class="reference internal" href="cloud.html#chap-cloud"><span class="std std-ref">Le cloud, une nouvelle machine de calcul</span></a> pour une analyse
+quantitative montrant l’intérêt de ce principe.</p>
+</div>
+<p>L’application du principe de localité des données mène à une architecture
+dans laquelle, contrairement au client-serveur, les données ne sont pas
+transférées au programme client, mais le programme distribué à toutes les machines
+stockant des données (<a class="reference internal" href="#data-locality"><span class="std std-numref">Fig. 88</span></a>).</p>
+<div class="figure align-center" id="id4">
+<span id="data-locality"></span><a class="reference internal image-reference" href="_images/data-locality.png"><img alt="_images/data-locality.png" src="_images/data-locality.png" style="width: 100%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 88 </span><span class="caption-text">Principe de localité des données, par transfert des programmes</span><a class="headerlink" href="#id4" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<p>En revanche, demander à un développeur d’écrire une application distribuée
+basée sur ce principe constitue un défi technique de grande ampleur. Il faut
+en effet concevoir simultanément les tâches suivantes:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>implanter la <em>logique</em> de l’application, autrement dit le traitement particulier
+qui peut être plus ou moins complexe;</p></li>
+<li><p>concevoir la parallélisation de cette application, sous la forme d’une
+exécution concurrente coordonnant plusieurs machines et assurant
+un accès à un partitionnement de la collection traitée;</p></li>
+<li><p>et bien entendu, gérer la reprise sur panne dans un environnement qui,
+nous l’avons vu, est  instable.</p></li>
+</ul>
+</div></blockquote>
+<p>Un <em>framework</em> d’exécution distribuée comme MapReduce est justement dédié
+à la prise en charge des deux derniers aspects, spécifiques à la distribution
+dans un <em>cloud</em>, et ce de manière <em>générique</em>. Le <em>framework</em> définit
+un processus immuable d’accès et de traitement, et le programmeur implante
+la logique de l’application sous la forme de briques logicielles confiées
+au <em>framework</em> et appliquées par ce dernier dans le cadre du processus.</p>
+<p>Avec MapReduce, le processus se déroule en deux phases, et les « briques
+logicielles » consistent en deux fonctions fournies par le développeur. La phase de Map
+traite chaque document individuellement et applique une fonction <em>map()</em> dont
+voici le pseudo-code pour notre application de calcul du TF.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> mapTF<span class="o">(</span><span class="nv">$id</span>, <span class="nv">$contenu</span><span class="o">)</span>
+<span class="o">{</span>
+  // <span class="nv">$id</span>: identifiant du document
+  // <span class="nv">$contenu</span>: contenu textuel du document
+
+  // On boucle sur tous les termes du contenu
+  foreach  <span class="o">(</span><span class="nv">$t</span> <span class="k">in</span> <span class="nv">$contenu</span><span class="o">)</span> <span class="o">{</span>
+    // Comptons les occurrences du terme dans le contenu
+    <span class="nv">$count</span> <span class="o">=</span> nbOcc <span class="o">(</span><span class="nv">$t</span>, <span class="nv">$contenu</span><span class="o">)</span><span class="p">;</span>
+    // On <span class="s2">&quot;émet&quot;</span> le terme et son nombre des occurrences
+    emit <span class="o">(</span><span class="nv">$t</span>, <span class="nv">$count</span><span class="o">)</span><span class="p">;</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>La phase de Reduce reçoit des valeurs groupées sur la clé et applique
+une agrégation de ces valeurs. Voici le pseudo-code pour notre application TF.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> reduceTF<span class="o">(</span><span class="nv">$t</span>, <span class="nv">$compteurs</span><span class="o">)</span>
+<span class="o">{</span>
+  // <span class="nv">$t</span>: un terme
+  // <span class="nv">$compteurs</span>: la séquence des décomptes effectués localement par le Map
+  <span class="nv">$total</span> <span class="o">=</span> <span class="m">0</span><span class="p">;</span>
+
+  // Boucles sur les compteurs et calcul du total
+  foreach <span class="o">(</span><span class="nv">$c</span> <span class="k">in</span> <span class="nv">$compteurs</span><span class="o">)</span> <span class="o">{</span>
+   <span class="nv">$total</span> <span class="o">=</span> <span class="nv">$total</span> + <span class="nv">$c</span><span class="p">;</span>
+  <span class="o">}</span>
+
+  // Et on produit le résultat
+  <span class="k">return</span> <span class="nv">$total</span><span class="p">;</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>Dans ce cadre restreint, le <em>framework</em> prend en charge la distribution
+et la reprise sur panne.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Ce processus en deux phases et très limité et ne permet
+pas d’exprimer des algorithmes complexes, ceux basés par exemple
+sur une itération menant progressivement au résultat. C’est l’objectif
+essentiel de modèles d’exécution plus puissants que nous présentons
+ultérieurement.</p>
+</div>
+</div>
+<div class="section" id="execution-distribuee-d-un-traitement-mapreduce">
+<h3>Exécution distribuée d’un traitement MapReduce<a class="headerlink" href="#execution-distribuee-d-un-traitement-mapreduce" title="Lien permanent vers ce titre">¶</a></h3>
+<p>La <a class="reference internal" href="#mr-execution"><span class="std std-numref">Fig. 89</span></a> résume l’exécution d’un traitement (« <em>job</em> »)
+MapReduce avec un <em>framework</em> comme Hadoop. Le système d’exécution distribué
+fonctionne sur une architecture maître-esclave dans laquelle
+le maître (<em>JobTracker</em> dans Hadoop) se charge de recevoir la
+requête de l’application, la distribue sous forme de tâche à des
+nœuds (<em>TaskTracker</em> dans Hadoop) accédant aux fragments de la collection, et coordonne finalement le
+déroulement de l’exécution. Cette coordination inclut notamment la gestion des pannes.</p>
+<div class="figure align-center" id="id5">
+<span id="mr-execution"></span><a class="reference internal image-reference" href="_images/mr-execution.png"><img alt="_images/mr-execution.png" src="_images/mr-execution.png" style="width: 100%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 89 </span><span class="caption-text">Exécution distribuée d’un traitement MapReduce</span><a class="headerlink" href="#id5" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<p>L’application cliente se connecte au maître, transmet les fonctions
+de Map et de Reduce, et soumet la demande d’exécution. Le client est alors libéré,
+en attente de la confirmation par le maître que le traitement est terminé
+(cela peut prendre des jours …). Le framework fournit des outils pour surveiller
+le progrès de l’exécution pendant son déroulement.</p>
+<p>Le traitement s’applique à une source de données partitionnée. Cette source
+peut être un simple système de fichiers distribués, un système relationnel, un système NoSQL
+type MongoDB ou HBase, voire même un moteur de recherche comme Solr ou ElasticSearch.</p>
+<p>Le Maître dispose de l’information sur le partitionnement des données
+(l’équivalent du contenu de la table de routage, présenté dans le chapitre
+sur le partitionnement) ou la récupère du serveur de données. Un nombre
+<em>M</em> de serveurs stockant tous les fragments
+concernés est alors impliqué dans le traitement. Idéalement, ces
+serveurs vont être chargés eux-mêmes du calcul pour respecter le principe
+de localité des données mentionné ci-dessus. Un système comme Hadoop
+fait de son mieux pour respecter ce principe.</p>
+<p>La fonction de Map est transmise aux <em>M</em> serveurs et une tâche dite
+<em>Mapper</em> applique la fonction à un fragment. Si le serveur contient
+plusieurs fragments (ce qui est le cas normal) il faudra exécuter
+autant de tâches. Si le serveur est multi-cœurs, plusieurs
+fragments peuvent être traités en parallèle sur la même machine.</p>
+<div class="admonition-exemple-le-partitionnement-des-donnees-pour-l-application-tf admonition">
+<p class="admonition-title">Exemple: le partitionnement des données pour l’application TF</p>
+<p>Supposons par exemple que notre collection contienne 1 milliard de documents
+dont la taille moyenne est de 1000 octets. On découpe la collection en fragments
+de 64 MOs. Chaque fragment contient donc 64 000 documents. Il y a donc
+à peu près  <span class="math notranslate nohighlight">\(\lceil 10^9/64,000 \rceil \approx 16,000\)</span> fragments. Si on
+dispose de 16 machines, chacune devra traiter (en moyenne) 1000 fragments
+et donc exécuter mille tâches de <em>Mapper</em>.</p>
+<p>Le parallélisme peut alors être interne à une machine, en fonction du nombre de
+<em>cores</em> dont elle dispose. Une machine <em>4 cores</em> pourra ainsi effectuer 4 tâches en parallèle en théorie.</p>
+</div>
+<p>Chaque <em>mapper</em> travaille, dans la mesure du possible,  <em>localement</em>: le fragment est lu
+sur le disque <em>local</em>,
+document par document, et l’application de la fonction de Map
+« émet » des paires (clé, valeur) dites « intermédiaires » qui
+sont stockées sur le disque <em>local</em>. Il n’y a donc aucun échange
+réseau pendant la phase de Map (dans le cas idéal où la
+localité des données peut être complètement respectée).</p>
+<div class="admonition-exemple-la-phase-de-map-pour-l-application-tf admonition">
+<p class="admonition-title">Exemple: la phase de Map pour l’application TF</p>
+<p>Supposons que chaque document contienne en moyenne 100 termes distincts.
+Chaque fragment contient 64 000 documents. Un <em>Mapper</em> va
+donc produire 6 400 000 paires <em>(t, c)</em>  où <em>t</em>
+est un terme et <em>c</em> le nombre d’occurrences.</p>
+</div>
+<p>À l’issue de la phase de Map, le maître initialise la phase de Reduce
+en choisissant <em>R</em> machines disponibles. Il faut alors distribuer les
+paires intermédiaires à ces <em>R</em> machines. C’est une phase « cachée »,
+dite de <em>shuffle</em>,
+qui constitue potentiellement le goulot d’étranglement de l’ensemble
+du processus car elle implique la lecture sur les disques des <em>Mappers</em> de toutes
+les paires intermédiaires, et leur envoi par réseau aux machines des <em>Reducers</em>.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Vous noterez peut-être qu’une solution beaucoup plus efficace
+serait de transférer immédiatement par le réseau les paires intermédiaires
+des <em>Mappers</em> vers les <em>Reducers</em>. Il y a une explication à ce choix
+en apparence sous-optimal: c’est la reprise sur panne (voir plus loin).</p>
+</div>
+<p>Pour chaque paire intermédiaire, un simple algorithme de hachage permet
+de distribuer les clés équitablement sur les <em>R</em> machines chargées du Reduce.</p>
+<p>Au niveau d’un <em>Reducer</em> <span class="math notranslate nohighlight">\(R_i\)</span>, que se passe-t-il?</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Tout d’abord il faut récupérer <em>toutes</em> les paires intermédiaires produites
+par les <em>Mappers</em> et affectées à <span class="math notranslate nohighlight">\(R_i\)</span>.</p></li>
+<li><p>Il faut ensuite <em>trier</em> ces paires sur la clé pour regrouper
+les paires partageant la même clé. On obtient des paires
+<em>(k, [v])</em> où <em>k</em> est une clé, et <em>[v]</em> la liste des valeurs
+reçues par le <em>Reducer</em> pour cette clé.</p></li>
+<li><p>Enfin, chacune des paires  <em>(k, [v])</em> est soumise à la fonction de Reduce.</p></li>
+</ul>
+</div></blockquote>
+<div class="admonition-exemple-la-phase-de-reduce-pour-l-application-tf admonition">
+<p class="admonition-title">Exemple: la phase de Reduce pour l’application TF</p>
+<p>Supposons <em>R=10</em>. Chaque <em>Reducer</em> recevra donc en moyenne 640 000 paires
+<em>(t, c)</em> de chaque <em>Mapper</em>.  Ces paires sont triées sur le terme <em>t</em>. Pour chaque
+terme on a donc la liste des nombres d’occurences trouvés
+dans chaque document par les <em>Mappers</em>. Au pire, si un terme est présent dans
+chaque document, le tableau <em>[v]</em> contient un million d’entiers.</p>
+<p>Il reste, avec la fonction de Reduce, à faire le total de ces nombres d’occurences
+pour chaque terme.</p>
+</div>
+<div class="admonition-exemple-comptons-les-loups-et-le-moutons admonition">
+<p class="admonition-title">Exemple: comptons les loups et le moutons</p>
+<p>Vous souvenez-vous de ces quelques documents?</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>A: <code class="docutils literal notranslate"><span class="pre">Le</span> <span class="pre">loup</span> <span class="pre">est</span> <span class="pre">dans</span> <span class="pre">la</span> <span class="pre">bergerie.</span></code></p></li>
+<li><p>B: <code class="docutils literal notranslate"><span class="pre">Les</span> <span class="pre">moutons</span> <span class="pre">sont</span> <span class="pre">dans</span> <span class="pre">la</span> <span class="pre">bergerie.</span></code></p></li>
+<li><p>C: <code class="docutils literal notranslate"><span class="pre">Un</span> <span class="pre">loup</span> <span class="pre">a</span> <span class="pre">mangé</span> <span class="pre">un</span> <span class="pre">mouton,</span> <span class="pre">les</span> <span class="pre">autres</span> <span class="pre">loups</span> <span class="pre">sont</span> <span class="pre">restés</span> <span class="pre">dans</span> <span class="pre">la</span> <span class="pre">bergerie.</span></code></p></li>
+<li><p>D:  <code class="docutils literal notranslate"><span class="pre">Il</span> <span class="pre">y</span> <span class="pre">a</span> <span class="pre">trois</span> <span class="pre">moutons</span> <span class="pre">dans</span> <span class="pre">le</span> <span class="pre">pré,</span> <span class="pre">et</span> <span class="pre">un</span> <span class="pre">mouton</span> <span class="pre">dans</span> <span class="pre">la</span> <span class="pre">gueule</span> <span class="pre">du</span> <span class="pre">loup.</span></code></p></li>
+</ul>
+</div></blockquote>
+<p>Ils sont maintenant stockés dans un système partitionné sur 3 serveurs comme
+montré sur la <a class="reference internal" href="#mr-execution-ex"><span class="std std-numref">Fig. 90</span></a>. Nous appliquons notre traitement TF
+pour compter le nombre total d’occurrences de chaque terme (on va s’intéresser
+aux termes principaux).</p>
+<div class="figure align-center" id="id6">
+<span id="mr-execution-ex"></span><a class="reference internal image-reference" href="_images/mr-execution-ex.png"><img alt="_images/mr-execution-ex.png" src="_images/mr-execution-ex.png" style="width: 80%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 90 </span><span class="caption-text">Un exemple minuscule mais concret</span><a class="headerlink" href="#id6" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<p>Nous avons trois <em>Mappers</em> qui produisent les données intermédiaires présentées
+sur la figure. Comprenez-vous pourquoi le terme <em>bergerie</em> apparaît deux fois
+pour le premier <em>Mapper</em> par exemple?</p>
+<p>La phase de Reduce, avec 2 <em>Reducers</em>, n’est illustrée que pour le terme <em>loup</em>
+donc on suppose qu’il est affecté au premier <em>Reducer</em>. Chaque <em>Mapper</em> transmet
+donc ses paires intermédiaires <em>(loup, …)</em> à <em>R1</em> qui se charge de regrouper
+et d’appliquer la fonction de Reduce.</p>
+</div>
+<p>Quand tous les <em>Reducers</em> ont terminé, le résultat est disponible sur leur disque local. Le
+client peut alors le récupérer.</p>
+</div>
+<div class="section" id="la-reprise-sur-panne">
+<h3>La reprise sur panne<a class="headerlink" href="#la-reprise-sur-panne" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Comment assurer la gestion des pannes pour une exécution MapReduce? Dans la mesure
+où elle peut consister en centaines de tâches individuelles, il est inenvisageable
+de reprendre l’ensemble de l’exécution si l’une de ces tâches échoue, que ce soit
+en phase de Map ou en phase de Reduce. Le temps de tout recommencer, une nouvelle
+panne surviendrait, et le <em>job</em> ne finirait jamais.</p>
+<p>Le modèle MapReduce a été conçu dès l’origine
+pour que la reprise sur panne puisse être gérée au niveau de chaque tâche individuelle,
+et que la coordination de l’ensemble soit également résiliente aux problèmes de machine
+ou de réseau.</p>
+<p>Le Maître délègue les tâches aux machines et surveille la progression de l’exécution.
+Si une tâche semble interrompue, le Maître initie une action de reprise
+qui dépend de la phase.</p>
+<div class="section" id="panne-en-phase-de-reduce">
+<h4>Panne en phase de Reduce<a class="headerlink" href="#panne-en-phase-de-reduce" title="Lien permanent vers ce titre">¶</a></h4>
+<p>Si la machine reste accessible et que la panne se résume à un échec du processus, ce dernier
+peut être relancé sur la même machine, et si possible sur les données locales
+déjà transférées par le <em>shuffle</em>. C’est le cas le plus favorable.</p>
+<p>Dans un cas plus grave, avec perte des données par exemple,
+une reprise plus radicale consiste à choisir une autre machine, et à relancer
+la tâche en réinitialisant le transfert des paires intermédiaires depuis les
+machines chargées du Map. C’est possible car ces paires ont été écrites sur les disques
+locaux et restent donc disponibles. C’est une caractéristique très importante
+de l’exécution MapReduce: <em>l’écriture complète des fragments intermédiaires
+garantit la possibilité de reprise en cas de panne</em>.</p>
+<p>Une méthode beaucoup
+plus efficace mais beaucoup moins robuste consisterait à ce que chaque <em>mapper</em>
+transfère immédiatement les paires intermédiaires, sans écriture sur le disque local,
+vers la machine chargée du Reduce. Mais en cas de panne de ce dernier,
+ces paires intermédiaires risqueraient de disparaître et on ne saurait plus
+effectuer la reprise sur panne  (sauf à ré-exécuter l’ensemble du processus).</p>
+<p>Cette caractéristique explique également la lenteur (déspérante) d’une exécution MapReduce,
+due en grande partie à la nécessité d’effectuer des écritures et lectures répétées
+sur disque, à chaque phase.</p>
+</div>
+<div class="section" id="panne-en-phase-map">
+<h4>Panne en phase Map<a class="headerlink" href="#panne-en-phase-map" title="Lien permanent vers ce titre">¶</a></h4>
+<p>En cas de panne pendant l’exécution d’une tâche de Map, on peut
+soit reprendre la tâche sur la même machine si c’est le processus qui a échoué,
+soit transférer la tâche à une autre machine. On tire ici parti
+de la <em>réplication</em> toujours présente dans les systèmes distribués:
+quel que soit le fragment stocké sur une machine, il existe un réplica
+de ce fragment sur une autre, et à partir de ce réplica une tâche
+équivalente peut être lancée.</p>
+<p>Le cas le plus pénalisant est la panne d’une machine pendant la phase
+de transfert vers les Reducers. Il faut alors reprendre toutes les
+tâches initialement allouées à la machine, en utilisant la réplication.</p>
+</div>
+<div class="section" id="et-le-maitre">
+<h4>Et le maître?<a class="headerlink" href="#et-le-maitre" title="Lien permanent vers ce titre">¶</a></h4>
+<p>Finalement, il reste à considérer le cas du Maître qui est un point individuel
+d’échec: en cas de panne, il faut tout recommencer.</p>
+<p>L’argument des <em>frameworks</em> comme Hadoop est qu’il existe un Maître
+pour des dizaines de travailleurs, et qu’il est peu probable qu’une panne affecte
+directement le serveur hébergeant le nœud-Maître. Si cela arrive, on peut
+accepter de reprendre l’ensemble de l’exécution, ou prendre des mesures
+préventives en dupliquant toutes les données du Maître sur un nœud de
+secours.</p>
+</div>
+</div>
+<div class="section" id="quiz">
+<h3>Quiz<a class="headerlink" href="#quiz" title="Lien permanent vers ce titre">¶</a></h3>
+<div class="reauthoring_embedded_quiz" id="mapreduce-1"><form class="reauthoring_embedded_quiz_questions"><p>Qu’est-ce qu’un opérateur de second ordre?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  C’est un opérateur qui est appliqué à des documents
+par d’autres opérateurs</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img>  C’est un opérateur qui  applique d’autres opérateurs à des documents</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> C’est un opérateur qui résulte de la composition d’opérateurs primaires</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="mapreduce-2"><form class="reauthoring_embedded_quiz_questions"><p>Quel est le rôle de l’opération de  <em>shuffle</em> ?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img>  Distribuer les résultats des <em>mappers</em> vers les <em>reducers</em></p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  Distribuer les résultats des <em>reducers</em> vers les <em>mappers</em></p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Distribuer les documents équitablement sur les <em>mappers</em></p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="mapreduce-3"><form class="reauthoring_embedded_quiz_questions"><p>Où sont stockés les résultats des <em>Mappers</em> ?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  Dans un système de stockage distribué pour permettre la reprise sur panne</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img>  Localement, pour favoriser la performance</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Ils sont transmis aux <em>reducers</em> au fur et à mesure</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="mapreduce-4"><form class="reauthoring_embedded_quiz_questions"><p>Que dit le principe de <em>data locality</em>.</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Que les données doivent rester à l’intérieur d’un même système distribué</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img>  Que les données doivent être traitées là où elles sont stockées</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Que les données peuvent être échangées entre <em>mappers</em> ou
+entre <em>reducers</em>, mais pas entre <em>mappers</em> et <em>reducers</em></p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="mapreduce-5"><form class="reauthoring_embedded_quiz_questions"><p>J’implante un système MapReduce en transmettant directement les paires
+intermédiaires des Mappers vers les Reducers, sans écriture locale. En cas
+de plantage d’un des Reducers avec perte locale des données, que faut-il recalculer?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Tout!</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  On ne relance que la fraction des <em>mappers</em> qui a alimenté
+le <em>reducer</em> planté (soit <em>1/R</em> des <em>mappers</em>, <em>R</em> étant le nombre
+de reducers)</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Il suffit de ré-executer le <em>reducer</em></p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="mapreduce-6"><form class="reauthoring_embedded_quiz_questions"><p>Quand commence l’exécution de la phase de <em>Reduce</em> ?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Dès que les <em>mappers</em> commencent à transmettre des paires
+intermédiaires</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  Dès que l’un des <em>mappers</em> a complètement terminé sa tâche</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Dès que <em>tous</em> les <em>mappers</em> ont terminé leur tâche</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="mapreduce-7"><form class="reauthoring_embedded_quiz_questions"><p>Pourquoi ne pas exécuter la fonction de Reduce sur les paires intermédiaires stockées sur les disques des machines de Map?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Parce qu’elles ne sont pas triées et qu’il faut donc faire appel à une autre machine dédiée au tri</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img>  Parce qu’une machine de Map ne détient qu’une partie des paires d’un même groupe</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Parce qu’une même paire peut être impliquée dans plusieurs groupes, d’où la phase de <em>Shuffle</em></p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="mapreduce-8"><form class="reauthoring_embedded_quiz_questions"><p>Quand peut-on effacer les paires intermédiaires stockées sur les <em>mappers</em></p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Dès qu’elles ont été transmises aux <em>reducers</em></p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> À la toute fin du processus, quand le dernier <em>reducer</em> a terminé.</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Dès que tous les  <em>reducers</em> ont acquitté la réception des paires qu’ils doivent traiter</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div></div>
+</div>
+<div class="section" id="s2-une-breve-introduction-a-hadoop">
+<h2>S2: Une brève introduction à Hadoop<a class="headerlink" href="#s2-une-breve-introduction-a-hadoop" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="admonition-supports-complementaires admonition">
+<p class="admonition-title">Supports complémentaires</p>
+<ul class="simple">
+<li><p>Un fichier de test. <a class="reference external" href="http://b3d.bdpedia.fr/files/author-medium.txt">Auteurs/publis</a>,</p></li>
+<li><p>Programme MapReduce. <a class="reference external" href="http://b3d.bdpedia.fr/files/AuthorsMapper.java">Mapper</a>,
+<a class="reference external" href="http://b3d.bdpedia.fr/files/AuthorsReducer.java">Reducer</a>, et
+<a class="reference external" href="http://b3d.bdpedia.fr/files/AuthorsJob.java">Job</a></p></li>
+</ul>
+</div>
+<p>Cette session propose une introduction à l’environnement historique de programmation
+distribuée à grande échelle, Hadoop.
+Pour être tout à fait exact, Hadoop est une implantation en <em>open source</em> de
+l’architecture présentée par Google au début des années 2000, et comprenant
+essentiellement un système de fichiers distribué et tolérant aux pannes, GFS, et
+le modèle MapReduce qui s’appuie sur GFS pour effectuer un accès parallélisé à
+de très gros volumes de données. Un troisième composant « Google », BigTable (HBase dans
+la version Hadoop), propose une organisation plus structurée des données que de simples fichiers.
+Il n’est pas présenté ici.</p>
+<p>Notre objectif dans cette session est de comprendre HDFS, d’y charger des données, puis
+de leur
+appliquer un traitement MapReduce.
+Les aspects architecturaux, brievement évoqués, devraient maintenant être clairs
+pour vous puisqu’ils s’appuient sur des principes standards déjà exposés.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Cette session propose du code MapReduce qui a été testé et devrait
+fonctionner, <strong>mais</strong> l’expérience montre que la mise en œuvre de Hadoop
+est laborieuse et dépend de paramètres qui changent souvent: sauf si vous
+êtes <strong>très</strong> motivés, il est préférable sans doute de ne pas perdre de temps
+à chercher à reproduire les commandes qui suivent. Concentrez-vous sur les principes.</p>
+</div>
+<div class="section" id="systemes-de-fichiers-distribues">
+<h3>Systèmes de fichiers distribués<a class="headerlink" href="#systemes-de-fichiers-distribues" title="Lien permanent vers ce titre">¶</a></h3>
+<p>HDFS est donc la version <em>open source</em> du <em>Google File System</em>, dont le but est de fournir
+un environnement de stockage distribué et tolérant aux pannes pour de très gros fichiers.
+HDFS peut être utilisé directement comme service d’accès à ces fichiers, ou
+indirectement par des systèmes de gestion de données (HBase pas exemple) qui
+obtiennent ainsi la distribution et la résistance aux pannes sans avoir à les implanter
+directement.</p>
+<p>Un système de fichiers comme HDFS est conçu pour la gestion de fichiers
+de grande taille (plusieurs dizaines de MOs au minimum), que l’on écrit une fois et qu’on
+lit ensuite par des parcours séquentiels. Le contre-exemple est celui d’une collection
+de très petits documents souvent modifiés: il vaut mieux dans ce cas utiliser
+un système NoSQL documentaire spécialisé.</p>
+<p>Pour comprendre cette distinction, étudions les deux scénarii illustrés par
+la <a class="reference internal" href="#dfs-bigpic"><span class="std std-numref">Fig. 91</span></a>. Sur la partie gauche, nous trouvons un système de fichiers
+distribués classique, de type NFS (<em>Network File System</em>: consultez la fiche Wikipedia pour
+en savoir - un  peu - plus). Dans ce type d’organisation, le serveur 1 dispose d’un
+système de fichiers organisé de manière hiérachique, très classiquement. La racine (/)
+donne accès aux répertoires <code class="docutils literal notranslate"><span class="pre">dirA</span></code> et <code class="docutils literal notranslate"><span class="pre">dirB</span></code>, ce dernier contenant un fichier <code class="docutils literal notranslate"><span class="pre">fichier2</span></code>,
+le tout étant stocké sur le dique local.</p>
+<div class="figure align-center" id="id7">
+<span id="dfs-bigpic"></span><a class="reference internal image-reference" href="_images/dfs-bigpic.png"><img alt="_images/dfs-bigpic.png" src="_images/dfs-bigpic.png" style="width: 90%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 91 </span><span class="caption-text">Deux types de systèmes de fichiers distribués</span><a class="headerlink" href="#id7" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<p>Imaginons que le serveur 1 souhaite pouvoir accéder au répertoire <code class="docutils literal notranslate"><span class="pre">dirC</span></code> et
+fichier <code class="docutils literal notranslate"><span class="pre">fichier1</span></code> qui se trouvent
+sur le serveur 2. Au lieu de se connecter à distance explicitement à chaque fois,
+on peut « monter » (<em>mount</em>) <code class="docutils literal notranslate"><span class="pre">dirC</span></code> dans le système de fichier du serveur 1, sous
+la forme d’un répertoire-fils de <code class="docutils literal notranslate"><span class="pre">dirB</span></code>. Du point de vue de l’utilisateur,
+l’accès devient complètement transparent. On peut accéder à <code class="docutils literal notranslate"><span class="pre">/dirA/dirB/dirC</span></code>
+comme s’il s’agissait d’un répertoire local. L’appel réseau
+qui maintient <code class="docutils literal notranslate"><span class="pre">dirC</span></code> dans l’espace de nommage du serveur 1 est complètement
+géré par la couche NFS (ou toute autre solution équivalente).</p>
+<p>Dans un contexte « Big Data », avec de très gros volumes de données, cette solution
+n’est cependant pas satisfaisante. En particulier, ni l’équilibrage (<em>load balancing</em>)
+ni le principe de localité ne sont  pris en satisfaits. Premièrement, si 10%
+des données sont stockées dans le fichier 1 et 90% dans le fichier 2, le serveur 2 devra
+subir 90% des accès (en supposant une répartition uniforme des requêtes). Ensuite, un processus s’exécutant
+sur le serveur 1 peut être amené à traiter un fichier du serveur 2 sans se rendre compte
+qu’il engendre de très gros accès réseaux.</p>
+<p>La partie droite de la  <a class="reference internal" href="#dfs-bigpic"><span class="std std-numref">Fig. 91</span></a> montre l’approche GFS/HDFS
+qui est totalement dédiée aux très gros fichiers et aux accès distribués.
+La grande différence est que la notion de fichier ne correspond plus
+à un stockage physique localisé, mais devient un symbole désignant
+un stockage partitionné, distribué et répliqué. Chaque fichier est divisé
+en fragments (3 fragments pour le fichier 2 par exemple), de tailles égales,
+et ces fragments sont alloués par HDFS aux serveurs du <em>cluster</em>. Chaque
+fragment est de plus répliqué.</p>
+<p>Le système de fichier de vient alors un espace de noms virtuel, partagé
+par l’ensemble des nœuds, et géré par un nœud spécial, le maître. On retrouve,
+pour la notion classique de fichier, les principes généraux déjà étudié
+dans ce cours.</p>
+<p>Il est facile de voir que les inconvénients précédents (défaut d’équilibrage et de
+localité des données) sont évités. Il est également facile de constater que cette
+approche n’est valable que pour de très gros fichiers qu’il est possible de partitionner
+en fragments de taille significative (quelques dizaines de MOs typiquement).</p>
+</div>
+<div class="section" id="architecture-hdfs">
+<h3>Architecture HDFS<a class="headerlink" href="#architecture-hdfs" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Voici maintenant un aperçu de l’architecture de GFS (<a class="reference internal" href="#gfs"><span class="std std-numref">Fig. 92</span></a>). Le système
+fonctionne en mode maître/esclave, le maître (<em>namenode</em>)
+jouant comme d’habitude le rôle de coordinateur
+et les esclaves (<em>datanode</em>) assurant le stockage. Le maître maintient (en mémoire RAM) l’image globale
+du système de fichiers, sous la forme d’une arborescence de répertoires et
+de fichiers. À chaque fichier est associée une table décrivant le partionnement de son
+contenu en fragment, et la répartition de ces fragments sur les différents nœuds-esclaves.</p>
+<div class="figure align-center" id="id8">
+<span id="gfs"></span><a class="reference internal image-reference" href="_images/gfs.png"><img alt="_images/gfs.png" src="_images/gfs.png" style="width: 90%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 92 </span><span class="caption-text">Architecture HDFS</span><a class="headerlink" href="#id8" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<p>Les applications clients doivent  se connecter
+au maître auquel elles transmettent leur requête sous la forme d’un
+chemin d’accès à un fichier, par exemple, comme illustré sur la figure,
+le chemin <code class="docutils literal notranslate"><span class="pre">/A/B/f1</span></code>. Voici en détail le cheminement de cette requête:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Elle est d’abord routée par le client (qui ignore tout de l’organisation
+du stockage) vers le maître.</p></li>
+<li><p>Le maître inspecte sa hiérarchie, et trouve les adresses des fragments
+constituant le fichier.</p></li>
+<li><p>Chaque serveur stockant un fragment est alors mis directement en contact
+avec le client qui peut récupérer tout ou partie du fichier.</p></li>
+</ul>
+</div></blockquote>
+<p>En d’autres termes, les échanges avec le maître sont limités
+aux méta-données décrivant le fichier et sa répartition, ce qui évite
+les inconvénients d’avoir à s’adresser systématiquement à un même nœud
+lors de l’initialisation d’une requête. Toutes les autres commandes
+de type POSIX (écriture, déplacement, droits d’acc¡es, etc.) suivent
+le même processus.</p>
+<p>Encore une fois la conception de HDFS est très orientée vers le stockage
+de fichiers de très grande taille (des GOs, voire des TOs). Ces fichiers
+sont partitionnés en fragments de 64 MOs, ce qui permet de les lire en
+parallèle. La lecture par une seule application cliente, comme illustré sur
+la <a class="reference internal" href="#gfs"><span class="std std-numref">Fig. 92</span></a>, constituerait un goulot d’étranglement, mais cette
+architecture prend tout son sens dans le cas de traitement MapReduce,
+le contenu d’un fichier pouvant alors être lu en parallèle par tous
+les serveurs d’une grappe.</p>
+<p>Utiliser HDFS pour de très nombreux petits fichiers serait un contresens:
+la mémoire RAM du maître pourrait être insuffisante pour
+stocker l’ensemble du <em>namespace</em>, et on perdrait toute possibilité
+de parallélisation.</p>
+<p>HDFS fournit un mécanisme natif de tolérance aux pannes qui le rend
+avantageux pour des système de gestion de données qui veulent
+déléguer la distribution et la fiabilité du stockage. Ce mécanisme
+s’appuie tout d’abord sur la réplication d’un même fragment (3 exemplaires
+par défaut) sur différents serveurs.</p>
+<p>Le maître assure la surveillance des esclaves par des communications
+(<em>heartbeats</em>) fréquents (toutes les secondes) et réorganise la communication
+entre une application cliente et le fragment qu’elle est en train de lire en
+cas de défaillance du serveur.  Ce remplacement est utile par exemple, comme nous l’avons vu,
+pour un traitement MapReduce afin d’effectuer à nouveau un calcul sur l’un
+des fragments.</p>
+<p>Enfin le maître lui-même est un des points sensibles du système: en
+cas de panne plus rien ne marcherait et des données seraient perdues.
+On peut mettre en place un « maître fantôme » prêt à prendre le relais,
+et une journalisation de toutes les écritures pour pouvoir effectuer
+une reprise sur panne.</p>
+</div>
+<div class="section" id="mise-en-oeuvre-avec-hadoop">
+<h3>Mise en œuvre avec Hadoop<a class="headerlink" href="#mise-en-oeuvre-avec-hadoop" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Voici maintenant une présentation concise de la mise en œuvre d’un
+système HDFS L’environnement est assez lourd à mettre en place et à configurer
+donc nous allons aller au plus simple dans ce qui suit.</p>
+<p>Des images Docker existent pour Hadoop mais elles ne me semblent pas plus
+simples à gérer qu’une installation directe, avec les options simplifiées
+proposées par Hadoop.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Encore une fois, l’expérience montre que la lourdeur de Hadoop s’accomode mal d’un déploiement
+virtuel sur une seule petite machine. L’importance du sujet ne justifie pas que vous y passiez
+des jours en vous arrachant les cheveux. Il suffit sans doute de lire
+une fois cette session pour comprendre l’essentiel.</p>
+<p>Si vous tentez quand même la mise en pratique, sachez que
+les commandes qui suivent supposent un environnement de type Unix
+(MacOS X en fait partie). Pour Windows, je ne peux que vous renvoyer au site
+de Hadoop, en espérant pour vous que ce ne soit pas trop compliqué.</p>
+<p>Autre avertissement: Hadoop, c’est du Java, donc il faut au minimum savoir compiler
+et exécuter un programme java, et disposer d’une mémoire RAM volumineuse.</p>
+</div>
+<p>Si l’avertissement qui précède vous effraie (c’est fait pour),
+il vaut sans doute mieux se contenter d’une simple lecture
+de cette partie.</p>
+<div class="section" id="installation-et-configuration">
+<h4>Installation et configuration<a class="headerlink" href="#installation-et-configuration" title="Lien permanent vers ce titre">¶</a></h4>
+<p>Je vous invite donc
+à récupérer la dernière version (binaire, inutile de prendre les sources)
+sur le site <a class="reference external" href="http://hadoop.apache.org">http://hadoop.apache.org</a>. C’est un fichier
+dont le nom ressemble à <code class="docutils literal notranslate"><span class="pre">hadoop-2.7.3.tar.gz</span></code>. Décompressez-le quelque part, par
+exemple dans <code class="docutils literal notranslate"><span class="pre">\tmp</span></code>. les commandes devraient ressembler à (en utilisant bien sûr le nom
+du fichier récupéré):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mv hadoop-2.7.3.tar.gz /tmp
+<span class="nb">cd</span> /tmp
+tar xvfz hadoop-2.7.3.tar.gz
+</pre></div>
+</div>
+<p>Bien, vous devez alors définir une variable d’environnement <code class="docutils literal notranslate"><span class="pre">HADOOP_HOME</span></code> qui
+indique le répertoire d’installation de Hadoop.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">HADOOP_HOME</span><span class="o">=</span>/tmp/hadoop-2.7.3
+</pre></div>
+</div>
+<p>Les répertoires <code class="docutils literal notranslate"><span class="pre">bin</span></code> et <code class="docutils literal notranslate"><span class="pre">sbin</span></code> de Hadoop contiennent des exécutables. Pour les lancer sans avoir
+à se placer dans l’un de ces répertoires, ajoutez-les dans votre variable <code class="docutils literal notranslate"><span class="pre">PATH</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="nv">$PATH</span>:<span class="nv">$HADOOP_HOME</span>/bin:<span class="nv">$HADOOP_HOME</span>/sbin
+</pre></div>
+</div>
+<p>Bien, vous devriez alors pouvoir exécuter un programme Hadoop. Par exemple:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>hadoop version
+Hadoop <span class="m">2</span>.7.3
+</pre></div>
+</div>
+<p>Pour commencer
+il faut configurer Hadoop pour qu’il s’exécute en mode dit « pseudo-distribué »,
+ce qui évite la configuration complexe d’un véritable <em>cluster</em>. Vous devez
+éditer le fichier <code class="docutils literal notranslate"><span class="pre">$HADOOP_HOME/etc/hadoop/core-site.xml</span></code>
+et indiquer le contenu suivant :</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;configuration&gt;</span>
+  <span class="nt">&lt;property&gt;</span>
+    <span class="nt">&lt;name&gt;</span>fs.default.name<span class="nt">&lt;/name&gt;</span>
+    <span class="nt">&lt;value&gt;</span>hdfs://localhost:9000<span class="nt">&lt;/value&gt;</span>
+  <span class="nt">&lt;/property&gt;</span>
+ <span class="nt">&lt;/configuration&gt;</span>
+</pre></div>
+</div>
+<p>Cela indique à Hadoop que le nœud maître  HDFS  (le « NameNode »
+dans la terminologie Hadoop) est en écoute sur le port  9000.</p>
+<p>Pour limiter la réplication, modifiez également le fichier <code class="docutils literal notranslate"><span class="pre">$HADOOP_HOME/etc/hadoop/hdfs-site.xml</span></code>.
+Son contenu doit être le suivant:</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;configuration&gt;</span>
+    <span class="nt">&lt;property&gt;</span>
+        <span class="nt">&lt;name&gt;</span>dfs.replication<span class="nt">&lt;/name&gt;</span>
+        <span class="nt">&lt;value&gt;</span>1<span class="nt">&lt;/value&gt;</span>
+    <span class="nt">&lt;/property&gt;</span>
+<span class="nt">&lt;/configuration&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="premieres-manipulations">
+<h4>Premières manipulations<a class="headerlink" href="#premieres-manipulations" title="Lien permanent vers ce titre">¶</a></h4>
+<p>Ouf, la configuration minimale est faite,
+nous sommes prêts à effectuer nos premières manipulations. Tout
+d’abord nous allons formatter l’espace dédié au stockage des données.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>hdfs namenode -format
+</pre></div>
+</div>
+<p>Une fois ce répertoire formatté nous lançons le maître HDFS (le <em>namenode</em>).
+Ce maître gère la hiérarchie (virtuelle) des répertoires HDFS,
+et communique avec les <em>datanodes</em>, les « esclaves » dans la terminologie
+employée jusqu’ici, qui sont chargés de gérer les fichiers (ou fragments de fichiers)
+sur leurs serveurs respectifs. Dans notre cas, la configuration ci-dessus
+va lancer un <em>namenode</em> et deux <em>datanodes</em>, grâce à la commande suivante:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>start-dfs.sh <span class="p">&amp;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Les nœuds communiquent entre eux par SSH, et il faut éviter que le mot
+de passe soit demandé à chaque fois. Voici les commandes pour permettre
+une connection SSH sans mot de passe.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ssh-keygen -t rsa -P <span class="s2">&quot;&quot;</span>
+cat <span class="nv">$HOME</span>/.ssh/id_rsa.pub &gt;&gt; <span class="nv">$HOME</span>/.ssh/authorized_keys
+</pre></div>
+</div>
+</div>
+<p>Vous devriez obtenir les messages suivants:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>starting namenode, logging to <span class="o">(</span>...<span class="o">)</span>
+localhost: starting datanode, logging to <span class="o">(</span>...<span class="o">)</span>
+localhost: starting secondarynamenode, logging to <span class="o">(</span>...<span class="o">)</span>
+</pre></div>
+</div>
+<p>Le second <em>namenode</em> est un miroir du premier. À ce stade, vous disposez d’un serveur
+HDFS en ordre de marche. Vous pouvez consulter son statut et toutes sortes d’informations
+grâce au serveur web accessible à <a class="reference external" href="http://localhost:50070">http://localhost:50070</a>. La figure <a class="reference internal" href="#hdfs-ui"><span class="std std-numref">Fig. 93</span></a> montre
+l’interface</p>
+<div class="figure align-center" id="id9">
+<span id="hdfs-ui"></span><a class="reference internal image-reference" href="_images/hdfs-ui.png"><img alt="_images/hdfs-ui.png" src="_images/hdfs-ui.png" style="width: 90%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 93 </span><span class="caption-text">Perspective générale sur les systèmes distribués dans un <em>cloud</em></span><a class="headerlink" href="#id9" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<p>Bien entendu, ce système de fichier est vide. Vous pouvez y charger un premier fichier,
+à récupérer sur le site à l’adresse suivante: <a class="reference external" href="http://b3d.bdpedia.fr/files/author-medium.txt">http://b3d.bdpedia.fr/files/author-medium.txt</a>.
+Il s’agit d’une liste de publications sur laquelle nous allons faire tourner nos exemples.</p>
+<p>Pour interagir avec le serveur de fichier HDFS, on utilise la commande <code class="docutils literal notranslate"><span class="pre">hadoop</span> <span class="pre">fs</span> <span class="pre">&lt;commande&gt;</span></code>
+où commande est la commande à effectuer. La commande suivante crée un répertoire <code class="docutils literal notranslate"><span class="pre">/dblp</span></code>
+dans HDFS.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>hadoop fs -mkdir /dblp
+</pre></div>
+</div>
+<p>Puis on copie le fichier du système de fichiers local vers HDFS.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>hadoop fs -put author-medium.txt /dblp/author-medium.txt
+</pre></div>
+</div>
+<p>Finalement, on peut constater qu’il est bien là.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>hadoop fs -ls /dblp
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Vous trouverez facilement sur le web des commandes supplémentaires, par
+exemple ici: <a class="reference external" href="https://dzone.com/articles/top-10-hadoop-shell-commands">https://dzone.com/articles/top-10-hadoop-shell-commands</a></p>
+<p>Pour inspecter le système de fichiers avec l’interface Web,
+vous pouvez aussi accéder à <a class="reference external" href="http://localhost:50070/explorer.html#/">http://localhost:50070/explorer.html#/</a></p>
+</div>
+<p>Que sommes-nous en train de faire? Nous copions un fichier depuis notre machine locale
+vers un système distribué sur plusieurs serveurs. Si le fichier est assez gros, il
+est découpé en fragments et réparti sur différents serveurs. Le découpage
+et la recomposition sont transparents et entièrement gérés par Hadoop.</p>
+<p>Nous avons donc réparti nos données (si du moins elles avaient une taille respectable)
+dans le <em>cluster</em> HDFS. Nous sommes donc en mesure maintenant d’effectuer
+un calcul réparti avec MapReduce.</p>
+</div>
+</div>
+<div class="section" id="mapreduce-le-calcul-distribue-avec-hadoop">
+<h3>MapReduce, le calcul distribué avec Hadoop<a class="headerlink" href="#mapreduce-le-calcul-distribue-avec-hadoop" title="Lien permanent vers ce titre">¶</a></h3>
+<p>L’exemple que nous allons maintenant étudier est un processus MapReduce
+qui accède au fichier HDFS et effectue un calcul assez trivial. Ce sera à vous d’aller
+plus loin ensuite.</p>
+<div class="section" id="id1">
+<h4>Installation et configuration<a class="headerlink" href="#id1" title="Lien permanent vers ce titre">¶</a></h4>
+<p>Depuis la version 2 de Hadoop, les traitements sont gérés par un gestionnaire
+de ressources distribuées nommé Yarn. Il fonctionne en mode maître/esclaves,
+le maître étant nommé <code class="docutils literal notranslate"><span class="pre">Resourcemanager</span></code> et les esclaves <code class="docutils literal notranslate"><span class="pre">NodeManager</span></code>.</p>
+<p>Un peu de configuration préalable s’impose avant de lancer notre <em>cluster</em> Yarn.
+Editez tout d’abord le fichier <code class="docutils literal notranslate"><span class="pre">$HADOOP_HOME/etc/hadoop/mapred-site.xml</span></code>
+avec le contenu suivant:</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;configuration&gt;</span>
+    <span class="nt">&lt;property&gt;</span>
+       <span class="nt">&lt;name&gt;</span>mapreduce.framework.name<span class="nt">&lt;/name&gt;</span>
+       <span class="nt">&lt;value&gt;</span>yarn<span class="nt">&lt;/value&gt;</span>
+    <span class="nt">&lt;/property&gt;</span>
+<span class="nt">&lt;/configuration&gt;</span>
+</pre></div>
+</div>
+<p>Ainsi que le fichier <code class="docutils literal notranslate"><span class="pre">$HADOOP_HOME/etc/hadoop/yarn-site.xml</span></code>:</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;configuration&gt;</span>
+    <span class="nt">&lt;property&gt;</span>
+       <span class="nt">&lt;name&gt;</span>yarn.nodemanager.aux-services<span class="nt">&lt;/name&gt;</span>
+       <span class="nt">&lt;value&gt;</span>mapreduce_shuffle<span class="nt">&lt;/value&gt;</span>
+    <span class="nt">&lt;/property&gt;</span>
+ <span class="nt">&lt;/configuration&gt;</span>
+</pre></div>
+</div>
+<p>Vous pouvez alors lancer un <em>cluster</em> Yarn (en plus du <em>cluster</em> HDFS).</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>start-yarn.sh
+</pre></div>
+</div>
+<p>Yarn propose une interface Web à l’adresse <a class="reference external" href="http://localhost:8088/cluster">http://localhost:8088/cluster</a>: Elle
+montre les applications en cours ou déjà exécutées.</p>
+</div>
+<div class="section" id="notre-programme-mapreduce">
+<h4>Notre programme MapReduce<a class="headerlink" href="#notre-programme-mapreduce" title="Lien permanent vers ce titre">¶</a></h4>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Toutes nos compilations java font se fait par l’intermédiaire
+du script <code class="docutils literal notranslate"><span class="pre">hadoop</span></code>. Il suffit de définir la variable suivante au préalable:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">HADOOP_CLASSPATH</span><span class="o">=</span><span class="si">${</span><span class="nv">JAVA_HOME</span><span class="si">}</span>/lib/tools.jar
+</pre></div>
+</div>
+</div>
+<p>Le
+format du fichier que nous avons placé dans HDFS est très simple: il contient des noms d’auteur et des titres
+de publications, séparés par des tabulations.
+Nous allons compter le nombre de publications de chaque auteur dans notre fichier.</p>
+<p>Notre première classe Java contient le code de la fonction de Map.</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="cm">/**</span>
+<span class="cm"> * Les imports indispensables</span>
+<span class="cm"> */</span>
+
+<span class="kn">import</span> <span class="nn">java.io.IOException</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">java.util.Scanner</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.hadoop.io.IntWritable</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.hadoop.io.Text</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.hadoop.mapreduce.Mapper</span><span class="p">;</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Exemple d&#39;une fonction de map: on prend un fichier texte contenant</span>
+<span class="cm"> * des auteurs et on extrait le nom</span>
+<span class="cm"> */</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">AuthorsMapper</span> <span class="kd">extends</span>
+  <span class="n">Mapper</span><span class="o">&lt;</span><span class="n">Object</span><span class="p">,</span> <span class="n">Text</span><span class="p">,</span> <span class="n">Text</span><span class="p">,</span> <span class="n">IntWritable</span><span class="o">&gt;</span> <span class="p">{</span>
+
+  <span class="kd">private</span> <span class="kd">final</span> <span class="kd">static</span> <span class="n">IntWritable</span> <span class="n">one</span> <span class="o">=</span> <span class="k">new</span> <span class="n">IntWritable</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+  <span class="kd">private</span> <span class="n">Text</span> <span class="n">author</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Text</span><span class="p">();</span>
+
+   <span class="cm">/* la fonction de Map */</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">map</span><span class="p">(</span><span class="n">Object</span> <span class="n">key</span><span class="p">,</span> <span class="n">Text</span> <span class="n">value</span><span class="p">,</span> <span class="n">Context</span> <span class="n">context</span><span class="p">)</span>
+       <span class="kd">throws</span> <span class="n">IOException</span><span class="p">,</span> <span class="n">InterruptedException</span> <span class="p">{</span>
+
+      <span class="cm">/* Utilitaire java pour scanner une ligne  */</span>
+      <span class="n">Scanner</span> <span class="n">line</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Scanner</span><span class="p">(</span><span class="n">value</span><span class="p">.</span><span class="na">toString</span><span class="p">());</span>
+      <span class="n">line</span><span class="p">.</span><span class="na">useDelimiter</span><span class="p">(</span><span class="s">&quot;\t&quot;</span><span class="p">);</span>
+      <span class="n">author</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="n">line</span><span class="p">.</span><span class="na">next</span><span class="p">());</span>
+      <span class="n">context</span><span class="p">.</span><span class="na">write</span><span class="p">(</span><span class="n">author</span><span class="p">,</span> <span class="n">one</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+</pre></div>
+</div>
+<p>Hadoop fournit deux classes abstraites pour implanter des fonctions
+de Map et de Reduce: <code class="docutils literal notranslate"><span class="pre">Mapper</span></code> et <code class="docutils literal notranslate"><span class="pre">Reducer</span></code>. Il faut étendre
+ces classes et implanter deux méthodes, respectivement <code class="docutils literal notranslate"><span class="pre">map()</span></code> et <code class="docutils literal notranslate"><span class="pre">reduce()</span></code>.</p>
+<p>L’exemple ci-dessus montre l’implantation de la fonction de map. Les paramètres
+de la classe abstraite décrivent respectivement les types des paires
+clé/valeur en entrée et en sortie. Ces types sont fournis pas Hadoop
+qui doit savoir les sérialiser pendant les calculs pour les placer sur disque.
+Finalement, la classe <code class="docutils literal notranslate"><span class="pre">Context</span></code> est utilise pour pouvoir interagir avec l’environnement
+d’exécution.</p>
+<p>Notre fonction de Map prend donc en entrée une paire clé/valeur
+constituée du numéro de ligne du fichier en entrée (automatiquement engendrée par le système)
+et de la ligne elle-même. Notre code se contente d’extraire la partie de la ligne
+qui précède la première tabulation, en considérant que c’est le nom de l’auteur. On
+produit dont une paire intermédiaire <code class="docutils literal notranslate"><span class="pre">(auteur,</span> <span class="pre">1)</span></code>.</p>
+<p>La fonction de Reduce est encore plus simple. On obtient en entrée
+le nom de l’auteur et une liste de 1, aussi longue qu’on a trouvé d’auteurs
+dans les fichiers traités. On fait la somme de ces 1.</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">java.io.IOException</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.hadoop.io.IntWritable</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.hadoop.io.Text</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.hadoop.mapreduce.Reducer</span><span class="p">;</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * La fonction de Reduce: obtient des paires  (auteur, &lt;publications&gt;)</span>
+<span class="cm"> * et effectue le compte des publications</span>
+<span class="cm"> */</span>
+<span class="kd">public</span>  <span class="kd">class</span> <span class="nc">AuthorsReducer</span> <span class="kd">extends</span>
+      <span class="n">Reducer</span><span class="o">&lt;</span><span class="n">Text</span><span class="p">,</span> <span class="n">IntWritable</span><span class="p">,</span> <span class="n">Text</span><span class="p">,</span> <span class="n">IntWritable</span><span class="o">&gt;</span> <span class="p">{</span>
+   <span class="kd">private</span> <span class="n">IntWritable</span> <span class="n">result</span> <span class="o">=</span> <span class="k">new</span> <span class="n">IntWritable</span><span class="p">();</span>
+
+   <span class="nd">@Override</span>
+   <span class="kd">public</span> <span class="kt">void</span> <span class="nf">reduce</span><span class="p">(</span><span class="n">Text</span> <span class="n">key</span><span class="p">,</span> <span class="n">Iterable</span><span class="o">&lt;</span><span class="n">IntWritable</span><span class="o">&gt;</span> <span class="n">values</span><span class="p">,</span>
+        <span class="n">Context</span> <span class="n">context</span><span class="p">)</span>
+    <span class="kd">throws</span> <span class="n">IOException</span><span class="p">,</span> <span class="n">InterruptedException</span> <span class="p">{</span>
+
+    <span class="kt">int</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">IntWritable</span> <span class="n">val</span> <span class="p">:</span> <span class="n">values</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">count</span> <span class="o">+=</span> <span class="n">val</span><span class="p">.</span><span class="na">get</span><span class="p">();</span>
+    <span class="p">}</span>
+    <span class="n">result</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="n">count</span><span class="p">);</span>
+    <span class="n">context</span><span class="p">.</span><span class="na">write</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">result</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Nous pouvons maintenant soumettre un « job » avec le code qui suit. Les
+commentaires indiquent les principales phases. Notez qu’on lui indique
+les classes implantant les fonctions de Map et de Reduce, définies auparavant.</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span>  <span class="cm">/**</span>
+<span class="cm">   * Programme de soumision d&#39;un traitement MapReduce</span>
+<span class="cm">   */</span>
+
+  <span class="kn">import</span> <span class="nn">org.apache.hadoop.conf.*</span><span class="p">;</span>
+  <span class="kn">import</span> <span class="nn">org.apache.hadoop.util.*</span><span class="p">;</span>
+  <span class="kn">import</span> <span class="nn">org.apache.hadoop.fs.Path</span><span class="p">;</span>
+  <span class="kn">import</span> <span class="nn">org.apache.hadoop.io.IntWritable</span><span class="p">;</span>
+  <span class="kn">import</span> <span class="nn">org.apache.hadoop.io.Text</span><span class="p">;</span>
+  <span class="kn">import</span> <span class="nn">org.apache.hadoop.mapreduce.Job</span><span class="p">;</span>
+  <span class="kn">import</span> <span class="nn">org.apache.hadoop.mapreduce.lib.input.FileInputFormat</span><span class="p">;</span>
+  <span class="kn">import</span> <span class="nn">org.apache.hadoop.mapreduce.lib.output.FileOutputFormat</span><span class="p">;</span>
+
+  <span class="kd">public</span> <span class="kd">class</span> <span class="nc">AuthorsJob</span> <span class="p">{</span>
+
+  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="p">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="p">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="p">{</span>
+
+   <span class="cm">/* Il nous faut le chemin d&#39;acces au fichier a traiter</span>
+<span class="cm">           et le chemin d&#39;acces au resultat du reduce */</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">args</span><span class="p">.</span><span class="na">length</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">System</span><span class="p">.</span><span class="na">err</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&quot;Usage: AuthorsJob &lt;in&gt; &lt;out&gt;&quot;</span><span class="p">);</span>
+      <span class="n">System</span><span class="p">.</span><span class="na">exit</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+    <span class="p">}</span>
+
+   <span class="cm">/* Definition du job */</span>
+   <span class="n">Job</span> <span class="n">job</span> <span class="o">=</span> <span class="n">Job</span><span class="p">.</span><span class="na">getInstance</span><span class="p">(</span><span class="k">new</span> <span class="n">Configuration</span><span class="p">());</span>
+
+   <span class="cm">/* Definition du Mapper et du Reducer */</span>
+   <span class="n">job</span><span class="p">.</span><span class="na">setMapperClass</span><span class="p">(</span><span class="n">AuthorsMapper</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
+   <span class="n">job</span><span class="p">.</span><span class="na">setReducerClass</span><span class="p">(</span><span class="n">AuthorsReducer</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
+
+   <span class="cm">/* Definition du type du resultat  */</span>
+   <span class="n">job</span><span class="p">.</span><span class="na">setOutputKeyClass</span><span class="p">(</span><span class="n">Text</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
+   <span class="n">job</span><span class="p">.</span><span class="na">setOutputValueClass</span><span class="p">(</span><span class="n">IntWritable</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
+
+   <span class="cm">/* On indique l&#39;entree et la sortie */</span>
+   <span class="n">FileInputFormat</span><span class="p">.</span><span class="na">addInputPath</span><span class="p">(</span><span class="n">job</span><span class="p">,</span> <span class="k">new</span> <span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="p">));</span>
+   <span class="n">FileOutputFormat</span><span class="p">.</span><span class="na">setOutputPath</span><span class="p">(</span><span class="n">job</span><span class="p">,</span> <span class="k">new</span> <span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span><span class="p">));</span>
+
+   <span class="cm">/* Soumission */</span>
+   <span class="n">job</span><span class="p">.</span><span class="na">setJarByClass</span><span class="p">(</span><span class="n">AuthorsJob</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
+   <span class="n">job</span><span class="p">.</span><span class="na">submit</span><span class="p">();</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Un des rôles importants du Job est de définir la source en entrée pour les
+données (ici un fichier HDFS) et le répertoire HDFS en sortie, dans lequel les
+<em>reducers</em> vont écrire le résultat.</p>
+</div>
+<div class="section" id="compilation-execution">
+<h4>Compilation, exécution<a class="headerlink" href="#compilation-execution" title="Lien permanent vers ce titre">¶</a></h4>
+<p>Il reste à compiler et à exécuter ce traitement. La commande de compilation
+est la suivante.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>hadoop com.sun.tools.javac.Main AuthorsMapper.java AuthorsReducer.java AuthorsJob.java
+</pre></div>
+</div>
+<p>Les fichiers compilés doivent ensuite être placés dans une archive java (jar)
+qui sera transmise à tous les serveurs avant l’exécution distribuée. Ici, on
+crée une archive <code class="docutils literal notranslate"><span class="pre">authors.jar</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jar cf authors.jar AuthorsMapper.class AuthorsReducer.class AuthorsJob.class
+</pre></div>
+</div>
+<p>Et maintenant, on soumet le traitement au <em>cluster</em> Yarn avec la commande suivante:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>hadoop jar authors.jar AuthorsJob /dblp/author-medium.txt /output
+</pre></div>
+</div>
+<p>On indique donc sur la ligne de commande le <code class="docutils literal notranslate"><span class="pre">Job</span></code> à exécuter, le fichier en entrée et le répertoire
+des fichiers de résultat. Dans notre cas, il y aura un seul <em>reducer</em>, et donc un seul
+fichier nommé <code class="docutils literal notranslate"><span class="pre">part-r-00000</span></code> qui sera donc placé dans <code class="docutils literal notranslate"><span class="pre">/output</span></code> dans HDFS.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Le répertoire de sortie ne doit pas exister avant l’exécution. Pensez
+à le supprimer si vous exécutez le même job plusieurs fois de suite.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>hadoop fs -rm -R /output
+</pre></div>
+</div>
+</div>
+<p>Une fois le job exécuté, on peut copier ce fichier de HDFS vers la machine locale
+avec la commande:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>hadoop fs -copyToLocal /output/part-r-00000 resultat
+</pre></div>
+</div>
+<p>Et voilà! Vous avez une idée complète de l’exécution d’un traitement MapReduce. Le
+résultat devrait ressembler à:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>(...)
+Dominique Decouchant    1
+E. C. Chow      1
+E. Harold Williams      1
+Edward Omiecinski       1
+Eric N. Hanson  1
+Eugene J. Shekita       1
+Gail E. Kaiser  1
+Guido Moerkotte 1
+Hanan Samet     2
+Hector Garcia-Molina    2
+Injun Choi      1
+(...)
+</pre></div>
+</div>
+<p>Notez que les auteurs sont triés par ordre alphanumérique, ce qui est un effet
+indirect de la phase de <em>shuffle</em> qui réorganise toutes les paires intermédiaires.</p>
+<p>En inspectant l’interface <a class="reference external" href="http://localhost:8088/cluster">http://localhost:8088/cluster</a> vous verrez les statistiques sur
+les <em>jobs</em> exécutés.</p>
+</div>
+</div>
+<div class="section" id="id2">
+<h3>Quiz<a class="headerlink" href="#id2" title="Lien permanent vers ce titre">¶</a></h3>
+<div class="reauthoring_embedded_quiz" id="gfs-1"><form class="reauthoring_embedded_quiz_questions"><p>Quelle affirmation parmi les suivantes est vraie pour GFS?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> L’arborescence des répertoires et des fichiers correspond à
+la répartition dans le système distribué</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Chaque fichier est découpé en <em>n</em> fragments, où <em>n</em> est le nombre de serveurs</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Chaque fichier est découpé en fragments de taille fixe, et chacun
+est répliqué sur 3 serveurs</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Un fichier est stocké sur le serveur qui correspond à son répertoire dans
+l’arborescence</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="gfs-2"><form class="reauthoring_embedded_quiz_questions"><p>Commment est constituée l’arborescence des fichiers?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> La racine est au niveau du maitre, et chaque fils de la racine
+est la racine du serveur de fichier local d’un des serveurs participants</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> L’arboresence est totalement virtuelle et gérée par le maître</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> L’arborescence des répertoires est gérée par le maître, les fichiers
+sont ceux des serveurs et sont liés à un répertoire.</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="gfs-3"><form class="reauthoring_embedded_quiz_questions"><p>Pour quelle utilisation le système GFS est-il le plus adapté</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Pour une application client qui peut lire tous les fragments en parallèle,
+comme expliqué précédemment</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Pour un traitement distribué de type MapReduce</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Pour une application temps-réel qui va pouvoir chercher un document dans un
+seul fragment.</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div></div>
+</div>
+<div class="section" id="s3-langages-de-traitement-pig">
+<h2>S3: langages de traitement: Pig<a class="headerlink" href="#s3-langages-de-traitement-pig" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="admonition-supports-complementaires admonition">
+<p class="admonition-title">Supports complémentaires</p>
+<ul class="simple">
+<li><p><a class="reference external" href="http://b3d.bdpedia.fr/files/slpig.pdf">Diapositives: Le langage Pig latin</a></p></li>
+<li><p><a class="reference external" href="https://mediaserver.cnam.fr/permalink/v125f35a4214383v9nvp/">Vidéo de la session Pig latin</a></p></li>
+</ul>
+</div>
+<p>MapReduce est  un système orienté vers les développeurs qui doivent concevoir et
+implanter la composition de plusieurs <em>jobs</em> pour des algorithmes
+complexes qui ne peuvent s’exécuter en une seule phase. Cette caractéristique
+rend également les systèmes MapReduce difficilement accessibles
+à des non-programmeurs.</p>
+<p>La définition de langages de plus haut niveau permettant de spécifier
+des opérations complexes sur les données est donc apparue comme une nécessité dès
+les premières versions de systèmes comme Hadoop. L’initiative est souvent
+venue de communautés familières des bases de données et désirant retrouver
+la simplicité et la « déclarativité » du langage SQL, transposées dans
+le domaine des chaînes de traitements pour données massives.</p>
+<p>Cette section présente le langage Pig latin, une des premières tentatives
+du genre, une des plus simples, et surtout l’une des plus représentatives
+des opérateurs de manipulation de données qu’il est possible d’exécuter
+sous forme de <em>jobs</em> MapReduce en conservant la scalabilité et la
+gestion des pannes.</p>
+<p>Pig latin (initialement développé par un laboratoire Yahoo!) est
+un projet Apache disponible à <a class="reference external" href="http://pig.apache.org">http://pig.apache.org</a>. Vous avez (au moins) deux possibilités
+pour l’installation.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Utilisez la machine Docker <a class="reference external" href="https://hub.docker.com/r/hakanserce/apache-pig/">https://hub.docker.com/r/hakanserce/apache-pig/</a></p></li>
+<li><p>Ou récupérez la dernière version sous la forme d’une archive compressée et
+décompressez-la quelque part, dans un répertoire que nous appellerons <code class="docutils literal notranslate"><span class="pre">pigdir</span></code>.</p></li>
+</ul>
+</div></blockquote>
+<p>Nous utiliserons directement l’interpréteur de scripts (nommé <code class="docutils literal notranslate"><span class="pre">grunt</span></code>) qui se lance avec:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>&lt;pigdir&gt;/bin/pig -x <span class="nb">local</span>
+</pre></div>
+</div>
+<p>L’option <code class="docutils literal notranslate"><span class="pre">local</span></code> indique que l’on teste les scripts en local, ce qui permet
+de les mettre au point sur de petits jeux de données avant de passer à une exécution distribuée à grande échelle
+dans un <em>framework</em> MapReduce.</p>
+<p>Cet interpréteur affiche beaucoup de messages, ce qui devient rapidement désagréable. Pour s’en débarasser,
+créer un fichier <code class="docutils literal notranslate"><span class="pre">nolog.conf</span></code> avec la ligne:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">log4j</span><span class="o">.</span><span class="n">rootLogger</span><span class="o">=</span><span class="n">fatal</span>
+</pre></div>
+</div>
+<p>Et lancez Pig en indiquant que la configuration des <em>log</em> est dans ce fichier:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>&lt;pigdir&gt;/bin/pig -x <span class="nb">local</span> -4 nolog.conf
+</pre></div>
+</div>
+<div class="section" id="une-session-illustrative">
+<h3>Une session illustrative<a class="headerlink" href="#une-session-illustrative" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Pig applique des <em>opérateurs</em> à des <em>flots de données semi-structurées</em>. Le flot
+initial (en entrée) est constituée par lecture d’une source de données
+quelconque contenant des documents qu’il faut structurer selon le modèle
+de Pig, à peu de choses près comparable à ce que proposent XML ou JSON.</p>
+<p>Dans un contexte réel, il faut implanter un chargeur de données depuis
+la source. Nous allons nous contenter de prendre un des formats par
+défaut, soit un fichier texte dont chaque ligne représente un document, et
+dont les champs sont séparés par des tabulations. Nos documents
+sont des entrées bibliographiques d’articles scientifiques
+que vous pouvez récupérer à <a class="reference external" href="http://b3d.bdpedia.fr/files/journal-small.txt">http://b3d.bdpedia.fr/files/journal-small.txt</a>.
+En voici un échantillon.</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="mf">2005</span>    <span class="nx">VLDB</span> <span class="nx">J</span><span class="p">.</span> <span class="nx">Model</span><span class="o">-</span><span class="nx">based</span> <span class="nx">approximate</span> <span class="nx">querying</span> <span class="k">in</span> <span class="nx">sensor</span> <span class="nx">networks</span><span class="p">.</span>
+<span class="mf">1997</span>    <span class="nx">VLDB</span> <span class="nx">J</span><span class="p">.</span> <span class="nx">Dictionary</span><span class="o">-</span><span class="nx">Based</span> <span class="nx">Order</span><span class="o">-</span><span class="nx">Preserving</span> <span class="nb">String</span> <span class="nx">Compression</span><span class="p">.</span>
+<span class="mf">2003</span>        <span class="nx">SIGMOD</span> <span class="nx">Record</span>   <span class="nx">Time</span> <span class="nx">management</span> <span class="k">for</span> <span class="k">new</span> <span class="nx">faculty</span><span class="p">.</span>
+<span class="mf">2001</span>    <span class="nx">VLDB</span> <span class="nx">J</span><span class="p">.</span> <span class="nx">E</span><span class="o">-</span><span class="nx">Services</span> <span class="o">-</span> <span class="nx">Guest</span> <span class="nx">editorial</span><span class="p">.</span>
+<span class="mf">2003</span>        <span class="nx">SIGMOD</span> <span class="nx">Record</span>   <span class="nx">Exposing</span> <span class="nx">undergraduate</span> <span class="nx">students</span> <span class="nx">to</span> <span class="nx">system</span> <span class="nx">internals</span><span class="p">.</span>
+<span class="mf">1998</span>    <span class="nx">VLDB</span> <span class="nx">J</span><span class="p">.</span> <span class="nx">Integrating</span> <span class="nx">Reliable</span> <span class="nx">Memory</span> <span class="k">in</span> <span class="nx">Databases</span><span class="p">.</span>
+<span class="mf">1996</span>    <span class="nx">VLDB</span> <span class="nx">J</span><span class="p">.</span> <span class="nx">Query</span> <span class="nx">Processing</span> <span class="nx">and</span> <span class="nx">Optimization</span> <span class="k">in</span> <span class="nx">Oracle</span> <span class="nx">Rdb</span>
+<span class="mf">1996</span>    <span class="nx">VLDB</span> <span class="nx">J</span><span class="p">.</span> <span class="nx">A</span> <span class="nx">Complete</span> <span class="nx">Temporal</span> <span class="nx">Relational</span> <span class="nx">Algebra</span><span class="p">.</span>
+<span class="mf">1994</span>        <span class="nx">SIGMOD</span> <span class="nx">Record</span>   <span class="nx">Data</span> <span class="nx">Modelling</span> <span class="k">in</span> <span class="nx">the</span> <span class="nx">Large</span><span class="p">.</span>
+<span class="mf">2002</span>        <span class="nx">SIGMOD</span> <span class="nx">Record</span>   <span class="nx">Data</span> <span class="nx">Mining</span><span class="o">:</span> <span class="nx">Concepts</span> <span class="nx">and</span> <span class="nx">Techniques</span> <span class="o">-</span> <span class="nx">Book</span> <span class="nx">Review</span><span class="p">.</span>
+<span class="p">...</span>
+</pre></div>
+</div>
+<p>Voici à titre d’exemple introductif un programme Pig complet qui
+calcule le nombre moyen de publications par an dans la revue SIGMOD Record.</p>
+<div class="highlight-pig notranslate"><div class="highlight"><pre><span></span><span class="c">-- Chargement des documents de journal-small.txt</span>
+articles <span class="o">=</span> <span class="k">load</span> <span class="s">&#39;journal-small.txt&#39;</span>
+    <span class="k">as</span> <span class="p">(</span>year: <span class="kt">chararray</span><span class="o">,</span> journal:<span class="kt">chararray</span><span class="o">,</span> title: <span class="kt">chararray</span><span class="p">)</span> <span class="p">;</span>
+sr_articles <span class="o">=</span> <span class="k">filter</span> articles <span class="k">BY</span> journal==<span class="s">&#39;SIGMOD Record&#39;</span><span class="p">;</span>
+year_groups <span class="o">=</span> <span class="k">group</span> sr_articles <span class="k">by</span> year;
+count_by_year <span class="o">=</span> <span class="k">foreach</span> year_groups <span class="k">generate</span> <span class="k">group</span><span class="o">,</span> <span class="nb">COUNT</span><span class="p">(</span>sr_articles.title<span class="p">);</span>
+<span class="k">dump</span> count_by_year;
+</pre></div>
+</div>
+<p>Quand on l’exécute sur notre fichier-exemple, on obtient le résultat suivant:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="mi">1977</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">1981</span><span class="p">,</span><span class="mi">7</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">1982</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">1983</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">1986</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>Un programme Pig est essentiellement une séquence d’opérations, chacune prenant
+en entrée une collection de documents (les collections sont nommées <em>bag</em>
+dans Pig latin, et les documents sont nommés <em>tuple</em>) et produisant en sortie une autre collection. La séquence définit
+une chaîne de traitements transformant progressivement les documents.</p>
+<div class="figure align-center" id="id10">
+<span id="pig-workflow"></span><a class="reference internal image-reference" href="_images/pig-workflow.png"><img alt="_images/pig-workflow.png" src="_images/pig-workflow.png" style="width: 80%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 94 </span><span class="caption-text">Un exemple de  <em>workflow</em> (chaîne de traitements) avec Pig</span><a class="headerlink" href="#id10" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<p>Il est intéressant de décomposer, étape par étape, cette chaîne de traitement pour inspecter
+les collections intermédiaires produites par chaque opérateur.</p>
+<p><strong>Chargement</strong>. L’opérateur <code class="docutils literal notranslate"><span class="pre">load</span></code> crée une collection initiale
+<code class="docutils literal notranslate"><span class="pre">articles</span></code> par chargement du fichier.  On indique le <em>schéma</em>
+de cette collection pour interpréter le contenu de chaque ligne.
+Les deux commandes suivantes permettent d’inspecter respectivement le
+schéma d’une collection et un échantillon de son contenu.</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">grunt</span><span class="o">&gt;</span> <span class="nx">describe</span> <span class="nx">articles</span><span class="p">;</span>
+<span class="nx">articles</span><span class="o">:</span> <span class="p">{</span><span class="nx">year</span><span class="o">:</span> <span class="nx">chararray</span><span class="p">,</span><span class="nx">journal</span><span class="o">:</span> <span class="nx">chararray</span><span class="p">,</span><span class="nx">title</span><span class="o">:</span> <span class="nx">chararray</span><span class="p">}</span>
+
+<span class="nx">grunt</span><span class="o">&gt;</span> <span class="nx">illustrate</span> <span class="nx">articles</span><span class="p">;</span>
+<span class="o">---------------------------------------------------------------------------</span>
+<span class="o">|</span> <span class="nx">articles</span> <span class="o">|</span> <span class="nx">year</span><span class="o">:</span> <span class="nx">chararray</span> <span class="o">|</span> <span class="nx">journal</span><span class="o">:</span> <span class="nx">chararray</span> <span class="o">|</span> <span class="nx">title</span><span class="o">:</span> <span class="nx">chararray</span>      <span class="o">|</span>
+<span class="o">---------------------------------------------------------------------------</span>
+<span class="o">|</span>          <span class="o">|</span> <span class="mf">2003</span>            <span class="o">|</span> <span class="nx">SIGMOD</span> <span class="nx">Record</span>      <span class="o">|</span> <span class="nx">Call</span> <span class="k">for</span> <span class="nx">Book</span> <span class="nx">Reviews</span><span class="p">.</span><span class="o">|</span>
+<span class="o">---------------------------------------------------------------------------</span>
+</pre></div>
+</div>
+<p>Pour l’instant, nous sommes dans un contexte simple où une collection
+peut être vue comme une table relationnelle. Chaque ligne/document
+ne contient que des données élémentaires.</p>
+<p><strong>Filtrage</strong>.
+L’opération de filtrage avec <code class="docutils literal notranslate"><span class="pre">filter</span></code> opère comme une clause <code class="docutils literal notranslate"><span class="pre">where</span></code> en SQL. On peut exprimer
+avec Pig des combinaisons Booléennes de critères sur les attributs des documents. Dans
+notre exemple le critère porte sur le titre du journal.</p>
+<p><strong>Regroupement</strong>. On regroupe maintenant les tuples/documents par année
+avec la commande <code class="docutils literal notranslate"><span class="pre">group</span> <span class="pre">by</span></code>. À chaque année on associe donc
+l’ensemble des articles parus cette année-là, sous la forme d’un
+ensemble imbriqué.  Examinons la représentation de Pig:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">grunt</span><span class="o">&gt;</span> <span class="nx">year_groups</span> <span class="o">=</span> <span class="nx">GROUP</span> <span class="nx">sr_articles</span> <span class="nx">BY</span> <span class="nx">year</span><span class="p">;</span>
+
+<span class="nx">grunt</span><span class="o">&gt;</span> <span class="nx">describe</span> <span class="nx">year_groups</span><span class="p">;</span>
+  <span class="nx">year_groups</span><span class="o">:</span> <span class="p">{</span><span class="nx">group</span><span class="o">:</span> <span class="nx">chararray</span><span class="p">,</span>
+    <span class="nx">sr_articles</span><span class="o">:</span> <span class="p">{</span><span class="nx">year</span><span class="o">:</span> <span class="nx">chararray</span><span class="p">,</span><span class="nx">journal</span><span class="o">:</span> <span class="nx">chararray</span><span class="p">,</span><span class="nx">title</span><span class="o">:</span><span class="nx">chararray</span><span class="p">}}</span>
+
+<span class="nx">grunt</span><span class="o">&gt;</span> <span class="nx">illustrate</span> <span class="nx">year_groups</span><span class="p">;</span>
+ <span class="nx">group</span><span class="o">:</span> <span class="mf">1990</span>
+ <span class="nx">sr_articles</span><span class="o">:</span>
+  <span class="p">{</span>
+   <span class="p">(</span><span class="mf">1990</span><span class="p">,</span> <span class="nx">SIGMOD</span> <span class="nx">Record</span><span class="p">,</span> <span class="nx">An</span> <span class="nx">SQL</span><span class="o">-</span><span class="nx">Based</span> <span class="nx">Query</span> <span class="nx">Language</span> <span class="nx">For</span> <span class="nx">Networks</span> <span class="k">of</span> <span class="nx">Relations</span><span class="p">.),</span>
+   <span class="p">(</span><span class="mf">1990</span><span class="p">,</span> <span class="nx">SIGMOD</span> <span class="nx">Record</span><span class="p">,</span> <span class="nx">New</span> <span class="nx">Hope</span> <span class="nx">on</span> <span class="nx">Data</span> <span class="nx">Models</span> <span class="nx">and</span> <span class="nx">Types</span><span class="p">.)</span>
+  <span class="p">}</span>
+</pre></div>
+</div>
+<p>Le schéma de la collection <code class="docutils literal notranslate"><span class="pre">year_group</span></code>, obtenu avec <code class="docutils literal notranslate"><span class="pre">describe</span></code>,  comprend donc un attribut nommé <code class="docutils literal notranslate"><span class="pre">group</span></code>
+correspondant à la valeur de la clé de regroupement (ici, l’année) et une collection
+imbriquée nommée d’après la collection-source du regroupement (ici, <code class="docutils literal notranslate"><span class="pre">sr_articles</span></code>)
+et contenant tous les documents partageant la même valeur pour la clé de regroupement.</p>
+<p>L’extrait de la collection obtenu avec <code class="docutils literal notranslate"><span class="pre">illustrate</span></code> montre le cas de l’année 1990.</p>
+<p>À la syntaxe près, nous sommes dans le domaine familier des documents semi-structurés.
+Si on compare avec JSON par exemple, les objets sont notés par des parenthèses et
+pas par des accolades, et les ensembles par des accolades et pas par des crochets.
+Une différence plus essentielle avec une approche semi-structurée de type JSON ou XML
+est que le schéma est <em>distinct</em> de la représentation des
+documents: à partir d’une collection dont le schéma est connu, l’interpréteur de Pig
+infère le schéma des collections calculées par les opérateurs. Il n’est donc pas nécessaire
+d’inclure le schéma avec le contenu de chaque document.</p>
+<p>Le modèle de données de Pig comprend trois types de valeurs:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Les <em>valeurs atomiques</em> (chaînes de caractères, entiers, etc.).</p></li>
+<li><p>Les <em>collections</em> (<em>bags</em> pour Pig) dont les valeurs peuvent être hétérogènes.</p></li>
+<li><p>Les  <em>documents</em> (<em>tuples</em> pour Pig), équivalent des objets en JSON: des ensembles de paires (clé, valeur).</p></li>
+</ul>
+</div></blockquote>
+<p>On peut construire des structures arbitrairement complexes par imbrication de ces différents types.
+Comme dans tout modèle semi-structuré, il existe très peu de contraintes
+sur le contenu et la structure. Dans une même collection peuvent ainsi
+cohabiter des documents de structure très différente.</p>
+<p><strong>Application de fonctions</strong>. Un des besoins récurrents dans les chaînes de traitement est
+d’appliquer des fonctions pour annoter, restructurer ou enrichir le contenu des documents passant
+dans le flux. Ici, la collection finale <code class="docutils literal notranslate"><span class="pre">avg_nb</span></code> est obtenue en appliquant une fonction standard <code class="docutils literal notranslate"><span class="pre">count()</span></code>.
+Dans le cas général, on applique des fonctions applicatives intégrées au contexte d’exécution Pig:
+<em>ces fonctions utilisateurs (User Defined Functions ou UDF) sont le moyen privilégié de combiner
+les opérateurs d’un langage comme Pig avec une application effectuant des traitements sur les documents</em>.
+L’opérateur <code class="docutils literal notranslate"><span class="pre">foreach/generate</span></code> permet cette combinaison.</p>
+</div>
+<div class="section" id="les-operateurs">
+<h3>Les opérateurs<a class="headerlink" href="#les-operateurs" title="Lien permanent vers ce titre">¶</a></h3>
+<p>La table ci-dessous donne la liste des principaux
+opérateurs du langage Pig. Tous s’appliquent à une ou deux collections
+en entrée et produisent une collection en sortie.</p>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 67%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Opérateur</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">foreach</span></code></p></td>
+<td><p>Applique une expression à chaque document de la collection</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">filter</span></code></p></td>
+<td><p>Filtre les documents de la collection</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">order</span></code></p></td>
+<td><p>Ordonne la collection</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">distinct</span></code></p></td>
+<td><p>Elimine lse doublons</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cogroup</span></code></p></td>
+<td><p>Associe deux groupes partageant une clé</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cross</span></code></p></td>
+<td><p>Produit cartésien de deux collections</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">join</span></code></p></td>
+<td><p>Jointure de deux collections</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">union</span></code></p></td>
+<td><p>Union de deux collections</p></td>
+</tr>
+</tbody>
+</table>
+<p>Voici quelques exemples pour illustrer les aspects essentiels du langage,
+basés sur le fichier <a class="reference external" href="http://b3d.bdpedia.fr/files/webdam-books.txt">http://b3d.bdpedia.fr/files/webdam-books.txt</a>. Chaque
+ligne contient l’année de parution d’un livre, le titre et un auteur.</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="mf">1995</span>        <span class="nx">Foundations</span> <span class="k">of</span> <span class="nx">Databases</span> <span class="nx">Abiteboul</span>
+<span class="mf">1995</span>        <span class="nx">Foundations</span> <span class="k">of</span> <span class="nx">Databases</span> <span class="nx">Hull</span>
+<span class="mf">1995</span>        <span class="nx">Foundations</span> <span class="k">of</span> <span class="nx">Databases</span> <span class="nx">Vianu</span>
+<span class="mf">2012</span>        <span class="nx">Web</span> <span class="nx">Data</span> <span class="nx">Management</span> <span class="nx">Abiteboul</span>
+<span class="mf">2012</span>    <span class="nx">Web</span> <span class="nx">Data</span> <span class="nx">Management</span> <span class="nx">Manolescu</span>
+<span class="mf">2012</span>        <span class="nx">Web</span> <span class="nx">Data</span> <span class="nx">Management</span> <span class="nx">Rigaux</span>
+<span class="mf">2012</span>        <span class="nx">Web</span> <span class="nx">Data</span> <span class="nx">Management</span> <span class="nx">Rousset</span>
+<span class="mf">2012</span>        <span class="nx">Web</span> <span class="nx">Data</span> <span class="nx">Management</span> <span class="nx">Senellart</span>
+</pre></div>
+</div>
+<p>Le premier exemple ci-dessous montre une combinaison de <code class="docutils literal notranslate"><span class="pre">group</span></code>
+et de <code class="docutils literal notranslate"><span class="pre">foreach</span></code> permettant d’obtenir une collection avec un document
+par livre et un ensemble imbriqué contenant la liste des auteurs.</p>
+<div class="highlight-pig notranslate"><div class="highlight"><pre><span></span><span class="c">-- Chargement de la collection</span>
+books <span class="o">=</span> <span class="k">load</span> <span class="s">&#39;webdam-books.txt&#39;</span>
+    <span class="k">as</span> <span class="p">(</span>year: <span class="kt">int</span><span class="o">,</span> title: <span class="kt">chararray</span><span class="o">,</span> author: <span class="kt">chararray</span><span class="p">)</span> <span class="p">;</span>
+group_auth <span class="o">=</span> <span class="k">group</span> books <span class="k">by</span> title;
+authors <span class="o">=</span> <span class="k">foreach</span> group_auth <span class="k">generate</span> <span class="k">group</span><span class="o">,</span> books.author;
+<span class="k">dump</span> authors;
+</pre></div>
+</div>
+<p>L’opérateur <code class="docutils literal notranslate"><span class="pre">foreach</span></code>  applique une expression aux attributs de chaque
+document. Encore une fois, <em>Pig est conçu pour que ces expressions puissent contenir
+des fonctions externes</em>, ou UDF (<em>User Defined Functions</em>), ce qui permet d’appliquer n’importe quel type
+d’extraction ou d’annotation.</p>
+<p>L’ensemble résultat est le suivant:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="nx">Foundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span>
+   <span class="p">{(</span><span class="nx">Abiteboul</span><span class="p">),(</span><span class="nx">Hull</span><span class="p">),(</span><span class="nx">Vianu</span><span class="p">)})</span>
+<span class="p">(</span><span class="nx">Web</span> <span class="nx">Data</span> <span class="nx">Management</span><span class="p">,</span>
+   <span class="p">{(</span><span class="nx">Abiteboul</span><span class="p">),(</span><span class="nx">Manolescu</span><span class="p">),(</span><span class="nx">Rigaux</span><span class="p">),(</span><span class="nx">Rousset</span><span class="p">),(</span><span class="nx">Senellart</span><span class="p">)})</span>
+</pre></div>
+</div>
+<p>L’opérateur <code class="docutils literal notranslate"><span class="pre">flatten</span></code> sert à « aplatir » un ensemble imbriqué.</p>
+<div class="highlight-pig notranslate"><div class="highlight"><pre><span></span><span class="c">-- On prend la collection group_auth et on l&#39;aplatit</span>
+flattened <span class="o">=</span> <span class="k">foreach</span> group_auth <span class="k">generate</span> <span class="k">group</span> <span class="o">,</span><span class="k">flatten</span><span class="p">(</span>books.author<span class="p">);</span>
+</pre></div>
+</div>
+<p>On obtient:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="nx">Foundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Abiteboul</span><span class="p">)</span>
+<span class="p">(</span><span class="nx">Foundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Hull</span><span class="p">)</span>
+<span class="p">(</span><span class="nx">Foundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Vianu</span><span class="p">)</span>
+<span class="p">(</span><span class="nx">Web</span> <span class="nx">Data</span> <span class="nx">Management</span><span class="p">,</span><span class="nx">Abiteboul</span><span class="p">)</span>
+<span class="p">(</span><span class="nx">Web</span> <span class="nx">Data</span> <span class="nx">Management</span><span class="p">,</span><span class="nx">Manolescu</span><span class="p">)</span>
+<span class="p">(</span><span class="nx">Web</span> <span class="nx">Data</span> <span class="nx">Management</span><span class="p">,</span><span class="nx">Rigaux</span><span class="p">)</span>
+<span class="p">(</span><span class="nx">Web</span> <span class="nx">Data</span> <span class="nx">Management</span><span class="p">,</span><span class="nx">Rousset</span><span class="p">)</span>
+<span class="p">(</span><span class="nx">Web</span> <span class="nx">Data</span> <span class="nx">Management</span><span class="p">,</span><span class="nx">Senellart</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>L’opérateur <code class="docutils literal notranslate"><span class="pre">cogroup</span></code> prend deux collections en entrée, crée pour chacune
+des groupes partageant une même valeur de clé, et associe les groupes
+des deux collections qui partagent la même clé. C’est un peu compliqué en apparence;
+regardons la  <a class="reference internal" href="#pig-cogroup"><span class="std std-numref">Fig. 95</span></a>. Nous avons une collection A avec
+des documents <em>d</em> dont la clé de regroupement vaut a ou b, et une collection
+B avec des documents <em>d”</em>. Le <code class="docutils literal notranslate"><span class="pre">cogroup</span></code> commence par rassembler,
+séparément dans A et B, les documents partageant la même valeur de clé.
+Puis, dans une seconde phase, les groupes de documents provenant des deux
+collections sont assemblés, toujours sur la valeur partagée de la clé.</p>
+<div class="figure align-center" id="id11">
+<span id="pig-cogroup"></span><a class="reference internal image-reference" href="_images/pig-cogroup.png"><img alt="_images/pig-cogroup.png" src="_images/pig-cogroup.png" style="width: 100%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 95 </span><span class="caption-text">L’opérateur <code class="docutils literal notranslate"><span class="pre">cogroup</span></code> de Pig.</span><a class="headerlink" href="#id11" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<p>Prenons une seconde
+collection, contenant des éditeurs (fichier <a class="reference external" href="http://b3d.bdpedia.fr/files/webdam-publishers.txt">http://b3d.bdpedia.fr/files/webdam-publishers.txt</a>):</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">Fundations</span> <span class="k">of</span> <span class="nx">Databases</span>     <span class="nx">Addison</span><span class="o">-</span><span class="nx">Wesley</span>  <span class="nx">USA</span>
+<span class="nx">Fundations</span> <span class="k">of</span> <span class="nx">Databases</span>     <span class="nx">Vuibert</span> <span class="nx">France</span>
+<span class="nx">Web</span> <span class="nx">Data</span> <span class="nx">Management</span>         <span class="nx">Cambridge</span> <span class="nx">University</span> <span class="nx">Press</span>      <span class="nx">USA</span>
+</pre></div>
+</div>
+<p>On peut associer les auteurs et les éditeurs de chaque livre
+de la manière suivante.</p>
+<div class="highlight-pig notranslate"><div class="highlight"><pre><span></span><span class="c">--- Chargement de la collection</span>
+publishers <span class="o">=</span> <span class="k">load</span> <span class="s">&#39;webdam-publishers.txt&#39;</span>
+  <span class="k">as</span> <span class="p">(</span>title: <span class="kt">chararray</span><span class="o">,</span> publisher: <span class="kt">chararray</span><span class="p">)</span> <span class="p">;</span>
+cogrouped <span class="o">=</span> <span class="nb">cogroup</span> flattened <span class="k">by</span> <span class="k">group</span><span class="o">,</span> publishers <span class="k">by</span> title;
+</pre></div>
+</div>
+<p>Le résultat (restreint au premier livre) est le suivant.</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="nx">Foundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span>
+  <span class="p">{</span> <span class="p">(</span><span class="nx">Foundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Abiteboul</span><span class="p">),</span>
+    <span class="p">(</span><span class="nx">Foundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Hull</span><span class="p">),</span>
+    <span class="p">(</span><span class="nx">Foundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Vianu</span><span class="p">)</span>
+  <span class="p">},</span>
+  <span class="p">{(</span><span class="nx">Foundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Addison</span><span class="o">-</span><span class="nx">Wesley</span><span class="p">),</span>
+   <span class="p">(</span><span class="nx">Foundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Vuibert</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Je vous laisse exécuter la commande par vous-même pour prendre connaissance du document complet.
+Il contient un document pour chaque livre avec trois attributs.
+Le premier est la valeur de la clé de regroupement (le titre du livre). Le
+second est l’ensemble des documents de la première collection
+correspondant à la clé, le troisième l’ensemble des documents de la
+seconde collection correspondant à la clé.</p>
+<p>Il s’agit d’une forme de jointure qui regroupe, en un seul document, tous
+les documents des deux collections en entrée qui peuvent être appariés. On peut
+aussi exprimer la jointure ainsi:</p>
+<div class="highlight-pig notranslate"><div class="highlight"><pre><span></span><span class="c">-- Jointure entre la collection &#39;flattened&#39; et  &#39;publishers&#39;</span>
+joined <span class="o">=</span> <span class="k">join</span> flattened <span class="k">by</span> <span class="k">group</span><span class="o">,</span> publishers <span class="k">by</span> title;
+</pre></div>
+</div>
+<p>On obtient cependant une structure différente de celle du <code class="docutils literal notranslate"><span class="pre">cogroup</span></code>, tout
+à fait semblable à celle d’une jointure avec SQL, dans laquelle les informations
+ont été « aplaties ».</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="nx">Foundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Abiteboul</span><span class="p">,</span><span class="nx">Fundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Addison</span><span class="o">-</span><span class="nx">Wesley</span><span class="p">)</span>
+<span class="p">(</span><span class="nx">Foundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Abiteboul</span><span class="p">,</span><span class="nx">Fundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Vuibert</span><span class="p">)</span>
+<span class="p">(</span><span class="nx">Foundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Hull</span><span class="p">,</span><span class="nx">Fundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Addison</span><span class="o">-</span><span class="nx">Wesley</span><span class="p">)</span>
+<span class="p">(</span><span class="nx">Foundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Hull</span><span class="p">,</span><span class="nx">Fundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Vuibert</span><span class="p">)</span>
+<span class="p">(</span><span class="nx">Foundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Vianu</span><span class="p">,</span><span class="nx">Fundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Addison</span><span class="o">-</span><span class="nx">Wesley</span><span class="p">)</span>
+<span class="p">(</span><span class="nx">Foundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Vianu</span><span class="p">,</span><span class="nx">Fundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Vuibert</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>La comparaison entre <code class="docutils literal notranslate"><span class="pre">cogroup</span></code> et <code class="docutils literal notranslate"><span class="pre">join</span></code> montre
+la flexibilité apportée par un modèle semi-structuré
+et sa capacité à représenter des ensembles imbriqués. Une jointure
+relationnelle doit produire des tuples « plats », sans imbrication, alors
+que le <code class="docutils literal notranslate"><span class="pre">cogroup</span></code> autorise la production d’un état intermédiaire
+où toutes les données liées sont associées dans un même document,
+ce qui peut être très utile dans un contexte analytique.</p>
+<p>Voici un dernier exemple montrant comment associer à chaque
+livre le nombre de ses auteurs.</p>
+<div class="highlight-pig notranslate"><div class="highlight"><pre><span></span>books <span class="o">=</span> <span class="k">load</span> <span class="s">&#39;webdam-books.txt&#39;</span>
+    <span class="k">as</span> <span class="p">(</span>year: <span class="kt">int</span><span class="o">,</span> title: <span class="kt">chararray</span><span class="o">,</span> author: <span class="kt">chararray</span><span class="p">)</span> <span class="p">;</span>
+group_auth <span class="o">=</span> <span class="k">group</span> books <span class="k">by</span> title;
+authors <span class="o">=</span> <span class="k">foreach</span> group_auth <span class="k">generate</span> <span class="k">group</span><span class="o">,</span> <span class="nb">COUNT</span><span class="p">(</span>books.author<span class="p">);</span>
+<span class="k">dump</span> authors;
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="exercices">
+<h2>Exercices<a class="headerlink" href="#exercices" title="Lien permanent vers ce titre">¶</a></h2>
+<p>Reportez-vous également au chapitre  <a class="reference internal" href="pigtp.html#chap-pigtp"><span class="std std-ref">Pig : Travaux pratiques</span></a> pour un ensemble d’exercices
+à faire sur machine.</p>
+<div class="admonition-exercice-ex-calcdist-1-mapreduce-en-distribue-avec-mongodb admonition" id="ex-calcdist-1">
+<p class="admonition-title">Exercice  <a class="reference internal" href="#ex-calcdist-1">Ex-CalcDist-1</a>: MapReduce en distribué avec MongoDB</p>
+<p>Vous devez avoir implanté un compteur de mots avec MongoDB dans la chapitre
+<a class="reference internal" href="bddoc.html#chap-bddoc"><span class="std std-ref">Interrogation de bases NoSQL</span></a>. Vous devriez également avoir engendré une collection volumineuse
+et distribuée grâce au générateur de données ipsum (cf. chapitre <a class="reference internal" href="sharding.html#chap-sharding"><span class="std std-ref">Systèmes NoSQL: le partitionnement</span></a>). Il
+ne reste plus qu’à faire l’essai: lancer, en vous connectant au routeur <code class="docutils literal notranslate"><span class="pre">mongos</span></code>, le
+calcul MapReduce dans MongoDB. Ce calculer devrait insérer le résultat dans une collection
+partitionnée présente sur les différents serveurs. À vous de jouer.</p>
+</div>
+<div class="admonition-exercice-ex-calcdist-2-un-grep-en-mapreduce admonition" id="ex-calcdist-2">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-calcdist-2">Ex-CalcDist-2</a>: un <code class="docutils literal notranslate"><span class="pre">grep</span></code>, en MapReduce</p>
+<p>On veut scanner des millards de fichiers et afficher tous ceux qui contiennent
+une chaîne de caractères <em>c</em>. Donnez la solution en MapReduce, en utilisant
+le formalisme de votre choix (de préférence un pseudo-code un peu structuré quand même).</p>
+</div>
+<div class="admonition-exercice-ex-calcdist-3-un-rollup-en-mapreduce admonition" id="ex-calcdist-3">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-calcdist-3">Ex-CalcDist-3</a>: un <code class="docutils literal notranslate"><span class="pre">rollup</span></code>, en MapReduce</p>
+<p>Une grande surface enregistre tous ses tickets de caisse, indiquant
+les produits vendus, le prix et la date, ainsi que le client
+si ce dernier a une carte de fidélité.</p>
+<p>Les produits sont classés selon une taxonomie comme illustré sur la  <a class="reference internal" href="#taxonomie"><span class="std std-numref">Fig. 96</span></a>,
+avec des niveaux de précision.
+Pour chaque produit on sait à quelle catégorie précise de N1 il appartient (par exemple, <code class="docutils literal notranslate"><span class="pre">chaussure</span></code>);
+pour chaque catégorie on connaît son parent.</p>
+<div class="figure align-center" id="id12">
+<span id="taxonomie"></span><a class="reference internal image-reference" href="_images/taxonomie.png"><img alt="_images/taxonomie.png" src="_images/taxonomie.png" style="width: 60%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 96 </span><span class="caption-text">Les produits et leur classement.</span><a class="headerlink" href="#id12" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<p>Supposons que la collection <code class="docutils literal notranslate"><span class="pre">Tickets</span></code> contienne
+des documents de la forme (idTicket, idClient, idProduit, catégorie, date, prix).
+Comment obtenir en MapReduce le total des ventes à une date <em>d</em>, pour le niveau N2?
+On fait donc une agrégation de <code class="docutils literal notranslate"><span class="pre">Tickets</span></code> au niveau supérieur de la
+taxonomie.</p>
+</div>
+<div class="admonition-exercice-ex-calcdist-4-mapreduce-calcul-distribue-pour-les-nuls admonition" id="ex-calcdist-4">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-calcdist-4">Ex-CalcDist-4</a>: MapReduce, calcul distribué pour les nuls</p>
+<p>MapReduce est souvent une solution brutale et inefficace (mais facile à implanter) pour
+des problèmes qui ont des solutions bien plus élégantes.</p>
+<p>Par exemple: vous disposez d’une collection distribuée de très grande taille, disons
+des utilisateurs. Voulez calculer la valeur médiane d’une variable, l’âge, ou
+le solde du compte, ou n’importe quoi.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Quelle est la solution MapReduce?</p></li>
+<li><p>Cherchez une solution qui implique beaucoup moins de transfert de données et de calcul.
+Regardez par exemple les suggestions proposées ici:
+<a class="reference external" href="https://www.quora.com/What-is-the-distributed-algorithm-to-determine-the-median-of-arrays-of-integers-located-on-different-computers">https://www.quora.com/What-is-the-distributed-algorithm-to-determine-the-median-of-arrays-of-integers-located-on-different-computers</a></p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="admonition-exercice-ex-calcdist-5-algebre-lineaire-distribuee admonition" id="ex-calcdist-5">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-calcdist-5">Ex-CalcDist-5</a>:  algèbre linéaire distribuée</p>
+<p>Nous disposons le calcul d’algèbre linéaire du chapitre <a href="#id15"><span class="problematic" id="id16">`chap-mapreduce`_</span></a>. On a donc
+une matrice <em>M</em> de dimension <span class="math notranslate nohighlight">\(N \times N\)</span>
+représentant les liens entres les <span class="math notranslate nohighlight">\(N\)</span>  pages du Web, chaque lien étant
+qualifié par un facteur d’importance (ou « poids »). La matrice est représentée par une
+collection math:<cite>C</cite>  dans laquelle chaque document est de la forme
+{« id »: &amp;23, « lig »: <em>i</em>, « col »: <em>j</em>, « poids »: <span class="math notranslate nohighlight">\(m_{ij}\)</span>}, et
+représente un lien entre la page <span class="math notranslate nohighlight">\(P_i\)</span> et la page <span class="math notranslate nohighlight">\(P_j\)</span> de poids <span class="math notranslate nohighlight">\(m_{ij}\)</span></p>
+<p>Vous avez déjà vu le calcul de la norme des lignes de la matrice, et celui du produit
+de la matrice par un vecteur <span class="math notranslate nohighlight">\(V\)</span>. Prenons en compte maintenant la taille et la distribution.</p>
+<p><strong>Questions</strong></p>
+<blockquote>
+<div><ul>
+<li><p>On estime qu’il y a environ <span class="math notranslate nohighlight">\(N=10^{10}\)</span> pages sur le Web, avec 15 liens par
+page en moyenne. Quelle est la taille de la collection <span class="math notranslate nohighlight">\(C\)</span>, en TO,  en supposant que chaque document
+a une taille de 16 octets</p></li>
+<li><p>Nos serveurs ont 2 disques de 1 TO chacun et chaque document est répliqué  2 fois (donc trois versions en tout).
+Combien affectez-vous de serveurs au système de stokage?</p></li>
+<li><p>Maintenant, on suppose que <span class="math notranslate nohighlight">\(V\)</span> ne tient plus dans la mémoire RAM d’une seule machine. Proposez
+une méthode de partitionnement de la collection <span class="math notranslate nohighlight">\(C\)</span> et de <span class="math notranslate nohighlight">\(V\)</span> qui permette d’effectuer
+le calcul distribué de <span class="math notranslate nohighlight">\(M \times V\)</span> avec MapReduce sans jamais avoir à lire
+le vecteur sur le disque.</p>
+<p>Donnez le critère de partitionnement et la technique (par intervalle ou par hachage).</p>
+</li>
+<li><p>Supposons qu’on puisse stocker <em>au plus</em> deux (2) coordonnées d’un vecteur
+dans la mémoire d’un serveur. Inspirez-vous de la <a class="reference internal" href="#mr-execution-ex"><span class="std std-numref">Fig. 90</span></a>
+pour montrer le déroulement du traitement distribué précédent en choisissant le nombre minimal de serveurs
+permettant de conserver le vecteur en mémoire RAM.</p>
+<p>Pour illustrer le calcul, prenez la matrice <span class="math notranslate nohighlight">\(4\times4\)</span> ci-dessous, et le vecteur <span class="math notranslate nohighlight">\(V = [4,3,2,1]\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}M= \left[ {\begin{array}{cccc}
+ 1 &amp; 2  &amp; 3 &amp; 4 \\
+ 7 &amp; 6 &amp; 5 &amp; 4 \\
+ 6 &amp; 7  &amp; 8 &amp; 9 \\
+  3 &amp; 3  &amp; 3 &amp; 3 \\
+ \end{array} } \right]\end{split}\]</div>
+</li>
+</ul>
+<blockquote>
+<div><ul class="simple">
+<li><p>Expliquez pour finir comment calculer  la similarité cosinus
+entre <span class="math notranslate nohighlight">\(V\)</span> et les lignes <span class="math notranslate nohighlight">\(L_i\)</span> de la matrice.</p></li>
+</ul>
+</div></blockquote>
+</div></blockquote>
+</div>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+            <div>        
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Licence Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">
+  Ce cours</span> de <a xmlns:cc="http://creativecommons.org/ns#" href="http://www.bdpedia.fr" property="cc:attributionName" rel="cc:attributionURL">Philippe Rigaux</a> est mis à disposition selon les termes de la <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">licence Creative Commons Attribution - Pas d’Utilisation Commerciale - Partage dans les Mêmes Conditions 4.0 International</a>.
+</div>
+        <hr/>
+          <h3>Table Of Contents</h3>
+          <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docker.html">Préliminaires: Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docstruct.html">Modélisation de bases NoSQL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bddoc.html">Interrogation de bases NoSQL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mapreduce.html">MapReduce, premiers pas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cassandra_tp.html">Cassandra - Travaux Pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mongodb_tp.html">MongoDB - Travaux Pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ri-intro.html">Introduction à la recherche d’information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ri-indexation.html">Recherche d’information : l’indexation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ri-ranking.html">Recherche avec classement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ri-tpelasticdsl.html">Recherche d’information - TP ElasticSearch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ri-tpranking.html">Recherche d’information - TP ElasticSearch : pertinence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cloud.html">Le <em>cloud</em>, une nouvelle machine de calcul</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replication.html">Systèmes NoSQL: la réplication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sharding.html">Systèmes NoSQL: le partitionnement</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Calcul distribué: Hadoop et MapReduce</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#s1-mapreduce">S1: MapReduce</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#le-principe-de-localite-des-donnees">Le principe de localité des données</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#execution-distribuee-d-un-traitement-mapreduce">Exécution distribuée d’un traitement MapReduce</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#la-reprise-sur-panne">La reprise sur panne</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#panne-en-phase-de-reduce">Panne en phase de Reduce</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#panne-en-phase-map">Panne en phase Map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#et-le-maitre">Et le maître?</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#quiz">Quiz</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#s2-une-breve-introduction-a-hadoop">S2: Une brève introduction à Hadoop</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#systemes-de-fichiers-distribues">Systèmes de fichiers distribués</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#architecture-hdfs">Architecture HDFS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mise-en-oeuvre-avec-hadoop">Mise en œuvre avec Hadoop</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#installation-et-configuration">Installation et configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#premieres-manipulations">Premières manipulations</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#mapreduce-le-calcul-distribue-avec-hadoop">MapReduce, le calcul distribué avec Hadoop</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id1">Installation et configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#notre-programme-mapreduce">Notre programme MapReduce</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#compilation-execution">Compilation, exécution</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Quiz</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#s3-langages-de-traitement-pig">S3: langages de traitement: Pig</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#une-session-illustrative">Une session illustrative</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#les-operateurs">Les opérateurs</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#exercices">Exercices</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="spark-batch.html">Traitement de données massives avec Apache Spark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="flink-streaming.html">Traitement de flux massifs avec Apache Flink</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pigtp.html">Pig : Travaux pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="projet.html">Projets NFE204</a></li>
+<li class="toctree-l1"><a class="reference internal" href="annales.html">Annales des examens</a></li>
+</ul>
+
+          <h3 style="margin-top: 1.5em;">Recherche</h3>
+          <form class="search" action="search.html" method="get">
+            <input type="text" name="q" />
+            <input type="submit" value="Go" />
+            <input type="hidden" name="check_keywords" value="yes" />
+            <input type="hidden" name="area" value="default" />
+          </form>
+          <p class="searchtip" style="font-size: 90%">
+      Saisissez un ou plusieurs mots-clés.
+          </p>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <a href="sharding.html" title="Systèmes NoSQL: le partitionnement"
+             >précédent</a> |
+          <a href="spark-batch.html" title="Traitement de données massives avec Apache Spark"
+             >suivant</a> |
+          <a href="genindex.html" title="Index général"
+             >index</a>
+        </div>
+
+        <div class="right">
+        <a href="index.html">Calcul distribué: Hadoop et MapReduce</a><br/>
+          
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2014-2022, Nicolas Travers, Raphaël Fournier S&#39;niehotta et Philippe Rigaux.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>

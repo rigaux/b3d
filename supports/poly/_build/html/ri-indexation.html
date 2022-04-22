@@ -1,0 +1,924 @@
+
+<!DOCTYPE html>
+
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recherche d’information : l’indexation &#8212; Bases de données documentaires et distribuées v&lt;release&gt; - Cours CNAM NFE204</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/agogo.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/translations.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Recherche" href="search.html" />
+    <link rel="next" title="Recherche avec classement" href="ri-ranking.html" />
+    <link rel="prev" title="Introduction à la recherche d’information" href="ri-intro.html" /> 
+  </head><body>
+    <div class="header-wrapper">
+      <div class="header">
+        <div class="headertitle"><a
+          href="index.html">Recherche d’information : l’indexation</a></div>
+        <div class="rel">
+          <a href="ri-intro.html" title="Introduction à la recherche d’information"
+             accesskey="P">précédent</a><font color="white"> |</font>
+          <a href="ri-ranking.html" title="Recherche avec classement"
+             accesskey="N">suivant</a><font color="white"> |</font>
+          <a href="genindex.html" title="Index général"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+<script type="text/javascript" src="_static/dynsite.js"></script>
+
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="recherche-d-information-l-indexation">
+<span id="chap-indexation"></span><h1>Recherche d’information : l’indexation<a class="headerlink" href="#recherche-d-information-l-indexation" title="Lien permanent vers ce titre">¶</a></h1>
+<p>Dans ce chapitre, nous allons continuer notre découverte des fondements
+théoriques de la recherche d’information, avec <strong>l’indexation</strong>. Il s’agit d’une
+étape que vous avez réalisée à la fin du chapitre précédent, plus ou moins sans
+le savoir (puisqu’elle était automatisée), lorsque que vous avez <em>importé</em> des
+documents dans ElasticSearch. C’est dans cette étape que se décide et s’affine
+la transformation du texte des documents, en vue de remplir les index inversés
+vus au chapitre précédent. L’indexation permet d’améliorer les performances du
+moteur de recherche et la satisfaction des besoins des utilisateurs.</p>
+<p>Nous allons aborder cette étape d’un point de vue théorique mais aussi d’un
+point de vue pratique, toujours avec Elasticsearch.</p>
+<div class="section" id="s1-l-analyse-de-documents">
+<h2>S1: L’analyse de documents<a class="headerlink" href="#s1-l-analyse-de-documents" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="admonition-supports-complementaires admonition">
+<p class="admonition-title">Supports complémentaires:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="http://b3d.bdpedia.fr/files/slri-indexation-analyse.pdf">Présentation: Recherche d’information - analyse de documents</a></p></li>
+<li><p><a class="reference external" href="https://mediaserver.cnam.fr/permalink/v125f5947d4batpxkr93/">Vidéo : Pré-traitement des documents  textuels</a></p></li>
+</ul>
+</div>
+<p>En présence d’un document textuel un tant soit peu complexe, on ne peut pas se
+contenter de découper plus ou moins arbitrairement en mots sans se poser
+quelques questions et appliquer un pré-traitement du texte. Les effets de ce
+pré-traitement doivent être compris et maîtrisés: ils influent directement sur
+la précision et le rappel. Quelques exemples simples pour s’en convaincre:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>si on cherche les documents contenant le mot « loup », on s’attend généralement
+à trouver ceux contenant « loups », « Loup », « louve »; il faut donc, quand on
+conserve un document dans Elasticsearch, qu’il soit en mesure de mettre ces
+différentes formes dans <em>le même index inversé</em>;</p></li>
+<li><p>si on ne normalise pas (on conserve les majuscules et les pluriels), on va dégrader
+le rappel, puisqu’un utilisateur saisissant le mot-clef « loup » ne trouvera
+pas les documents dans lesquels ce terme apparaît <em>seulement</em> sous la forme « Loup » ou « loups »;</p></li>
+<li><p>on le comprend immédiatement avec le cas de « loup / louve », il faut une
+connaissance experte de la langue pour décider que « louve » et « loup » doivent
+être associés, ce qui requiert une transformation qui dépend de la langue et
+nécessite une analyse approfondie du contenu;</p></li>
+<li><p>inversement, si on normalise (retrait des accents, par exemple) « cote »,
+« côte », « côté », on va unifier des mots dont le sens est différent, et on va
+diminuer la précision.</p></li>
+</ul>
+</div></blockquote>
+<p>En fonction des caractéristiques des documents traités, des utilisateurs de
+notre système de recherche, il faudra trouver un bon équilibre, aucune solution
+n’étant parfaite. C’est de l’art et du réglage…</p>
+<p>L’analyse se compose de plusieurs phases:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><em>Tokenization</em>: découpage du texte en « termes ».</p></li>
+<li><p><em>Normalisation</em>: identification de toutes les variantes d’écritures d’un
+même terme et choix d’une règle de normalisation (que faire des majuscules? acronymes? apostrophes? accents?).</p></li>
+<li><p><em>Stemming</em> (« racinisation »): rendre la racine des mots pour éviter le biais des
+variations autour d’un même sens (auditer, auditeur, audition, etc.)</p></li>
+<li><p><em>Stop words</em> (« mots vides »), comment éliminer les mots très courants qui ne rendent
+pas compte de la signification propre du document?</p></li>
+</ul>
+</div></blockquote>
+<p>Ce qui suit est une brève introduction, essentiellement destinée à comprendre
+les outils prêts à l’emploi que nous utiliserons ensuite. Remarquons en
+particulier que les étapes ci-dessus sont parfois décomposées en sous-étapes
+plus fines avec des algorithmes spécifiques (par exemple, un pour les accents,
+un autre pour les majuscules). L’ordre que nous donnons ci-dessus est un exemple,
+il peut y avoir de légères variations. Enfin, notez bien que <strong>le texte
+transformé dans une étape sert de texte d’entrée à la transformation suivante</strong>
+(nous y reviendrons dans la partie pratique).</p>
+<div class="section" id="tokenisation-et-normalisation">
+<h3>Tokenisation et normalisation<a class="headerlink" href="#tokenisation-et-normalisation" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Un <em>tokenizer</em> prend en entrée un texte (une chaîne de caractères) et produit
+une séquence de <em>tokens</em>. Il effectue donc un traitement purement lexical,
+consistant typiquement à éliminer les espaces blancs, la ponctuation, les
+liaisons, etc., et à identifier les « mots ». Des transformations peuvent
+également intervenir (suppression des accents par exemple, ou normalisation des
+acronymes - U.S.A. devient USA).</p>
+<p>La tokenization est très fortement dépendante de la langue. La première chose à
+faire est d’identifier cette dernière. En première approche on peut examiner le
+jeu de caractères (<a class="reference internal" href="#characters"><span class="std std-numref">Fig. 39</span></a>).</p>
+<div class="figure align-center" id="id2">
+<span id="characters"></span><a class="reference internal image-reference" href="_images/characters.png"><img alt="_images/characters.png" src="_images/characters.png" style="width: 10%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 39 </span><span class="caption-text">Quelques jeux de caractères … exotiques</span><a class="headerlink" href="#id2" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<p>Il s’agit respectivement du: Coréen, Japonais, Maldives, Malte, Islandais.
+Ce n’est évidemment pas suffisant pour distinguer des langues utilisant le
+même jeu de caractères. Une extension simple est d’identifier
+les <em>séquences de caractères fréquents</em>, (<em>n</em>-grams).
+Des bibliothèques fonctionnelles font ça très bien (e.g., Tika, <a class="reference external" href="http://tika.apache.org">http://tika.apache.org</a>)</p>
+<p>Une fois la langue identifiée, on divise le texte en <em>tokens</em> (« mots »).
+Ce n’est pas du tout aussi facile qu’on le dirait!</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Dans certaines langues (Chinois, Japonais), les mots  <em>ne sont pas</em> séparés par des espaces.</p></li>
+<li><p>Certaines langues s’écrivent de droite à gauche, de haut en bas.</p></li>
+<li><p>Que faire (et de manière <em>cohérente</em>) des acronymes, élisions, nombres, unités, URL, email, etc.</p></li>
+<li><p>Que faire des <em>mots composés</em>: les séparer en <em>tokens</em> ou les regrouper en un seul? Par exemple:</p>
+<ul>
+<li><p>Anglais: <em>hostname</em>, <em>host-name</em> et <em>host name</em>, …</p></li>
+<li><p>Français: Le Mans, aujourd’hui, pomme de terre, …</p></li>
+<li><p>Allemand: <em>Levensversicherungsgesellschaftsangestellter</em> (employé d’une société d’assurance vie).</p></li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+<p>Pour les majuscules et la ponctuation, une solution simple est de
+normaliser systématiquement (minuscules, pas de ponctuation). Ce qui
+donnerait le résultat suivant pour notre petit jeu de données.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(d_1\)</span>: <code class="docutils literal notranslate"><span class="pre">le</span> <span class="pre">loup</span> <span class="pre">est</span> <span class="pre">dans</span> <span class="pre">la</span> <span class="pre">bergerie</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_2\)</span>: <code class="docutils literal notranslate"><span class="pre">le</span> <span class="pre">loup</span> <span class="pre">et</span> <span class="pre">les</span> <span class="pre">trois</span> <span class="pre">petits</span> <span class="pre">cochons</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_3\)</span>: <code class="docutils literal notranslate"><span class="pre">les</span> <span class="pre">moutons</span> <span class="pre">sont</span> <span class="pre">dans</span> <span class="pre">la</span> <span class="pre">bergerie</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_4\)</span>:  <code class="docutils literal notranslate"><span class="pre">spider</span> <span class="pre">cochon</span> <span class="pre">spider</span> <span class="pre">cochon</span> <span class="pre">il</span> <span class="pre">peut</span> <span class="pre">marcher</span> <span class="pre">au</span> <span class="pre">plafond</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_5\)</span>: <code class="docutils literal notranslate"><span class="pre">un</span> <span class="pre">loup</span> <span class="pre">a</span> <span class="pre">mangé</span> <span class="pre">un</span> <span class="pre">mouton</span> <span class="pre">les</span> <span class="pre">autres</span> <span class="pre">loups</span> <span class="pre">sont</span> <span class="pre">restés</span> <span class="pre">dans</span> <span class="pre">la</span> <span class="pre">bergerie</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_6\)</span>:  <code class="docutils literal notranslate"><span class="pre">il</span> <span class="pre">y</span> <span class="pre">a</span> <span class="pre">trois</span> <span class="pre">moutons</span> <span class="pre">dans</span> <span class="pre">le</span> <span class="pre">pré</span> <span class="pre">et</span> <span class="pre">un</span> <span class="pre">mouton</span> <span class="pre">dans</span> <span class="pre">la</span> <span class="pre">gueule</span> <span class="pre">du</span> <span class="pre">loup</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_7\)</span>: <code class="docutils literal notranslate"><span class="pre">le</span> <span class="pre">cochon</span> <span class="pre">est</span> <span class="pre">à</span> <span class="pre">12</span> <span class="pre">euros</span> <span class="pre">le</span> <span class="pre">kilo</span> <span class="pre">le</span> <span class="pre">mouton</span> <span class="pre">à</span>&#160; <span class="pre">10</span> <span class="pre">euros</span> <span class="pre">kilo</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_8\)</span>: <code class="docutils literal notranslate"><span class="pre">les</span> <span class="pre">trois</span> <span class="pre">petits</span> <span class="pre">loups</span> <span class="pre">et</span> <span class="pre">le</span> <span class="pre">grand</span> <span class="pre">méchant</span> <span class="pre">cochon</span></code></p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="stemming-racine-lemmatisation">
+<h3>Stemming (racine), lemmatisation<a class="headerlink" href="#stemming-racine-lemmatisation" title="Lien permanent vers ce titre">¶</a></h3>
+<p>La racinisation consiste à <em>confondre</em> toutes les formes d’un même mot, ou de
+mots apparentés, en une seule <em>racine</em>. Le  <em>stemming morphologique</em>
+retire les pluriels, marque de genre, conjugaisons, modes, etc.
+Le <em>stemming lexical</em> fond les termes proches lexicalement:
+« politique, politicien, police (?) » ou   « université, universel, univers (?) ».
+Ici, le choix influe clairement sur la précision et le rappel (plus d’unification
+favorise le rappel au détriment de la précision).</p>
+<p>La racinisation
+est très dépendante de la langue et peut nécessiter une analyse linguistique
+complexe.  En anglais, <em>geese</em> est le pluriel de <em>goose</em>, <em>mice</em> de <em>mouse</em>;
+les formes   masculin / féminin en français n’ont parfois rien à voir (« loup / louve »)
+mais aussi (« cheval / jument »: parle-t-on de la même chose?) Quelques
+exemples célèbres montrent les difficultés d’interprétation:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>« Les poules du couvent couvent »: où est le verbe, où est le substantif?</p></li>
+<li><p>« La petite brise la glace »:  idem.</p></li>
+</ul>
+</div></blockquote>
+<p>Voici un résultat possible de la racinisation pour nos documents.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(d_1\)</span>: <code class="docutils literal notranslate"><span class="pre">le</span> <span class="pre">loup</span> <span class="pre">etre</span> <span class="pre">dans</span> <span class="pre">la</span> <span class="pre">bergerie</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_2\)</span>: <code class="docutils literal notranslate"><span class="pre">le</span> <span class="pre">loup</span> <span class="pre">et</span> <span class="pre">les</span> <span class="pre">trois</span> <span class="pre">petit</span> <span class="pre">cochon</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_3\)</span>: <code class="docutils literal notranslate"><span class="pre">les</span> <span class="pre">mouton</span> <span class="pre">etre</span> <span class="pre">dans</span> <span class="pre">la</span> <span class="pre">bergerie</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_4\)</span>:  <code class="docutils literal notranslate"><span class="pre">spider</span> <span class="pre">cochon</span> <span class="pre">spider</span> <span class="pre">cochon</span> <span class="pre">il</span> <span class="pre">pouvoir</span> <span class="pre">marcher</span> <span class="pre">au</span> <span class="pre">plafond</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_5\)</span>: <code class="docutils literal notranslate"><span class="pre">un</span> <span class="pre">loup</span> <span class="pre">avoir</span> <span class="pre">manger</span> <span class="pre">un</span> <span class="pre">mouton</span> <span class="pre">les</span> <span class="pre">autre</span> <span class="pre">loup</span> <span class="pre">etre</span> <span class="pre">rester</span> <span class="pre">dans</span> <span class="pre">la</span> <span class="pre">bergerie</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_6\)</span>:  <code class="docutils literal notranslate"><span class="pre">il</span> <span class="pre">y</span> <span class="pre">avoir</span> <span class="pre">trois</span> <span class="pre">mouton</span> <span class="pre">dans</span> <span class="pre">le</span> <span class="pre">pre</span> <span class="pre">et</span> <span class="pre">un</span> <span class="pre">mouton</span> <span class="pre">dans</span> <span class="pre">la</span> <span class="pre">gueule</span> <span class="pre">du</span> <span class="pre">loup</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_7\)</span>: <code class="docutils literal notranslate"><span class="pre">le</span> <span class="pre">cochon</span> <span class="pre">etre</span> <span class="pre">a</span> <span class="pre">12</span> <span class="pre">euro</span> <span class="pre">le</span> <span class="pre">kilo</span> <span class="pre">le</span> <span class="pre">mouton</span> <span class="pre">a</span> <span class="pre">10</span> <span class="pre">euro</span> <span class="pre">kilo</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_8\)</span>: <code class="docutils literal notranslate"><span class="pre">les</span> <span class="pre">trois</span> <span class="pre">petit</span> <span class="pre">loup</span> <span class="pre">et</span> <span class="pre">le</span> <span class="pre">grand</span> <span class="pre">mechant</span> <span class="pre">cochon</span></code></p></li>
+</ul>
+</div></blockquote>
+<p>Il existe des procédures spécialisées pour chaque langue. En anglais,
+l’algorithme <a class="reference external" href="http://snowballstem.org/">Snowball</a> de Martin Porter fait
+référence et est toujours développé aujourd’hui. Il a connu des déclinaisons
+dans de nombreuses langues, dont le français, par un travail collaboratif.</p>
+</div>
+<div class="section" id="mots-vides-et-autres-filtres">
+<h3>Mots vides et autres filtres<a class="headerlink" href="#mots-vides-et-autres-filtres" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Un des filtres les plus courants consiste
+à retire les mots porteurs d’une information faible
+(« <em>stop words</em> » ou « mots vides »)  afin de limiter le stockage.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Les articles: <em>le</em>, <em>le</em>, <em>ce</em>, etc.</p></li>
+<li><p>Les verbes « fonctionnels »: <em>être</em>, <em>avoir</em>, <em>faire</em>, etc.</p></li>
+<li><p>Les conjonctions: <em>et</em>, <em>ou</em>, etc.</p></li>
+<li><p>et ainsi de suite.</p></li>
+</ul>
+</div></blockquote>
+<p>Le choix est délicat car, d’une part, ne pas supprimer
+les mots vides augmente l’espace de stockage nécessaire (et ce d’autant
+plus que la liste associée à un mot très fréquent est très longue),
+d’autre part les éliminer peut diminuer la pertinence des
+recherches  (« pomme de terre », « Let it be », « Stade de France »).</p>
+<p>Parmi les autres filtres, citons en vrac:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><em>Majuscules / minuscules</em>. On peut tout mettre en minuscules, mais
+on perd alors la distinction nom propre / nom commu,, par exemple Lyonnaise des Eaux, Société Générale, Windows, etc.</p></li>
+<li><p><em>Acronymes</em>.
+CAT = <em>cat</em> ou <em>Caterpillar Inc.</em>?  M.A.A.F ou MAAF ou Mutuelle … ?</p></li>
+<li><p><em>Dates, chiffres</em>.
+Monday 24, August, 1572 – 24/08/1572 – 24 août 1572;
+10000 ou 10,000.00 ou 10,000.00</p></li>
+</ul>
+</div></blockquote>
+<p>Dans tous les cas, les même règles de transformation s’appliquent aux documents
+ET à la requête. Voici, au final, pour chaque document la liste
+des <em>tokens</em> après application de quelques règles simples.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(d_1\)</span>: <code class="docutils literal notranslate"><span class="pre">loup</span> <span class="pre">etre</span> <span class="pre">bergerie</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_2\)</span>: <code class="docutils literal notranslate"><span class="pre">loup</span> <span class="pre">trois</span> <span class="pre">petit</span> <span class="pre">cochon</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_3\)</span>: <code class="docutils literal notranslate"><span class="pre">mouton</span> <span class="pre">etre</span> <span class="pre">bergerie</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_4\)</span>:  <code class="docutils literal notranslate"><span class="pre">spider</span> <span class="pre">cochon</span> <span class="pre">spider</span> <span class="pre">cochon</span> <span class="pre">pouvoir</span> <span class="pre">marcher</span> <span class="pre">plafond</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_5\)</span>: <code class="docutils literal notranslate"><span class="pre">loup</span> <span class="pre">avoir</span> <span class="pre">manger</span>&#160; <span class="pre">mouton</span> <span class="pre">autre</span> <span class="pre">loup</span> <span class="pre">etre</span> <span class="pre">rester</span> <span class="pre">bergerie</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_6\)</span>:  <code class="docutils literal notranslate"><span class="pre">avoir</span> <span class="pre">trois</span> <span class="pre">mouton</span> <span class="pre">pre</span> <span class="pre">mouton</span> <span class="pre">gueule</span> <span class="pre">loup</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_7\)</span>: <code class="docutils literal notranslate"><span class="pre">cochon</span> <span class="pre">etre</span> <span class="pre">douze</span> <span class="pre">euro</span> <span class="pre">kilo</span> <span class="pre">mouton</span> <span class="pre">dix</span> <span class="pre">euro</span> <span class="pre">kilo</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_8\)</span>: <code class="docutils literal notranslate"><span class="pre">trois</span> <span class="pre">petit</span> <span class="pre">loup</span> <span class="pre">grand</span> <span class="pre">mechant</span> <span class="pre">cochon</span></code></p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="quiz">
+<h3>Quiz<a class="headerlink" href="#quiz" title="Lien permanent vers ce titre">¶</a></h3>
+<div class="reauthoring_embedded_quiz" id="ri-analysedoc-1"><form class="reauthoring_embedded_quiz_questions"><p>Qu’est-ce que la tokenisation?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  C’est l’élimination de toute ponctuation</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img>  C’est le découpage d’un texte en unités lexicales</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> C’est l’extraction des termes d’un dictionnaire présents dans un texte</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="ri-analysedoc-2"><form class="reauthoring_embedded_quiz_questions"><p>Quelle opération ci-dessous ne relèvent pas de la stemmisation?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img>  Rassembler tous les synonymes en un seul terme</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  Supprimer toutes les formes plurielles</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  Ramener tous les verbes à la forme infinitive</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div></div>
+</div>
+<div class="section" id="s2-l-indexation-dans-elasticsearch">
+<h2>S2: L’indexation dans ElasticSearch<a class="headerlink" href="#s2-l-indexation-dans-elasticsearch" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="admonition-supports-complementaires admonition">
+<p class="admonition-title">Supports complémentaires:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="http://b3d.bdpedia.fr/files/slri-indexation-ES.pdf">Présentation: Indexation avec ElasticSearch</a></p></li>
+<li><p><a class="reference external" href="https://mediaserver.cnam.fr/permalink/v125f5947d4bahgys4kz/">Vidéo : gestion de l’indexation avec ElasticSearch</a></p></li>
+</ul>
+</div>
+<p>Par défaut, Elasticsearch propose une analyse des documents automatisée,
+<em>inférant</em> la nature des champs qui sont présents dans les documents qu’on lui
+propose par l’interface <code class="docutils literal notranslate"><span class="pre">_bulk</span></code> (voir chapitre précédent). Vous pouvez par
+exemple consulter l’analyse qui a été réalisée pour les films en saisissant la
+commande suivante (dans le terminal ou dans Kopf) :</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -XGET http://localhost:9200/movies/?pretty<span class="o">=</span><span class="m">1</span>
+</pre></div>
+</div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;movies&quot;</span> <span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;aliases&quot;</span> <span class="p">:</span> <span class="p">{</span> <span class="p">},</span>
+    <span class="nt">&quot;mappings&quot;</span> <span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;movie&quot;</span> <span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;properties&quot;</span> <span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;fields&quot;</span> <span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;properties&quot;</span> <span class="p">:</span> <span class="p">{</span>
+              <span class="nt">&quot;actors&quot;</span> <span class="p">:</span> <span class="p">{</span>
+                <span class="nt">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;string&quot;</span>
+              <span class="p">},</span>
+              <span class="nt">&quot;directors&quot;</span> <span class="p">:</span> <span class="p">{</span>
+                <span class="nt">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;string&quot;</span>
+              <span class="p">},</span>
+              <span class="nt">&quot;genres&quot;</span> <span class="p">:</span> <span class="p">{</span>
+                <span class="nt">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;string&quot;</span>
+              <span class="p">},</span>
+              <span class="nt">&quot;image_url&quot;</span> <span class="p">:</span> <span class="p">{</span>
+                <span class="nt">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;string&quot;</span>
+              <span class="p">},</span>
+              <span class="nt">&quot;plot&quot;</span> <span class="p">:</span> <span class="p">{</span>
+                <span class="nt">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;string&quot;</span>
+              <span class="p">},</span>
+              <span class="nt">&quot;rank&quot;</span> <span class="p">:</span> <span class="p">{</span>
+                <span class="nt">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;long&quot;</span>
+              <span class="p">},</span>
+              <span class="nt">&quot;rating&quot;</span> <span class="p">:</span> <span class="p">{</span>
+                <span class="nt">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;double&quot;</span>
+              <span class="p">},</span>
+              <span class="nt">&quot;release_date&quot;</span> <span class="p">:</span> <span class="p">{</span>
+                <span class="nt">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;date&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;format&quot;</span> <span class="p">:</span> <span class="s2">&quot;strict_date_optional_time||epoch_millis&quot;</span>
+              <span class="p">},</span>
+              <span class="nt">&quot;running_time_secs&quot;</span> <span class="p">:</span> <span class="p">{</span>
+                <span class="nt">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;long&quot;</span>
+              <span class="p">},</span>
+              <span class="nt">&quot;title&quot;</span> <span class="p">:</span> <span class="p">{</span>
+                <span class="nt">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;string&quot;</span>
+              <span class="p">},</span>
+              <span class="nt">&quot;year&quot;</span> <span class="p">:</span> <span class="p">{</span>
+                <span class="nt">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;long&quot;</span>
+              <span class="p">}</span>
+            <span class="p">}</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;id&quot;</span> <span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;string&quot;</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;type&quot;</span> <span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;string&quot;</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;settings&quot;</span> <span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;index&quot;</span> <span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;creation_date&quot;</span> <span class="p">:</span> <span class="s2">&quot;1510156098539&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;number_of_shards&quot;</span> <span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;number_of_replicas&quot;</span> <span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;uuid&quot;</span> <span class="p">:</span> <span class="s2">&quot;8_C-IZStS5uRhI58Xz9hCA&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;version&quot;</span> <span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;created&quot;</span> <span class="p">:</span> <span class="s2">&quot;2040699&quot;</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;warmers&quot;</span> <span class="p">:</span> <span class="p">{</span> <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>Vous pouvez notamment constater que les champs contenant du texte sont lus comme
+des <code class="docutils literal notranslate"><span class="pre">string</span></code>, ceux contenant des entiers comme des <code class="docutils literal notranslate"><span class="pre">long</span></code> et la date est lue
+comme un type spécifique, <code class="docutils literal notranslate"><span class="pre">date</span></code>. Avec cette détection, Elasticsearch pourra
+opérer des opérations sur les entiers ou les dates (par exemple : les notes
+supérieures à 5.8, les films sortis entre le 1er janvier 2006 et le 14 novembre
+2008, etc.).</p>
+<p>Il est cependant fréquent que l’on souhaite aller plus loin, et affiner la
+configuration, pour optimiser le moteur de recherche. Il est alors nécessaire de
+spécifier soi-même un <em>schéma</em> pour les données.</p>
+<div class="section" id="le-schema">
+<h3>Le schéma<a class="headerlink" href="#le-schema" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Un document est, on l’a vu, constitué de <em>champs</em> (<em>fields</em>), chaque champ étant
+indexé séparément. Le schéma indique les paramètres d’indexation pour chaque
+champ. Revenons au document de la section <a class="reference internal" href="ri-intro.html#sec-introri-premierdoc"><span class="std std-ref">Première indexation</span></a>, qui
+décrit un film dans la base Webscope, avec une liaison vers une collection
+d’artistes :</p>
+<blockquote>
+<div><div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Vertigo&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;year&quot;</span><span class="p">:</span> <span class="mi">1958</span><span class="p">,</span>
+  <span class="nt">&quot;genre&quot;</span><span class="p">:</span> <span class="s2">&quot;drama&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;summary&quot;</span><span class="p">:</span> <span class="s2">&quot;Scottie Ferguson, ancien inspecteur de police, est sujet au vertige depuis qu&#39;il a</span>
+<span class="s2">              vu mourir son collègue. Elster, son ami, le charge de surveiller sa femme,</span>
+<span class="s2">              Madeleine, ayant des tendances suicidaires. Amoureux de la jeune femme Scottie ne</span>
+<span class="s2">              remarque pas le piège qui se trame autour de lui et dont il va être la victime... &quot;</span><span class="p">,</span>
+  <span class="nt">&quot;country&quot;</span><span class="p">:</span> <span class="s2">&quot;DE&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;director&quot;</span><span class="p">:</span>     <span class="p">{</span>
+    <span class="nt">&quot;_id&quot;</span><span class="p">:</span> <span class="s2">&quot;artist:3&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;last_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Hitchcock&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;first_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Alfred&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;birth_date&quot;</span><span class="p">:</span> <span class="s2">&quot;1899&quot;</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;actors&quot;</span><span class="p">:</span> <span class="p">[</span>
+  <span class="p">{</span>
+    <span class="nt">&quot;_id&quot;</span><span class="p">:</span> <span class="s2">&quot;artist:15&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;first_name&quot;</span><span class="p">:</span> <span class="s2">&quot;James&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;last_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Stewart&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;birth_date&quot;</span><span class="p">:</span> <span class="s2">&quot;1908&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;John Ferguson&quot;</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="nt">&quot;_id&quot;</span><span class="p">:</span> <span class="s2">&quot;artist:282&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;first_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Arthur&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;last_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Pierre&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;birth_date&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+    <span class="nt">&quot;role&quot;</span><span class="p">:</span> <span class="kc">null</span>
+  <span class="p">}</span>
+  <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>Reprenant la structure du document ci-dessus, voici un schéma possible :</p>
+<blockquote>
+<div><div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="p">{</span>
+<span class="linenos"> 2</span>  <span class="nt">&quot;mappings&quot;</span><span class="p">:</span> <span class="p">{</span>
+<span class="linenos"> 3</span>    <span class="nt">&quot;movie&quot;</span><span class="p">:</span> <span class="p">{</span>
+<span class="linenos"> 4</span>      <span class="nt">&quot;_all&quot;</span><span class="p">:</span>       <span class="p">{</span> <span class="nt">&quot;enabled&quot;</span><span class="p">:</span> <span class="kc">true</span>  <span class="p">},</span>
+<span class="linenos"> 5</span>      <span class="nt">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+<span class="linenos"> 6</span>        <span class="nt">&quot;title&quot;</span><span class="p">:</span>    <span class="p">{</span> <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span>  <span class="p">},</span>
+<span class="linenos"> 7</span>        <span class="nt">&quot;year&quot;</span><span class="p">:</span>     <span class="p">{</span> <span class="nt">&quot;type&quot;</span><span class="p">:</span>   <span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="nt">&quot;format&quot;</span><span class="p">:</span> <span class="s2">&quot;yyyy&quot;</span> <span class="p">},</span>
+<span class="linenos"> 8</span>        <span class="nt">&quot;genre&quot;</span><span class="p">:</span>      <span class="p">{</span> <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span> <span class="p">},</span>
+<span class="linenos"> 9</span>        <span class="nt">&quot;summary&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">},</span>
+<span class="linenos">10</span>        <span class="nt">&quot;country&quot;</span><span class="p">:</span> <span class="p">{</span><span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">},</span>
+<span class="linenos">11</span>        <span class="nt">&quot;director&quot;</span><span class="p">:</span>     <span class="p">{</span>
+<span class="linenos">12</span>          <span class="nt">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+<span class="linenos">13</span>            <span class="nt">&quot;_id&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;string&quot;</span> <span class="p">},</span>
+<span class="linenos">14</span>            <span class="nt">&quot;last_name&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;string&quot;</span><span class="p">},</span>
+<span class="linenos">15</span>            <span class="nt">&quot;first_name&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;string&quot;</span><span class="p">},</span>
+<span class="linenos">16</span>            <span class="nt">&quot;birth_date&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="s2">&quot;yyyy&quot;</span><span class="p">}</span>
+<span class="linenos">17</span>          <span class="p">}},</span>
+<span class="linenos">18</span>          <span class="nt">&quot;actors&quot;</span><span class="p">:</span> <span class="p">{</span>
+<span class="linenos">19</span>            <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;nested&quot;</span><span class="p">,</span>
+<span class="linenos">20</span>            <span class="nt">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+<span class="linenos">21</span>              <span class="nt">&quot;_id&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;string&quot;</span><span class="p">},</span>
+<span class="linenos">22</span>              <span class="nt">&quot;first_name&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;string&quot;</span><span class="p">},</span>
+<span class="linenos">23</span>              <span class="nt">&quot;last_name&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;string&quot;</span><span class="p">},</span>
+<span class="linenos">24</span>              <span class="nt">&quot;birth_date&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="s2">&quot;yyyy&quot;</span><span class="p">},</span>
+<span class="linenos">25</span>              <span class="nt">&quot;role&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;string&quot;</span><span class="p">}</span>
+<span class="linenos">26</span>            <span class="p">}</span>
+<span class="linenos">27</span>          <span class="p">}</span>
+<span class="linenos">28</span>      <span class="p">}</span>
+<span class="linenos">29</span>    <span class="p">}</span>
+<span class="linenos">30</span>  <span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>Vous pouvez télécharger ce fichier ici : <a class="reference external" href="http://b3d.bdpedia.fr/files/movie-schema-2.4.json">movie-schema-2.4.json</a>.</p>
+<p>Tout est inclus sous le champ « mappings ». Ici, on ne parle que de documents de
+type <em>movie</em>, d’où la ligne 3. Chaque <em>mapping</em> a deux types de champs :</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>les <em>méta-champs</em> (<em>meta-fields</em>)</p></li>
+<li><p>les champs proprement dits.</p></li>
+</ul>
+</div></blockquote>
+<div class="section" id="meta-champs">
+<h4>Méta-champs<a class="headerlink" href="#meta-champs" title="Lien permanent vers ce titre">¶</a></h4>
+<p>Le champ <code class="docutils literal notranslate"><span class="pre">_all</span></code> est un champ méta-champ, dans lequel toutes les valeurs des
+autres champs sont par exemple concaténées pour permettre une recherche (mais
+elles ne sont pas stockées, pour gagner de la place). Ce champ est déprécié à
+partir de la version 6.0 d’Elasticsearch. Le champ <code class="docutils literal notranslate"><span class="pre">_source</span></code> est un autre
+méta-champ, dans lequel le contenu du document est stocké (mais non indexé),
+afin d’éviter d’avoir à recourir à une autre base de stockage. C’est évidemment
+coûteux en terme de place et pas forcément souhaitable, on peut alors le
+désactiver.</p>
+</div>
+<div class="section" id="champs">
+<h4>Champs<a class="headerlink" href="#champs" title="Lien permanent vers ce titre">¶</a></h4>
+<p>Tous les champs sont décrits sous le champ « properties ». ElasticSearch fournit
+un ensemble de types pré-définis qui suffisent pour les besoins courants; on
+peut associer des attributs à un type. Les attributs indiquent d’éventuels
+traitements à appliquer à chaque valeur du type avant son insertion dans
+l’index. Par exemple : pour traiter les chaînes de caractères de type
+<code class="docutils literal notranslate"><span class="pre">string</span></code>, il peut être bénéfique de spécifier un <code class="docutils literal notranslate"><span class="pre">analyzer</span></code> spécifique,
+correspondant à un langage particulier. Les attributs possibles correspondent
+aux choix présentés dans la première partie de ce chapitre, en terme de
+<em>tokenisation</em>, de <em>normalisation</em>, de <em>stop words</em>, etc. La plupart des
+attributs ont des valeurs par défaut et sont optionnels. C’est le cas des
+suivants, mais nous les avons fait figurer en raison de leur importance :</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><em>index</em> indique simplement si le champ peut être utilisé dans une recherche;</p></li>
+<li><p><em>store</em> indique que la valeur du champ est stockée dans l’index, et qu’il est donc possible de récupérer cette valeur comme résultat d’une recherche, <strong>sans avoir besoin de retourner à la base principale</strong> en d’autres termes, <code class="docutils literal notranslate"><span class="pre">store</span></code> permet de traiter l’index aussi comme une base de données;</p></li>
+</ul>
+</div></blockquote>
+<p>Les champs <code class="docutils literal notranslate"><span class="pre">index</span></code>  et <code class="docutils literal notranslate"><span class="pre">store</span></code> sont très importants pour les performances du
+moteur. Toutes les combinaisons de valeur sont possibles :</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">index=true</span></code>, <code class="docutils literal notranslate"><span class="pre">store=false</span></code>: on pourra interroger le champ, mais il faudra accéder au document principal dans la  base documentaire si on veut sa valeur;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">index=true</span></code>, <code class="docutils literal notranslate"><span class="pre">store=true</span></code>: on pourra interroger le champ, et accéder à sa valeur dans l’index;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">index=false</span></code>, <code class="docutils literal notranslate"><span class="pre">store=true</span></code>: on ne peut pas interroger le champ, mais on peut récupérer sa valeur dans l’index;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">index=false</span></code>, <code class="docutils literal notranslate"><span class="pre">store=false</span></code>: n’a pas de sens à priori; le seul intérêt est d’ignorer le champ s’il est fourni dans le document Elasticsearch.</p></li>
+</ul>
+</div></blockquote>
+<p>Remarquez la structure pour le réalisateur (<code class="docutils literal notranslate"><span class="pre">director</span></code>), correspondant à
+l’imbrication d’un objet JSON simple et non d’une valeur atomique. Enfin, notez
+l’utilisation du type <code class="docutils literal notranslate"><span class="pre">nested</span></code> pour les champs ayant plusieurs valeurs, soit,
+concrètement, un tableau en JSON; c’est le cas par exemple pour le nom des
+acteurs (<cite>actors</cite>).</p>
+</div>
+<div class="section" id="champs-crees-dynamiquement">
+<h4>Champs créés dynamiquement<a class="headerlink" href="#champs-crees-dynamiquement" title="Lien permanent vers ce titre">¶</a></h4>
+<p>Pour faciliter les recherches, on peut avoir besoin de regrouper certains
+champs. Par exemple, dans le cas de documents où le nom et le prénom d’une
+personne seraient séparés, il serait sans doute pertinent de permettre des
+recherches sur le nom complet de la personne. Il faudrait alors recopier, à
+l’indexation, le contenu du champ <cite>nom</cite> et du champ <cite>prenom</cite> de chaque document
+dans un nouveau champ <cite>nom_complet</cite>. Voici les paramètres associés à cette
+opération pour un tel schéma.</p>
+<blockquote>
+<div><div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;mappings&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;my_type&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;first_name&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;text&quot;</span><span class="p">,</span>
+          <span class="nt">&quot;copy_to&quot;</span><span class="p">:</span> <span class="s2">&quot;full_name&quot;</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;last_name&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;text&quot;</span><span class="p">,</span>
+          <span class="nt">&quot;copy_to&quot;</span><span class="p">:</span> <span class="s2">&quot;full_name&quot;</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;full_name&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;text&quot;</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="importer-le-schema-dans-elasticsearch">
+<h4>Importer le schéma dans ElasticSearch<a class="headerlink" href="#importer-le-schema-dans-elasticsearch" title="Lien permanent vers ce titre">¶</a></h4>
+<p>On peut stocker le schéma dans un fichier json, par exemple appelé
+<code class="docutils literal notranslate"><span class="pre">movie-schema-2.4.json</span></code>. La création de l’index adoptant ces paramètres dans
+ElasticSearch se fait comme ceci (pour l’index <code class="docutils literal notranslate"><span class="pre">monindex</span></code>) :</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -XPUT <span class="s1">&#39;localhost:9200/monindex&#39;</span> -H <span class="s1">&#39;Content-Type: application/json&#39;</span> -d movie-schema-2.4.json
+</pre></div>
+</div>
+</div></blockquote>
+<p>Avec ElasticSearch, il est plus difficile de faire évoluer un schéma (qu’avec
+une BDD classique). Sauf rares exceptions, il faut en général créer un nouvel
+index et réindexer les données. ElasticSearch permet la copie d’un index vers
+l’autre avec l’API <code class="docutils literal notranslate"><span class="pre">reindex</span></code>:</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -XPOST <span class="s1">&#39;localhost:9200/_reindex?pretty&#39;</span> -H <span class="s1">&#39;Content-Type: application/json&#39;</span> -d<span class="s1">&#39;</span>
+<span class="s1"> {</span>
+<span class="s1">   &quot;source&quot;: {</span>
+<span class="s1">     &quot;index&quot;: &quot;nfe204&quot;</span>
+<span class="s1">   },</span>
+<span class="s1">   &quot;dest&quot;: {</span>
+<span class="s1">     &quot;index&quot;: &quot;new_nfe204&quot;</span>
+<span class="s1">   }</span>
+<span class="s1"> }&#39;</span>
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="analyse-avec-elasticsearch">
+<h3>Analyse avec ElasticSearch<a class="headerlink" href="#analyse-avec-elasticsearch" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Pour améliorer le <cite>mapping</cite> et notre compréhension des résultats,
+Elasticsearch propose une interface pour observer les effets des paramètres de
+l’analyse.</p>
+<p>Vous pouvez donc voir comment est transformée une chaîne spécifique, par
+exemple « X-Men: Days of Future Past », avec l’analyseur par défaut pour l’index
+<code class="docutils literal notranslate"><span class="pre">movies</span></code> :</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -XGET <span class="s1">&#39;localhost:9200/movies/_analyze?pretty=1&#39;</span> -d <span class="s1">&#39;{ &quot;text&quot; : &quot;X-Men: Days of Future Past&quot; }&#39;</span>
+<span class="c1"># cette requête doit être en POST dans Kopf</span>
+</pre></div>
+</div>
+<p>Voici le résultat :</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+        <span class="nt">&quot;tokens&quot;</span> <span class="p">:</span> <span class="p">[</span> <span class="p">{</span>
+                <span class="nt">&quot;token&quot;</span> <span class="p">:</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;start_offset&quot;</span> <span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="nt">&quot;end_offset&quot;</span> <span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="nt">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;&lt;ALPHANUM&gt;&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;position&quot;</span> <span class="p">:</span> <span class="mi">0</span>
+        <span class="p">},</span> <span class="p">{</span>
+                <span class="nt">&quot;token&quot;</span> <span class="p">:</span> <span class="s2">&quot;men&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;start_offset&quot;</span> <span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+                <span class="nt">&quot;end_offset&quot;</span> <span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+                <span class="nt">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;&lt;ALPHANUM&gt;&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;position&quot;</span> <span class="p">:</span> <span class="mi">1</span>
+        <span class="p">},</span> <span class="p">{</span>
+                <span class="nt">&quot;token&quot;</span> <span class="p">:</span> <span class="s2">&quot;days&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;start_offset&quot;</span> <span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+                <span class="nt">&quot;end_offset&quot;</span> <span class="p">:</span> <span class="mi">11</span><span class="p">,</span>
+                <span class="nt">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;&lt;ALPHANUM&gt;&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;position&quot;</span> <span class="p">:</span> <span class="mi">2</span>
+        <span class="p">},</span> <span class="p">{</span>
+                <span class="nt">&quot;token&quot;</span> <span class="p">:</span> <span class="s2">&quot;of&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;start_offset&quot;</span> <span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
+                <span class="nt">&quot;end_offset&quot;</span> <span class="p">:</span> <span class="mi">14</span><span class="p">,</span>
+                <span class="nt">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;&lt;ALPHANUM&gt;&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;position&quot;</span> <span class="p">:</span> <span class="mi">3</span>
+        <span class="p">},</span> <span class="p">{</span>
+                <span class="nt">&quot;token&quot;</span> <span class="p">:</span> <span class="s2">&quot;future&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;start_offset&quot;</span> <span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+                <span class="nt">&quot;end_offset&quot;</span> <span class="p">:</span> <span class="mi">21</span><span class="p">,</span>
+                <span class="nt">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;&lt;ALPHANUM&gt;&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;position&quot;</span> <span class="p">:</span> <span class="mi">4</span>
+        <span class="p">},</span> <span class="p">{</span>
+                <span class="nt">&quot;token&quot;</span> <span class="p">:</span> <span class="s2">&quot;past&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;start_offset&quot;</span> <span class="p">:</span> <span class="mi">22</span><span class="p">,</span>
+                <span class="nt">&quot;end_offset&quot;</span> <span class="p">:</span> <span class="mi">26</span><span class="p">,</span>
+                <span class="nt">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;&lt;ALPHANUM&gt;&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;position&quot;</span> <span class="p">:</span> <span class="mi">5</span>
+        <span class="p">}</span> <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Le découpage en <cite>tokens</cite> se fait aux espaces et à la ponctuation, les termes
+sont normalisés en passant en <cite>bas de casse</cite>, et le « the » est considéré comme
+un mot vide. Dans le cas d’un <cite>mapping</cite> spécifique par champ, il est possible
+de préciser dans la requête d’analyse le champ sur lequel on souhaite
+travailler, pour comparer par exemple un découpage dans le champ de titre avec
+un découpage dans le champ de résumé.</p>
+</div>
+<div class="section" id="une-chaine-d-analyse-personnalisee-avec-elasticsearch">
+<h3>Une chaîne d’analyse personnalisée avec Elasticsearch<a class="headerlink" href="#une-chaine-d-analyse-personnalisee-avec-elasticsearch" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Comme indiqué dans la première partie, l’analyseur est une chaîne de
+traitement (pipeline) constituée de tokeniseurs et de filtres. Les analyseurs
+sont composés d’un tokenizer, et de TokenFilters (0 ou plus). Le tokenizer
+peut être précédé de CharFilters. Les filtres (TokenFilter) examinent les
+tokens un par un et décident de les conserver, de les remplacer par un ou
+plusieurs autres.</p>
+<p>Voici un exemple d’analyseur personnalisé.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -XPUT <span class="s1">&#39;localhost:9200/indexdetest?pretty&#39;</span> -H <span class="s1">&#39;Content-Type: application/json&#39;</span> -d<span class="s1">&#39;</span>
+<span class="s1">{</span>
+<span class="s1">  &quot;settings&quot;: {</span>
+<span class="s1">    &quot;analysis&quot;: {</span>
+<span class="s1">      &quot;analyzer&quot;: {</span>
+<span class="s1">        &quot;custom_lowercase_stemmed&quot;: {</span>
+<span class="s1">          &quot;tokenizer&quot;: &quot;standard&quot;,</span>
+<span class="s1">          &quot;filter&quot;: [</span>
+<span class="s1">            &quot;lowercase&quot;,</span>
+<span class="s1">            &quot;custom_english_stemmer&quot;</span>
+<span class="s1">          ]</span>
+<span class="s1">        }</span>
+<span class="s1">      },</span>
+<span class="s1">      &quot;filter&quot;: {</span>
+<span class="s1">        &quot;custom_english_stemmer&quot;: {</span>
+<span class="s1">          &quot;type&quot;: &quot;stemmer&quot;,</span>
+<span class="s1">          &quot;name&quot;: &quot;english&quot;</span>
+<span class="s1">        }</span>
+<span class="s1">      }</span>
+<span class="s1">    }</span>
+<span class="s1">  }</span>
+<span class="s1">}</span>
+<span class="s1">&#39;</span>
+</pre></div>
+</div>
+<p>Le tokenizer est standard, donc le découpage se fait à la ponctuation et aux
+espaces. On place ensuite deux filtres, un de « lowercase » pour normaliser vers
+des lettres en <cite>bas de casse</cite> (minuscules) et un autre appelé
+« custom_english_stemmer », qui <cite>lemmatise</cite> le texte avec les règles de la
+langue anglaise.</p>
+<p>On peut ensuite tester l’effet de cet analyseur, comme suit :</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -XGET <span class="s1">&#39;localhost:9200/indexdetest/_analyze?pretty&#39;</span> -H <span class="s1">&#39;Content-Type: application/json&#39;</span> -d<span class="s1">&#39;</span>
+<span class="s1">{</span>
+<span class="s1">        &quot;analyzer&quot;: &quot;custom_lowercase_stemmed&quot;,</span>
+<span class="s1">        &quot;text&quot;:&quot;Finiras-tu ces analyses demain ?&quot;</span>
+<span class="s1">}</span>
+<span class="s1">&#39;</span>
+</pre></div>
+</div>
+<p>Voici le résultat de l’analyse de cette phrase :</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;tokens&quot;</span> <span class="p">:</span> <span class="p">[</span> <span class="p">{</span>
+    <span class="nt">&quot;token&quot;</span> <span class="p">:</span> <span class="s2">&quot;finira&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;start_offset&quot;</span> <span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="nt">&quot;end_offset&quot;</span> <span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+    <span class="nt">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;&lt;ALPHANUM&gt;&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;position&quot;</span> <span class="p">:</span> <span class="mi">0</span>
+  <span class="p">},</span> <span class="p">{</span>
+    <span class="nt">&quot;token&quot;</span> <span class="p">:</span> <span class="s2">&quot;tu&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;start_offset&quot;</span> <span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+    <span class="nt">&quot;end_offset&quot;</span> <span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="nt">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;&lt;ALPHANUM&gt;&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;position&quot;</span> <span class="p">:</span> <span class="mi">1</span>
+  <span class="p">},</span> <span class="p">{</span>
+    <span class="nt">&quot;token&quot;</span> <span class="p">:</span> <span class="s2">&quot;ce&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;start_offset&quot;</span> <span class="p">:</span> <span class="mi">11</span><span class="p">,</span>
+    <span class="nt">&quot;end_offset&quot;</span> <span class="p">:</span> <span class="mi">14</span><span class="p">,</span>
+    <span class="nt">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;&lt;ALPHANUM&gt;&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;position&quot;</span> <span class="p">:</span> <span class="mi">2</span>
+  <span class="p">},</span> <span class="p">{</span>
+    <span class="nt">&quot;token&quot;</span> <span class="p">:</span> <span class="s2">&quot;analys&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;start_offset&quot;</span> <span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+    <span class="nt">&quot;end_offset&quot;</span> <span class="p">:</span> <span class="mi">23</span><span class="p">,</span>
+    <span class="nt">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;&lt;ALPHANUM&gt;&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;position&quot;</span> <span class="p">:</span> <span class="mi">3</span>
+  <span class="p">},</span> <span class="p">{</span>
+    <span class="nt">&quot;token&quot;</span> <span class="p">:</span> <span class="s2">&quot;demain&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;start_offset&quot;</span> <span class="p">:</span> <span class="mi">24</span><span class="p">,</span>
+    <span class="nt">&quot;end_offset&quot;</span> <span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+    <span class="nt">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;&lt;ALPHANUM&gt;&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;position&quot;</span> <span class="p">:</span> <span class="mi">4</span>
+  <span class="p">}</span> <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Et l’on peut comparer ainsi plusieurs analyseurs.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -XGET <span class="s1">&#39;localhost:9200/indexdetest/_analyze?pretty&#39;</span> -H <span class="s1">&#39;Content-Type: application/json&#39;</span> -d<span class="s1">&#39;</span>
+<span class="s1">{</span>
+<span class="s1">        &quot;analyzer&quot;: &quot;french&quot;,</span>
+<span class="s1">        &quot;text&quot;:&quot;Finiras-tu ces analyses demain ?&quot;</span>
+<span class="s1">}</span>
+<span class="s1">&#39;</span>
+</pre></div>
+</div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;tokens&quot;</span> <span class="p">:</span> <span class="p">[</span> <span class="p">{</span>
+    <span class="nt">&quot;token&quot;</span> <span class="p">:</span> <span class="s2">&quot;finira&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;start_offset&quot;</span> <span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="nt">&quot;end_offset&quot;</span> <span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+    <span class="nt">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;&lt;ALPHANUM&gt;&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;position&quot;</span> <span class="p">:</span> <span class="mi">0</span>
+  <span class="p">},</span> <span class="p">{</span>
+    <span class="nt">&quot;token&quot;</span> <span class="p">:</span> <span class="s2">&quot;analys&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;start_offset&quot;</span> <span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+    <span class="nt">&quot;end_offset&quot;</span> <span class="p">:</span> <span class="mi">23</span><span class="p">,</span>
+    <span class="nt">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;&lt;ALPHANUM&gt;&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;position&quot;</span> <span class="p">:</span> <span class="mi">3</span>
+  <span class="p">},</span> <span class="p">{</span>
+    <span class="nt">&quot;token&quot;</span> <span class="p">:</span> <span class="s2">&quot;demain&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;start_offset&quot;</span> <span class="p">:</span> <span class="mi">24</span><span class="p">,</span>
+    <span class="nt">&quot;end_offset&quot;</span> <span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+    <span class="nt">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;&lt;ALPHANUM&gt;&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;position&quot;</span> <span class="p">:</span> <span class="mi">4</span>
+  <span class="p">}</span> <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Ici, le pronom « tu » est éliminé, en raison du réglage par défaut de l’analyseur
+« French » (pour lequel c’est un <cite>stop_word</cite>). Avec notre analyseur
+« custom_lowercase_stemmed », reposant sur la langue anglaise, « tu » n’est pas un
+<cite>stop word</cite>, il est préservé. Il en est de même pour le démonstratif <cite>ces</cite>.</p>
+<p>Remarquez que la chaîne <cite>analyses</cite> est lemmatisée dans les deux cas vers
+<code class="docutils literal notranslate"><span class="pre">analys</span></code>, ce qui permettra à ElasticSearch de regrouper tous les mots de cette
+famille (analyse, analyser, analyste).</p>
+</div>
+<div class="section" id="conclusion">
+<h3>Conclusion<a class="headerlink" href="#conclusion" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Dans ce chapitre, nous avons vu comme les textes originaux et leurs éventuelles
+méta-données pouvaient être transformés pour être utilisés par les moteurs de
+recherche. Cette étape, appelée indexation, comporte de nombreux paramètres et
+repose sur les travaux académiques en linguistique et recherche d’information,
+utilisable directement dans des outils comme Elasticsearch. Les paramètres de
+l’indexation varient suivant les données, même si des options par défaut
+satisfaisantes existent.</p>
+<p>Après avoir indexé convenablement les documents, il nous reste à voir comment y
+accéder. Nous avons vu dans le chapitre <a class="reference internal" href="ri-intro.html#chap-introri"><span class="std std-ref">Introduction à la recherche d’information</span></a> les requêtes Lucene,
+nous verrons en Travaux Pratiques (chapitre <a class="reference internal" href="ri-tpelasticdsl.html#chap-ritp-tpelasticdsl"><span class="std std-ref">Recherche d’information - TP ElasticSearch</span></a>)
+qu’ElasticSearch possède un langage dédié très puissant, permettant des
+recherches mais aussi des statistiques sur les documents. Dans le chapitre
+suivant (<a class="reference internal" href="ri-ranking.html#chap-ranking"><span class="std std-ref">Recherche avec classement</span></a>), nous verrons le classement des résultats d’un
+moteur de recherche.</p>
+</div>
+<div class="section" id="id1">
+<h3>Quiz<a class="headerlink" href="#id1" title="Lien permanent vers ce titre">¶</a></h3>
+<div class="reauthoring_embedded_quiz" id="ri-es-1"><form class="reauthoring_embedded_quiz_questions"><p>Cherchez l’intrus: parmi la liste des actions suivantes, laquelle ne relève pas
+de la spécification d’un schéma.</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Indication du type d’un champ</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Calcul de nouveaux champs à partir des champs indexés</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Indication de l’importance d’un document</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Indication de la méthode de tokenisation / racinisation</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="ri-es-2"><form class="reauthoring_embedded_quiz_questions"><p>Qu’est-ce qui distingue une valeur <em>stockée</em> d’une valeur <em>indexée</em>?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> La seule différence est qu’une valeur stockée peut être renvoyée
+par Elastic Search dans le résultat d’une requête</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> La valeur indexée a été soumise à des transformations contrairement
+à la valeur stockée</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> La valeur indexée est en mémoire RAM, et la valeur stockée sur le disque</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div></div>
+<div class="section" id="exercices">
+<h3>Exercices<a class="headerlink" href="#exercices" title="Lien permanent vers ce titre">¶</a></h3>
+<div class="admonition-exercice-ex-s2-1-les-analyseurs admonition" id="ex-s2-1">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-s2-1">Ex-S2-1</a>: les analyseurs</p>
+<p>Tester et interpréter les résultats de l’application des analyseurs suivants.</p>
+<blockquote>
+<div><ol class="arabic">
+<li><p>Analyseur standard anglais:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="nt">&quot;analyzer&quot;</span><span class="p">:</span> <span class="s2">&quot;english&quot;</span><span class="p">,</span>
+   <span class="nt">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;j&#39;aime les couleurs de l&#39;arbre durant l&#39;été&quot;</span>
+ <span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p>Analyseur standard français:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;analyzer&quot;</span><span class="p">:</span> <span class="s2">&quot;french&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;j&#39;aime les couleurs de l&#39;arbre durant l&#39;été&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p>Analyseur standard neutre, avec quelques filtres:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+ <span class="nt">&quot;analyzer&quot;</span><span class="p">:</span> <span class="s2">&quot;standard&quot;</span><span class="p">,</span>
+ <span class="nt">&quot;filter&quot;</span><span class="p">:</span>  <span class="p">[</span> <span class="s2">&quot;lowercase&quot;</span><span class="p">,</span> <span class="s2">&quot;asciifolding&quot;</span> <span class="p">],</span>
+ <span class="nt">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;j&#39;aime les COULEURS de l&#39;arbre durant l&#39;été&quot;</span>
+ <span class="p">}</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<p>Ces documents peuvent être soumis à la ressource <code class="docutils literal notranslate"><span class="pre">_analyze</span></code>  d’un index.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -XPUT <span class="s1">&#39;&lt;url&gt;/monindex/_analyze&#39;</span> -H <span class="s1">&#39;Content-Type: application/json&#39;</span> -d @test.json
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+</div>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+            <div>        
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Licence Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">
+  Ce cours</span> de <a xmlns:cc="http://creativecommons.org/ns#" href="http://www.bdpedia.fr" property="cc:attributionName" rel="cc:attributionURL">Philippe Rigaux</a> est mis à disposition selon les termes de la <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">licence Creative Commons Attribution - Pas d’Utilisation Commerciale - Partage dans les Mêmes Conditions 4.0 International</a>.
+</div>
+        <hr/>
+          <h3>Table Of Contents</h3>
+          <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docker.html">Préliminaires: Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docstruct.html">Modélisation de bases NoSQL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bddoc.html">Interrogation de bases NoSQL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mapreduce.html">MapReduce, premiers pas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cassandra_tp.html">Cassandra - Travaux Pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mongodb_tp.html">MongoDB - Travaux Pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ri-intro.html">Introduction à la recherche d’information</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Recherche d’information : l’indexation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#s1-l-analyse-de-documents">S1: L’analyse de documents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tokenisation-et-normalisation">Tokenisation et normalisation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#stemming-racine-lemmatisation">Stemming (racine), lemmatisation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mots-vides-et-autres-filtres">Mots vides et autres filtres</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quiz">Quiz</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#s2-l-indexation-dans-elasticsearch">S2: L’indexation dans ElasticSearch</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#le-schema">Le schéma</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#meta-champs">Méta-champs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#champs">Champs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#champs-crees-dynamiquement">Champs créés dynamiquement</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#importer-le-schema-dans-elasticsearch">Importer le schéma dans ElasticSearch</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#analyse-avec-elasticsearch">Analyse avec ElasticSearch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#une-chaine-d-analyse-personnalisee-avec-elasticsearch">Une chaîne d’analyse personnalisée avec Elasticsearch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#conclusion">Conclusion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Quiz</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#exercices">Exercices</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ri-ranking.html">Recherche avec classement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ri-tpelasticdsl.html">Recherche d’information - TP ElasticSearch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ri-tpranking.html">Recherche d’information - TP ElasticSearch : pertinence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cloud.html">Le <em>cloud</em>, une nouvelle machine de calcul</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replication.html">Systèmes NoSQL: la réplication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sharding.html">Systèmes NoSQL: le partitionnement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calculdistr.html">Calcul distribué: Hadoop et MapReduce</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spark-batch.html">Traitement de données massives avec Apache Spark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="flink-streaming.html">Traitement de flux massifs avec Apache Flink</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pigtp.html">Pig : Travaux pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="projet.html">Projets NFE204</a></li>
+<li class="toctree-l1"><a class="reference internal" href="annales.html">Annales des examens</a></li>
+</ul>
+
+          <h3 style="margin-top: 1.5em;">Recherche</h3>
+          <form class="search" action="search.html" method="get">
+            <input type="text" name="q" />
+            <input type="submit" value="Go" />
+            <input type="hidden" name="check_keywords" value="yes" />
+            <input type="hidden" name="area" value="default" />
+          </form>
+          <p class="searchtip" style="font-size: 90%">
+      Saisissez un ou plusieurs mots-clés.
+          </p>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <a href="ri-intro.html" title="Introduction à la recherche d’information"
+             >précédent</a> |
+          <a href="ri-ranking.html" title="Recherche avec classement"
+             >suivant</a> |
+          <a href="genindex.html" title="Index général"
+             >index</a>
+        </div>
+
+        <div class="right">
+        <a href="index.html">Recherche d’information : l’indexation</a><br/>
+          
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2014-2022, Nicolas Travers, Raphaël Fournier S&#39;niehotta et Philippe Rigaux.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>

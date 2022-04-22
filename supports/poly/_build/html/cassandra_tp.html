@@ -1,0 +1,732 @@
+
+<!DOCTYPE html>
+
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cassandra - Travaux Pratiques &#8212; Bases de données documentaires et distribuées v&lt;release&gt; - Cours CNAM NFE204</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/agogo.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/translations.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Recherche" href="search.html" />
+    <link rel="next" title="MongoDB - Travaux Pratiques" href="mongodb_tp.html" />
+    <link rel="prev" title="MapReduce, premiers pas" href="mapreduce.html" /> 
+  </head><body>
+    <div class="header-wrapper">
+      <div class="header">
+        <div class="headertitle"><a
+          href="index.html">Cassandra - Travaux Pratiques</a></div>
+        <div class="rel">
+          <a href="mapreduce.html" title="MapReduce, premiers pas"
+             accesskey="P">précédent</a><font color="white"> |</font>
+          <a href="mongodb_tp.html" title="MongoDB - Travaux Pratiques"
+             accesskey="N">suivant</a><font color="white"> |</font>
+          <a href="genindex.html" title="Index général"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+<script type="text/javascript" src="_static/dynsite.js"></script>
+
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="cassandra-travaux-pratiques">
+<span id="chap-cassandra-tp"></span><h1>Cassandra - Travaux Pratiques<a class="headerlink" href="#cassandra-travaux-pratiques" title="Lien permanent vers ce titre">¶</a></h1>
+<p>Les exercices qui suivent sont à effectuer sur machine, avec Cassandra.</p>
+<p>Après avoir lancé votre machine Cassandra (avec docker, voir chapitre
+<a class="reference internal" href="docstruct.html#chap-docstruct"><span class="std std-ref">Modélisation de bases NoSQL</span></a>), vous aurez besoin d’une interface cliente pour y
+accéder. Pour cela, nous utiliserons <strong>DevCenter</strong> de <em>DataStax</em>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><em>DevCenter</em> : &lt;<a class="reference external" href="https://academy.datastax.com/downloads/ops-center#devCenter">https://academy.datastax.com/downloads/ops-center#devCenter</a>&gt;</p></li>
+</ul>
+</div></blockquote>
+<p>Vous pourrez également interagir en ligne de commande avec <code class="docutils literal notranslate"><span class="pre">cqlsh</span></code> avec la
+commande :</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker <span class="nb">exec</span> -it mon-cassandra cqlsh
+<span class="c1"># ceci suppose que mon-cassandra est le nom de votre container</span>
+<span class="c1"># it pour disposer d&#39;un terminal interactif persistant</span>
+<span class="c1"># cqlsh pour lancer cette commande au démarrage</span>
+</pre></div>
+</div>
+<p>Le sujet des travaux pratiques est la mise en place d’une base de données représentant
+des restaurants, et des inspections de ces restaurants. Un échantillon  de données
+est disponible ici:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference external" href="http://b3d.bdpedia.fr/files/restaurants.zip">La base Restaurants au format csv (archive ZIP)</a></p></li>
+</ul>
+</div></blockquote>
+<div class="admonition-note admonition">
+<p class="admonition-title">Note</p>
+<p>Avant de vous lancer dans le travail proprement dit, vous êtes invités
+fortement à prendre le temps d’ouvrir cette archive zip et d’en examiner
+le contenu (au moins les en-têtes, pour avoir une première idée de la structure
+des données initiales).</p>
+</div>
+<p>Bien entendu,  on supppose qu’à terme cette base contiendra tous les restaurants du monde,
+et toutes les inspections, ce qui justifie d’utiliser un système apte à gérer de grosses
+volumétries.</p>
+<div class="section" id="partie-1-approche-relationnelle">
+<h2>Partie 1: Approche relationnelle<a class="headerlink" href="#partie-1-approche-relationnelle" title="Lien permanent vers ce titre">¶</a></h2>
+<p>Nous allons étudier ici la création d’une base de données (appelée <strong>Keyspace</strong>), puis
+son interrogation. Cette première phase du TP consiste à créer la base comme si elle
+était relationnelle, et à effectuer des requêtes simples. Une fois les limites atteintes, nous
+utiliserons les spécificités de Cassandra
+pour aller plus loin.</p>
+<div class="section" id="creation-de-la-base-de-donnees">
+<h3>Création de la base de données<a class="headerlink" href="#creation-de-la-base-de-donnees" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Avant d’interroger la base de données, il nous la créer. Pour commencer :</p>
+<blockquote>
+<div><div class="highlight-sql notranslate"><div class="highlight"><pre><span></span>CREATE KEYSPACE IF NOT EXISTS resto_NY WITH REPLICATION = { &#39;class&#39; : &#39;SimpleStrategy&#39;, &#39;replication_factor&#39;: 1};
+</pre></div>
+</div>
+</div></blockquote>
+<p>Nous créons ainsi une base de données <em>resto_NY</em> pour laquelle le facteur de réplication
+est mis à 1, ce qui suffit dans un cadre centralisé.</p>
+<p>Sous <code class="docutils literal notranslate"><span class="pre">csqlsh</span></code>, vous pouvez maintenant sélectionner la base
+de données pour vos prochaines requêtes.</p>
+<blockquote>
+<div><div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="n">USE</span> <span class="n">resto_NY</span><span class="p">;</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>L’équivalent existe dans une interface graphique bien entendu.</p>
+<div class="section" id="tables">
+<h4>Tables<a class="headerlink" href="#tables" title="Lien permanent vers ce titre">¶</a></h4>
+<p>Nous pouvons maintenant créer les tables (<em>Column Family</em>
+pour Cassandra) <em>Restaurant</em> et <em>Inspection</em> à partir du schéma suivant :</p>
+<blockquote>
+<div><div class="highlight-sql notranslate"><div class="highlight"><pre><span></span> <span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">Restaurant</span> <span class="p">(</span>
+   <span class="n">id</span> <span class="nb">INT</span><span class="p">,</span> <span class="n">Name</span> <span class="nb">VARCHAR</span><span class="p">,</span> <span class="n">borough</span> <span class="nb">VARCHAR</span><span class="p">,</span> <span class="n">BuildingNum</span> <span class="nb">VARCHAR</span><span class="p">,</span> <span class="n">Street</span> <span class="nb">VARCHAR</span><span class="p">,</span>
+   <span class="n">ZipCode</span> <span class="nb">INT</span><span class="p">,</span> <span class="n">Phone</span> <span class="nb">text</span><span class="p">,</span> <span class="n">CuisineType</span> <span class="nb">VARCHAR</span><span class="p">,</span>
+   <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span> <span class="n">id</span> <span class="p">)</span>
+ <span class="p">)</span> <span class="p">;</span>
+
+ <span class="k">CREATE</span> <span class="k">INDEX</span> <span class="n">fk_Restaurant_cuisine</span> <span class="k">ON</span> <span class="n">Restaurant</span> <span class="p">(</span> <span class="n">CuisineType</span> <span class="p">)</span> <span class="p">;</span>
+
+ <span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">Inspection</span> <span class="p">(</span>
+   <span class="n">idRestaurant</span> <span class="nb">INT</span><span class="p">,</span> <span class="n">InspectionDate</span> <span class="nb">date</span><span class="p">,</span> <span class="n">ViolationCode</span> <span class="nb">VARCHAR</span><span class="p">,</span>
+   <span class="n">ViolationDescription</span> <span class="nb">VARCHAR</span><span class="p">,</span> <span class="n">CriticalFlag</span> <span class="nb">VARCHAR</span><span class="p">,</span> <span class="n">Score</span> <span class="nb">INT</span><span class="p">,</span> <span class="n">GRADE</span> <span class="nb">VARCHAR</span><span class="p">,</span>
+   <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span> <span class="n">idRestaurant</span><span class="p">,</span> <span class="n">InspectionDate</span> <span class="p">)</span>
+ <span class="p">)</span> <span class="p">;</span>
+
+<span class="k">CREATE</span> <span class="k">INDEX</span> <span class="n">fk_Inspection_Restaurant</span> <span class="k">ON</span> <span class="n">Inspection</span> <span class="p">(</span> <span class="n">Grade</span> <span class="p">)</span> <span class="p">;</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>Nous pouvons remarquer que chaque inspection est liée à un   restaurant via
+l’identifiant de ce dernier.</p>
+<p>Pour vérifier si les tables ont bien été créées (sous <code class="docutils literal notranslate"><span class="pre">cqlsh</span></code>).</p>
+<blockquote>
+<div><div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">DESC</span> <span class="n">Restaurant</span><span class="p">;</span>
+<span class="k">DESC</span> <span class="n">Inspection</span><span class="p">;</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>Nous pouvons voir le schéma des deux tables mais également des informations
+relatives au stockage dans la base <em>Cassandra</em>.</p>
+<div class="section" id="import-des-donnees">
+<h5>Import des données<a class="headerlink" href="#import-des-donnees" title="Lien permanent vers ce titre">¶</a></h5>
+<p>Maintenant, nous pouvons importer les fichiers CSV pour remplir les <em>Column Family</em> :</p>
+<blockquote>
+<div><ol class="arabic">
+<li><p>Décompresser le fichier “restaurants.zip” (il contient le fichier “restaurants.csv” et “restaurants_inspections.csv”)</p>
+<blockquote>
+<div><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>En mode console, sur le répertoire de téléchargement du fichier <em>restaurants.zip</em>, il suffit de mettre la commande :</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>unzip restaurants.zip
+</pre></div>
+</div>
+</div>
+</div></blockquote>
+</li>
+<li><p>Importer un fichier CSV :</p></li>
+</ol>
+<blockquote>
+<div><ul>
+<li><p>Dans votre console (machine locale, pas docker), copier les fichiers sous « <strong>Docker</strong> » (container “Cassandra”)</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker cp path-to-file/restaurants.csv    docker-container-ID:/
+docker cp path-to-file/restaurants_inspections.csv    docker-container-ID:/
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Le chemin « <em>path-to-file</em> » correspond à l’endroit où a été décompressé le fichier restaurants.zip</p>
+<p>le docker-container-ID peut être récupéré grâce à la commande « <em>docker ps</em> ».</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>CONTAINER ID        IMAGE                     COMMAND              CREATED             STATUS              PORTS                                                                                                                                                                                                   NAMES
+b1fa2c7c255d        poklet/cassandra:latest   <span class="s2">&quot;/bin/sh -c start&quot;</span>   <span class="m">6</span> minutes ago       Up <span class="m">6</span> minutes        <span class="m">0</span>.0.0.0:32787-&gt;22/tcp, <span class="m">0</span>.0.0.0:32786-&gt;7000/tcp, <span class="m">0</span>.0.0.0:32785-&gt;7001/tcp, <span class="m">0</span>.0.0.0:32784-&gt;7199/tcp, <span class="m">0</span>.0.0.0:32783-&gt;8012/tcp, <span class="m">0</span>.0.0.0:32782-&gt;9042/tcp, <span class="m">0</span>.0.0.0:32781-&gt;9160/tcp, <span class="m">0</span>.0.0.0:32780-&gt;61621/tcp   cassandra
+</pre></div>
+</div>
+<p>le container-ID est : <em>b1fa2c7c255d</em></p>
+</div>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+<ol class="arabic" start="3">
+<li><p>Dans la console <em>cqlsh</em>, importer les fichiers “<strong>restaurants.csv</strong>” et “<strong>restaurants_inspections.csv</strong>”</p>
+<blockquote>
+<div><div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="n">use</span> <span class="n">resto_NY</span> <span class="p">;</span>
+<span class="k">COPY</span> <span class="n">Restaurant</span> <span class="p">(</span><span class="n">id</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">borough</span><span class="p">,</span> <span class="n">buildingnum</span><span class="p">,</span> <span class="n">street</span><span class="p">,</span>
+                    <span class="n">zipcode</span><span class="p">,</span> <span class="n">phone</span><span class="p">,</span> <span class="n">cuisinetype</span><span class="p">)</span>
+   <span class="k">FROM</span> <span class="s1">&#39;/restaurants.csv&#39;</span> <span class="k">WITH</span> <span class="k">DELIMITER</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">;</span>
+<span class="k">COPY</span> <span class="n">Inspection</span> <span class="p">(</span><span class="n">idrestaurant</span><span class="p">,</span> <span class="n">inspectiondate</span><span class="p">,</span> <span class="n">violationcode</span><span class="p">,</span>
+                    <span class="n">violationdescription</span><span class="p">,</span> <span class="n">criticalflag</span><span class="p">,</span> <span class="n">score</span><span class="p">,</span> <span class="n">grade</span><span class="p">)</span>
+   <span class="k">FROM</span> <span class="s1">&#39;/restaurants_inspections.csv&#39;</span> <span class="k">WITH</span> <span class="k">DELIMITER</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>les fichiers sont copiés à la racine du container, si vous le changez il faut l’impacter dans l’instruction précédente.</p>
+<p>Vous pouvez vérifier l’existence des fichiers dans le container avec :</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ls /*.csv
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+</div></blockquote>
+</li>
+</ol>
+</div></blockquote>
+<p>Pour vérifier le contenu des tables:</p>
+<blockquote>
+<div><div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">Restaurant</span><span class="p">;</span>
+<span class="k">SELECT</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">Inspection</span><span class="p">;</span>
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+</div>
+</div>
+<div class="section" id="interrogation">
+<h3>Interrogation<a class="headerlink" href="#interrogation" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Les requêtes qui suivent sont à exprimer avec <strong>CQL</strong> (pour <em>Cassandra Query Language</em>)
+qui est fortement inspirée de SQL.
+Vous trouverez la syntaxe complète ici :</p>
+<p>&lt;<a class="reference external" href="https://cassandra.apache.org/doc/latest/cql/dml.html#select">https://cassandra.apache.org/doc/latest/cql/dml.html#select</a>&gt;).</p>
+<div class="section" id="requetes-cql-simples">
+<h4>Requêtes CQL simples<a class="headerlink" href="#requetes-cql-simples" title="Lien permanent vers ce titre">¶</a></h4>
+<p>Pour la suite des exercices, exprimer en <em>CQL</em> les requêtes suivantes :</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Liste de tous les restaurants.</p></li>
+<li><p>Liste des noms de restaurants.</p></li>
+<li><p>Nom et quartier (<em>borough</em>) du restaurant N° 41569764.</p></li>
+<li><p>Dates et grades des inspections de ce restaurant.</p></li>
+<li><p>Noms des restaurants de cuisine Française (<em>French</em>).</p></li>
+<li><p>Noms des restaurants situés dans <em>BROOKLYN</em> (attribut <em>borough</em>).</p></li>
+<li><p>Grades et scores donnés pour une inspection pour le restaurant n° 41569764 avec un score d’au moins 10.</p></li>
+<li><p>Grades (non nuls) des inspections dont le score est supérieur à 30.</p></li>
+<li><p>Nombre de lignes retournées par la requête précédente.</p></li>
+</ol>
+</div></blockquote>
+<div class="admonition-correction admonition">
+<p class="admonition-title">Correction</p>
+<ol class="arabic">
+<li><div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">Restaurant</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Sous <code class="docutils literal notranslate"><span class="pre">cqlsh</span></code>, faire Ctrl+C pour annuler l’affichage de toutes les lignes</p>
+</div>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">Restaurant</span> <span class="k">LIMIT</span> <span class="mi">10</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Il est possible de ne montrer que 10 tuples</p>
+</div>
+</li>
+<li><div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">Name</span> <span class="k">FROM</span> <span class="n">Restaurant</span><span class="p">;</span>
+</pre></div>
+</div>
+</li>
+<li><div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Borough</span> <span class="k">FROM</span> <span class="n">Restaurant</span> <span class="k">WHERE</span> <span class="n">id</span><span class="o">=</span><span class="mi">41569764</span><span class="p">;</span>
+</pre></div>
+</div>
+</li>
+<li><div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">InspectionDate</span><span class="p">,</span> <span class="n">Grade</span> <span class="k">FROM</span> <span class="n">Inspection</span> <span class="k">WHERE</span> <span class="n">idRestaurant</span><span class="o">=</span><span class="mi">41569764</span> <span class="p">;</span>
+</pre></div>
+</div>
+</li>
+<li><div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">Name</span> <span class="k">FROM</span> <span class="n">Restaurant</span> <span class="k">WHERE</span> <span class="n">cuisineType</span> <span class="o">=</span> <span class="s1">&#39;French&#39;</span> <span class="p">;</span>
+</pre></div>
+</div>
+</li>
+<li><div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">Name</span> <span class="k">FROM</span> <span class="n">Restaurant</span> <span class="k">WHERE</span> <span class="n">borough</span><span class="o">=</span><span class="s1">&#39;BROOKLYN&#39;</span> <span class="p">;</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<blockquote>
+<div><p>L’erreur suivante apparaît :</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="n">Error</span> <span class="k">from</span> <span class="n">server</span><span class="p">:</span> <span class="n">code</span><span class="o">=</span><span class="mi">2200</span> <span class="p">[</span><span class="n">Invalid</span> <span class="n">query</span><span class="p">]</span> <span class="n">message</span><span class="o">=</span><span class="ss">&quot;Cannot execute this query</span>
+<span class="ss"> as it might involve data filtering and thus may have unpredictable performance.</span>
+<span class="ss"> If you want to execute this query despite the performance unpredictability,</span>
+<span class="ss">  use ALLOW FILTERING&quot;</span>
+</pre></div>
+</div>
+<p>Il suffit d’ajouter <em>ALLOW FILTERING</em> à la fin de la requête pour pouvoir l’exécuter.
+La requête précédente fonctionnait grâce à l’index qui
+a été créé sur <code class="docutils literal notranslate"><span class="pre">cuisineType</span></code> et qui permet d’exécuter cette requête simplement.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Attention, dans le cadre de notre TP, cette requête est peu coûteuse.
+Ce n’est pas toujours le cas.</p>
+</div>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">Name</span> <span class="k">FROM</span> <span class="n">Restaurant</span> <span class="k">WHERE</span> <span class="n">borough</span><span class="o">=</span><span class="s1">&#39;BROOKLYN&#39;</span> <span class="n">ALLOW</span> <span class="n">FILTERING</span> <span class="p">;</span>
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic" start="7">
+<li><div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">Grade</span><span class="p">,</span> <span class="n">Score</span> <span class="k">FROM</span> <span class="n">Inspection</span> <span class="k">WHERE</span> <span class="n">idRestaurant</span><span class="o">=</span><span class="mi">41569764</span> <span class="k">AND</span> <span class="n">score</span> <span class="o">&gt;=</span> <span class="mi">10</span> <span class="p">;</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<blockquote>
+<div><p>Du fait de la présence de 2 critères dans la requête, dont un est indexé,
+Cassandra ne peut prédire la taille du résultat et envoi un message d’alerte :</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="n">InvalidRequest</span><span class="p">:</span> <span class="n">code</span><span class="o">=</span><span class="mi">2200</span> <span class="p">[</span><span class="n">Invalid</span> <span class="n">query</span><span class="p">]</span> <span class="n">message</span><span class="o">=</span>
+   <span class="ss">&quot;Cannot execute this query as it might involve data filtering and thus may have</span>
+<span class="ss">   unpredictable performance. If you want to execute this query despite the</span>
+<span class="ss">   performance unpredictability, use ALLOW FILTERING&quot;</span>
+</pre></div>
+</div>
+<p>Il suffit d’ajouter <em>ALLOW FILTERING</em> à la fin de la requête pour pouvoir l’exécuter.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Attention, dans le cadre de notre TP, cette requête est peu coûteuse. Ce n’est
+pas toujours le cas.</p>
+</div>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">Grade</span><span class="p">,</span> <span class="n">Score</span> <span class="k">FROM</span> <span class="n">Inspection</span> <span class="k">WHERE</span> <span class="n">idRestaurant</span><span class="o">=</span><span class="mi">41569764</span>
+<span class="k">AND</span> <span class="n">score</span> <span class="o">&gt;=</span> <span class="mi">10</span> <span class="n">ALLOW</span> <span class="n">FILTERING</span> <span class="p">;</span>
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic" start="8">
+<li><div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">Grade</span> <span class="k">FROM</span> <span class="n">Inspection</span> <span class="k">WHERE</span> <span class="n">score</span> <span class="o">&gt;</span> <span class="mi">30</span> <span class="k">AND</span> <span class="n">Grade</span> <span class="o">&gt;</span> <span class="s1">&#39;&#39;</span> <span class="n">ALLOW</span> <span class="n">FILTERING</span> <span class="p">;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>L’opération « != » n’existe pas en CQL, ni la valeur “nulle”. De fait,
+la valeur nulle pour un nombre est 0, et “” pour un texte.
+Ainsi, pour filtrer la valeur nulle, il faut faire « &gt; “” ».</p>
+</div>
+</li>
+<li><div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">Inspection</span> <span class="k">WHERE</span> <span class="n">score</span> <span class="o">&gt;</span> <span class="mi">30</span> <span class="k">AND</span> <span class="n">Grade</span> <span class="o">&gt;</span> <span class="s1">&#39;&#39;</span> <span class="n">ALLOW</span> <span class="n">FILTERING</span> <span class="p">;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>L’opération affiche le résultat. Toutefois, des messages sont affichés pour montrer que de nombreuses lignes sont parcourues lors du traitement. Un message pour chaque “bucket” stocké dans la base Cassandra.</p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="section" id="cql-avance">
+<h4>CQL Avancé<a class="headerlink" href="#cql-avance" title="Lien permanent vers ce titre">¶</a></h4>
+<blockquote>
+<div><ol class="arabic">
+<li><p>Pour la requête ci-dessous faites en sorte qu’elle soit exécutable sans <em>ALLOW FILTERING</em>.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">Name</span> <span class="k">FROM</span> <span class="n">Restaurant</span> <span class="k">WHERE</span> <span class="n">borough</span><span class="o">=</span><span class="s1">&#39;BROOKLYN&#39;</span> <span class="p">;</span>
+</pre></div>
+</div>
+</li>
+<li><p>Utilisons les deux indexes sur <em>Restaurant</em> (<em>borough</em> et <em>cuisineType</em>). Trouvez tous
+les noms de restaurants français de Brooklyn.</p></li>
+<li><p>Utiliser la commande <em>TRACING ON</em> avant la d’exécuter à nouveau la requête pour
+identifier quel index a été utilisé.</p></li>
+<li><p>On veut les noms des restaurants ayant au moins un grade “A” dans leurs inspections. Est-ce
+possible en CQL?</p></li>
+</ol>
+</div></blockquote>
+<div class="admonition-correction admonition">
+<p class="admonition-title">Correction</p>
+<ol class="arabic simple">
+<li><p>Il faut pour cela créer un index sur “status” :</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">CREATE</span> <span class="k">INDEX</span> <span class="n">Restaurant_borough</span> <span class="k">ON</span> <span class="n">Restaurant</span> <span class="p">(</span> <span class="n">borough</span> <span class="p">)</span> <span class="p">;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Attention à ne pas exécuter la requête trop tôt après la
+création de l’index, le résultat ne sera pas cohérent (message d’erreur).
+Après quelques secondes la requête peut s’exécuter.</p>
+</div>
+</div></blockquote>
+<ol class="arabic" start="2">
+<li><div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">Name</span> <span class="k">FROM</span> <span class="n">Restaurant</span> <span class="k">WHERE</span> <span class="n">borough</span> <span class="o">=</span> <span class="s1">&#39;BROOKLYN&#39;</span>
+<span class="k">AND</span> <span class="n">cuisinType</span> <span class="o">=</span> <span class="s1">&#39;French&#39;</span> <span class="n">ALLOW</span> <span class="n">FILTERING</span> <span class="p">;</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<blockquote>
+<div><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Les deux indexes ne peuvent être utilisés conjointement,
+il faut donc filtrer normalement.</p>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="3">
+<li><p>En utilisant la commande <em>TRACING ON</em>, nous pouvons constater l’ensemble
+de la <em>trace</em> de la requête (ou log d’exécution). Parmi toute la trace,
+la ligne suivante est disponible au début :</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Index mean cardinalities are fk_restaurant_cuisine:1,restaurant_borough:1.
+Scanning with fk_restaurant_cuisine.
+</pre></div>
+</div>
+<p>Cela nous permet de voir que l’index <em>fk_restaurant_cuisine</em> a été utilisé en priorité.</p>
+</div></blockquote>
+<ol class="arabic simple" start="4">
+<li><p>Naturellement, nous voudrions faire cela :</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">Name</span> <span class="k">FROM</span> <span class="n">Restaurant</span><span class="p">,</span> <span class="n">Inspection</span>
+<span class="k">WHERE</span> <span class="n">id</span> <span class="o">=</span> <span class="n">idRestaurant</span> <span class="k">and</span> <span class="n">Grade</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>ou</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">Name</span> <span class="k">FROM</span> <span class="n">Restaurant</span>
+<span class="k">WHERE</span> <span class="n">id</span> <span class="k">IN</span> <span class="p">(</span><span class="k">SELECT</span> <span class="n">idRestaurant</span> <span class="k">FROM</span> <span class="n">Inspection</span> <span class="k">WHERE</span> <span class="n">Grade</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Sauf qu’il n’est pas possible de faire de jointures en CQL.
+Le langage ne donnera aucune possibilité à cette requête.
+Nous allons étudier la solution par la suite.</p>
+</div></blockquote>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="partie-2-modelisation-specifique-nosql">
+<h2>Partie 2: modélisation spécifique NoSQL<a class="headerlink" href="#partie-2-modelisation-specifique-nosql" title="Lien permanent vers ce titre">¶</a></h2>
+<p>La jointure n’est pas possible avec CQL, mais ce manque est partiellement compensé
+par la possibilité d’imbriquer les données pour créer des documents qui
+représentent, d’une certaine manière, le résultat pré-calculé de la jointure.</p>
+<p>Cela suppose au préalable la détermination des requêtes à soumettre à la base
+puisque les données ne sont plus symétriques, et privilégient de fait
+certains types d’accès (cf. le cours sur la modélisation dans le chapitre
+<a class="reference internal" href="bddoc.html#chap-bddoc"><span class="std std-ref">Interrogation de bases NoSQL</span></a>). Plusieurs possibilités s’offrent à vous :</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Type imbriqué</p></li>
+<li><p>Utilisation d’un <em>map</em>.</p></li>
+</ul>
+</div></blockquote>
+<p>Les exercices suivants vous proposent des besoins (requêtes).
+À vous de définir la bonne modélisation en utilisant l’une des possibilités
+ci-desssus, et de vérifier qu’elle permet de satisfaire
+ce type de recherche.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Pour importer un gros fichier de documents JSon, nous avons
+implémenté une application permettant de lire le document et de
+l’importer dans une base (présent dans le fichier <code class="docutils literal notranslate"><span class="pre">restaurants.zip</span></code>) ;</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>java -jar JSonFile2Cassandra <span class="o">[</span>-host &lt;host&gt;<span class="o">]</span> <span class="o">[</span>-port &lt;port&gt;<span class="o">]</span>
+            <span class="o">[</span>-keyspace &lt;keyspace&gt;<span class="o">]</span> <span class="o">[</span>-columnFamily &lt;columnFamily&gt;<span class="o">]</span> <span class="o">[</span>file<span class="o">]</span>
+</pre></div>
+</div>
+<p>Exemple :</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>java -jar JSonFile2Cassandra.jar -host <span class="m">192</span>.168.99.100 -port <span class="m">32783</span>
+    -keyspace resto_NY -columnFamily InspectionRestaurant
+    -file InspectionsRestaurant.json
+</pre></div>
+</div>
+</div>
+<div class="section" id="premier-besoin">
+<h3>Premier besoin<a class="headerlink" href="#premier-besoin" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Notre besoin ici est de pouvoir sélectionner les restaurants en fonction de leur grade. On
+voudrait par exemple répondre à la question:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">noms</span> <span class="n">des</span> <span class="n">restaurants</span> <span class="n">ayant</span> <span class="n">au</span> <span class="n">moins</span> <span class="n">un</span> <span class="n">grade</span> <span class="s1">&#39;A&#39;</span> <span class="n">dans</span> <span class="n">leurs</span> <span class="n">inspections</span>
+</pre></div>
+</div>
+<p>Voici les étapes à suivre.</p>
+<blockquote>
+<div><ol class="arabic">
+<li><p>Définir le modèle de document associant les restaurants et leurs inspections,
+en utilisant les types imbriqués,
+et créer la table.</p>
+<div class="admonition-correction admonition">
+<p class="admonition-title">Correction</p>
+<ol class="arabic simple">
+<li><p>Il faut imbriquer les restaurants dans les inspections.
+on crée un type et on l’intégre à la table
+comme ceci :</p></li>
+</ol>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">CREATE</span> <span class="k">TYPE</span> <span class="n">Restaurant</span> <span class="p">(</span>
+    <span class="n">Name</span> <span class="nb">VARCHAR</span><span class="p">,</span> <span class="n">borough</span> <span class="nb">VARCHAR</span><span class="p">,</span> <span class="n">BuildingNum</span> <span class="nb">VARCHAR</span><span class="p">,</span> <span class="n">Street</span> <span class="nb">VARCHAR</span><span class="p">,</span>
+   <span class="n">ZipCode</span> <span class="nb">INT</span><span class="p">,</span> <span class="n">Phone</span> <span class="nb">VARCHAR</span><span class="p">,</span> <span class="n">CuisineType</span> <span class="nb">VARCHAR</span><span class="p">);</span>
+<span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">InspectionRestaurant</span> <span class="p">(</span>
+   <span class="n">idRestaurant</span> <span class="nb">INT</span><span class="p">,</span> <span class="n">InspectionDate</span> <span class="nb">date</span><span class="p">,</span> <span class="n">ViolationCode</span> <span class="nb">VARCHAR</span><span class="p">,</span>
+   <span class="n">ViolationDescription</span> <span class="nb">VARCHAR</span><span class="p">,</span> <span class="n">CriticalFlag</span> <span class="nb">VARCHAR</span><span class="p">,</span> <span class="n">Score</span> <span class="nb">INT</span><span class="p">,</span>
+   <span class="n">GRADE</span> <span class="nb">VARCHAR</span><span class="p">,</span> <span class="n">Restaurant</span> <span class="n">frozen</span><span class="o">&lt;</span><span class="n">Restaurant</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span> <span class="n">idRestaurant</span><span class="p">,</span> <span class="n">InspectionDate</span> <span class="p">)</span>
+ <span class="p">)</span> <span class="p">;</span>
+</pre></div>
+</div>
+</div>
+</li>
+<li><p>Insérer un document dans la table.</p>
+<div class="admonition-correction admonition">
+<p class="admonition-title">Correction</p>
+<p>Voici un exemple.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">InspectionRestaurant</span> <span class="n">JSON</span> <span class="s1">&#39; {&quot;idRestaurant&quot;:40373938,</span>
+<span class="s1">   &quot;restaurant&quot;: {&quot;name&quot;:&quot;IHOP&quot;, &quot;borough&quot;:&quot;BRONX&quot;, &quot;buildingnum&quot;:&quot;5655&quot;,</span>
+<span class="s1">                  &quot;street&quot;:&quot;BROADWAY&quot;, &quot;zipcode&quot;:&quot;10463&quot;,</span>
+<span class="s1">                  &quot;phone&quot;:&quot;7185494565&quot;, &quot;cuisineType&quot;:&quot;American&quot;},</span>
+<span class="s1">  &quot;inspectionDate&quot;:&quot;2016-08-16&quot;,</span>
+<span class="s1">  &quot;violationCode&quot;:&quot;04L&quot;,</span>
+<span class="s1">  &quot;violationDescription&quot;: &quot;On voit des sourtis!.&quot;,</span>
+<span class="s1">  &quot;criticalFlag&quot;: &quot;Critical&quot;,</span>
+<span class="s1">  &quot;score&quot;:15,</span>
+<span class="s1">  &quot;grade&quot;:&quot;A&quot;}&#39;</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+</li>
+<li><p>Faire l’import avec l’utilitaire d’insertion de documents JSON.</p></li>
+<li><p>Créer un index sur le <em>Grade</em> de la table <strong>InspectionRestaurant</strong>,
+puis trouver les restaurants ayant reçu le grade “A” au moins une fois.</p>
+<blockquote>
+<div><div class="admonition-correction admonition">
+<p class="admonition-title">Correction</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">create</span> <span class="k">index</span> <span class="n">InspectionRestaurant_grade</span> <span class="k">ON</span> <span class="n">InspectionRestaurant</span> <span class="p">(</span> <span class="n">Grade</span> <span class="p">)</span> <span class="p">;</span>
+
+<span class="k">select</span> <span class="n">Restaurant</span> <span class="k">from</span> <span class="n">InspectionRestaurant</span> <span class="k">where</span> <span class="n">grade</span> <span class="o">=</span> <span class="s1">&#39;A&#39;</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+</div></blockquote>
+<p>Malheureusement, les <em>types</em> imbriqués, <em>map</em>, <em>set</em> et <em>list</em> ne peuvent être
+dissociés dans la clause <em>SELECT</em>. Il faut donc projeter l’ensemble des informations
+du restaurant. On pourra constater que le nom du restaurant apparaît autant de fois
+qu’il y a d’inspections. Ce qui rend cette requête un peu
+moins efficace car elle demande d’interroger plus de ressources. Aucun <code class="docutils literal notranslate"><span class="pre">distinct</span></code> ne
+peut être exécuté en dehors de la clé primaire. Bref, ce n’est pas vraiment satisfaisant.</p>
+</li>
+</ol>
+</div></blockquote>
+</div>
+<div class="section" id="second-besoin">
+<h3>Second besoin<a class="headerlink" href="#second-besoin" title="Lien permanent vers ce titre">¶</a></h3>
+<div class="admonition-note admonition">
+<p class="admonition-title">Note</p>
+<p>Il semble qu’il y ait quelques corrections à effectuer dans les …
+corrections que nous proposons ci-dessous. Ce sera fait prochainement.</p>
+</div>
+<p>Maintenant, on veut pouvoir rechercher les restaurants par leur quartier (<em>borough</em>).</p>
+<blockquote>
+<div><ol class="arabic">
+<li><p>Est-ce possible sur le schéma précédent?</p>
+<div class="admonition-correction admonition">
+<p class="admonition-title">Correction</p>
+<p>Les types figés (<code class="docutils literal notranslate"><span class="pre">frozen</span></code>) sont traités comme des <em>blob</em>. De fait,
+lorsque l’on souhaite les interroger, il faut filtrer sur l’ensemble du document
+imbriqué (l’ensemble des
+informations du restaurant), ce qui n’est pas gérable dans notre cas.</p>
+</div>
+</li>
+<li><p>Proposer un modélisation adaptée, et créer la table. Utiliser cette fois la solution
+du <code class="docutils literal notranslate"><span class="pre">map</span></code> avec la date d’insertion comme clé.</p>
+<div class="admonition-correction admonition">
+<p class="admonition-title">Correction</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">CREATE</span> <span class="k">TYPE</span> <span class="n">Inspection</span> <span class="p">(</span>
+  <span class="n">ViolationCode</span> <span class="nb">VARCHAR</span><span class="p">,</span>
+  <span class="n">ViolationDescription</span> <span class="nb">VARCHAR</span><span class="p">,</span> <span class="n">CriticalFlag</span> <span class="nb">VARCHAR</span><span class="p">,</span> <span class="n">Score</span> <span class="nb">INT</span><span class="p">,</span> <span class="n">GRADE</span> <span class="nb">VARCHAR</span><span class="p">,</span>
+<span class="p">)</span> <span class="p">;</span>
+<span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">RestaurantInspections</span> <span class="p">(</span>
+   <span class="n">id</span> <span class="nb">INT</span><span class="p">,</span> <span class="n">Name</span> <span class="nb">VARCHAR</span><span class="p">,</span> <span class="n">borough</span> <span class="nb">VARCHAR</span><span class="p">,</span> <span class="n">BuildingNum</span> <span class="nb">VARCHAR</span><span class="p">,</span> <span class="n">Street</span> <span class="nb">VARCHAR</span><span class="p">,</span>
+   <span class="n">ZipCode</span> <span class="nb">INT</span><span class="p">,</span> <span class="n">Phone</span> <span class="nb">VARCHAR</span><span class="p">,</span> <span class="n">CuisineType</span> <span class="nb">VARCHAR</span><span class="p">,</span>
+   <span class="n">Inspections</span> <span class="k">map</span><span class="o">&lt;</span><span class="nb">text</span><span class="p">,</span> <span class="n">frozen</span><span class="o">&lt;</span><span class="n">Inspection</span><span class="o">&gt;&gt;</span><span class="p">,</span>
+   <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">);</span>
+</pre></div>
+</div>
+</div>
+</li>
+<li><p>Insérer des données dans la nouvelle table, soit directement, soit avec l’utilitaire d’import.</p>
+<div class="admonition-correction admonition">
+<p class="admonition-title">Correction</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">RestaurantInspections</span> <span class="n">JSON</span> <span class="s1">&#39; {&quot;id&quot;:40373938,</span>
+<span class="s1"> &quot;name&quot;:&quot;IHOP&quot;, &quot;borough&quot;:&quot;BRONX&quot;, &quot;buildingnum&quot;:&quot;5655&quot;, &quot;street&quot;:&quot;BROADWAY&quot;,</span>
+<span class="s1"> &quot;zipcode&quot;:&quot;10463&quot;, &quot;phone&quot;:&quot;7185494565&quot;, &quot;cuisineType&quot;:&quot;American&quot;,</span>
+<span class="s1"> &quot;inspections&quot;:{</span>
+<span class="s1">    &quot;2016-08-16&quot;:{&quot;violationCode&quot;:&quot;04L&quot;, &quot;violationDescription&quot;:</span>
+<span class="s1">      &quot;Evidence of mice.&quot;,</span>
+<span class="s1">      &quot;criticalFlag&quot;:&quot;Critical&quot;, &quot;score&quot;:15, &quot;grade&quot;:&quot;&quot;},</span>
+<span class="s1">    &quot;2014-02-20&quot;:{&quot;violationCode&quot;:&quot;08C&quot;, &quot;violationDescription&quot;:</span>
+<span class="s1">      &quot;Pesticide used!&quot;,</span>
+<span class="s1">      &quot;criticalFlag&quot;:&quot;Not Critical&quot;, &quot;score&quot;:7, &quot;grade&quot;:&quot;&quot;},</span>
+<span class="s1">    &quot;2014-03-11&quot;:{&quot;violationCode&quot;:&quot;10B&quot;, &quot;violationDescription&quot;:</span>
+<span class="s1">      &quot;Plumbing not properly installed.&quot;,</span>
+<span class="s1">      &quot;criticalFlag&quot;:&quot;Not Critical&quot;, &quot;score&quot;:12, &quot;grade&quot;:&quot;A&quot;}</span>
+<span class="s1">  }}&#39;</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+</li>
+<li><p>Trouver tous les restaurants du Bronx.</p>
+<div class="admonition-correction admonition">
+<p class="admonition-title">Correction</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">inspectionRestaurant</span>
+<span class="k">where</span> <span class="n">restaurant</span><span class="p">[</span><span class="s1">&#39;borough&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;BRONX&#39;</span> <span class="n">allow</span> <span class="n">filtering</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+</li>
+<li><p>Maintenant, on veut, sur cette second table, trouver tous les
+restaurants ayant reçu une note “A”. Est-ce possible? Chercher une
+solution permise par le fait que nous avons utilisé le type <code class="docutils literal notranslate"><span class="pre">map</span></code>.</p>
+<div class="admonition-correction admonition">
+<p class="admonition-title">Correction</p>
+<p>C’est de fait possible avec le type <code class="docutils literal notranslate"><span class="pre">map</span></code>. On crée
+un index sur le Grade de <em>RestaurantInspections</em> ;</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">CREATE</span> <span class="k">INDEX</span> <span class="n">RestaurantInspections_Grade</span> <span class="k">ON</span> <span class="n">RestaurantInspections</span> <span class="p">(</span> <span class="n">Inspections</span><span class="p">.</span><span class="n">grade</span> <span class="p">)</span> <span class="p">;</span>
+</pre></div>
+</div>
+<p>On peut alors écrire la requête en fonction du nouveau schéma :</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">Name</span> <span class="k">FROM</span> <span class="n">RestaurantInspections</span>
+<span class="k">WHERE</span> <span class="n">Inspections</span><span class="p">.</span><span class="n">Grade</span><span class="o">=</span><span class="s1">&#39;A&#39;</span> <span class="n">ALLOW</span> <span class="n">FILTERING</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+</li>
+</ol>
+</div></blockquote>
+</div>
+<div class="section" id="bonus">
+<h3>Bonus<a class="headerlink" href="#bonus" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Pour pouvoir développer une application au dessus de Cassandra, il est nécessaire
+d’avoir un pilote ou <em>Driver</em>. Vous pourrez les trouver sur la page de <strong>DataStaX</strong> :
+&lt;<a class="reference external" href="https://academy.datastax.com/all-downloads">https://academy.datastax.com/all-downloads</a>&gt;</p>
+</div>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+            <div>        
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Licence Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">
+  Ce cours</span> de <a xmlns:cc="http://creativecommons.org/ns#" href="http://www.bdpedia.fr" property="cc:attributionName" rel="cc:attributionURL">Philippe Rigaux</a> est mis à disposition selon les termes de la <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">licence Creative Commons Attribution - Pas d’Utilisation Commerciale - Partage dans les Mêmes Conditions 4.0 International</a>.
+</div>
+        <hr/>
+          <h3>Table Of Contents</h3>
+          <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docker.html">Préliminaires: Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docstruct.html">Modélisation de bases NoSQL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bddoc.html">Interrogation de bases NoSQL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mapreduce.html">MapReduce, premiers pas</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Cassandra - Travaux Pratiques</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#partie-1-approche-relationnelle">Partie 1: Approche relationnelle</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#creation-de-la-base-de-donnees">Création de la base de données</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#tables">Tables</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#import-des-donnees">Import des données</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#interrogation">Interrogation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#requetes-cql-simples">Requêtes CQL simples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cql-avance">CQL Avancé</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#partie-2-modelisation-specifique-nosql">Partie 2: modélisation spécifique NoSQL</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#premier-besoin">Premier besoin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#second-besoin">Second besoin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bonus">Bonus</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mongodb_tp.html">MongoDB - Travaux Pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ri-intro.html">Introduction à la recherche d’information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ri-indexation.html">Recherche d’information : l’indexation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ri-ranking.html">Recherche avec classement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ri-tpelasticdsl.html">Recherche d’information - TP ElasticSearch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ri-tpranking.html">Recherche d’information - TP ElasticSearch : pertinence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cloud.html">Le <em>cloud</em>, une nouvelle machine de calcul</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replication.html">Systèmes NoSQL: la réplication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sharding.html">Systèmes NoSQL: le partitionnement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calculdistr.html">Calcul distribué: Hadoop et MapReduce</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spark-batch.html">Traitement de données massives avec Apache Spark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="flink-streaming.html">Traitement de flux massifs avec Apache Flink</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pigtp.html">Pig : Travaux pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="projet.html">Projets NFE204</a></li>
+<li class="toctree-l1"><a class="reference internal" href="annales.html">Annales des examens</a></li>
+</ul>
+
+          <h3 style="margin-top: 1.5em;">Recherche</h3>
+          <form class="search" action="search.html" method="get">
+            <input type="text" name="q" />
+            <input type="submit" value="Go" />
+            <input type="hidden" name="check_keywords" value="yes" />
+            <input type="hidden" name="area" value="default" />
+          </form>
+          <p class="searchtip" style="font-size: 90%">
+      Saisissez un ou plusieurs mots-clés.
+          </p>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <a href="mapreduce.html" title="MapReduce, premiers pas"
+             >précédent</a> |
+          <a href="mongodb_tp.html" title="MongoDB - Travaux Pratiques"
+             >suivant</a> |
+          <a href="genindex.html" title="Index général"
+             >index</a>
+        </div>
+
+        <div class="right">
+        <a href="index.html">Cassandra - Travaux Pratiques</a><br/>
+          
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2014-2022, Nicolas Travers, Raphaël Fournier S&#39;niehotta et Philippe Rigaux.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>

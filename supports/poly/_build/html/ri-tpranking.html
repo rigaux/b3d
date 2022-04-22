@@ -1,0 +1,418 @@
+
+<!DOCTYPE html>
+
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recherche d’information - TP ElasticSearch : pertinence &#8212; Bases de données documentaires et distribuées v&lt;release&gt; - Cours CNAM NFE204</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/agogo.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/translations.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Recherche" href="search.html" />
+    <link rel="next" title="Le cloud, une nouvelle machine de calcul" href="cloud.html" />
+    <link rel="prev" title="Recherche d’information - TP ElasticSearch" href="ri-tpelasticdsl.html" /> 
+  </head><body>
+    <div class="header-wrapper">
+      <div class="header">
+        <div class="headertitle"><a
+          href="index.html">Recherche d’information - TP ElasticSearch : pertinence</a></div>
+        <div class="rel">
+          <a href="ri-tpelasticdsl.html" title="Recherche d’information - TP ElasticSearch"
+             accesskey="P">précédent</a><font color="white"> |</font>
+          <a href="cloud.html" title="Le cloud, une nouvelle machine de calcul"
+             accesskey="N">suivant</a><font color="white"> |</font>
+          <a href="genindex.html" title="Index général"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+<script type="text/javascript" src="_static/dynsite.js"></script>
+
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="recherche-d-information-tp-elasticsearch-pertinence">
+<span id="chap-ritp-tpranking"></span><h1>Recherche d’information - TP ElasticSearch : pertinence<a class="headerlink" href="#recherche-d-information-tp-elasticsearch-pertinence" title="Lien permanent vers ce titre">¶</a></h1>
+<p>Cette séance de travaux pratiques est à réaliser à la suite de la précédente
+(voir chapitre <a class="reference internal" href="ri-tpelasticdsl.html#chap-ritp-tpelasticdsl"><span class="std std-ref">Recherche d’information - TP ElasticSearch</span></a>). En particulier, le lancement
+d’ElasticSearch et le chargement des données sont identiques. On travaille sur
+l’index contenant les données de 5000 films (environ).</p>
+<p>Vous devriez notamment pouvoir relancer votre instance es1 avec la commande
+suivante (conservez ou enlevez le <code class="docutils literal notranslate"><span class="pre">-i</span></code> selon que vous souhaitez avoir votre
+serveur en mode interactif ou non) :</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker start -i es1
+</pre></div>
+</div>
+<p>Ouvrez ensuite un nouveau terminal.</p>
+<div class="section" id="elasticsearch-et-la-pertinence">
+<h2>Elasticsearch et la pertinence<a class="headerlink" href="#elasticsearch-et-la-pertinence" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="section" id="une-premiere-notion-de-score">
+<h3>Une première notion de score<a class="headerlink" href="#une-premiere-notion-de-score" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Nous pouvons observer avec l’API <code class="docutils literal notranslate"><span class="pre">_explain</span></code> d’Elasticsearch le calcul du score
+pour un film donné et pour une requête donnée.</p>
+<p>Prenons, par exemple, la requête <code class="docutils literal notranslate"><span class="pre">life</span></code> sur le titre, et regardons quel score
+est calculé pour le film des Monty Python, « Life of Brian » (La vie de Brian, en
+français).</p>
+<p>Utilisez la requête suivante (en <code class="docutils literal notranslate"><span class="pre">POST</span></code>) dans l’adresse :</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>movies/movie/2232/_explain
+</pre></div>
+</div>
+<p>Et celle-ci dans la partie « document » :</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">{</span>
+  <span class="s2">&quot;query&quot;</span>: <span class="o">{</span>
+    <span class="s2">&quot;match&quot;</span>: <span class="o">{</span>
+      <span class="s2">&quot;fields.title&quot;</span>: <span class="s2">&quot;life&quot;</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>Vous devez obtenir un score de 3.077677 (quelques chiffres peuvent différer à
+la fin).</p>
+<ul class="simple">
+<li><p>Avec <a class="reference external" href="https://www.elastic.co/guide/en/elasticsearch/guide/current/scoring-theory.html#_putting_it_together">la documentation</a>,
+reconstituez les détails du calcul de ce score, avec tf, idf et
+fieldNorm.</p></li>
+</ul>
+<p>En réalité, reposant sur Lucene, Elasticsearch utilise généralement une fonction
+de score plus évoluée que celle que l’on vient de voir, qui combine seulement 3
+facteurs. Cette fonction est appelée la <a class="reference external" href="https://www.elastic.co/guide/en/elasticsearch/guide/current/practical-scoring-function.html">Practical Scoring Function</a>
+de Lucene.</p>
+<p>En lisant les explications sur la Practical Scoring Function (lien dans la
+phrase précédente), vous devriez
+constater que le score final repose sur les notions de <code class="docutils literal notranslate"><span class="pre">tf</span></code> et d”<code class="docutils literal notranslate"><span class="pre">idf</span></code> que
+vous connaissez, mais qu’il y a des modifications importantes. Notamment, de
+nouveaux paramètres font leur apparition, l”<code class="docutils literal notranslate"><span class="pre">idf</span></code> est élevé au carré et le
+<code class="docutils literal notranslate"><span class="pre">tf</span></code> est la racine carré du nombre d’occurrences d’un terme dans le document,
+ce qui diffère sensiblement de la formule vue <a class="reference external" href="http://b3d.bdpedia.fr/ri-ranking.html#le-poids-tf-idf">dans le cours</a>. Les effets des
+différents termes ou facteurs sont détaillés dans cette documentation. Nous
+allons dans la suite aborder l’un d’entre eux, le <code class="docutils literal notranslate"><span class="pre">boosting</span></code>.</p>
+</div>
+<div class="section" id="boosting">
+<h3>Boosting<a class="headerlink" href="#boosting" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Quand on effectue des recherches sur plus d’un champ, il peut rapidement devenir
+pertinent de donner davantage de poids à l’un ou l’autre de ces champs, de façon
+à améliorer les résultats de recherche. Par exemple, il peut être tentant
+d’indiquer qu’une correspondance (<cite>match</cite>) dans le titre d’un document vaut 2
+fois plus qu’une correspondance dans n’importe quel autre champ. C’est ce que
+l’on appelle en anglais le <cite>boosting</cite>, cela autorise la modification du score
+calculé par Elasticsearch en vue de rendre les résultats plus pertinents (pour
+les utilisateurs d’un système donné).</p>
+<p>Il existe de nombreuses manières d’ajuster les paramètres entrant dans le score,
+nous allons en aborder quelques unes.</p>
+<p>Saisissez la commande suivante et observez la position d’American Grafiti dans
+le classement, avec et sans l’option « boost ». Que se passe-t-il ?</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;_source&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;includes&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="s2">&quot;*.title&quot;</span>
+    <span class="p">],</span>
+    <span class="nt">&quot;excludes&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="s2">&quot;*.actors*&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;fields.genres&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;fields.directors&quot;</span>
+    <span class="p">]</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;query&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;bool&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;should&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+          <span class="nt">&quot;match&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;fields.title&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="nt">&quot;query&quot;</span><span class="p">:</span> <span class="s2">&quot;Star Wars&quot;</span><span class="p">,</span>
+              <span class="nt">&quot;boost&quot;</span><span class="p">:</span> <span class="mi">4</span>
+            <span class="p">}</span>
+          <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+          <span class="nt">&quot;match&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;fields.directors&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="nt">&quot;query&quot;</span><span class="p">:</span> <span class="s2">&quot;George Lucas&quot;</span>
+            <span class="p">}</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">]</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Avec le boosting, American Grafiti est 9e, derrière Bride Wars, mieux classé car
+le boosting favorise la correspondance avec (au moins) un des mots du titre.</p>
+<p>Si on peut associer du boosting positif à certaines valeurs de certains
+champs, on peut rejeter vers le bas du classement des documents qui
+contiennent certaines valeurs pour d’autres champs. On peut combiner boosting
+positif et boosting négatif (évidemment pour des champs différents).</p>
+<p>Exemple : avec la requête ci-dessous, on ne récupère que les films dont le titre
+contient Star Wars, mais l’on pondère négativement avec <code class="docutils literal notranslate"><span class="pre">negative</span> <span class="pre">boost</span></code> le
+réalisateur JJ Abrams, dont le film doit apparaître en queue de classement :</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;_source&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;includes&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="s2">&quot;*.title&quot;</span>
+    <span class="p">],</span>
+    <span class="nt">&quot;excludes&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="s2">&quot;*.actors*&quot;</span>
+    <span class="p">]</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;query&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;boosting&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;positive&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;query&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;match_phrase&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;fields.title&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="nt">&quot;query&quot;</span><span class="p">:</span> <span class="s2">&quot;Star Wars&quot;</span><span class="p">,</span>
+              <span class="nt">&quot;boost&quot;</span><span class="p">:</span> <span class="mi">2</span>
+            <span class="p">}</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">},</span>
+      <span class="nt">&quot;negative&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;match&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;fields.directors&quot;</span><span class="p">:</span> <span class="s2">&quot;Abrams&quot;</span>
+        <span class="p">}</span>
+      <span class="p">},</span>
+      <span class="nt">&quot;negative_boost&quot;</span><span class="p">:</span> <span class="mf">0.5</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Si les documents contiennent des valeurs numériques comme la popularité (les
+<cite>likes</cite> d’un statut de réseau social, le nombre d’achats d’un produit donné), ou
+une note, il est possible d’utiliser cet indicateur pour pondérer les documents.</p>
+<p>On utilise pour cela <code class="docutils literal notranslate"><span class="pre">field_value_factor</span></code>.  Avec nos documents, nous pouvons
+proposer une pondération avec la note (ce qui revient à ordonner par <code class="docutils literal notranslate"><span class="pre">rating</span></code>) :</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;_source&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;includes&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="s2">&quot;*.title&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;*.rating&quot;</span>
+    <span class="p">],</span>
+    <span class="nt">&quot;excludes&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="s2">&quot;*.actors*&quot;</span>
+    <span class="p">]</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;query&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;function_score&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;query&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;match_phrase&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;fields.directors&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;query&quot;</span><span class="p">:</span> <span class="s2">&quot;Sergio Leone&quot;</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">},</span>
+      <span class="nt">&quot;functions&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+          <span class="nt">&quot;field_value_factor&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;field&quot;</span><span class="p">:</span> <span class="s2">&quot;fields.rating&quot;</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">]</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Regardez notamment les scores qui sont maintenant calculés. Il est possible
+d’ajouter de nombreux paramètres, pour modifier la façon dont est utilisée cette
+valeur de note (multiplication, addition, max, min, etc.).</p>
+<p>Il est même possible, avec <code class="docutils literal notranslate"><span class="pre">script_score</span></code> de calculer vos propres valeurs et
+d’en tenir ensuite compte dans le calcul du score (voir
+<a class="reference external" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html#function-script-score">https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html#function-script-score</a>
+pour les détails).</p>
+<p>Regardons pour finir des fonctions assez utiles, les fonctions de décroissance.
+Celles-ci s’appliquent à une valeur d’un document selon une échelle « glissante ».</p>
+<p>L’idée est d’ajuster la pertinence des documents en fonction, par exemple :</p>
+<ul class="simple">
+<li><p>de leur ancienneté</p></li>
+<li><p>de leur distance (géographique)</p></li>
+<li><p>de leur écart de prix</p></li>
+</ul>
+<p>Cette pondération peut être linéaire, exponentielle, ou gaussienne. Voir <a class="reference external" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/images/decay_2d.png">ces
+courbes</a>
+pour une illustration du fonctionnement de cette pondération, et <a class="reference external" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html#function-decay">la page
+Function Decay</a>
+pour les détails mathématiques précis. La courbe présente une valeur d’âge
+(<code class="docutils literal notranslate"><span class="pre">age</span></code>), dont la référence est fixée à 40. En fonction de la fonction de
+décroissance choisie et de la valeur d’un document, son score global sera
+affecté d’un facteur supplémentaire (entre 0 et 1) minorant son importance. Par
+exemple, un document pour lequel l’âge vaudrait 30 aurait, pour les 3 fonctions
+choisies, un score multiplié par 0.5.</p>
+<p>Dans nos documents, on dispose d’un champ date précis, donnant le jour de sortie
+des films. On peut donc, avec la requête suivante, trouver les films qui sont
+sortis un peu avant ou après le film « Grand prix » de Frankenheimer, sorti le 21
+décembre 1966. Les paramètres <code class="docutils literal notranslate"><span class="pre">decay</span></code>, <code class="docutils literal notranslate"><span class="pre">scale</span></code>, <code class="docutils literal notranslate"><span class="pre">offset</span></code> sont visuellement
+expliqués sur <a class="reference external" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/images/decay_2d.png">ces courbes</a>
+, ils permettent d’ajuster la forme de la courbe de la fonction de décroissance
+(et donc les minorations en fonction de la distance à la valeur de référence).</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;_source&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;includes&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="s2">&quot;*.title&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;*.release_date&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;*.year&quot;</span>
+    <span class="p">],</span>
+    <span class="nt">&quot;excludes&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="s2">&quot;*.actors*&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;*.genres&quot;</span>
+    <span class="p">]</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;query&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;function_score&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;query&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;exists&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;field&quot;</span><span class="p">:</span> <span class="s2">&quot;fields.release_date&quot;</span>
+        <span class="p">}</span>
+      <span class="p">},</span>
+      <span class="nt">&quot;functions&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+          <span class="nt">&quot;gauss&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;fields.release_date&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="nt">&quot;origin&quot;</span><span class="p">:</span> <span class="s2">&quot;1966-12-21T00:00:00Z&quot;</span><span class="p">,</span>
+              <span class="nt">&quot;scale&quot;</span><span class="p">:</span> <span class="s2">&quot;30d&quot;</span><span class="p">,</span>
+              <span class="nt">&quot;offset&quot;</span><span class="p">:</span> <span class="s2">&quot;1d&quot;</span><span class="p">,</span>
+              <span class="nt">&quot;decay&quot;</span><span class="p">:</span> <span class="mf">0.5</span>
+            <span class="p">}</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">]</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="a-vous-de-jouer">
+<h2>À vous de jouer<a class="headerlink" href="#a-vous-de-jouer" title="Lien permanent vers ce titre">¶</a></h2>
+<p>Proposer les requêtes DSL pour organiser les résultats de la façon souhaitée :</p>
+<ol class="arabic">
+<li><dl class="simple">
+<dt>les films de James Cameron en pondérant négativement ceux qui durent plus de deux heures (choisissez par exemple la fonction exponentielle)</dt><dd></dd>
+</dl>
+</li>
+<li><p>les meilleures comédies romantiques (il s’agit d’effectuer un simple tri par
+<code class="docutils literal notranslate"><span class="pre">rating</span></code>)</p></li>
+<li><dl class="simple">
+<dt>les films réalisés par Clint Eastwood, en affichant d’abord ceux dans lesquels il joue</dt><dd></dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>les films de Sergio Leone, en les ordonnant du plus récent au plus ancien (deux requêtes possibles, avec boosting ou sans boosting mais avec un tri)</dt><dd></dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>les films du genre Western, en pondérant négativement ceux réalisés par Sergio Leone</dt><dd></dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>les films qui sont sortis dans les 15 jours avant ou après Lost in Translation de Sofia Coppola</dt><dd></dd>
+</dl>
+</li>
+<li><p>les films de sport autour de la boxe, et assez courts. Indice : la durée du film se trouve dans <code class="docutils literal notranslate"><span class="pre">fields.running_time_secs</span></code>.</p>
+<blockquote>
+<div></div></blockquote>
+</li>
+</ol>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+            <div>        
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Licence Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">
+  Ce cours</span> de <a xmlns:cc="http://creativecommons.org/ns#" href="http://www.bdpedia.fr" property="cc:attributionName" rel="cc:attributionURL">Philippe Rigaux</a> est mis à disposition selon les termes de la <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">licence Creative Commons Attribution - Pas d’Utilisation Commerciale - Partage dans les Mêmes Conditions 4.0 International</a>.
+</div>
+        <hr/>
+          <h3>Table Of Contents</h3>
+          <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docker.html">Préliminaires: Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docstruct.html">Modélisation de bases NoSQL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bddoc.html">Interrogation de bases NoSQL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mapreduce.html">MapReduce, premiers pas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cassandra_tp.html">Cassandra - Travaux Pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mongodb_tp.html">MongoDB - Travaux Pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ri-intro.html">Introduction à la recherche d’information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ri-indexation.html">Recherche d’information : l’indexation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ri-ranking.html">Recherche avec classement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ri-tpelasticdsl.html">Recherche d’information - TP ElasticSearch</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Recherche d’information - TP ElasticSearch : pertinence</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#elasticsearch-et-la-pertinence">Elasticsearch et la pertinence</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#une-premiere-notion-de-score">Une première notion de score</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#boosting">Boosting</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#a-vous-de-jouer">À vous de jouer</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cloud.html">Le <em>cloud</em>, une nouvelle machine de calcul</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replication.html">Systèmes NoSQL: la réplication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sharding.html">Systèmes NoSQL: le partitionnement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calculdistr.html">Calcul distribué: Hadoop et MapReduce</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spark-batch.html">Traitement de données massives avec Apache Spark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="flink-streaming.html">Traitement de flux massifs avec Apache Flink</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pigtp.html">Pig : Travaux pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="projet.html">Projets NFE204</a></li>
+<li class="toctree-l1"><a class="reference internal" href="annales.html">Annales des examens</a></li>
+</ul>
+
+          <h3 style="margin-top: 1.5em;">Recherche</h3>
+          <form class="search" action="search.html" method="get">
+            <input type="text" name="q" />
+            <input type="submit" value="Go" />
+            <input type="hidden" name="check_keywords" value="yes" />
+            <input type="hidden" name="area" value="default" />
+          </form>
+          <p class="searchtip" style="font-size: 90%">
+      Saisissez un ou plusieurs mots-clés.
+          </p>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <a href="ri-tpelasticdsl.html" title="Recherche d’information - TP ElasticSearch"
+             >précédent</a> |
+          <a href="cloud.html" title="Le cloud, une nouvelle machine de calcul"
+             >suivant</a> |
+          <a href="genindex.html" title="Index général"
+             >index</a>
+        </div>
+
+        <div class="right">
+        <a href="index.html">Recherche d’information - TP ElasticSearch : pertinence</a><br/>
+          
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2014-2022, Nicolas Travers, Raphaël Fournier S&#39;niehotta et Philippe Rigaux.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>

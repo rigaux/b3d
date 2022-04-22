@@ -408,7 +408,7 @@ pris le statut d'une vérité absolue. Examinons donc ce qu'il en est.
 
 .. admonition:: Le théorème CAP
 
-   Un système distribué orienté données ne peut satisfaire à chaque instahnt que deux 
+   Un système distribué orienté données ne peut satisfaire à chaque instant que deux 
    des trois propriétés suivantes
 
     * la cohérence (le "C"): toute lecture d'une donnée accède à sa dernière version;
@@ -496,7 +496,7 @@ Quiz
 .. eqt:: repl-3
 
     Reprenons les paramètres *W*, *R* et *RF* pour le paramétrage des opérations synchrones.
-    Quel est l'intérêt de chosir le quorum pour *W* et *R*?
+    Quel est l'intérêt de choisir le quorum pour *W* et *R*?
 
     A) :eqt:`I`  C'est le paramétrage qui garantit que *W+R* est minimale
     #) :eqt:`C` C'est le paramétrage qui permet de s'adapter au changement du facteur de réplication *RF*

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.12.16)  6 SEP 2021 09:38
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.12.16)  22 APR 2022 08:47
 entering extended mode
  \write18 enabled.
  %&-line parsing enabled.
@@ -1011,6 +1011,7 @@ File: lstlang1.sty 2015/06/04 1.6 listings language file
 (/usr/local/texlive/2016/texmf-dist/tex/latex/listings/lstmisc.sty
 File: lstmisc.sty 2015/06/04 1.6 (Carsten Heinz)
 )
+Excluding comment 'solution'
 (/usr/local/texlive/2016/texmf-dist/tex/latex/url/url.sty
 \Urlmuskip=\muskip11
 Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
@@ -1156,72 +1157,35 @@ LaTeX Font Info:    Try loading font information for U+txsyc on input line 89.
 (/usr/local/texlive/2016/texmf-dist/tex/latex/txfonts/utxsyc.fd
 File: utxsyc.fd 2000/12/15 v3.1
 )
-\openout4 = `exam-s2.pyg'.
+Excluding 'solution' comment. Excluding 'solution' comment. [1
 
-
-(./_minted-exam-s2/50299F6CF4A6311BA97835EF716AE5AECFDD5D6AE931F93736E33CFDD993
-01F0.pygtex [1
-
-{/usr/local/texlive/2016/texmf-var/fonts/map/pdftex/updmap/pdftex.map}])
-\openout4 = `exam-s2.pyg'.
-
-
-(./_minted-exam-s2/C6CAD2981B7A9F7851C3EC07F8CB243220EA2CFA0FC93DCC29683FFB7C77
-C9BE.pygtex)
-\openout4 = `exam-s2.pyg'.
-
-
-(./_minted-exam-s2/D4C448958561E51D385C0CFDBB5FEBB7CC642F692C45F985BDFDC38F96B3
-325D.pygtex)
-\openout4 = `exam-s2.pyg'.
-
-
-(./_minted-exam-s2/DF2FB9356E9A75C01DA9D255F42AD958CC642F692C45F985BDFDC38F96B3
-325D.pygtex)
-\openout4 = `exam-s2.pyg'.
-
-
-(./_minted-exam-s2/CA90FFB97C02FFCA37CA01BF0A049A58CC642F692C45F985BDFDC38F96B3
-325D.pygtex [2])
-\openout4 = `exam-s2.pyg'.
-
-
-(./_minted-exam-s2/3085FAD2A3129A2A3BFA6D22396F4819CC642F692C45F985BDFDC38F96B3
-325D.pygtex)
-\openout4 = `exam-s2.pyg'.
-
-
-(./_minted-exam-s2/80590D852E5B0525605143DA5A1EB6169DCF2E720699885CE0F8DFFA3B7C
-911E.pygtex)
-Overfull \hbox (4.40518pt too wide) in paragraph at lines 250--251
+{/usr/local/texlive/2016/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+Overfull \hbox (4.40518pt too wide) in paragraph at lines 259--260
 []\T1/txr/m/n/10.95 Pourquoi la struc-ture est-elle ba-sée sur un an-neau ? Pou
 r-quoi pas un seg-ment de droite par exemple ? 
  []
 
-runsystem(rm "exam-s2.pyg")...executed.
-
 
 AED: lastpage setting LastPage
-[3] (./exam-s2.aux) ) 
+[2] (./exam-s2.aux) ) 
 Here is how much of TeX's memory you used:
- 10291 strings out of 493014
- 156202 string characters out of 6133350
+ 10241 strings out of 493014
+ 153471 string characters out of 6133350
  277792 words of memory out of 5000000
- 13520 multiletter control sequences out of 15000+600000
- 38404 words of font info for 73 fonts, out of 8000000 for 9000
+ 13495 multiletter control sequences out of 15000+600000
+ 37822 words of font info for 78 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 36i,6n,49p,793b,524s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 36i,9n,49p,793b,439s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2016/texmf-dist/fonts/enc/dvips/base/8
 r.enc}</usr/local/texlive/2016/texmf-dist/fonts/type1/public/txfonts/rtxr.pfb><
-/usr/local/texlive/2016/texmf-dist/fonts/type1/public/txfonts/t1xbtt.pfb></usr/
-local/texlive/2016/texmf-dist/fonts/type1/public/txfonts/t1xtt.pfb></usr/local/
-texlive/2016/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/20
-16/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2016/texmf-d
-ist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on exam-s2.pdf (3 pages, 61090 bytes).
+/usr/local/texlive/2016/texmf-dist/fonts/type1/public/txfonts/t1xtt.pfb></usr/l
+ocal/texlive/2016/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texli
+ve/2016/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2016/te
+xmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on exam-s2.pdf (2 pages, 46253 bytes).
 PDF statistics:
- 39 PDF objects out of 1000 (max. 8388607)
- 27 compressed objects within 1 object stream
+ 32 PDF objects out of 1000 (max. 8388607)
+ 22 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 
