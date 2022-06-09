@@ -56,7 +56,7 @@ Voici le résumé des commandes à effectuer.
 
        .. code-block:: bash
  
-         mongoimport --host localhost:27017 --db DBLP --collection publis < dblp.json 
+         mongoimport --host localhost:27017 --db DBLP --collection publis  --jsonArray --type json --file dblp.json
 
    .. note:: Le chemin vers l'exécutable ``mongoimport`` est nécessaire, ou la variable d'environnement ``PATH`` 
       contenant le chemin vers ``mongo/bin``.
@@ -98,17 +98,6 @@ Exprimez des requêtes simples (pas de MapReduce) pour les recherches suivantes 
     #. ``db.publis.aggregate([{$match:{year : {$gte : 2011}}}, {$group:{_id:"$type", total : { $sum : 1}}}]);``
     #. ``db.publis.aggregate([{ $unwind : "$authors" }, { $group : { _id : "$authors", number : { $sum : 1 } }}, {$sort : {number : -1}}] );``
 
-Indexation (optionnel)
-======================
-
-Cette partie n'est (peut-être) pas vue en cours. Elle correspond à la découverte de l'indexation et de l'exécution
-de requêtes avec MongoDB: à vous d'explorer la documentation si vous voulez vous lancer.
-
- * Pour chaque requête de type ``find()``, regarder le plan d'exécution généré avec ``.explain()`` à la fin de la requête ;
- * Créer un index sur l'attribut année ``db.publis.createIndex( { year :1 } );`` ;
- * Refaire les requêtes ``find()`` sur l'année en regardant le plan d'exécution généré ;
-
- .. note:: Il est également possible d'avoir le plan d'exécution sur les requêtes de type Map/Reduce (option ``$explain`` dans ``queryParam``, voir plus bas).
 
 **********************
 Pratique de Map/Reduce

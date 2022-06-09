@@ -1679,7 +1679,7 @@ Commençons par un exercice-type commenté.
       .. admonition:: Correction
  
          On connaît le format des documents. Le critère de regroupement est l'identifiant de la ligne.
-         La valeurà émettre est le carré du poids
+         La valeur à émettre est le carré du poids
                           
          .. code-block:: javascript
                 
