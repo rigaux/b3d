@@ -1251,7 +1251,9 @@ Exercices
     
      * Donnez la précision et le rappel.
      * Quelle méthode stupide donne toujours un rappel maximal?
-     * Quelle méthode stupide donne une précision infinie?
+     * Quelles sont les valeurs possibles pour la précision si je tire un seul document au hasard?
+     * Si j'effectue un tirage aléatoire, que penser de l'évolution de la précision et du rappel
+       en fonction de la taille du tirage ? 
   
    .. ifconfig:: introri in ('public')
 
@@ -1260,8 +1262,13 @@ Exercices
          * Précision: 50 / 60
          * Rappel: 50 / 80
          * Ramener tous les documents
-         * Ne ramener aucun document
-   
+         * La précision est soit 1, soit 0.
+         * Avec un tirage aléatoire, la relation entre espérance du rappel (plus précisément de 
+           l'espérance du rappel) et 
+           nombre de résultats est monotone croissante. La proportion pertinents / non pertinents 
+           reste constante en espérance. Evidemment, plus l'échantillon est restreint, plus 
+           cette hypothèse se fragilise, avec donc une variance qui augmente. 
+
 .. _Ex-S1-2:
 .. admonition:: Exercice `Ex-S1-2`_: précision et rappel, réfléchissons.
 
