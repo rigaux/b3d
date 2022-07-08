@@ -1,0 +1,15 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+      \PYG{p}{\PYGZob{}}\PYG{n+nt}{\PYGZdq{}\PYGZus{}id\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}pj6\PYGZdq{}}\PYG{p}{,}
+         \PYG{n+nt}{\PYGZdq{}nom\PYGZdq{}} \PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}Vautour\PYGZdq{}}\PYG{p}{,}
+         \PYG{n+nt}{\PYGZdq{}articles\PYGZdq{}}\PYG{p}{:} \PYG{p}{[}
+           \PYG{p}{\PYGZob{}}\PYG{n+nt}{\PYGZdq{}titre\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}Renaissance des insoumis?\PYGZdq{}}\PYG{p}{,}
+            \PYG{n+nt}{\PYGZdq{}année\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mi}{2022}
+            \PYG{l+s+s2}{\PYGZdq{}auteurs\PYGZdq{}}\PYG{p}{:} \PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}N. Travers\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}P. Rigaux\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}R. Fournier\PYGZhy{}S\PYGZsq{}niehotta\PYGZdq{}}\PYG{p}{]}
+            \PYG{p}{\PYGZcb{},}
+           \PYG{p}{\PYGZob{}}\PYG{n+nt}{\PYGZdq{}titre\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}Aura\PYGZhy{}t\PYGZhy{}on  des vaccins pour Noël\PYGZdq{}}\PYG{p}{,}
+             \PYG{n+nt}{\PYGZdq{}année\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mi}{2021}
+            \PYG{l+s+s2}{\PYGZdq{}auteurs\PYGZdq{}}\PYG{p}{:} \PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}P.Rigaux\PYGZdq{}}\PYG{p}{],}
+             \PYG{p}{\PYGZcb{}}
+           \PYG{p}{]}
+        \PYG{p}{\PYGZcb{}}
+\end{Verbatim}
