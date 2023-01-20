@@ -1,0 +1,7 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{case} \PYG{k}{class} \PYG{n+nc}{Lecture}\PYG{o}{(}\PYG{n}{refArticle}\PYG{k}{:} \PYG{k+kt}{String}\PYG{o}{,} \PYG{n}{contribution}\PYG{k}{:} \PYG{k+kt}{float}\PYG{o}{)}
+\PYG{k}{val} \PYG{n}{w} \PYG{k}{=} \PYG{n}{lectures}\PYG{o}{.}\PYG{n}{keyBy}\PYG{o}{(}\PYG{l+s}{\PYGZdq{}refArticle\PYGZdq{}}\PYG{o}{)} \PYG{c+c1}{// Regroupement par article}
+        \PYG{o}{.}\PYG{n}{sum}\PYG{o}{(}\PYG{l+s}{\PYGZdq{}contribution\PYGZdq{}}\PYG{o}{)}         \PYG{c+c1}{// Cumul à chaque nouvelle lecture}
+        \PYG{o}{.}\PYG{n}{print}\PYG{o}{()}              \PYG{c+c1}{// Optionnel: affiche l\PYGZsq{}évolution continue du cumul}
+\PYG{n}{senv}\PYG{o}{.}\PYG{n}{execute}\PYG{o}{(}\PYG{l+s}{\PYGZdq{}Cumul des contributions\PYGZdq{}}\PYG{o}{)}
+\end{Verbatim}

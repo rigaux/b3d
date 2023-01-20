@@ -1,0 +1,3 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{articlesComplet} \PYG{o}{=} \PYG{n}{cogroup} \PYG{n}{articleEtAuteur} \PYG{k}{by} \PYG{k}{ref}\PYG{p}{,} \PYG{n}{Diffusions} \PYG{k}{by} \PYG{n}{refArticle}\PYG{p}{;}
+\end{Verbatim}

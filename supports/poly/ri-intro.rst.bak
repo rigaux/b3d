@@ -17,7 +17,7 @@ S1: les principes
 .. admonition:: Supports complémentaires:
 
       * `Présentation: Introduction à la recherche d'information <http://b3d.bdpedia.fr/files/slri-intro-principes.pdf>`_
-      * `Vidéo de la session Introduction RI - principes <https://mediaserver.lecnam.net/permalink/v125f5947d4c11yianvt/>`_  
+      * `Vidéo de la session Introduction RI - principes <https://mediaserver.cnam.fr/permalink/v125f5947d4c11yianvt/>`_  
 
 Qu'est ce que la recherche d'information
 ========================================
@@ -546,7 +546,7 @@ S2: Bases documentaires et moteur de recherche
 .. admonition:: Supports complémentaires
 
    * `Diaporama sur le couplage BD documentaire / moteur de recherche <http://b3d.bdpedia.fr/files/slri-intro-debuterES.pdf>`_
-   * `Vidéo de la session Bases documentaires et moteur de recherche <https://mediaserver.lecnam.net/permalink/v125f5947d4bf7inn4n4/>`_  
+   * `Vidéo de la session Bases documentaires et moteur de recherche <https://mediaserver.cnam.fr/permalink/v125f5947d4bf7inn4n4/>`_  
 
 Dans cette section, nous allons passer au concret en introduisant les moteurs de
 recherche. Nous allons utiliser ici `Elastic Search <http://elastic.co>`_, un
@@ -966,7 +966,7 @@ S3: la pratique: requêtes booléennes
 .. admonition:: Supports complémentaires:
 
       * `Présentation: Requêtes booléennes <http://b3d.bdpedia.fr/files/slri-intro-lucene-query.pdf>`_
-      * `Vidéo de la session requêtes booléennes <https://mediaserver.lecnam.net/permalink/v125f5947d4bf62u4nbc/>`_  
+      * `Vidéo de la session requêtes booléennes <https://mediaserver.cnam.fr/permalink/v125f5947d4bf62u4nbc/>`_  
 
 Nous avons dit qu'ElasticSearch s'appuie sur le système d'indexation Lucene.
 Lucene propose un langage de recherche basé sur des combinaisons de mot-clés,

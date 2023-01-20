@@ -30,7 +30,7 @@ S1: L'analyse de documents
 .. admonition:: Supports complémentaires:
 
     * `Présentation: Recherche d'information - analyse de documents <http://b3d.bdpedia.fr/files/slri-indexation-analyse.pdf>`_
-    * `Vidéo : Pré-traitement des documents  textuels  <https://mediaserver.lecnam.net/permalink/v125f5947d4batpxkr93/>`_  
+    * `Vidéo : Pré-traitement des documents  textuels  <https://mediaserver.cnam.fr/permalink/v125f5947d4batpxkr93/>`_  
   
 En présence d'un document textuel un tant soit peu complexe, on ne peut pas se
 contenter de découper plus ou moins arbitrairement en mots sans se poser
@@ -237,7 +237,7 @@ S2: L'indexation dans ElasticSearch
 .. admonition:: Supports complémentaires:
 
     * `Présentation: Indexation avec ElasticSearch <http://b3d.bdpedia.fr/files/slri-indexation-ES.pdf>`_
-    * `Vidéo : gestion de l'indexation avec ElasticSearch  <https://mediaserver.lecnam.net/permalink/v125f5947d4bahgys4kz/>`_  
+    * `Vidéo : gestion de l'indexation avec ElasticSearch  <https://mediaserver.cnam.fr/permalink/v125f5947d4bahgys4kz/>`_  
   
 Par défaut, Elasticsearch propose une analyse des documents automatisée,
 *inférant* la nature des champs qui sont présents dans les documents qu'on lui

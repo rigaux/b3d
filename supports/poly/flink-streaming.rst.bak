@@ -557,7 +557,7 @@ S2: l'API de streaming Flink
 .. admonition:: Supports complémentaires
 
       * `Présentation: gestion des flux avec Flink <http://b3d.bdpedia.fr/files/slflinkstream.pdf>`_
-      * Vidéo sur la gestion de flux:   <https://mediaserver.lecnam.net/lti/v1261a0df6ad8zf8glx2/>`_  
+      * Vidéo sur la gestion de flux:   <https://mediaserver.cnam.fr/lti/v1261a0df6ad8zf8glx2/>`_  
 
       
 Nous allons à présent  étudier plus en détails (mais pas intégralement
@@ -1100,7 +1100,7 @@ S3: Le fenêtrage
 .. admonition:: Supports complémentaires
 
       * `Présentation: fenêtres sur flux avec Flink <http://b3d.bdpedia.fr/files/slflinkwindows.pdf>`_
-      * Vidéo sur le fenêtrage de flux:   <https://mediaserver.lecnam.net/lti/v1261a0df6c1filb7dw2/>`_
+      * Vidéo sur le fenêtrage de flux:   <https://mediaserver.cnam.fr/lti/v1261a0df6c1filb7dw2/>`_
 
 Un flux  est théoriquement 
 infini, et il n'est donc possible en principe que d'obtenir

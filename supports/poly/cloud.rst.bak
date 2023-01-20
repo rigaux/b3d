@@ -66,7 +66,7 @@ S1: *cloud* et données massives
 Supports complémentaires:
 
   * `Présentation: Cloud et données massives <http://b3d.bdpedia.fr/files/slcloud.pdf>`_
-  * `Vidéo de la session Cloud <https://mediaserver.lecnam.net/permalink/v125f35a3b11a2rwjfdo/>`_  
+  * `Vidéo de la session Cloud <https://mediaserver.cnam.fr/permalink/v125f35a3b11a2rwjfdo/>`_  
 
 Ce chapitre  envisage le *cloud* comme une nouvelle machine de calcul en tant
 que telle, qui se distingue de celles que nous utilisons tous les jours
@@ -511,7 +511,7 @@ S2: La scalabilité
 Supports complémentaires:
 
   * `Présentation: Scalabilité <http://b3d.bdpedia.fr/files/slscalable.pdf>`_
-  * `Vidéo de la session consacrée à la scalabilité <https://mediaserver.lecnam.net/permalink/v125f35a40247xlka7dn/>`_  
+  * `Vidéo de la session consacrée à la scalabilité <https://mediaserver.cnam.fr/permalink/v125f35a40247xlka7dn/>`_  
   
 Il est temps de revenir sur la notion de scalabilité pour la définir précisément,
 et de donner quelques exemples pour comprendre en pratique ce que cela implique.
@@ -747,7 +747,7 @@ S3: anatomie d'une grappe de serveurs
 Supports complémentaires:
 
   * `Présentation: performances du Cloud <http://b3d.bdpedia.fr/files/slcloudperf.pdf>`_
-  * `Vidéo de la session consacrée aux performances d'un centre de données <https://mediaserver.lecnam.net/permalink/v125f35a402b0bxdcj0p/>`_  
+  * `Vidéo de la session consacrée aux performances d'un centre de données <https://mediaserver.cnam.fr/permalink/v125f35a402b0bxdcj0p/>`_  
 
 Tout système informatique repose sur un ensemble de mécanismes de stockage
 et d'accès à l'information, les *mémoires*.  Ces mémoires se différencient

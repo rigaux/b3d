@@ -25,7 +25,7 @@ S1: les bases
 Supports complémentaires:
 
   * `Diapositives: principes du partitionnement <http://b3d.bdpedia.fr/files/slsharding.pdf>`_
-  * `Vidéo sur les principes du partitionnement <https://mediaserver.lecnam.net/permalink/v125f35a4099emiw2c93/>`_  
+  * `Vidéo sur les principes du partitionnement <https://mediaserver.cnam.fr/permalink/v125f35a4099emiw2c93/>`_  
 
 Principes généraux
 ==================
@@ -494,7 +494,7 @@ S2: partitionnement par intervalle
 Supports complémentaires:
 
   * `Diapositives: partitionnement par intervalle <http://b3d.bdpedia.fr/files/slrangedistr.pdf>`_
-  * `Vidéo de démonstration du partitionnement par intervalle <https://mediaserver.lecnam.net/permalink/v125f35a409d3di68vvw/>`_  
+  * `Vidéo de démonstration du partitionnement par intervalle <https://mediaserver.cnam.fr/permalink/v125f35a409d3di68vvw/>`_  
 
 L'idée est simple: on considère le domaine de valeur de la clé de partition
 (par exemple, l'ensemble des entiers) et on le divise en *n* intervalles
@@ -1060,7 +1060,7 @@ S3: partitionnement par hachage
 Supports complémentaires:
 
   * `Diapositives: partitionnement par hachage <http://b3d.bdpedia.fr/files/slhashdistr.pdf>`_
-  * `Vidéo de démonstration du partitionnement par hachage <https://mediaserver.lecnam.net/permalink/v125f35a4207coataslj/>`_  
+  * `Vidéo de démonstration du partitionnement par hachage <https://mediaserver.cnam.fr/permalink/v125f35a4207coataslj/>`_  
 
 Le partitionnement par hachage en distribué repose globalement sur la même
 organisation que pour le partitionnement par intervalle. 

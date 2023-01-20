@@ -40,7 +40,7 @@ S1: Introduction à Spark
 .. admonition:: Supports complémentaires
 
     * `Diapositives: Introduction à Spark <http://b3d.bdpedia.fr/files/slspark.pdf>`_
-    * `Vidéo d'introduction à Spark <https://mediaserver.lecnam.net/permalink/v125f5947d4d8krmjech/>`_  
+    * `Vidéo d'introduction à Spark <https://mediaserver.cnam.fr/permalink/v125f5947d4d8krmjech/>`_  
 
 Avec MapReduce, la spécification de l'itération reste à la charge du
 programmeur; il faut stocker le résultat d'un premier *job* dans une collection
@@ -472,7 +472,7 @@ S2: Spark en pratique
 
 .. admonition:: Supports complémentaires
 
-    * `Vidéo  Spark en pratique: *DataFrames* <https://mediaserver.lecnam.net/permalink/v125f5947d50aigwjp4q/>`_  
+    * `Vidéo  Spark en pratique: *DataFrames* <https://mediaserver.cnam.fr/permalink/v125f5947d50aigwjp4q/>`_  
 
 
 Il est temps de passer à l'action. Nous allons commencer par montrer  comment effectuer
@@ -893,7 +893,7 @@ S3: Traitement de données structurées avec Cassandra et Spark
 
 .. admonition:: Supports complémentaires
 
-    * `Vidéo  Spark: de Cassandra aux Datasets <https://mediaserver.lecnam.net/permalink/v125f5947d595jlokr2c/>`_  
+    * `Vidéo  Spark: de Cassandra aux Datasets <https://mediaserver.cnam.fr/permalink/v125f5947d595jlokr2c/>`_  
 
 Voyons maintenant les outils de traitement proposés par Spark sur des données
 structurées issues, par exemple, d'une base de données, ou de collections de

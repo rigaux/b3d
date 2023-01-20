@@ -57,8 +57,8 @@ S1: documents structurés
 .. admonition:: Supports complémentaires
 
       * `Diapositives: documents structurés et JSON <http://b3d.bdpedia.fr/files/sldocstruct.pdf>`_
-      * `Vidéo sur les documents structurés <https://mediaserver.lecnam.net/permalink/v125f3595279a1n1ctla/>`_
-      * `Vidéo sur le codage JSON <https://mediaserver.lecnam.net/permalink/v125f3595285182g35j3/>`_
+      * `Vidéo sur les documents structurés <https://mediaserver.cnam.fr/permalink/v125f3595279a1n1ctla/>`_
+      * `Vidéo sur le codage JSON <https://mediaserver.cnam.fr/permalink/v125f3595285182g35j3/>`_
   
 Modèle des documents structurés
 ===============================
@@ -658,8 +658,8 @@ S2. Modélisation des collections
 .. admonition:: Supports complémentaires
 
       * `Diapositives: modélisation de bases documentaires <http://b3d.bdpedia.fr/files/slmodelisation.pdf>`_
-      * `Vidéo sur la modélisation relationnelle <https://mediaserver.lecnam.net/permalink/v125f359528d6fhie2on/>`_
-      * `Vidéo sur la modélisation basée sur les documents structurés <https://mediaserver.lecnam.net/permalink/v125f3595297febdcm2m/>`_
+      * `Vidéo sur la modélisation relationnelle <https://mediaserver.cnam.fr/permalink/v125f359528d6fhie2on/>`_
+      * `Vidéo sur la modélisation basée sur les documents structurés <https://mediaserver.cnam.fr/permalink/v125f3595297febdcm2m/>`_
 
 Nous abordons maintenant une question très importante dans le
 cadre de la mise en œuvre d'une grande base de données constituée de
@@ -1412,7 +1412,7 @@ S3: Cassandra, une base relationnelle étendue
 .. admonition:: Supports complémentaires
 
     * `Diapositives: le modèle de données Cassandra <http://b3d.bdpedia.fr/files/slcass-model.pdf>`_
-    * `Vidéo sur le modèle de données Cassandra <https://mediaserver.lecnam.net/permalink/v125f359529fduxzlu9q/>`_
+    * `Vidéo sur le modèle de données Cassandra <https://mediaserver.cnam.fr/permalink/v125f359529fduxzlu9q/>`_
    
 Cassandra est un système de gestion de données à grande échelle conçu à l'origine (2007) par les ingénieurs de Facebook 
 pour répondre à des problématiques liées au stockage et à l'utilisation de gros volumes de données. 
@@ -1916,7 +1916,7 @@ S4: MongoDB, une base JSON
    
 .. admonition:: Supports complémentaires
 
-      * `Vidéo de démonstration de MongoDB  <https://mediaserver.lecnam.net/permalink/v125f35a35d71le2bkhv/>`_
+      * `Vidéo de démonstration de MongoDB  <https://mediaserver.cnam.fr/permalink/v125f35a35d71le2bkhv/>`_
       
 Voyons maintenant une base purement "documentaire" qui représente les données
 au format JSON. Il s'agit de MongoDB, un des systèmes NoSQL les plus populaires du moment.

@@ -1,0 +1,10 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+      \PYG{p}{\PYGZob{}}\PYG{n+nt}{\PYGZdq{}ref\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}ju21\PYGZdq{}}\PYG{p}{,}
+         \PYG{n+nt}{\PYGZdq{}titre\PYGZdq{}} \PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}Renaissance des insoumis?\PYGZdq{}}\PYG{p}{,}
+         \PYG{n+nt}{\PYGZdq{}année\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mi}{2022}\PYG{p}{,}
+       \PYG{n+nt}{\PYGZdq{}auteurs\PYGZdq{}}\PYG{p}{:} \PYG{p}{[}
+            \PYG{p}{],}
+         \PYG{n+nt}{\PYGZdq{}plateformes\PYGZdq{}}\PYG{p}{:} \PYG{p}{[}
+         \PYG{p}{]}
+       \PYG{p}{\PYGZcb{}}
+\end{Verbatim}

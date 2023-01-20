@@ -50,7 +50,7 @@ S1: MapReduce démystifié
 .. admonition:: Supports complémentaires:
 
     * `Présentation: MapReduce expliqué avec les mains  <http://b3d.bdpedia.fr/files/slmapreduce.pdf>`_
-    * `Vidéo présentant MapReduce <https://mediaserver.lecnam.net/permalink/v125f35a35eefhqfv1so/>`_
+    * `Vidéo présentant MapReduce <https://mediaserver.cnam.fr/permalink/v125f35a35eefhqfv1so/>`_
   
 Commençons par expliquer que MapReduce, en tant que modèle de calcul, ce n'est pas grand chose! 
 Cette section propose une découverte "avec les mains", en étudiant comment cuisiner quelques
@@ -617,7 +617,7 @@ S2: MapReduce et CouchB
 
 .. admonition:: Supports complémentaires
 
-     * `Vidéo présentant la programmation MapReduce avec CouchDB <https://mediaserver.lecnam.net/permalink/v125f35a3aec3j2k2g8x/>`_
+     * `Vidéo présentant la programmation MapReduce avec CouchDB <https://mediaserver.cnam.fr/permalink/v125f35a3aec3j2k2g8x/>`_
 
 CouchDB propose  un moteur d'exécution MapReduce, avec des fonctions javascript,
 mais dans un but un peu particulier: celui de créer des collections structurées
@@ -785,7 +785,7 @@ S3: *Frameworks* MapReduce: MongoDB
 .. admonition:: Supports complémentaires:
 
      * `Présentation: MapReduce et MongoDB  <http://b3d.bdpedia.fr/files/slmongomr.pdf>`_
-     * `Vidéo présentant la programmation MapReduce avec MongoDB <https://mediaserver.lecnam.net/permalink/v125f35a35fc7ddbt3to/>`_
+     * `Vidéo présentant la programmation MapReduce avec MongoDB <https://mediaserver.cnam.fr/permalink/v125f35a35fc7ddbt3to/>`_
     
 Passons à la pratique, en restant dans un contexte centralisé, avec MongoDB.
 MongoDB est un des exemples de *framework* MapReduce. Commençons par une petite

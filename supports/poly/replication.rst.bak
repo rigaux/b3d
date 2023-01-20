@@ -20,7 +20,7 @@ S1: réplication et reprise sur panne
 .. admonition:: Supports complémentaires
 
      * `Diapositives: réplication et reprise sur panne dans les systèmes NoSQL <http://b3d.bdpedia.fr/files/slreplication.pdf>`_
-     * `Vidéo sur les principes de réplication et de reprise sur panne  <https://mediaserver.lecnam.net/permalink/v125f35a4087dzwstkpj/>`_  
+     * `Vidéo sur les principes de réplication et de reprise sur panne  <https://mediaserver.cnam.fr/permalink/v125f35a4087dzwstkpj/>`_  
 
 La réplication, pourquoi
 ========================
@@ -547,7 +547,7 @@ S2: réplication dans MongoDB
 .. admonition:: Supports complémentaires
 
     * `Diapositives: distribution et réplication dans MongoDB <http://b3d.bdpedia.fr/files/slmongosys.pdf>`_
-    * `Vidéo de la session  <https://mediaserver.lecnam.net/permalink/v125f35a408e238tto4s/>`_  
+    * `Vidéo de la session  <https://mediaserver.cnam.fr/permalink/v125f35a408e238tto4s/>`_  
 
 MongoDB présente un cas très représentatif de gestion de la réplication  et des reprises
 sur panne. La section qui suit est conçue pour accompagner une mise en
@@ -800,7 +800,7 @@ S3: ElasticSearch
 
 .. admonition:: Supports complémentaires
 
-    * `Vidéo de démonstration d'une grappe ElasticSearch  <https://mediaserver.lecnam.net/permalink/v125f35a409416pwkqn3/>`_  
+    * `Vidéo de démonstration d'une grappe ElasticSearch  <https://mediaserver.cnam.fr/permalink/v125f35a409416pwkqn3/>`_  
 
 ElasticSearch est un moteur de recherche distribué bâti sur les index Lucene, comme Solr. Contrairement
 à Solr, il a été conçu dès l'origine pour un déploiement dans une grappe de serveur et 
