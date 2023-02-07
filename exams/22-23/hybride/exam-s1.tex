@@ -3,7 +3,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[cyr]{aeguill}
 \usepackage[francais]{babel}
-
+\usepackage{hyperref}
 % Les packages
 %\usepackage[french]{babel}
 \usepackage{fancybox}
@@ -93,8 +93,8 @@
 {\bf \Large Consignes}\\
 \begin{tabular}{| p{15cm} |}
 \hline
-Dur\'ee de l'examen : 3h00; Documents autoris\'es\,: 10 pages recto-verso de notes manuscrites\,;  Calculatrice autoris\'ee.
-Les exercices sont indépendants les uns des autres. Merci de soigner votre écriture.\\
+Dur\'ee de l'examen : 3h00; En raison du passage en distanciel, pas de limitation sur l'utlisation
+des documents. Les exercices sont indépendants les uns des autres. Merci de soigner votre écriture.\\
 Ce sujet contient \pageref{LastPage} pages.\\
 
 \textit{Important}\,: nous n'évaluons pas les réponses par la syntaxe. Ne vous
@@ -291,7 +291,7 @@ décor et de dessert que c4.
 \end{enumerate}
 
 
-\section*{Troisième partie : flux (2 pts)}
+\section*{Troisième partie : flux (3 pts)}
 
 Nous recevons un flux de notes données à des restaurants nommé \texttt{restaus}. Chaque
 élément contient le nom du restaurant, l'identifiant
@@ -327,18 +327,14 @@ La parallélisation est limitée par le nombre de restaurants.
 
 \end{enumerate}
 
-\section*{Quatrième partie : questions de cours (3 pts)}
+\section*{Quatrième partie : systèmes distribués (2 pts)}
 
-\begin{enumerate}
-\item Je soumets une requête $t_1, t_2, \cdots, t_n$. 
-    Quel est le poids de chaque terme dans le vecteur représentant cette requête? 
-    La normalisation de ce vecteur est elle importante pour le classement (justifier)?
-  
-    \item Dans un traitement MapReduce, à quoi correspond l'opération dite de \textit{shuffle}?
-    
-    \item Dans un système distribué avec partitionnement, je
-          décide de partitionner ma collection de restaurants
-          sur la catégorie. Discuter des avantages et inconvénients de ce choix.   
-\end{enumerate}
+Je vous propose pour finir de commenter 
+\href{https://www.elastic.co/guide/en/elasticsearch/guide/current/nested-objects.html}{la partie suivante de la documentation
+ElasticSearch}: elle parle des documents structurés et de leur représentation dans le 
+cadre d'unn outil de recherche.
+
+Expliquez de la manière la plus concise et précise possible comment ElasticSearch gère
+l'imbrication des objets pour ses opérations de recherche.
 
 \end{document}
