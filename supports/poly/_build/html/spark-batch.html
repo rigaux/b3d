@@ -1,0 +1,1251 @@
+
+<!DOCTYPE html>
+
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Traitement de données massives avec Apache Spark &#8212; Bases de données documentaires et distribuées v&lt;release&gt; - Cours CNAM NFE204</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/agogo.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/translations.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Recherche" href="search.html" />
+    <link rel="next" title="Traitement de flux massifs avec Apache Flink" href="flink-streaming.html" />
+    <link rel="prev" title="Calcul distribué: Hadoop et MapReduce" href="calculdistr.html" /> 
+  </head><body>
+    <div class="header-wrapper">
+      <div class="header">
+        <div class="headertitle"><a
+          href="index.html">Traitement de données massives avec Apache Spark</a></div>
+        <div class="rel">
+          <a href="calculdistr.html" title="Calcul distribué: Hadoop et MapReduce"
+             accesskey="P">précédent</a><font color="white"> |</font>
+          <a href="flink-streaming.html" title="Traitement de flux massifs avec Apache Flink"
+             accesskey="N">suivant</a><font color="white"> |</font>
+          <a href="genindex.html" title="Index général"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+<script type="text/javascript" src="_static/dynsite.js"></script>
+
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="traitement-de-donnees-massives-avec-apache-spark">
+<span id="chap-spark"></span><h1>Traitement de données massives avec Apache Spark<a class="headerlink" href="#traitement-de-donnees-massives-avec-apache-spark" title="Lien permanent vers ce titre">¶</a></h1>
+<p>Avec le système Spark, nous abordons un premier exemple (sans doute le plus en
+vogue au moment où ces lignes sont écrites)  d’environnements dédiés au calcul
+distribué à grande échelle qui proposent des fonctionnalités bien plus
+puissantes que le simple MapReduce des origines, toujours disponible dans
+l’écosystème Hadoop.</p>
+<p>Ces fonctionnalités consistent notamment en un ensemble d’opérateurs de second
+ordre (voir cette notion dans le chapitre <a class="reference internal" href="calculdistr.html#chap-calcdistr"><span class="std std-ref">Calcul distribué: Hadoop et MapReduce</span></a>) qui étendent
+considérablement la simple paire constituée du Map et du Reduce. Nous avons eu
+un aperçu de ces opérateurs avec Pig, qui reste cependant lié  à un contexte
+d’exécution MapReduce (un programme Pig est compilé et exécuté comme une
+séquence de <em>jobs</em> MapReduce).</p>
+<p>Entre autres limitations, cela ne couvre pas une classe importante
+d’algorithmes: ceux qui procèdent par <em>itérations</em>        sur un résultat
+progressivement affiné à chaque exécution. Ce type d’algorithme est très
+fréquent dans le domaine général de la fouille de données: PageRank, <em>kMeans</em>,
+calculs de composantes connexes dans les graphes, etc.</p>
+<p>Ce chapitre propose une introduction au système Spark. Nous nous contenterons
+d’entrer des commandes grâce à l’interpréteur de commandes <code class="docutils literal notranslate"><span class="pre">spark-shell</span></code>.
+Le plus simple pour reproduire ces commandes est donc de télécharger la dernière
+version de Spark depuis le site <a class="reference external" href="http://spark.apache.org">http://spark.apache.org</a>. L’installation comprend
+un sous-répertoire <code class="docutils literal notranslate"><span class="pre">bin</span></code> dans lequel se trouvent les commandes qui nous
+intéressent. Vous pouvez donc placer le chemin vers <code class="docutils literal notranslate"><span class="pre">spark/bin</span></code>  dans votre
+variable <code class="docutils literal notranslate"><span class="pre">PATH</span></code>, selon des spécificités qui dépendent de votre environnement:
+à ce stade du cours vous devriez être rôdés à ce type de manœuvre.</p>
+<div class="section" id="s1-introduction-a-spark">
+<h2>S1: Introduction à Spark<a class="headerlink" href="#s1-introduction-a-spark" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="admonition-supports-complementaires admonition">
+<p class="admonition-title">Supports complémentaires</p>
+<ul class="simple">
+<li><p><a class="reference external" href="http://b3d.bdpedia.fr/files/slspark.pdf">Diapositives: Introduction à Spark</a></p></li>
+<li><p><a class="reference external" href="https://mediaserver.lecnam.net/permalink/v125f5947d4d8krmjech/">Vidéo d’introduction à Spark</a></p></li>
+</ul>
+</div>
+<p>Avec MapReduce, la spécification de l’itération reste à la charge du
+programmeur; il faut stocker le résultat d’un premier <em>job</em> dans une collection
+intermédiaire et réiterer le <em>job</em> en prenant la collection intermédiaire comme
+source. C’est laborieux pour l’implantation, et surtout très peu efficace quand
+la collection intermédiaire est grande. Le processus de
+sérialisation/désérialisation sur disque propre à la gestion de la reprise sur
+panne en MapReduce entraîne des performances médiocres.</p>
+<p>Dans Spark, la méthode est très différente. Elle consiste  à placer ces jeux de
+données en mémoire RAM et à éviter la pénalité des écritures sur le disque. Le
+défi est alors bien sûr de proposer une reprise sur panne automatique efficace.</p>
+<div class="section" id="architecture-systeme">
+<h3>Architecture système<a class="headerlink" href="#architecture-systeme" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Spark est un <em>framework</em> qui coordonne l’exécution de <em>tâches</em> sur des <em>données</em>
+en les répartissant au sein d’un <em>cluster</em> de machines. Il est voulu comme
+extrêmement modulaire et flexible. Ainsi, la gestion même du cluster de machines
+peut être déléguée soit au cluster manager de Spark, soit à Yarn ou à Mesos
+(d’autres gestionnaires pour Hadoop).</p>
+<p>Le programmeur envoie au <em>framework</em> des <em>Spark Applications</em>, pour lesquelles
+Spark affecte des ressources (RAM, CPU) du cluster en vue de leur
+exécution. Une Spark application se compose d’un processus <em>driver</em> et
+d'<em>executors</em>. Le <em>driver</em> est essentiel pour l’application car il exécute la
+fonction <cite>main()</cite> et est responsable de 3 choses :</p>
+<ul class="simple">
+<li><p>conserver les informations relatives à l’application ;</p></li>
+<li><p>répondre aux saisies utilisateur ou aux demandes de programmes externes ;</p></li>
+<li><p>analyser, distribuer et ordonnancer les tâches (cf plus loin).</p></li>
+</ul>
+<p>Un <em>executor</em> n’est responsable que de 2 choses : exécuter le code qui lui
+est assigné par le <em>driver</em> et lui rapporter l’état d’avancement de la tâche.</p>
+<p>Le <em>driver</em> est accessible programmatiquement par un point d’entrée appelé
+<em>SparkSession</em>, que l’on trouve derrière une variable <code class="code docutils literal notranslate"><span class="pre">spark</span></code>.</p>
+<p>La figure <a class="reference internal" href="#sparkarchi"><span class="std std-numref">Fig. 99</span></a> illustre l’architecture système de Spark. Dans cet exemple
+il y a un <em>driver</em>
+et 4 <em>executors</em>. La notion de nœud dans le cluster est absente : les utilisateurs
+peuvent configurer combien d’exécutors reposent sur chaque nœud.</p>
+<div class="figure align-center" id="id2">
+<span id="sparkarchi"></span><a class="reference internal image-reference" href="_images/spark-archi-systeme.png"><img alt="_images/spark-archi-systeme.png" src="_images/spark-archi-systeme.png" style="width: 85%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 99 </span><span class="caption-text">L’architecture système de Spark</span><a class="headerlink" href="#id2" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<p>Spark est un <em>framework</em> multilingue : les programmes Spark peuvent être écrits en
+Scala, Java, Python, SQL et R. Cependant, il d’abord écrit en Scala, il s’agit
+de son langage par défaut. C’est celui dans lequel nous travaillerons. Il est
+concis et offre l’intégralité de l’API. Attention, l’API est complète en Scala
+et Java, pas nécessairement dans les autres langages.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Spark peut aussi fonctionner en mode <em>local</em>, dans lequel <em>driver</em> et
+<em>executors</em> ne sont que des processus de la machine. La puissance de Spark est
+de proposer une transparence (pour les programmes) entre une exécution locale
+ou sur un cluster.</p>
+</div>
+</div>
+<div class="section" id="architecture-applicative">
+<h3>Architecture applicative<a class="headerlink" href="#architecture-applicative" title="Lien permanent vers ce titre">¶</a></h3>
+<p>L’écosystème des API de Spark est hiérarchisé et comporte
+essentiellement 3 niveaux :</p>
+<ul class="simple">
+<li><p>les APIs bas-niveau, avec les RDDs (<em>Resilient Distributed Dataset</em>);</p></li>
+<li><p>les APIs de haut niveau, avec les <em>Datasets</em>, <em>DataFrames</em> et SQL;</p></li>
+<li><p>les autres bibliothèques (<em>Structured Streaming</em>, <em>Advanced Analytics</em>, etc.).</p></li>
+</ul>
+<p>Nous allons laisser de côté dans ce cours le dernier niveau : le streaming sera
+vu avec Flink dans le <a class="reference internal" href="flink-streaming.html#chap-flink"><span class="std std-ref">chapitre suivant</span></a> et l’exploration des
+bibliothèques de <em>machine learning</em> relève du <a class="reference external" href="https://cedric.cnam.fr/vertigo/Cours/RCP216/">cours RCP216</a>.</p>
+<p>Initialement, les RDDs ont été au centre de la programmation avec Spark (ce qui
+a pour conséquence que de nombreuses ressources que vous trouverez sur Spark
+reposeront dessus). Aujourd’hui, on leur préfère des APIs de plus haut niveau,
+que nous allons explorer en détail, les Datasets et DataFrames. Celles-ci
+présentent l’avantage d’être proches de structures de données connues (avec une
+vision tabulaire), donc de faciliter le passage à Spark. En outre, elles sont
+optimisées <em>très efficacement</em> par le <em>framework</em>, d’où des gains de performance.</p>
+<div class="section" id="l-innovation-des-rdds">
+<h4>L’innovation des RDDs<a class="headerlink" href="#l-innovation-des-rdds" title="Lien permanent vers ce titre">¶</a></h4>
+<p>La principale innovation apportée par  Spark est le concept de <em>Resilient
+Distributed Dataset</em> (RDD). Un RDD est une collection (pour en rester à notre
+vocabulaire) calculée à partir d’une source de données (par exemple une base de
+données Cassandra, un flux de données, un autre RDD) et placée en mémoire RAM.
+Spark conserve l’historique des opérations qui a permis de constituer un RDD, et
+la reprise sur panne s’appuie essentiellement sur la préservation de cet
+historique afin de reconstituer  le RDD en cas de panne. Pour le dire
+brièvement: Spark n’assure pas la préservation des données en <em>extension</em> mais
+en <em>intention</em>. La préservation d’un programme qui tient en quelques lignes de
+spécification (cf. les programmes Pig) est beaucoup plus facile et efficace que
+la préservation du jeu de données issu de cette chaîne. C’est l’idée principale
+pour la <em>résilience</em> des RDDs.</p>
+<p>Par ailleurs, les RDDs représentent des collections partitionnées et
+distribuées. Chaque RDD est donc constitué de ce que nous avons appelé
+<em>fragments</em>. Une panne affectant un fragment individuel peut donc être réparée
+(par reconstitution de l’historique) indépendamment des autres fragments,
+évitant d’avoir à <em>tout</em> recalculer.</p>
+<p>Les DataFrames et Datasets que nous utiliserons plus loin reposent sur les RDDs,
+c’est-à-dire que Spark transforme les opérations sur les DataFrames/Datasets en
+opérations sur les RDDs. En pratique, vous n’aurez que rarement besoin de RDDs
+(sauf si vous maintenez du code ancien, ou que votre expertise vous amène à
+aller plus loin que les <em>Structured APIs</em>).</p>
+</div>
+<div class="section" id="actions-et-transformations-la-chaine-de-traitement-spark">
+<h4>Actions et transformations : la chaîne de traitement Spark<a class="headerlink" href="#actions-et-transformations-la-chaine-de-traitement-spark" title="Lien permanent vers ce titre">¶</a></h4>
+<p>Un élément fondamental de la pratique de Spark réside dans <strong>l’immutabilité</strong>
+des collections, elles ne peuvent être modifiées après leur création. C’est un
+peu inhabituel et cela induit des manières nouvelles de travailler.</p>
+<p>En effet, pour passer des données d’entrée à la sortie du programme, on devra
+penser une chaîne de collections qui constitueront les étapes du traitement. La
+(ou les) première(s) collection(s) contien(nen)t les données d’entrée. Ensuite,
+chaque collection est le résultat de <strong>transformations</strong> sur les précédentes
+structures, l’équivalent de ce que nous avons appelé <em>opérateur</em> dans Pig. Comme
+dans Pig, une transformation sélectionne, enrichit, restructure une collection,
+ou combine deux collections. On retrouve dans Spark, à peu de choses près, les
+mêmes opérateurs/transformations que dans Pig, comme le montre la table
+ci-dessous (qui n’est bien sûr pas exhaustive: reportez-vous à la documentation
+pour des compléments).</p>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 67%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Opérateur</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">map</span></code></p></td>
+<td><p>Prend un document en entrée et produit un document en sortie</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">filter</span></code></p></td>
+<td><p>Filtre les documents de la collection</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">flatMap</span></code></p></td>
+<td><p>Prend un document en entrée, produit un ou plusieurs document(s) en sortie</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">groupByKey</span></code></p></td>
+<td><p>Regroupement de documents par une valeur de clé commune</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">reduceByKey</span></code></p></td>
+<td><p>Réduction d’une paire <em>(k, [v])</em> par une agrégation du tableau <em>[v]</em></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">crossProduct</span></code></p></td>
+<td><p>Produit cartésien de deux collections</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">join</span></code></p></td>
+<td><p>Jointure de deux collections</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">union</span></code></p></td>
+<td><p>Union de deux collections</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cogroup</span></code></p></td>
+<td><p>Cf. la description de l’opérateur dans la section sur Pig</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">sort</span></code></p></td>
+<td><p>Tri d’une collection</p></td>
+</tr>
+</tbody>
+</table>
+<p>Les collections obtenues au cours des différentes étapes d’une chaîne de
+traitement sont stockées dans des RDDs, des DataFrames, etc., selon l’API
+employée. C’est exactement la notion que nous avons déjà étudiée avec Pig. La
+différence essentielle est que dans Spark, les RDD ou DataFrames peuvent être
+marquées comme étant <em>persistants</em> car ils  peuvent être réutilisés dans
+d’autres chaînes. Spark fait son possible pour stocker les structures
+persistantes en mémoire RAM, pour un maximum d’efficacité.</p>
+<div class="figure align-center" id="id3">
+<span id="spark-rdd"></span><a class="reference internal image-reference" href="_images/spark-rdd.png"><img alt="_images/spark-rdd.png" src="_images/spark-rdd.png" style="width: 85%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 100 </span><span class="caption-text">RDD persistants et transitoires dans Spark.</span><a class="headerlink" href="#id3" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<p>Les collections forment un graphe construit par application de transformations à
+partir de collections stockées (<a class="reference internal" href="#spark-rdd"><span class="std std-numref">Fig. 100</span></a>). S’il n’est pas marqué
+comme persistant, le RDD/DataFrame sera transitoire et ne sera pas conservé en
+mémoire après calcul (c’est le cas des RDD 1 et 3 sur la figure). Sinon, il est
+stocké en RAM, et disponible comme source de données pour d’autres
+transformations.</p>
+<p>Par opposition aux transformations qui produisent d’autres RDD ou DataFrames, les <strong>actions</strong>
+produisent des <em>valeurs</em> (pour l’utilisateur). L’évaluation des opérations en
+Spark est dite « paresseuse », c’est-à-dire que Spark attend le plus possible pour
+exécuter le graphe des instructions de traitement. Plus précisément, une action
+déclenche l’exécution des transformations qui la précèdent.</p>
+<p>L’évaluation paresseuse (<em>lazy evaluation</em>) permet à Spark de compiler de
+simples transformations de DataFrames en un plan d’exécution physique
+efficacement réparti dans le cluster. Un exemple de cette efficacité est
+illustrée par le concept de <em>predicate pushdown</em> : si un <code class="code docutils literal notranslate"><span class="pre">filter()</span></code> à la
+fin d’une séquence amène à ne travailler que sur 1 ligne des données d’entrée,
+les autres opérations en tiendront compte, optimisant d’autant la performance en
+temps et en espace.</p>
+</div>
+<div class="section" id="rdds-dataset-et-dataframe">
+<h4>RDDs, <em>Dataset</em> et <em>DataFrame</em><a class="headerlink" href="#rdds-dataset-et-dataframe" title="Lien permanent vers ce titre">¶</a></h4>
+<p>Un RDD, venant de l’API bas-niveau, est une « boîte » destinée à contenir
+n’importe quel document, sans aucun préjugé sur la structure (ou l’absence de
+structure) de ce dernier. Cela rend le système très généraliste, mais empêche
+une manipulation fine des constituants des documents, comme par exemple le
+filtrage en fonction de la valeur d’un champ. C’est le programmeur de
+l’application qui doit fournir la fonction effectuant le filtre.</p>
+<p>On l’a dit, Spark implémente une API de plus haut niveau avec des structures
+assimilables à des tables relationnelles : les <em>Dataset</em> et <em>DataFrame</em>. Ils
+comportent un <em>schéma</em>, avec les définitions des colonnes. La connaissance de ce
+schéma – et éventuellement de leur type – permet à Spark de proposer des
+opérations plus fines, et des optimisations inspirées des techniques
+d’évaluation de requêtes dans les systèmes relationnels. En fait, on se ramène à
+une implantation distribuée du langage SQL.  En interne, un avantage important
+de la connaissance du schéma est d’éviter de recourir à la sérialisation des
+objets Java (opération effectuée dans le cas des RDD pour écrire sur disque et
+échanger des données en réseau).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Saluons au passage le mouvement progressif de ces systèmes vers une
+ré-assimilation des principes du relationnel (schéma, structuration des
+données, interrogation à la SQL, etc.), et la reconnaissance des avantages,
+internes et externes,  d’une modélisation des données. Du <em>NoSQL</em> à <em>BackToSQL</em>!</p>
+</div>
+<p>On distingue les <em>Dataset</em>,  dont le type des colonnes est connu, et les <em>DataFrames</em>.
+Un <em>DataFrame</em> n’est rien d’autre qu’un <em>Dataset</em> (<code class="code docutils literal notranslate"><span class="pre">DataFrame</span> <span class="pre">=</span>
+<span class="pre">Dataset[Row])</span></code> contenant des lignes de type <em>Row</em> dont le schéma précis n’est
+pas connu. Ce typage des structures de données est lié au langage de
+programmation : Python et R étant dynamiquement typés, ils n’accèdent qu’aux
+DataFrames. En Scala et Java en revanche, on utilise les Datasets, des objets
+JVM fortement typés.</p>
+<p>Tout cela est un peu abstrait? Voici un exemple simple qui permet d’illustrer
+les principaux avantages des <em>Dataset/DataFrame</em>. Nous voulons appliquer un
+opérateur qui filtre les films dont le genre est « Drame ». On va exprimer le
+filtre (en simplifiant un peu) comme suit:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>films.filter(film.getGenre() == &#39;Drame&#39;);
+</pre></div>
+</div>
+<p>Si <code class="docutils literal notranslate"><span class="pre">films</span></code> est un RDD, Spark n’a aucune idée sur la structure des documents
+qu’il contient. Spark va donc instancier un objet Java (éventuellement en
+dé-sérialisant une chaîne d’octets reçue par réseau ou lue sur disque) et
+appeler la méthode <code class="docutils literal notranslate"><span class="pre">getGenre()</span></code>. Cela peut être long, et impose surtout de
+créer un objet pour un simple test.</p>
+<p>Avec un <em>Dataset</em> ou <em>DataFrame</em>, le schéma est connu et Spark utilise son
+propre système d’encodage/décodage à la place de la sérialisation Java. De plus,
+dans le cas des <em>Dataset</em>, la valeur du champ <code class="docutils literal notranslate"><span class="pre">genre</span></code> peut être testée
+directement sans même effectuer de décodage depuis la représentation binaire.</p>
+<p>Il est, en résumé, tout à fait préférable d’utiliser les <em>Dataset</em> dès que l’on
+a affaire à des données structurées.</p>
+</div>
+</div>
+<div class="section" id="exemple-analyse-de-fichiers-log">
+<h3>Exemple: analyse de fichiers <em>log</em><a class="headerlink" href="#exemple-analyse-de-fichiers-log" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Prenons un exemple concret: dans un serveur d’application, on constate qu’un module <em>M</em> produit
+des résultats incorrects de temps en temps. On veut analyser le fichier journal (<em>log</em>) de l’application
+qui contient les messages produits par le module suspect, et par beaucoup d’autres modules.</p>
+<p>On construit donc un programme qui charge le  <em>log</em> sous forme de collection, ne conserve
+que les messsages produits par le module <em>M</em> et analyse ensuite ces messages. Plusieurs analyses sont
+possibles en fonction des causes suspectées: la première par exemple regarde le <em>log</em> de <em>M</em> pour un produit particulier,
+la seconde pour un utilisateur particulier, la troisième pour une tranche horaire particulière, etc.</p>
+<p>Avec Spark, on va créer un DataFrame <code class="docutils literal notranslate"><span class="pre">logM</span></code> persistant, contenant les messages produits par <em>M</em>.
+On construira ensuite,
+à partir de <code class="docutils literal notranslate"><span class="pre">logM</span></code> de nouveaux DataFrames dérivés pour les analyses spécifiques (<a class="reference internal" href="#spark-log"><span class="std std-numref">Fig. 101</span></a>).</p>
+<div class="figure align-center" id="id4">
+<span id="spark-log"></span><a class="reference internal image-reference" href="_images/spark-log.png"><img alt="_images/spark-log.png" src="_images/spark-log.png" style="width: 85%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 101 </span><span class="caption-text">Scénario d’une analyse de <em>log</em> avec Spark</span><a class="headerlink" href="#id4" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<p>On combine deux transformations pour construire <code class="docutils literal notranslate"><span class="pre">logM</span></code>, comme le montre le programme suivant (qui n’est pas la syntaxe
+exacte de Spark, que nous présenterons plus loin).</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="c1">// Chargement de la collection</span>
+<span class="nx">log</span> <span class="o">=</span> <span class="nx">load</span> <span class="p">(</span><span class="s2">&quot;app.log&quot;</span><span class="p">)</span> <span class="nx">as</span> <span class="p">(...)</span>
+<span class="c1">// Filtrage des messages du module M</span>
+<span class="nx">logM</span> <span class="o">=</span> <span class="nx">filter</span> <span class="nx">log</span> <span class="kd">with</span> <span class="nx">log</span><span class="p">.</span><span class="nx">message</span><span class="p">.</span><span class="nx">contains</span> <span class="p">(</span><span class="s2">&quot;M&quot;</span><span class="p">)</span>
+<span class="c1">// On rend logM persistant !</span>
+<span class="nx">logM</span><span class="p">.</span><span class="nx">persist</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>On peut alors construire une analyse basée sur le code produit directement à partir de <code class="docutils literal notranslate"><span class="pre">logM</span></code>.</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="c1">// Filtrage par produit</span>
+<span class="nx">logProduit</span> <span class="o">=</span> <span class="nx">filter</span> <span class="nx">logM</span> <span class="kd">with</span> <span class="nx">log</span><span class="p">.</span><span class="nx">message</span><span class="p">.</span><span class="nx">contains</span> <span class="p">(</span><span class="s2">&quot;product P&quot;</span><span class="p">)</span>
+<span class="c1">// .. analyse du contenu de logProduit</span>
+</pre></div>
+</div>
+<p>Et utiliser également <code class="docutils literal notranslate"><span class="pre">logM</span></code> pour une autre analyse, basée sur l’utilisateur.</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="c1">// Filtrage par utilisateur</span>
+<span class="nx">logUtilisateur</span> <span class="o">=</span> <span class="nx">filter</span> <span class="nx">logM</span> <span class="kd">with</span> <span class="nx">log</span><span class="p">.</span><span class="nx">message</span><span class="p">.</span><span class="nx">contains</span> <span class="p">(</span><span class="s2">&quot;utilisateur U&quot;</span><span class="p">)</span>
+<span class="c1">// .. analyse du contenu de logProduit</span>
+</pre></div>
+</div>
+<p>Ou encore par tranche horaire.</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="c1">// Filtrage par utilisateur</span>
+<span class="nx">logPeriode</span> <span class="o">=</span> <span class="nx">filter</span> <span class="nx">logM</span> <span class="kd">with</span> <span class="nx">log</span><span class="p">.</span><span class="nx">date</span><span class="p">.</span><span class="nx">between</span> <span class="nx">d1</span> <span class="nx">and</span> <span class="nx">d2</span>
+<span class="c1">// .. analyse du contenu de logPeriode</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">logM</span></code>  est une sorte de « vue »  sur la collection initiale, dont la persistance
+évite de refaire le calcul complet à chaque analyse.</p>
+</div>
+<div class="section" id="reprise-sur-panne">
+<h3>Reprise sur panne<a class="headerlink" href="#reprise-sur-panne" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Pour comprendre la reprise sur panne, il faut se pencher sur le second aspect
+des RDD: la <em>distribution</em>. Un RDD est une collection <em>partitionnée</em> (cf.
+chapitre <a class="reference internal" href="sharding.html#chap-sharding"><span class="std std-ref">Systèmes NoSQL: le partitionnement</span></a>), les DataFrames le sont aussi. La
+<a class="reference internal" href="#spark-failover"><span class="std std-numref">Fig. 102</span></a> montre le traitement précédent dans une perspective de
+distribution. Chaque DataFrame, persistant ou non, est composé de fragments
+répartis dans la grappe de serveurs.</p>
+<div class="figure align-center" id="id5">
+<span id="spark-failover"></span><a class="reference internal image-reference" href="_images/spark-failover.png"><img alt="_images/spark-failover.png" src="_images/spark-failover.png" style="width: 85%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 102 </span><span class="caption-text">Partitionnement et reprise sur panne dans Spark.</span><a class="headerlink" href="#id5" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<p>Si une panne affecte un calcul s’appuyant sur un fragment <em>F</em> de DataFrame
+persistant (par exemple la transformation notée <code class="docutils literal notranslate"><span class="pre">T</span></code> et marquée par une
+croix rouge sur la figure), il suffit de le relancer à partir de <em>F</em>. Le gain
+en temps est considérable!</p>
+<p>La panne la plus sévère affecte un fragment de DataFrame <em>non</em> persistant (par
+exemple celui marqué par une croix violette). Dans ce cas, Spark a mémorisé la
+chaîne de traitement ayant constitué le DataFrame, et il suffit de ré-appliquer
+cette chaîne en remontant jusqu’aux fragments qui précèdent dans le graphe des
+calculs.</p>
+<p>Dans notre cas, il faut parcourir à nouveau le fichier <code class="docutils literal notranslate"><span class="pre">log</span></code>  pour créer le
+fragment <code class="docutils literal notranslate"><span class="pre">logn</span></code>. Si les collections stockées à l’origine du calcul sont
+elles-mêmes partitionnées (ce qui n’est sans doute pas le cas pour un fichier
+<em>log</em>), il suffira d’accéder à la partie de la collection à l’origine des
+calculs menant au DataFrame défaillant.</p>
+<p>En résumé, Spark exploite la capacité à reconstruire des fragments de
+RDD/DataFrame par application de la chaîne de traitement, et ce en se limitant
+si possible à une partie seulement des données d’origine. La reprise peut
+prendre du temps, mais elle évite un recalcul complet. Si tout se passe bien
+(pas de panne) la présence des résultats intermédiaires en mémoire RAM assure de
+très bonnes performances.</p>
+</div>
+<div class="section" id="quiz">
+<h3>Quiz<a class="headerlink" href="#quiz" title="Lien permanent vers ce titre">¶</a></h3>
+<div class="reauthoring_embedded_quiz" id="spark-1"><form class="reauthoring_embedded_quiz_questions"><p>Quel est le principal apport du concept de RDD?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Un RDD est un fichier journal <em>partitionné</em> de telle sorte
+qu’une panne peut être réparé avec seulement un fragment du journal.</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Un RDD est une collection partitionnée en mémoire RAM dont chaque
+fragment peut être reconstruit grâce à l’historique des opérations</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Un RDD est une collection partitionnée et répliquée selon les mêmes principes
+que MongoDB ou ElasticSearch: la reprise sur panne est assurée par la réplication</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="spark-2"><form class="reauthoring_embedded_quiz_questions"><p>Quel est la différence entre RDD persistant et non persistant?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Un RDD non persistant disparaît dès que la chaîne de traitement qui l’a produit
+se termine</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Un RDD non persistant disparaît dès que la transformation dont il est la
+source se termine</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Les RDD persistants sont sur disque, les RDD non persistants en mémoire RAM</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="spark-3"><form class="reauthoring_embedded_quiz_questions"><p>Quelle est la différence entre une transformation et une action?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Une transformation change le format des données, une action renvoie le résultat
+d’un calcul à l’utilisateur</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Une transformation est l’équivalent d’une procédure en programmation classique,
+alors qu’une action est l’équivalent d’une fonction.</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Une transformation est une <em>spécification</em> intégrable à une chaîne de traitement;
+une action déclenche <em>l’exécution</em> d’une chaîne de traitement.</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="spark-4"><form class="reauthoring_embedded_quiz_questions"><p>Comment expliqueriez-vous la notion d’exécution « paresseuse » dans Spark?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Une chaîne de traitement est constituée par spécification et ne se déclenche
+que quand c’est nécessaire</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> C’est un autre nom du principe de localité des données: chaque transformation
+s’applique aux données les plus proches</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  Le système accumule un certain volume de données avant de déclencher le traitement
+afin d’assurer son efficacité.</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="spark-5"><form class="reauthoring_embedded_quiz_questions"><p>Que signifie pour un RDD la propriété d’immutabilité?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Un RDD est construit sur un cliché de la collection initiale, qui reste figé
+sur la durée de l’exécution du traitement.</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Le contenu d’un RDD ne peut pas être modifié une fois qu’il est constitué.</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> La chaîne des RDD est solidaire, et toute modification de l’un entraîne le
+recalcul de tous les autres.</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="spark-6"><form class="reauthoring_embedded_quiz_questions"><p>En quoi le concept de <em>sérialisation</em> implique-t-il une différence entre
+les <em>RDD</em> et les structures plus récentes</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Aucun, dans tous les cas il faut mettre les données sur disque.</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Les RDD contiennent des objets java dont la sérialisation est très coûteuse,
+alors que les <em>Datasets</em> disposent de leur propre système d’écriture sur disque.</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Les <em>Datasets</em> sont plus puissants car ils s’appuient sur
+les objets Java, leurs méthodes,  et le mécanisme natif de sérialisation.</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="spark7"><form class="reauthoring_embedded_quiz_questions"><p>Quel est l’avantage d’un DataSet sur un RDD ?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Les DataSet sont toujours persistants et la reprise sur panne est donc toujours
+plus efficace.</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Les DataSets connaissent la structure de leurs données et peuvent donc
+optimiser les traitements qui s’y appliquent.</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Seuls les DataSets peuvent prendre une base relationnelle comme source de données</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div></div>
+</div>
+<div class="section" id="s2-spark-en-pratique">
+<h2>S2: Spark en pratique<a class="headerlink" href="#s2-spark-en-pratique" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="admonition-supports-complementaires admonition">
+<p class="admonition-title">Supports complémentaires</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://mediaserver.lecnam.net/permalink/v125f5947d50aigwjp4q/">Vidéo  Spark en pratique: *DataFrames*</a></p></li>
+</ul>
+</div>
+<p>Il est temps de passer à l’action. Nous allons commencer par montrer  comment effectuer
+des transformations sur des données non-structurées avec des DataFrames standard.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Les exemples qui suivent sont en langage Scala. Ce n’est pas
+pour le plaisir d’introduire un nouveau langage que vous ne connaissez
+(sans doute) pas. Il se trouve que Scala est un langage fonctionnel, doté
+d’un système d’inférence de types puissant, ce qui le rend
+particulièrement approprié pour exprimer des chaînes de traitements sous
+la forme d’une séquence d’appels de fonctions. Scala est entièrement
+compatible avec Java, mais beaucoup, beaucoup moins verbeux, comme le
+montreront les exemples qui suivent. Les commentaires devraient vous
+permettre de vous familiariser progressivement avec le langage. La
+<a class="reference external" href="http://docs.scala-lang.org/tour/tour-of-scala.html">documentation officielle est disponible</a> en
+anglais seulement.</p>
+</div>
+<p>Pour tout ce qui suit, il faut d’abord lancer l’interpréteur de commandes qui se trouve dans <code class="docutils literal notranslate"><span class="pre">spark/bin</span></code>,
+et donc en principe accessible dans votre <code class="docutils literal notranslate"><span class="pre">PATH</span></code>  des chemins d’accès aux fichiers exécutables
+si vous avez effectués les quelques opérations post-installation nécessaires..</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>spark-shell
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Comme Pig, l’interpréteur de Spark affiche de nombreux messages à la console ce qui est perturbant. Pour s’en débarasser:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>copiez le fichier <code class="docutils literal notranslate"><span class="pre">sparkdir/conf/log4j.properties.template</span></code> en <code class="docutils literal notranslate"><span class="pre">sparkdir/conf/log4j.properties</span></code>;</p></li>
+<li><p>éditez <code class="docutils literal notranslate"><span class="pre">log4j.properties</span></code> et remplacez dans la première ligne le niveau <code class="docutils literal notranslate"><span class="pre">INFO</span></code> par <code class="docutils literal notranslate"><span class="pre">ERROR</span></code>.</p></li>
+</ul>
+</div></blockquote>
+<p>Ceci en supposant que les choses n’ont pas changé entre votre version et la mienne. Sinon, cherchez
+sur le web.</p>
+</div>
+<div class="section" id="transformations-et-actions">
+<h3>Transformations et actions<a class="headerlink" href="#transformations-et-actions" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Vous pouvez récupérer le fichier <a class="reference external" href="http://b3d.bdpedia.fr/files/loups.txt">http://b3d.bdpedia.fr/files/loups.txt</a> pour
+faire un essai (il est temps de savoir à quoi s’en tenir à propos de ces loups
+et de ces moutons!), sinon n’importe quel fichier texte fait l’affaire.
+Copiez-collez les commandes ci-dessous. Les commandes sont précédées de <code class="docutils literal notranslate"><span class="pre">scala&gt;</span></code>,
+elles sont parfois suivies du résultat de leur exécution dans le <em>shell</em>
+spark.</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">loupsEtMoutons</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">read</span><span class="o">.</span><span class="n">textFile</span><span class="o">(</span><span class="s">&quot;loups.txt&quot;</span><span class="o">)</span>
+<span class="n">loupsEtMoutons</span><span class="k">:</span> <span class="kt">org.apache.spark.sql.Dataset</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="o">=</span> <span class="o">[</span><span class="kt">value:</span> <span class="kt">string</span><span class="o">]</span>
+</pre></div>
+</div>
+<p>Nous avons créé un premier DataFrame. Spark propose des <em>actions</em> directement
+applicable à un DataFrame et produisant des résultats scalaires.
+(Un DataFrame est interfacé comme un objet auquel nous pouvons appliquer des méthodes.)</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="n">scala</span><span class="o">&gt;</span> <span class="n">loupsEtMoutons</span><span class="o">.</span><span class="n">count</span><span class="o">()</span> <span class="c1">// Nombre de documents dans ce RDD</span>
+  <span class="n">res0</span><span class="k">:</span> <span class="kt">Long</span> <span class="o">=</span> <span class="mi">4</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="n">loupsEtMoutons</span><span class="o">.</span><span class="n">first</span><span class="o">()</span> <span class="c1">// Premier document du RDD</span>
+  <span class="n">res1</span><span class="k">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="nc">Le</span> <span class="n">loup</span> <span class="n">est</span> <span class="n">dans</span> <span class="n">la</span> <span class="n">bergerie</span><span class="o">.</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="n">loupsEtMoutons</span><span class="o">.</span><span class="n">collect</span><span class="o">()</span> <span class="c1">// Récupération du RDD complet</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Petite astuce: en entrant le nom de l’objet (<code class="docutils literal notranslate"><span class="pre">loupsEtMoutons.</span></code>) suivi de la touche TAB,
+l’interpréteur Scala vous affiche la liste des méthodes disponibles.</p>
+</div>
+<p>Passons aux <em>transformations</em>. Elles prennent un (ou deux) DataFrame en entrée,
+produisent un DataFrame en sortie. On peut sélectionner (filtrer) les documents
+(lignes) qui contiennent « bergerie ».</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">bergerie</span> <span class="o">=</span> <span class="n">loupsEtMoutons</span><span class="o">.</span><span class="n">filter</span><span class="o">({</span> <span class="n">line</span> <span class="o">=&gt;</span> <span class="n">line</span><span class="o">.</span><span class="n">contains</span><span class="o">(</span><span class="s">&quot;bergerie&quot;</span><span class="o">)</span> <span class="o">})</span>
+</pre></div>
+</div>
+<p>La fonction <code class="code docutils literal notranslate"><span class="pre">filter()</span></code> prend en paramètre une fonction booléenne (qui
+renvoie <code class="docutils literal notranslate"><span class="pre">True</span></code> ou <code class="docutils literal notranslate"><span class="pre">False</span></code> pour chaque ligne), et ne conserve dans la
+collection résultante que les lignes pour lesquelles <code class="docutils literal notranslate"><span class="pre">True</span></code> était retourné.
+Ici, nous utilisons la fonction <code class="docutils literal notranslate"><span class="pre">contains()</span></code> (qui prend en paramètre un motif)
+et qui renvoie <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code> selon que la chaîne (ici, la ligne)
+contient le motif (ici, « bergerie »). Remarquez aussi la syntaxe reposant sur une
+fonction anonyme comme paramètre de la fonction <code class="docutils literal notranslate"><span class="pre">filter()</span></code> : chaque ligne
+s’appelle temporairement <code class="docutils literal notranslate"><span class="pre">line</span></code>, et on lui associe le résultat de
+<code class="docutils literal notranslate"><span class="pre">line.contains(&quot;bergerie&quot;)</span></code> avec l’opérateur <code class="docutils literal notranslate"><span class="pre">=&gt;</span></code>.</p>
+<p>Nous avons créé un second DataFrame. Nous sommes en train de définir une chaîne
+de traitement qui part ici d’un fichier texte et applique des transformations
+successives.</p>
+<p>À ce stade, rien n’est calculé, on s’est contenté de déclarer les étapes. Dès
+que l’on déclenche une <em>action</em>, comme par exemple l’affichage du contenu d’un
+DataFrame (avec <code class="docutils literal notranslate"><span class="pre">collect()</span></code>), Spark va déclencher l’exécution.</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="n">scala</span><span class="o">&gt;</span> <span class="n">bergerie</span><span class="o">.</span><span class="n">collect</span><span class="o">()</span>
+<span class="n">res3</span><span class="k">:</span> <span class="kt">Array</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="o">=</span> <span class="nc">Array</span><span class="o">(</span><span class="nc">Le</span> <span class="n">loup</span> <span class="n">est</span> <span class="n">dans</span> <span class="n">la</span> <span class="n">bergerie</span><span class="o">.,</span> <span class="nc">Les</span> <span class="n">moutons</span> <span class="n">sont</span>
+  <span class="n">dans</span> <span class="n">la</span> <span class="n">bergerie</span><span class="o">.,</span> <span class="nc">Un</span> <span class="n">loup</span> <span class="n">a</span> <span class="n">mangé</span> <span class="n">un</span> <span class="n">mouton</span><span class="o">,</span> <span class="n">les</span> <span class="n">autres</span> <span class="n">loups</span> <span class="n">sont</span> <span class="n">restés</span>
+  <span class="n">dans</span> <span class="n">la</span> <span class="n">bergerie</span><span class="o">.)</span>
+</pre></div>
+</div>
+<p>On peut combiner une transformation et une action. En fait, avec Scala, on peut chaîner
+les opérations et ainsi définir très concisément le <em>workflow</em>.</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="n">scala</span><span class="o">&gt;</span> <span class="n">loupsEtMoutons</span><span class="o">.</span><span class="n">filter</span><span class="o">({</span> <span class="n">line</span> <span class="o">=&gt;</span> <span class="n">line</span><span class="o">.</span><span class="n">contains</span><span class="o">(</span><span class="s">&quot;loup&quot;</span><span class="o">)</span> <span class="o">}).</span><span class="n">count</span><span class="o">()</span>
+<span class="n">res4</span><span class="k">:</span> <span class="kt">Long</span> <span class="o">=</span> <span class="mi">3</span>
+</pre></div>
+</div>
+<p>Et pour conclure cette petite session introductive, voici comment on implante en
+Spark le compteur de termes dans une collection, en DataFrame et en RDD.</p>
+<div class="section" id="compteur-de-termes-en-dataframes">
+<h4>Compteur de termes, en DataFrames<a class="headerlink" href="#compteur-de-termes-en-dataframes" title="Lien permanent vers ce titre">¶</a></h4>
+<p>On crée un premier DataFrame constitué de tous les termes:</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">termes</span> <span class="o">=</span> <span class="n">loupsEtMoutons</span><span class="o">.</span><span class="n">flatMap</span><span class="o">({</span> <span class="n">line</span> <span class="o">=&gt;</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="o">(</span><span class="s">&quot; &quot;</span><span class="o">)</span> <span class="o">})</span>
+</pre></div>
+</div>
+<p>La méthode <code class="docutils literal notranslate"><span class="pre">split</span></code> décompose une chaîne de caractères (ici, en prenant comme séparateur un espace).
+Notez l’opérateur <code class="docutils literal notranslate"><span class="pre">flatMap</span></code> qui produit plusieurs documents (ici un terme) pour un document en entrée (ici une ligne).</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">termesGroupes</span> <span class="o">=</span> <span class="n">termes</span><span class="o">.</span><span class="n">groupByKey</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">toLowerCase</span><span class="o">)</span>
+</pre></div>
+</div>
+<p>Rappelons qu’à chaque étape, vous pouvez afficher le contenu du DataFrame avec <code class="docutils literal notranslate"><span class="pre">collect()</span></code> (attention toutefois, ici <code class="docutils literal notranslate"><span class="pre">termesGroupes</span></code> est de type <code class="docutils literal notranslate"><span class="pre">KeyValueGroupedDataset</span></code> et n’a pas cette méthode).
+Une manière un peu complexe de visualiser le contenu de termesGroupes:</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="n">scala</span><span class="o">&gt;</span> <span class="n">termesGroupes</span><span class="o">.</span><span class="n">mapGroups</span><span class="o">{(</span><span class="n">k</span><span class="o">,</span> <span class="n">v</span><span class="o">)</span> <span class="o">=&gt;</span> <span class="o">(</span><span class="n">k</span><span class="o">,</span> <span class="n">v</span><span class="o">.</span><span class="n">toArray</span><span class="o">)}.</span><span class="n">collect</span>
+</pre></div>
+</div>
+<p>Passons maintenant au décompte, avec un <code class="docutils literal notranslate"><span class="pre">count()</span></code> :</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">sommes</span> <span class="o">=</span> <span class="n">termesGroupes</span><span class="o">.</span><span class="n">count</span><span class="o">()</span>
+</pre></div>
+</div>
+<p>Enfin, on affiche les décomptes, c’est-à-dire les lignes du Dataset <code class="docutils literal notranslate"><span class="pre">sommes</span></code>.</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="n">scala</span><span class="o">&gt;</span> <span class="n">sommes</span><span class="o">.</span><span class="n">show</span><span class="o">()</span>
+</pre></div>
+</div>
+<p>Et voilà! On aurait pu tout exprimer en une seule fois.</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">compteurTermes</span> <span class="o">=</span> <span class="n">loupsEtMoutons</span><span class="o">.</span><span class="n">flatMap</span><span class="o">({</span> <span class="n">line</span> <span class="o">=&gt;</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="o">(</span><span class="s">&quot; &quot;</span><span class="o">)</span> <span class="o">})</span>
+                              <span class="o">.</span><span class="n">groupByKey</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">toLowerCase</span><span class="o">)</span>
+                              <span class="o">.</span><span class="n">count</span><span class="o">()</span>
+                              <span class="o">.</span><span class="n">show</span><span class="o">()</span>
+</pre></div>
+</div>
+<div class="admonition-astuce admonition">
+<p class="admonition-title">Astuce</p>
+<p>Si vous voulez entrer des instructions multi-lignes dans l’interpréteur Scala, utilisez
+la commande :paste, suivi de vos instructions, et CTRL D pour finir.</p>
+</div>
+<p>Le résultat pourra vous sembler un peu étrange (<code class="docutils literal notranslate"><span class="pre">pré,</span></code>) : il manque les
+diverses étapes de simplification du texte qui sont de mise pour un moteur de
+recherche (vues dans le chapitre <a class="reference internal" href="ri-ranking.html#chap-ranking"><span class="std std-ref">Recherche avec classement</span></a> pour les détails). Mais
+l’essentiel est de comprendre l’enchaînement des opérateurs.</p>
+<p>Finalement, si on souhaite conserver en mémoire le DataFrame final pour le
+soumettre à divers traitements, il suffit d’appeler:</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="n">scala</span><span class="o">&gt;</span> <span class="n">compteurTermes</span><span class="o">.</span><span class="n">persist</span><span class="o">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="compteur-de-termes-en-rdd">
+<h4>Compteur de termes, en RDD<a class="headerlink" href="#compteur-de-termes-en-rdd" title="Lien permanent vers ce titre">¶</a></h4>
+<p>Avec les RDD, on dispose de fonctions <code class="docutils literal notranslate"><span class="pre">map()</span></code> et <code class="docutils literal notranslate"><span class="pre">reduce()</span></code>, moins proches
+de SQL et moins haut niveau, mais efficaces.</p>
+<p>On commence par créer le premier RDD :</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">loupsEtMoutonsRDD</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">read</span><span class="o">.</span><span class="n">textFile</span><span class="o">(</span><span class="s">&quot;loups.txt&quot;</span><span class="o">).</span><span class="n">rdd</span>
+</pre></div>
+</div>
+<p>On décompose les lignes en termes :</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">termes</span> <span class="o">=</span> <span class="n">loupsEtMoutonsRDD</span><span class="o">.</span><span class="n">flatMap</span><span class="o">({</span> <span class="n">line</span> <span class="o">=&gt;</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="o">(</span><span class="s">&quot; &quot;</span><span class="o">)</span> <span class="o">})</span>
+</pre></div>
+</div>
+<p>On introduit la notion de comptage: chaque terme vaut 1. L’opérateur <code class="docutils literal notranslate"><span class="pre">map</span></code> produit <em>un</em>
+document en sortie pour chaque document en entrée. On peut s’en servir ici pour enrichir
+chaque terme avec son compteur initial.</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">termeUnit</span> <span class="o">=</span> <span class="n">termes</span><span class="o">.</span><span class="n">map</span><span class="o">({</span><span class="n">word</span> <span class="o">=&gt;</span> <span class="o">(</span><span class="n">word</span><span class="o">,</span> <span class="mi">1</span><span class="o">)})</span>
+</pre></div>
+</div>
+<p>L’étape suivante regroupe les termes et effectue la somme de leurs compteurs:
+c’est un opérateur <code class="docutils literal notranslate"><span class="pre">reduceByKey</span></code>.</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">compteurTermes</span> <span class="o">=</span> <span class="n">termeUnit</span><span class="o">.</span><span class="n">reduceByKey</span><span class="o">({(</span><span class="n">a</span><span class="o">,</span> <span class="n">b</span><span class="o">)</span> <span class="o">=&gt;</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="o">})</span>
+</pre></div>
+</div>
+<p>On passe à l’opérateur une fonction de réduction, ici notée littéralement dans
+la syntaxe Scala. Une telle fonctiàn prend en entrée deux paramètres: un
+accumulateur (ici <code class="docutils literal notranslate"><span class="pre">a</span></code>) et la nouvelle valeur à agréger à l’accumulateur
+(ici <code class="docutils literal notranslate"><span class="pre">b</span></code>). L’agrégation est ici simplement la somme.</p>
+<p>Il reste à exécuter le traitement complet :</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="n">scala</span><span class="o">&gt;</span> <span class="n">compteurTermes</span><span class="o">.</span><span class="n">collect</span><span class="o">()</span>
+</pre></div>
+</div>
+<p>Tout en une fois :</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">compteurTermes</span> <span class="o">=</span> <span class="n">loupsEtMoutonsRDD</span><span class="o">.</span><span class="n">flatMap</span><span class="o">({</span> <span class="n">line</span> <span class="o">=&gt;</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="o">(</span><span class="s">&quot; &quot;</span><span class="o">)</span> <span class="o">})</span>
+                       <span class="o">.</span><span class="n">map</span><span class="o">({</span> <span class="n">word</span> <span class="o">=&gt;</span> <span class="o">(</span><span class="n">word</span><span class="o">,</span> <span class="mi">1</span><span class="o">)</span> <span class="o">})</span>
+                       <span class="o">.</span><span class="n">reduceByKey</span><span class="o">({</span> <span class="o">(</span><span class="n">a</span><span class="o">,</span> <span class="n">b</span><span class="o">)</span> <span class="o">=&gt;</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="o">})</span>
+<span class="n">scala</span><span class="o">&gt;</span> <span class="n">compteurTermes</span><span class="o">.</span><span class="n">collect</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="l-interface-de-controle-spark">
+<h3>L’interface de contrôle Spark<a class="headerlink" href="#l-interface-de-controle-spark" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Spark dispose d’une interface Web qui permet de consulter les entrailles du système et de mieux comprendre
+ce qui est fait. Elle est accessible sur le port 4040, donc à l’URL <a class="reference external" href="http://localhost:4040">http://localhost:4040</a> pour
+une exécution du <em>shell</em>.
+Pour explorer les informations fournies par cette interface, nous allons exécuter notre
+<em>workflow</em>, assemblé en une seule chaîne d’instructions Scala.</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">compteurTermes</span> <span class="o">=</span>  <span class="n">sc</span><span class="o">.</span><span class="n">textFile</span><span class="o">(</span><span class="s">&quot;loups.txt&quot;</span><span class="o">)</span>
+       <span class="o">.</span><span class="n">flatMap</span><span class="o">(</span><span class="n">line</span> <span class="o">=&gt;</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="o">(</span><span class="s">&quot; &quot;</span><span class="o">))</span>
+       <span class="o">.</span><span class="n">map</span><span class="o">({</span> <span class="n">word</span> <span class="o">=&gt;</span> <span class="o">(</span><span class="n">word</span><span class="o">,</span> <span class="mi">1</span><span class="o">)</span> <span class="o">})</span>
+       <span class="o">.</span><span class="n">reduceByKey</span><span class="o">({</span> <span class="o">(</span><span class="n">a</span><span class="o">,</span> <span class="n">b</span><span class="o">)</span> <span class="o">=&gt;</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="o">})</span>
+
+<span class="n">compteurTermes</span><span class="o">.</span><span class="n">collect</span><span class="o">()</span>
+</pre></div>
+</div>
+<p>Lancez le <em>shell</em> est exécutez ce <em>workflow</em>.</p>
+<p>Maintenant, vous devriez pouvoir accéder à l’interface et obtenir un affichage semblable
+à celui de la <a class="reference internal" href="#sparkui"><span class="std std-numref">Fig. 103</span></a>. En particulier, le <em>job</em> que vous venez d’exécuter devrait
+apparaître, avec sa durée d’exécution et quelques autres informations.</p>
+<div class="figure align-center" id="id6">
+<span id="sparkui"></span><a class="reference internal image-reference" href="_images/sparkUI.png"><img alt="_images/sparkUI.png" src="_images/sparkUI.png" style="width: 85%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 103 </span><span class="caption-text">L’interface Web de Spark</span><a class="headerlink" href="#id6" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<div class="section" id="l-onglet-jobs">
+<h4>L’onglet <em>jobs</em><a class="headerlink" href="#l-onglet-jobs" title="Lien permanent vers ce titre">¶</a></h4>
+<p>Cliquez sur le nom du <em>job</em> pour obtenir des détails sur les étapes du calcul
+(<a class="reference internal" href="#sparkqueryplan"><span class="std std-numref">Fig. 104</span></a>). Spark nous
+dit que l’exécution s’est faite en deux étapes. La première comprend les transformations
+<code class="docutils literal notranslate"><span class="pre">textFile</span></code>, <code class="docutils literal notranslate"><span class="pre">flatMap</span></code> et <code class="docutils literal notranslate"><span class="pre">map</span></code>, la seconde la transformation <code class="docutils literal notranslate"><span class="pre">reduceByKey</span></code>.
+les deux étapes sont séparées par une phase de <em>shuffle</em>.</p>
+<div class="figure align-center" id="id7">
+<span id="sparkqueryplan"></span><a class="reference internal image-reference" href="_images/sparkQueryPlan.png"><img alt="_images/sparkQueryPlan.png" src="_images/sparkQueryPlan.png" style="width: 85%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 104 </span><span class="caption-text">Plan d’exécution d’un <em>job</em> Spark: les étapes.</span><a class="headerlink" href="#id7" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<p>À quoi correspondent ces <em>étapes</em>? En fait, si vous avez bien suivi ce qui précède dans le cours,
+vous avez les éléments pour répondre: une <em>étape</em> dans Spark regroupe un ensemble d’opérations
+qu’il est possible d’exécuter <em>localement</em>, sur une seule machine, sans avoir à efectuer des
+échanges réseau. C’est une généralisation de la phase de <em>Map</em> dans un environnement MapReduce.
+Les étapes sont logiquement séparées par des phases de <em>shuffle</em> qui consistent à redistribuer
+les données afin de les regrouper selon certains critères. Relisez le chapitre <a class="reference internal" href="calculdistr.html#chap-calcdistr"><span class="std std-ref">Calcul distribué: Hadoop et MapReduce</span></a>
+pour revoir vos bases du calcul distribué si ce n’est pas clair.</p>
+<p>Quand le traitement s’effectue sur des données partitionnées, une <em>étape</em> est effectuée en parallèle
+sur les  fragments, et Spark appelle <em>tâche</em> l’exécution de l’étape sur un fragment
+particulier, pour une machine particulière. Résumons:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Un <em>job</em> est l’exécution d’une chaîne de traitements (<em>workflow</em>) dans un environnement distribué.</p></li>
+<li><p>Un <em>job</em> est découpé en <em>étapes</em>, chaque étape étant un segment du <em>workflow</em> qui peut s’exécuter localement.</p></li>
+<li><p>L’exécution d’une étape se fait par un ensemble de tâches, une par machine hébergeant un fragment
+du RDD servant de point d’entrée à l’étape.</p></li>
+</ul>
+</div></blockquote>
+<p>Et voilà ! Si c’est clair passez à la suite, sinon relisez.</p>
+</div>
+<div class="section" id="l-onglet-stages">
+<h4>L’onglet <em>Stages</em><a class="headerlink" href="#l-onglet-stages" title="Lien permanent vers ce titre">¶</a></h4>
+<p>Vous pouvez obtenir des informations complémentaires sur chaque étape avec
+l’onglet <em>Stages</em> (qui veut dire <em>étapes</em>, en anglais). En particulier,
+l’interface montre de nombreuses statistiques sur le temps d’exécution, le
+volume des données échangées, etc. Tout cela est très précieux quand on veut
+vérifier que tout va bien pour  des traitements qui durent des heures ou des
+jours.</p>
+</div>
+<div class="section" id="l-onglet-storage">
+<h4>L’onglet <em>Storage</em><a class="headerlink" href="#l-onglet-storage" title="Lien permanent vers ce titre">¶</a></h4>
+<p>Maintenant, consultez l’onglet <em>Storage</em>. Il devrait être vide et c’est normal: aucun <em>job</em> n’est en cours d’exécution.
+Notre fichier de départ est trop petit pour que la durée d’exécution soit significative. Mais entrez
+la commande suivante:</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="n">compteurTermes</span><span class="o">.</span><span class="n">persist</span><span class="o">()</span>
+</pre></div>
+</div>
+<p>Et exécutez à nouveau l’action <code class="docutils literal notranslate"><span class="pre">collect()</span></code>. Cette fois un RDD devrait apparaître dans l’onglet <em>Storage</em>,
+et de plus vous devriez comprendre pourquoi!</p>
+<p>Exécutez une nouvelle fois l’action <code class="docutils literal notranslate"><span class="pre">collect()</span></code> et consultez les statistiques des temps d’exécution.
+La dernière exécution devrait être significativement plus rapide que les précédentes. Comprenez-vous
+pourquoi? Regardez les étapes, et clarifiez tout cela dans votre esprit.</p>
+<p>Il ne s’agit que d’un fichier de 4 lignes en entrée. On peut extrapoler à de très grandes collections
+et réaliser le gain potentiel avec cette méthode (qui n’est pas magique: on a échangé du temps
+contre de l’espace, comme toujours).</p>
+</div>
+</div>
+<div class="section" id="mise-en-pratique">
+<h3>Mise en pratique<a class="headerlink" href="#mise-en-pratique" title="Lien permanent vers ce titre">¶</a></h3>
+<div class="admonition-exercice-mep-spark-1-a-vous-de-jouer admonition" id="mep-spark-1">
+<p class="admonition-title">Exercice <a class="reference internal" href="#mep-spark-1">MEP-SPark-1</a>: à vous de jouer</p>
+<p>Vous vous doutez de ce qu’il faut faire à ce stade: reproduire les commandes
+qui précèdent, et explorer l’interface de Spark jusqu’à ce que tout soit clair. Vous y passerez
+peut-être un peu de temps mais à cette mise en pratique vous mettra très concrètement au cœur
+d’un système très utilisé, et qui repose sur une bonne partie des concepts vus en cours.</p>
+</div>
+<div class="admonition-exercice-mep-spark-2-passons-a-pagerank admonition" id="mep-spark-2">
+<p class="admonition-title">Exercice <a class="reference internal" href="#mep-spark-2">MEP-SPark-2</a>: Passons à PageRank</p>
+<p>Essayons d’implanter notre PageRank avec Spark. On va supposer que notre graphe est
+stocké dans un fichier texte <code class="docutils literal notranslate"><span class="pre">graphe.txt</span></code> avec une ligne par arête,</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>url1 url2
+url1 url3
+url2 url3
+url3 url2
+</pre></div>
+</div>
+<p>Commençons par créer la matrice (ou plus exactement les vecteurs représentant les liens sortants
+pour chaque URL).</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">graphe</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">read</span><span class="o">.</span><span class="n">textFile</span><span class="o">(</span><span class="s">&quot;graphe.txt&quot;</span><span class="o">)</span>
+<span class="k">val</span> <span class="n">matrix</span> <span class="o">=</span> <span class="n">graphe</span><span class="o">.</span><span class="n">map</span><span class="o">{</span> <span class="n">s</span> <span class="o">=&gt;</span>
+                  <span class="k">val</span> <span class="n">parts</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="o">(</span><span class="s">&quot;\\s+&quot;</span><span class="o">)</span>
+                  <span class="o">(</span><span class="n">parts</span><span class="o">(</span><span class="mi">0</span><span class="o">),</span> <span class="n">parts</span><span class="o">(</span><span class="mi">1</span><span class="o">))</span>
+              <span class="o">}.</span><span class="n">distinct</span><span class="o">().</span><span class="n">groupByKey</span><span class="o">()</span>
+</pre></div>
+</div>
+<p>Initialisons le vecteur initial des rangs</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="k">var</span> <span class="n">ranks</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">mapValues</span><span class="o">(</span><span class="n">v</span> <span class="o">=&gt;</span> <span class="mf">1.0</span><span class="o">)</span>
+</pre></div>
+</div>
+<p>Appliquons 20 itérations.</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="o">(</span><span class="n">i</span> <span class="o">&lt;-</span> <span class="mi">1</span> <span class="n">to</span> <span class="mi">20</span><span class="o">)</span> <span class="o">{</span>
+  <span class="k">val</span> <span class="n">contribs</span> <span class="o">=</span>
+      <span class="n">matrix</span><span class="o">.</span><span class="n">join</span><span class="o">(</span><span class="n">ranks</span><span class="o">)</span>
+            <span class="o">.</span><span class="n">values</span>
+            <span class="o">.</span><span class="n">flatMap</span><span class="o">{</span> <span class="k">case</span> <span class="o">(</span><span class="n">urls</span><span class="o">,</span> <span class="n">rank</span><span class="o">)</span> <span class="o">=&gt;</span>
+                        <span class="k">val</span> <span class="n">size</span> <span class="o">=</span> <span class="n">urls</span><span class="o">.</span><span class="n">size</span>
+                        <span class="n">urls</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="n">url</span> <span class="o">=&gt;</span> <span class="o">(</span><span class="n">url</span><span class="o">,</span> <span class="n">rank</span> <span class="o">/</span> <span class="n">size</span><span class="o">))</span>
+                    <span class="o">}</span>
+      <span class="n">ranks</span> <span class="o">=</span> <span class="n">contribs</span><span class="o">.</span><span class="n">reduceByKey</span><span class="o">(</span><span class="k">_</span> <span class="o">+</span> <span class="k">_</span><span class="o">)</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>Finalement exécutons le tout</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="n">ranks</span><span class="o">.</span><span class="n">collect</span><span class="o">()</span>
+</pre></div>
+</div>
+<p>Une fois que cela fonctionne, vous pouvez effectuer quelques améliorations</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Ajoutez des opérateurs <code class="docutils literal notranslate"><span class="pre">persist()</span></code>  ou  <code class="docutils literal notranslate"><span class="pre">cache()</span></code> où cela vous semble pertinent.</p></li>
+<li><p>Raffinez PageRank en introduisant une probabilité (10 % par exemple) de faire un « saut »
+vers une page quelconque au lieu de suivre les liens sortants.</p></li>
+</ol>
+</div></blockquote>
+</div>
+</div>
+</div>
+<div class="section" id="s3-traitement-de-donnees-structurees-avec-cassandra-et-spark">
+<h2>S3: Traitement de données structurées avec Cassandra et Spark<a class="headerlink" href="#s3-traitement-de-donnees-structurees-avec-cassandra-et-spark" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="admonition-supports-complementaires admonition">
+<p class="admonition-title">Supports complémentaires</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://mediaserver.lecnam.net/permalink/v125f5947d595jlokr2c/">Vidéo  Spark: de Cassandra aux Datasets</a></p></li>
+</ul>
+</div>
+<p>Voyons maintenant les outils de traitement proposés par Spark sur des données
+structurées issues, par exemple, d’une base de données, ou de collections de
+documents JSON. On interagit dans ce cas évidemment de façon privilégiée avec
+les <em>DataFrames</em> et les <em>Datasets</em>. On l’a dit, les deux structures sont
+semblables à des tables relationnelles, mais la seconde est, de plus, fortement
+typée puisqu’on connaît le type de chaque colonne. Cela simplifie
+considérablement les traitements, aussi bien du point de vue du concepteur des
+traitements que de celui du système.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Pour le concepteur, la possibilité de référencer des champs et de leur
+appliquer des opérations standard en fonction de leur type évite d’avoir à
+écrire une fonction spécifique pour la moindre opération, rend le code
+beaucoup lisible et concis.</p></li>
+<li><p>Pour le système, la connaissance du schéma facilite les contrôles <em>avant</em>
+exécution (<em>compile-time checking</em>, par opposition au <em>run-time checking</em>),
+et permet une sérialisation très rapide, indépendante de la sérialisation
+Java, grâce à une couche composée d” <em>encoders</em>.</p></li>
+</ul>
+</div></blockquote>
+<p>Nous allons en profiter pour instancier un début d’architecture réaliste en associant Spark à Cassandra
+comme source de données. Dans une telle organisation, le stockage et le partitionnement sont assurés
+par Cassandra, et le calcul distribué par Spark. Idéalement, chaque nœud Spark traite un ou plusieurs
+fragments d’une collection partitionnée Cassandra, et communique donc avec un des nœuds de la
+grappe Cassandra. On obtient alors un système complètement distribué et donc <em>scalable</em>.</p>
+<div class="section" id="preliminaires">
+<h3>Préliminaires<a class="headerlink" href="#preliminaires" title="Lien permanent vers ce titre">¶</a></h3>
+<p>La base Cassandra que nous prenons comme support est celle des restaurants
+New-Yorkais. Reportez-vous au chapitre <a class="reference internal" href="cassandra_tp.html#chap-cassandra-tp"><span class="std std-ref">Cassandra - Travaux Pratiques</span></a> pour la création
+de cette base. Dans ce qui suit, on suppose que le serveur Cassandra est en
+écoute sur la machine 192.168.99.100, port 32769 (si vous utilisez Cassandra
+avec Docker, reportez-vous aussi aux manipulations vues en TP pour trouver les
+bonnes valeurs d’IP et de port, qui sont probablement différentes de celles-ci).</p>
+<p>Pour associer Spark et Cassandra, il faut récupérer le connecteur  sur la page
+<a class="reference external" href="https://spark-packages.org/package/datastax/spark-cassandra-connector">https://spark-packages.org/package/datastax/spark-cassandra-connector</a>. Prenez la
+version la plus récente, en tout cas celle correspondant à votre version de
+Spark.</p>
+<p>Vous obtenez un fichier jar. Pour qu’il soit pris en compte, le plus simple est
+de le copier dans le répertoire <code class="docutils literal notranslate"><span class="pre">jars</span></code> de Spark. Lancez alors le <em>shell</em>
+Spark. Il ne reste plus qu’à se connecter au serveur Cassandra en ajoutant la
+configuration (machine et port) dans le contexte Spark. Exécutez donc au
+préalable les commandes suivantes (en remplaçant la machine et le port par vos
+propres valeurs, bien sûr).</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="k">import</span> <span class="nn">org.apache.spark.sql.cassandra._</span>
+<span class="k">import</span> <span class="nn">com.datastax.spark.connector.cql.CassandraConnectorConf</span>
+<span class="k">import</span> <span class="nn">com.datastax.spark.connector.rdd.ReadConf</span>
+
+<span class="c1">// Paramètres de connexion</span>
+<span class="n">spark</span><span class="o">.</span><span class="n">setCassandraConf</span><span class="o">(</span><span class="s">&quot;default&quot;</span><span class="o">,</span>
+                   <span class="nc">CassandraConnectorConf</span><span class="o">.</span><span class="nc">ConnectionHostParam</span><span class="o">.</span><span class="n">option</span><span class="o">(</span><span class="s">&quot;192.168.99.100&quot;</span><span class="o">)</span>
+                <span class="o">++</span> <span class="nc">CassandraConnectorConf</span><span class="o">.</span><span class="nc">ConnectionPortParam</span><span class="o">.</span><span class="n">option</span><span class="o">(</span><span class="mi">32769</span><span class="o">))</span>
+</pre></div>
+</div>
+<div class="admonition-pour-les-machines-du-cnam admonition">
+<p class="admonition-title">Pour les machines du CNAM</p>
+<p>On peut mettre en place rapidement la base Cassandra avec les données et un
+spark connecté à Cassandra en suivant les quelques lignes ci-dessous :</p>
+<ol class="arabic simple">
+<li><p>On lance la machine Cassandra en tapant :</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run --name mon-cassandra -p3000:9042 -d cassandra:latest
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li><p>On télécharge les données sur les restaurants et on décompresse le fichier :</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>wget b3d.bdpedia.fr/files/restaurants.zip
+unzip restaurants.zip
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="3">
+<li><p>On récupère l’id de notre container Cassandra :</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker ps
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="4">
+<li><p>On copie les fichiers sur la « machine » Cassandra</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker cp ./restaurants.csv &lt;CONTAINER-ID&gt;:/
+docker cp ./restaurants_inspections.csv &lt;CONTAINER-ID&gt;:/
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="5">
+<li><p>On ouvre un terminal cqlsh</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker <span class="nb">exec</span> -it mon-cassandra cqlsh
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="6">
+<li><p>On lance les commandes de création de la base de données, puis celles des
+tables, et enfin le remplissage des tables : voir
+<a class="reference external" href="http://b3d.bdpedia.fr/cassandra_tp.html#creation-de-la-base-de-donnees">http://b3d.bdpedia.fr/cassandra_tp.html#creation-de-la-base-de-donnees</a></p></li>
+<li><p>On télécharge dans un autre terminal le connecteur spark-cassandra :</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>wget https://b3d.bdpedia.fr/files/spark-cassandra-connector_2.11-2.3.0.jar
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="8">
+<li><p>On lance spark avec le jar obtenu :</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>spark-shell --jars ./spark-cassandra-connector_2.11-2.3.0.jar
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="9">
+<li><p>On utilise les options de connexion suivantes :</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="k">import</span> <span class="nn">org.apache.spark.sql.cassandra._</span>
+<span class="k">import</span> <span class="nn">com.datastax.spark.connector.cql.CassandraConnectorConf</span>
+<span class="k">import</span> <span class="nn">com.datastax.spark.connector.rdd.ReadConf</span>
+
+<span class="c1">// Paramètres de connexion</span>
+<span class="n">spark</span><span class="o">.</span><span class="n">setCassandraConf</span><span class="o">(</span><span class="s">&quot;default&quot;</span><span class="o">,</span>
+                   <span class="nc">CassandraConnectorConf</span><span class="o">.</span><span class="nc">ConnectionHostParam</span><span class="o">.</span><span class="n">option</span><span class="o">(</span><span class="s">&quot;127.0.0.1&quot;</span><span class="o">)</span>
+                <span class="o">++</span> <span class="nc">CassandraConnectorConf</span><span class="o">.</span><span class="nc">ConnectionPortParam</span><span class="o">.</span><span class="n">option</span><span class="o">(</span><span class="mi">3000</span><span class="o">))</span>
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+<p>Vous devriez pouvoir vérifier que la connexion fonctionne en interrogeant la table des restaurants.</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">restaurants_df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">read</span><span class="o">.</span><span class="n">cassandraFormat</span><span class="o">(</span><span class="s">&quot;restaurant&quot;</span><span class="o">,</span> <span class="s">&quot;resto_ny&quot;</span><span class="o">).</span><span class="n">load</span><span class="o">()</span>
+<span class="n">restaurants_df</span><span class="o">.</span><span class="n">printSchema</span><span class="o">()</span>
+<span class="n">restaurants_df</span><span class="o">.</span><span class="n">show</span><span class="o">()</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Il semble que le nom du <em>Keyspace</em> et de la table doivent être mis en minuscules.</p>
+</div>
+<p>Nous voici en présence d’un <em>DataFrame</em> Spark, dont le schéma (noms des colonnes) a été directement
+obtenu depuis Cassandra. En revanche, les colonnes ne sont pas typées (on pourrait espérer
+que le type est récupéré et transcrit depuis le schéma de Cassandra, mais ce n’est malheureusement
+pas le cas).</p>
+<p>Pour obtenir un <em>Dataset</em> dont les colonnes sont typées, avec tous les avantages qui en
+résultent, il faut définir une classe dans le langage de programmation (ici, Scala)
+et demander la conversion, comme suit:</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="k">case</span> <span class="k">class</span> <span class="nc">Restaurant</span><span class="o">(</span><span class="n">id</span><span class="k">:</span> <span class="kt">Integer</span><span class="o">,</span> <span class="nc">Name</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">borough</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span>
+                       <span class="nc">BuildingNum</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="nc">Street</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span>
+                       <span class="nc">ZipCode</span><span class="k">:</span> <span class="kt">Integer</span><span class="o">,</span> <span class="nc">Phone</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="nc">CuisineType</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span>
+
+<span class="k">val</span> <span class="n">restaurants_ds</span> <span class="o">=</span> <span class="n">restaurants_df</span><span class="o">.</span><span class="n">as</span><span class="o">[</span><span class="kt">Restaurant</span><span class="o">]</span>
+</pre></div>
+</div>
+<p>Nous avons donc maintenant un <em>DataFrame</em> <code class="docutils literal notranslate"><span class="pre">restaurant_df</span></code> et un <em>Dataset</em> <code class="docutils literal notranslate"><span class="pre">restaurant_ds</span></code>.
+Le premier est une collection d’objets de type <code class="docutils literal notranslate"><span class="pre">Row</span></code>, le second une collection d’objets de
+type <code class="docutils literal notranslate"><span class="pre">Restaurant</span></code>. On peut donc exprimer des opérations plus précises sur le second.
+Notons que tout cela
+constitue une illustration pratique du compromis que nous étudions depuis le début de ce
+cours sur la notion de document: vaut-il mieux des données au schéma très contraint, mais
+offrant plus de sécurité, ou des données au schéma très flexible, mais beaucoup
+plus difficile à manipuler?</p>
+<p>Nous aurons également besoin des données sur les inspections de ces restaurants.</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="k">case</span> <span class="k">class</span> <span class="nc">Inspection</span> <span class="o">(</span><span class="n">idRestaurant</span><span class="k">:</span> <span class="kt">Integer</span><span class="o">,</span> <span class="nc">InspectionDate</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="nc">ViolationCode</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span>
+      <span class="nc">ViolationDescription</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="nc">CriticalFlag</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="nc">Score</span><span class="k">:</span> <span class="kt">Integer</span><span class="o">,</span> <span class="nc">Grade</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span>
+
+<span class="k">val</span> <span class="n">inspections_ds</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">read</span><span class="o">.</span><span class="n">cassandraFormat</span><span class="o">(</span><span class="s">&quot;inspection&quot;</span><span class="o">,</span> <span class="s">&quot;resto_ny&quot;</span><span class="o">).</span><span class="n">load</span><span class="o">().</span><span class="n">as</span><span class="o">[</span><span class="kt">Inspection</span><span class="o">]</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Pour celles/ceux qui veulent expérimenter directement l’interface SQL de Spark,
+il existe une troisième option, celle de créer une « vue » sur les restaurants Cassandra avec la commande suivante:</p>
+<blockquote>
+<div><div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">createDDL</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;CREATE TEMPORARY VIEW restaurants_sql</span>
+<span class="s">            USING org.apache.spark.sql.cassandra</span>
+<span class="s">            OPTIONS (</span>
+<span class="s">             table &quot;restaurant&quot;,</span>
+<span class="s">             keyspace &quot;resto_ny&quot;)&quot;&quot;&quot;</span>
+<span class="n">spark</span><span class="o">.</span><span class="n">sql</span><span class="o">(</span><span class="n">createDDL</span><span class="o">)</span>
+
+<span class="n">spark</span><span class="o">.</span><span class="n">sql</span><span class="o">(</span><span class="s">&quot;SELECT * FROM restaurants_sql&quot;</span><span class="o">).</span><span class="n">show</span>
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="traitements-bases-sur-les-datasets">
+<h3>Traitements basés sur les <em>Datasets</em><a class="headerlink" href="#traitements-bases-sur-les-datasets" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Nous allons illustrer l’interface de manipulation des  <em>Datasets</em> (elle
+s’applique aussi au <em>DataFrames</em>, à ceci près qu’on ne peut pas exploiter
+le typage précis donné par la classe des objets contenus dans la collection).
+Pour bien saisir la puissance
+de cette interface, vous êtes invités à réfléchir à ce qu’il faudrait faire pour
+obtenir un résultat équivalent si on avait affaire
+à un simple RDD, sans schéma, avec donc la nécessité d’écrire une fonction à chaque
+étape.</p>
+<p>Commençons par les <em>projections</em> (malencontreusement référencées par la mot-clé
+<code class="docutils literal notranslate"><span class="pre">select</span></code> depuis les débuts de SQL) consistant à ne conserver que certaines colonnes.
+La commande suivante ne conserve que trois colonnes.</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">restaus_simples</span> <span class="o">=</span> <span class="n">restaurants_ds</span><span class="o">.</span><span class="n">select</span><span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">,</span> <span class="s">&quot;phone&quot;</span><span class="o">,</span> <span class="s">&quot;cuisinetype&quot;</span><span class="o">)</span>
+
+<span class="n">restaus_simples</span><span class="o">.</span><span class="n">show</span><span class="o">()</span>
+</pre></div>
+</div>
+<p>Voici maintenant comment
+on effectue une sélection (avec le mot-clé <code class="docutils literal notranslate"><span class="pre">filter</span></code>, correspondant au <code class="docutils literal notranslate"><span class="pre">where</span></code> de SQL).</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">manhattan</span> <span class="o">=</span> <span class="n">restaurants_df</span><span class="o">.</span><span class="n">filter</span><span class="o">(</span><span class="s">&quot;borough =  &#39;MANHATTAN&#39;&quot;</span><span class="o">)</span>
+
+<span class="n">manhattan</span><span class="o">.</span><span class="n">show</span><span class="o">()</span>
+</pre></div>
+</div>
+<p>Par la suite, nous omettons l’appel à <em>show()</em> que vous pouvez ajouter si vous souhaitez
+consulter le résultat.</p>
+<p>L’interface <em>Dataset</em> offre une syntaxe légèrement différente qui permet de tirer parti du fait
+que l’on a affaire à une collection d’objets de type <code class="docutils literal notranslate"><span class="pre">Restaurant</span></code>. On peut donc passer
+en paramètre une expression booléenne Scala qui prend un object <code class="docutils literal notranslate"><span class="pre">Restaurant</span></code>
+en entrée et renvoie un Booléen.</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">r</span> <span class="o">=</span> <span class="n">restaurants_ds</span><span class="o">.</span><span class="n">filter</span><span class="o">(</span><span class="n">r</span> <span class="o">=&gt;</span> <span class="n">r</span><span class="o">.</span><span class="n">borough</span> <span class="o">==</span> <span class="s">&quot;MANHATTAN&quot;</span><span class="o">)</span>
+</pre></div>
+</div>
+<p>Ce type de construction permet un typage statique (au moment de la compilation)
+qui garantit qu’il n’y aura pas de problème au moment de l’exécution.</p>
+<p>On peut effectuer des agrégats, comme par exemple le regroupement des
+restaurants par arrondissement (<em>borough</em>):</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">comptage_par_borough</span> <span class="o">=</span> <span class="n">restaurants_ds</span><span class="o">.</span><span class="n">groupBy</span><span class="o">(</span><span class="s">&quot;borough&quot;</span><span class="o">).</span><span class="n">count</span><span class="o">()</span>
+</pre></div>
+</div>
+<p>Tout cela aurait aussi bien pu s’exprimer en CQL (voir exercices). Mais Spark
+va définitivement plus loin en termes de capacité de traitements,
+et propose notamment la fameuse opération de jointure qui nous a tant manqué
+jusqu’ici.</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">restaus_inspections</span> <span class="o">=</span> <span class="n">restaurants_ds</span>
+       <span class="o">.</span><span class="n">join</span><span class="o">(</span><span class="n">inspections_ds</span><span class="o">,</span> <span class="n">restaurants_ds</span><span class="o">(</span><span class="s">&quot;id&quot;</span><span class="o">)</span> <span class="o">===</span> <span class="n">inspections_ds</span><span class="o">(</span><span class="s">&quot;idRestaurant&quot;</span><span class="o">))</span>
+</pre></div>
+</div>
+<p>Le traitement suivant effectue la moyenne des votes pour les restaurants de Tapas.</p>
+<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">restaus_stats</span> <span class="o">=</span> <span class="n">restaurants_ds</span><span class="o">.</span><span class="n">filter</span><span class="o">(</span><span class="s">&quot;cuisinetype &gt; &#39;Tapas&#39;&quot;</span><span class="o">)</span>
+      <span class="o">.</span><span class="n">join</span><span class="o">(</span><span class="n">inspections_ds</span><span class="o">,</span> <span class="n">restaurants_ds</span><span class="o">(</span><span class="s">&quot;id&quot;</span><span class="o">)</span> <span class="o">===</span> <span class="n">inspections_ds</span><span class="o">(</span><span class="s">&quot;idRestaurant&quot;</span><span class="o">))</span>
+      <span class="o">.</span><span class="n">groupBy</span><span class="o">(</span><span class="n">restaurants_ds</span><span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">))</span>
+     <span class="o">.</span><span class="n">agg</span><span class="o">(</span><span class="n">avg</span><span class="o">(</span><span class="n">inspections_ds</span><span class="o">(</span><span class="s">&quot;score&quot;</span><span class="o">)))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id1">
+<h3>Mise en pratique<a class="headerlink" href="#id1" title="Lien permanent vers ce titre">¶</a></h3>
+<div class="admonition-exercice-mep-spark-3-a-vous-de-jouer admonition" id="mep-spark-3">
+<p class="admonition-title">Exercice <a class="reference internal" href="#mep-spark-3">MEP-SPark-3</a>: à vous de jouer</p>
+<p>La mise en pratique de cette session est plus complexe. Si vous choisissez de vous y lancer,
+vous aurez un système quasi complet (à toute petite échelle) de stockage et de calcul distribué.</p>
+</div>
+</div>
+</div>
+<div class="section" id="exercices">
+<h2>Exercices<a class="headerlink" href="#exercices" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="admonition-exercice-ex-spark-1-reflechissons-aux-traitements-iteratifs admonition" id="ex-spark-1">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-spark-1">Ex-Spark-1</a>: Réfléchissons aux traitements  itératifs</p>
+<p>Le  but de cet exercice est de modéliser le calcul d’un algorithme itératif
+avec Spark. Nous allons prendre comme exemple celui que nous connaissons déjà: PageRank.
+On prend comme point de départ un ensemble de pages Web contenant des liens, stockés
+dans un système comme, par exemple, Elastic Search.</p>
+<p>Pour l’instant il ne vous est pas demandé de produire du code, mais de réfléchir et d’exposer
+les principes, et notamment la gestion des RDD.</p>
+<blockquote>
+<div><blockquote>
+<div><ul class="simple">
+<li><p>Partant d’un stockage distribué de pages Web,
+quelle chaîne de traitement permet de produire la représentation matricielle du graphe de PageRank ?
+Quelles opérations sont nécessaires et où stocker le résultat?</p></li>
+<li><p>Quelle chaîne de traitement permet de calculer, à partir du graphe,
+le vecteur des PageRank? Vous pouvez fixer un nombre d’itérations (100, 200)
+ou déterminer une condition d’arrêt (beaucoup plus difficile).
+Indiquez les RDD le long de la chaîne complète.</p></li>
+<li><p>Indiquez finalement quels RDD  devraient être marqués persistants. Vous
+devez prendre en considération deux critères: amélioration des performances et
+diminution du temps de reprise sur panne.</p></li>
+</ul>
+</div></blockquote>
+</div></blockquote>
+</div>
+<div class="admonition-exercice-ex-spark-2-qu-est-il-arrive-a-cql admonition" id="ex-spark-2">
+<p class="admonition-title">Exercice: <a class="reference internal" href="#ex-spark-2">Ex-Spark-2</a> qu’est-il arrivé à CQL?</p>
+<p>Vous avez sans doute noté que Spark  surpasse CQL. On peut donc envisager
+de se passer de ce dernier, ce qui soulève quand même un inconvénient majeur (lequel?).
+Le connecteur Spark/Cassandra permet de déléguer les transformations Spark
+compatibles avec CQL grâce à un paramètre <em>pushdown</em> qui est activé par défaut.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Enoncez clairement l’inconvénient d’utiliser Spark en remplacement de CQL.</p></li>
+<li><p>Etudiez le rôle et fonctionnement de l’option  <em>pushdown</em> dans la documentation
+du connecteur.</p></li>
+<li><p>Quelles sont les requêtes parmi celles vues ci-dessus qui peuvent être
+transmises à CQL?</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="et-pour-aller-plus-loin">
+<h3>Et pour aller plus loin<a class="headerlink" href="#et-pour-aller-plus-loin" title="Lien permanent vers ce titre">¶</a></h3>
+<div class="admonition-exercice-ex-spark-3-plans-d-execution admonition" id="ex-spark-3">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-spark-3">Ex-Spark-3</a>: plans d’exécution</p>
+<p>Avec l’interface de Spark vous pouvez consulter le graphe d’exécution de chaque
+traitement. Comme nous sommes passés avec l’API des <em>DataFrame</em> à un niveau beaucoup
+plus <em>déclaratif</em>, cela vaut la peine de regarder, pour chaque traitement
+effectué (et notamment la jointure) comment Spark évalue le résultat avec des
+opérateurs distribués.</p>
+</div>
+<div class="admonition-exercice-ex-spark-4-exploration-de-l-interface-dataset admonition" id="ex-spark-4">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-spark-4">Ex-Spark-4</a>: exploration de l’interface <em>Dataset</em></p>
+<p>L’API des <em>Datasets</em> est présentée ici:</p>
+<blockquote>
+<div><p><a class="reference external" href="https://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.sql.Dataset">https://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.sql.Dataset</a></p>
+</div></blockquote>
+<p>Etudiez et expérimentez les transformations et actions décrites.</p>
+</div>
+<div class="admonition-exercice-ex-spark-5-cassandra-et-spark-systeme-distribue-complet admonition" id="ex-spark-5">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-spark-5">Ex-Spark-5</a>: Cassandra et Spark, système distribué complet</p>
+<p>En associant Cassandra et Spark, on obtient un environnement distribué complet, Cassandra
+pour le stockage, Spark pour le calcul. La question à étudier (qui peut faire l’objet
+d’un projet), c’est la bonne intégration de ces deux systèmes, et notamment la correspondance
+entre le partitionnement du stockage  Cassandra et le partitionnement des calculs Spark.
+Idéalement, chaque fragment d’une collection Cassandra devrait devenir un fragment
+RDD dans Spark, et l’ensemble des fragments traités en parallèle. À approfondir !</p>
+</div>
+</div>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+            <div>        
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Licence Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">
+  Ce cours</span> de <a xmlns:cc="http://creativecommons.org/ns#" href="http://www.bdpedia.fr" property="cc:attributionName" rel="cc:attributionURL">Philippe Rigaux</a> est mis à disposition selon les termes de la <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">licence Creative Commons Attribution - Pas d’Utilisation Commerciale - Partage dans les Mêmes Conditions 4.0 International</a>.
+</div>
+        <hr/>
+          <h3>Table Of Contents</h3>
+          <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docker.html">Préliminaires: Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docstruct.html">Modélisation de bases NoSQL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bddoc.html">Interrogation de bases NoSQL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mapreduce.html">MapReduce, premiers pas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cassandra_tp.html">Cassandra - Travaux Pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mongodb_tp.html">MongoDB - Travaux Pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ri-intro.html">Introduction à la recherche d’information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ri-indexation.html">Recherche d’information : l’indexation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ri-ranking.html">Recherche avec classement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ri-tpelasticdsl.html">Recherche d’information - TP ElasticSearch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ri-tpranking.html">Recherche d’information - TP ElasticSearch : pertinence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cloud.html">Le <em>cloud</em>, une nouvelle machine de calcul</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replication.html">Systèmes NoSQL: la réplication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sharding.html">Systèmes NoSQL: le partitionnement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calculdistr.html">Calcul distribué: Hadoop et MapReduce</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Traitement de données massives avec Apache Spark</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#s1-introduction-a-spark">S1: Introduction à Spark</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#architecture-systeme">Architecture système</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#architecture-applicative">Architecture applicative</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#l-innovation-des-rdds">L’innovation des RDDs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#actions-et-transformations-la-chaine-de-traitement-spark">Actions et transformations : la chaîne de traitement Spark</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rdds-dataset-et-dataframe">RDDs, <em>Dataset</em> et <em>DataFrame</em></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#exemple-analyse-de-fichiers-log">Exemple: analyse de fichiers <em>log</em></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reprise-sur-panne">Reprise sur panne</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quiz">Quiz</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#s2-spark-en-pratique">S2: Spark en pratique</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#transformations-et-actions">Transformations et actions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#compteur-de-termes-en-dataframes">Compteur de termes, en DataFrames</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#compteur-de-termes-en-rdd">Compteur de termes, en RDD</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#l-interface-de-controle-spark">L’interface de contrôle Spark</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#l-onglet-jobs">L’onglet <em>jobs</em></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#l-onglet-stages">L’onglet <em>Stages</em></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#l-onglet-storage">L’onglet <em>Storage</em></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#mise-en-pratique">Mise en pratique</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#s3-traitement-de-donnees-structurees-avec-cassandra-et-spark">S3: Traitement de données structurées avec Cassandra et Spark</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#preliminaires">Préliminaires</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#traitements-bases-sur-les-datasets">Traitements basés sur les <em>Datasets</em></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Mise en pratique</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#exercices">Exercices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#et-pour-aller-plus-loin">Et pour aller plus loin</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="flink-streaming.html">Traitement de flux massifs avec Apache Flink</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pigtp.html">Pig : Travaux pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="projet.html">Projets NFE204</a></li>
+<li class="toctree-l1"><a class="reference internal" href="annales.html">Annales des examens</a></li>
+</ul>
+
+          <h3 style="margin-top: 1.5em;">Recherche</h3>
+          <form class="search" action="search.html" method="get">
+            <input type="text" name="q" />
+            <input type="submit" value="Go" />
+            <input type="hidden" name="check_keywords" value="yes" />
+            <input type="hidden" name="area" value="default" />
+          </form>
+          <p class="searchtip" style="font-size: 90%">
+      Saisissez un ou plusieurs mots-clés.
+          </p>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <a href="calculdistr.html" title="Calcul distribué: Hadoop et MapReduce"
+             >précédent</a> |
+          <a href="flink-streaming.html" title="Traitement de flux massifs avec Apache Flink"
+             >suivant</a> |
+          <a href="genindex.html" title="Index général"
+             >index</a>
+        </div>
+
+        <div class="right">
+        <a href="index.html">Traitement de données massives avec Apache Spark</a><br/>
+          
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2014-2023, Nicolas Travers, Raphaël Fournier S&#39;niehotta et Philippe Rigaux.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.12.16)  31 JAN 2023 17:58
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.12.16)  11 FEB 2023 17:21
 entering extended mode
  \write18 enabled.
  %&-line parsing enabled.
@@ -1085,13 +1085,13 @@ File: lstlang1.sty 2015/06/04 1.6 listings language file
 (/usr/local/texlive/2016/texmf-dist/tex/latex/listings/lstmisc.sty
 File: lstmisc.sty 2015/06/04 1.6 (Carsten Heinz)
 )
-Excluding comment 'solution'
 \c@Exercice=\count144
 runsystem(which "pygmentize" && touch "exam-s1.aex")...executed.
 
 runsystem(rm "exam-s1.aex")...executed.
 
- (./exam-s1.aux)
+
+(./exam-s1.aux)
 \openout1 = `exam-s1.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/txmi/m/it on input line 84.
@@ -1258,12 +1258,9 @@ Overfull \hbox (6.26346pt too wide) in paragraph at lines 195--205
 [1
 
 {/usr/local/texlive/2016/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-Excluding 'solution' comment. Excluding 'solution' comment.
-Excluding 'solution' comment. Excluding 'solution' comment.
-Excluding 'solution' comment. Excluding 'solution' comment.
-
+[2] 
 AED: lastpage setting LastPage
-[2]
+[3]
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 340.
 Package atveryend Info: Empty hook `AfterLastShipout' on input line 340.
  (./exam-s1.aux)
@@ -1274,24 +1271,26 @@ Package rerunfilecheck Info: File `exam-s1.out' has not changed.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 340.
  ) 
 Here is how much of TeX's memory you used:
- 13390 strings out of 493014
- 201261 string characters out of 6133350
- 352877 words of memory out of 5000000
- 16603 multiletter control sequences out of 15000+600000
+ 13393 strings out of 493014
+ 201282 string characters out of 6133350
+ 355877 words of memory out of 5000000
+ 16605 multiletter control sequences out of 15000+600000
  66134 words of font info for 131 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 35i,8n,49p,909b,439s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 35i,8n,49p,909b,541s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2016/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/t
 exlive/2016/texmf-dist/fonts/type1/public/txfonts/rtxmi.pfb></usr/local/texlive
-/2016/texmf-dist/fonts/type1/public/txfonts/t1xtt.pfb></usr/local/texlive/2016/
-texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2016/texmf-dist
-/fonts/type1/urw/times/utmbi8a.pfb></usr/local/texlive/2016/texmf-dist/fonts/ty
-pe1/urw/times/utmr8a.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/urw/ti
-mes/utmri8a.pfb>
-Output written on exam-s1.pdf (2 pages, 60978 bytes).
+/2016/texmf-dist/fonts/type1/public/txfonts/rtxr.pfb></usr/local/texlive/2016/t
+exmf-dist/fonts/type1/public/txfonts/t1xtt.pfb></usr/local/texlive/2016/texmf-d
+ist/fonts/type1/public/txfonts/txsy.pfb></usr/local/texlive/2016/texmf-dist/fon
+ts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/u
+rw/times/utmbi8a.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/urw/times/
+utmr8a.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/urw/times/utmri8a.pf
+b>
+Output written on exam-s1.pdf (3 pages, 68019 bytes).
 PDF statistics:
- 65 PDF objects out of 1000 (max. 8388607)
- 54 compressed objects within 1 object stream
- 20 named destinations out of 1000 (max. 500000)
+ 77 PDF objects out of 1000 (max. 8388607)
+ 63 compressed objects within 1 object stream
+ 21 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -1,0 +1,1691 @@
+
+<!DOCTYPE html>
+
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Systèmes NoSQL: la réplication &#8212; Bases de données documentaires et distribuées v&lt;release&gt; - Cours CNAM NFE204</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/agogo.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/translations.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Recherche" href="search.html" />
+    <link rel="next" title="Systèmes NoSQL: le partitionnement" href="sharding.html" />
+    <link rel="prev" title="Le cloud, une nouvelle machine de calcul" href="cloud.html" /> 
+  </head><body>
+    <div class="header-wrapper">
+      <div class="header">
+        <div class="headertitle"><a
+          href="index.html">Systèmes NoSQL: la réplication</a></div>
+        <div class="rel">
+          <a href="cloud.html" title="Le cloud, une nouvelle machine de calcul"
+             accesskey="P">précédent</a><font color="white"> |</font>
+          <a href="sharding.html" title="Systèmes NoSQL: le partitionnement"
+             accesskey="N">suivant</a><font color="white"> |</font>
+          <a href="genindex.html" title="Index général"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+<script type="text/javascript" src="_static/dynsite.js"></script>
+
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="systemes-nosql-la-replication">
+<span id="chap-sysdistr"></span><h1>Systèmes NoSQL: la réplication<a class="headerlink" href="#systemes-nosql-la-replication" title="Lien permanent vers ce titre">¶</a></h1>
+<p>La réplication (des données) est une  caractéristique commune aux systèmes NoSQL. Rappelons
+que ces systèmes s’exécutent dans un environnement sujet à des pannes fréquentes et répétées.
+Il est donc indispensable, pour assurer la sécurité des données, de les répliquer
+autant de fois que nécessaire pour disposer d’une solution de secours en cas de perte
+d’une machine.</p>
+<p>Ce chapitre est entièrement consacré à la  réplication, avec illustration pratique basée
+sur MongoDB, ElasticSearch et Cassandra.</p>
+<div class="section" id="s1-replication-et-reprise-sur-panne">
+<h2>S1: réplication et reprise sur panne<a class="headerlink" href="#s1-replication-et-reprise-sur-panne" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="admonition-supports-complementaires admonition">
+<p class="admonition-title">Supports complémentaires</p>
+<ul class="simple">
+<li><p><a class="reference external" href="http://b3d.bdpedia.fr/files/slreplication.pdf">Diapositives: réplication et reprise sur panne dans les systèmes NoSQL</a></p></li>
+<li><p><a class="reference external" href="https://mediaserver.lecnam.net/permalink/v125f35a4087dzwstkpj/">Vidéo sur les principes de réplication et de reprise sur panne</a></p></li>
+</ul>
+</div>
+<div class="section" id="la-replication-pourquoi">
+<h3>La réplication, pourquoi<a class="headerlink" href="#la-replication-pourquoi" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Bien entendu, on pourrait penser à la solution traditionnelle consistant à effectuer des sauvegardes régulières, et on peut
+considérer la réplication comme une sorte de sauvegarde continue. Les systèmes NoSQL vont nettement plus loin,
+et utilisent la réplication pour atteindre plusieurs objectifs.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>Disponibilité</strong>. La réplication permet d’assurer la disponibilité constante
+du système. En cas de panne d’un serveur, d’un nœud ou d’un disque, la
+tâche effectuée par le composant défectueux peut être <em>immédiatement</em> prise en charge
+par un autre composant. Cette technique de reprise sur panne immédiate  et
+automatique (<em>failover</em>) est un atout essentiel pour assurer la stabilité
+d’un système pouvant comprendre des milliers de nœuds, sans avoir à engloutir
+un budget monstrueux dans la surveillance et la maintenance.</p></li>
+<li><p><strong>Scalabilité (lecture)</strong>. Si une donnée est disponible sur plusieurs machines,
+il devient possible de <em>distribuer</em> les requêtes (en lecture) sur ces machines. C’est le scénario
+typique pour la scalabilité des applications Web par exemple (voir le système
+<a class="reference external" href="http://memcached.org/">memCached</a> conçu spécifiquement pour les applications web dynamiques).</p></li>
+<li><p><strong>Scalabilité (écriture)</strong>. Enfin, on peut penser à distribuer aussi les requêtes
+en écriture, mais là on se retrouve face à de délicats problèmes potentiels d’écritures
+concurrentes et de réconciliation.</p></li>
+</ul>
+</div></blockquote>
+<p>Le niveau de réplication dépend notamment du budget qu’on est prêt à allouer à la sécurité
+des données. On peut considérer que 3 copies constituent un bon niveau de sécurité. Une stratégie possible
+est par exemple de placer un document sur un serveur dans une baie, une copie dans une autre baie
+pour qu’elle reste accessible en cas de coupure réseau, et une troisième dans un autre
+centre de données pour assurer la survie d’au moins une copie en cas d’accident grave
+(incendie, tremblement de terre). À défaut d’une solution aussi complète, deux copies
+constituent déjà une bonne protection. Il est bien clair que dès que la
+perte de l’une des copies est constatée, une nouvelle réplication doit être mise en route.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Un peu de vocabulaire. On va parler</p>
+<ul class="simple">
+<li><p>de <em>copie</em> ou de <em>réplica</em> pour désigner la duplication d’un <em>même</em> document;</p></li>
+<li><p>de <em>version</em> pour désigner les valeurs successives que prend un document au cours du temps.</p></li>
+</ul>
+</div>
+<p>Voyons maintenant comment s’effectue la réplication. L’application client, <em>C</em> demande au système
+l’écriture d’un
+document <em>d</em>. Cela signifie qu’il existe un des nœuds du système, disons <span class="math notranslate nohighlight">\(N_m\)</span>, qui constitue
+l’interlocuteur de <em>C</em>. <span class="math notranslate nohighlight">\(N_m\)</span> est typiquement le Maître dans une architecture Maître-Esclave,
+mais ce point est revu plus loin.</p>
+<p><span class="math notranslate nohighlight">\(N_m\)</span> va identifier, au sein du système, un nœud responsable du stockage de <em>d</em>, disons
+<span class="math notranslate nohighlight">\(N_x\)</span>. Le processus de réplication fonctionne alors comme suit:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(N_x\)</span> écrit <em>localement</em> le document <em>d</em>;</p></li>
+<li><p><span class="math notranslate nohighlight">\(N_x\)</span> transmet la demande d’écriture à un   ou plusieurs autres serveurs, <span class="math notranslate nohighlight">\(N_y\)</span>,
+<span class="math notranslate nohighlight">\(N_z\)</span>, qui a leur tour effectuent l’écriture.</p></li>
+<li><p><span class="math notranslate nohighlight">\(N_x, N_y, N_z\)</span> renvoient un acquittement à <span class="math notranslate nohighlight">\(N_m\)</span> confirmant l’écriture.</p></li>
+<li><p><span class="math notranslate nohighlight">\(N_m\)</span> renvoie un acquittement au client pour lui confirmer que <em>d</em> a bien été enregistré.</p></li>
+</ul>
+</div></blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Il existe bien sûr des variantes. Par exemple, <span class="math notranslate nohighlight">\(N_m\)</span> peut se charger de distribuer
+les trois requêtes d’écriture, au lieu de créer une chaîne de réplication. Ca ne change
+pas fondamentalement la problématique.</p>
+</div>
+<p>Dans un scénario standard (celui d’une base relationnelle par exemple), l’acquittement n’est donné
+au client que quand la donnée est <em>vraiment</em> enregistrée de manière permanente. Entre la demande
+d’écriture et la réception de l’acquittement, le client attend.</p>
+<p>Rappelons que dans un contexte de persistance des données, une écriture est permanente quand
+la donnée est placée sur le disque. C’est ce que fait un SGBD quand on
+demande la validation par un <code class="docutils literal notranslate"><span class="pre">commit</span></code>. Une donnée placée en mémoire RAM sans être sur le disque
+n’est pas totalement sûre: en cas de panne elle disparaîtra et l’engagement
+de durabilité du <code class="docutils literal notranslate"><span class="pre">commit</span></code> ne sera pas respecté. Bien entendu, écrire sur le disque
+prend beaucoup plus de temps (quelques ms, au pire), ce qui bloque d’autant l’application
+client, prix à payer pour la sécurité.</p>
+<p>Dans ces conditions, le fait d’effectuer des copies sur d’autres serveurs allonge encore
+le temps d’attente de l’application. Si on fait <em>n</em> copies, en écrivant à chaque fois
+sur le disque par sécurité, le temps d’attente du client à chaque écriture va dériver
+vers le dixième de seconde, ce que ne passe pas à l’échelle de mise à jour intensives.</p>
+</div>
+<div class="section" id="la-replication-comment">
+<h3>La réplication, comment<a class="headerlink" href="#la-replication-comment" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Deux techniques sont utilisées pour limiter le temps d’attente, toutes deux affectant
+(un peu) la sécurité des opérations:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p><strong>écriture en mémoire RAM</strong>, et fichier journal (<em>log</em>);</p></li>
+<li><p><strong>réplication asynchrone</strong>.</p></li>
+</ol>
+</div></blockquote>
+<p>La première technique est très classique et utilisée par tous les SGBD du monde. Au lieu
+d’effectuer des écritures répétées sur le disque sans  ordre pré-défini (accès dits
+« aléatoires ») qui imposent à chaque fois un déplacement de la tête de lecture et
+donc une latence de quelques millisecondes, on écrit <em>séquentiellement</em> dans un fichier
+de journalisation (<em>log</em>) et on place également la donnée en mémoire RAM
+(<a class="reference internal" href="#log"><span class="std std-numref">Fig. 55</span></a>, A et B).</p>
+<div class="figure align-center" id="id6">
+<span id="log"></span><a class="reference internal image-reference" href="_images/log.png"><img alt="_images/log.png" src="_images/log.png" style="width: 80%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 55 </span><span class="caption-text">Ecriture avec journalisation</span><a class="headerlink" href="#id6" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<p>À terme, le contenu de la mémoire RAM, marqué comme contenant des données modifiées, sera
+écrit sur le disque dans les fichiers de la base de données (opération de <em>flush()</em>). La séquence
+est illustrée par la  <a class="reference internal" href="#log"><span class="std std-numref">Fig. 55</span></a>.</p>
+<p>Cela permet de
+grouper les opérations d’écritures et donc de revenir à des entrées/sorties
+<em>séquentielles</em> sur le disque, aussi bien dans le fichier journal que dans la
+base principale.</p>
+<p>Que se passe-t-il en cas de panne <em>avant</em> l’opération de <em>flush()</em>? Dans ce cas les données
+modifiées n’ont pas été écrites dans la base, mais le journal (<em>log</em>) est, lui, préservé. La
+<em>reprise sur panne</em> consiste à ré-effectuer les opérations enregistrées dans le <em>log</em>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Cette description est très brève et laisse de côté beaucoup de détails importants
+(notez par exemple que le fichier <em>log</em> et la base devraient être sur des disques distincts).
+Reportez-vous à <a class="reference external" href="http://sys.bdpedia.fr">http://sys.bdpedia.fr</a> pour en savoir plus.</p>
+</div>
+<p>Le scénario d’une réplication synchrone (avec deux copies) est alors illustré par
+la <a class="reference internal" href="#replication-synchrone"><span class="std std-numref">Fig. 56</span></a>. Le nœud-coordinateur <span class="math notranslate nohighlight">\(N_m\)</span> distribue
+l’ensemble des demandes d’écritures à tous les nœuds participants
+<em>et attend leur acquittement</em> pour acquitter lui-même le client. On
+se condamne donc à être dépendant du nœud le plus lent à répondre.
+D’un autre côté  le client qui reçoit l’acquittement
+est certain que les  trois copies de <em>d</em> sont effectivement enregistrées de manière durable
+dans le système.</p>
+<div class="figure align-center" id="id7">
+<span id="replication-synchrone"></span><a class="reference internal image-reference" href="_images/replication-synchrone.png"><img alt="_images/replication-synchrone.png" src="_images/replication-synchrone.png" style="width: 80%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 56 </span><span class="caption-text">Réplication (avec écritures synchrones)</span><a class="headerlink" href="#id7" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<p>La seconde technique pour limiter le temps d’écriture est le recours
+à des écritures asynchrones. Contrairement au scénario  de la
+<a class="reference internal" href="#replication-synchrone"><span class="std std-numref">Fig. 56</span></a>, le serveur <span class="math notranslate nohighlight">\(N_m\)</span> va acquitter le client
+dès que l’un des participants a répondu (sur la figure <a class="reference internal" href="#replication-asynchrone"><span class="std std-numref">Fig. 57</span></a>
+c’est le nœud <span class="math notranslate nohighlight">\(N_y\)</span>). Le client peut alors poursuivre
+son exécution.</p>
+<div class="figure align-center" id="id8">
+<span id="replication-asynchrone"></span><a class="reference internal image-reference" href="_images/replication-asynchrone.png"><img alt="_images/replication-asynchrone.png" src="_images/replication-asynchrone.png" style="width: 80%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 57 </span><span class="caption-text">Réplication avec écritures asynchrones</span><a class="headerlink" href="#id8" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<p>Dans ce scénario, beaucoup plus rapide pour le client, deux phénomènes apparaissent:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><em>le client reçoit un acquittement alors que la réplication n’est pas complète</em>;
+il n’y a donc pas à ce stade de garantie complète de sécurité;</p></li>
+<li><p><em>le client poursuit son exécution alors que toutes les copies de</em> <span class="math notranslate nohighlight">\(d\)</span>
+<em>ne sont pas encore mises à jour</em>; il se peut alors qu’une lecture renvoie
+une des versions antérieures  de <em>d</em>.</p></li>
+</ul>
+</div></blockquote>
+<p>Il y a donc un risque pour la cohérence des données. C’est un problème sérieux, caractéristique
+des systèmes distribués en général, du NoSQL en particulier.</p>
+<p>Entre ces deux extrêmes, un système peut proposer un paramétrage permettant de régler l’équilibre
+entre sécurité (écritures synchrones) et rapidité (écritures asynchrones). Si on crée trois copies
+d’un document, on peut par exemple  décider qu’un acquittement sera envoyé quand deux copies
+sont sur disque, pendant que la troisième s’effectue en mode asynchrone.</p>
+</div>
+<div class="section" id="coherence-des-donnees">
+<h3>Cohérence des données<a class="headerlink" href="#coherence-des-donnees" title="Lien permanent vers ce titre">¶</a></h3>
+<p>La cohérence est la capacité d’un système de gestion de données à refléter fidèlement
+les opérations d’une application. Un système est cohérent si toute opération (validée)
+est immédiatement visible et permanente. Si je fais une écriture de <em>d</em> suivie d’une
+lecture, je dois constater les modifications effectuées; si je refais une lecture
+un peu plus tard, ces modifications doivent toujours être présentes.</p>
+<p>La cohérence dans les systèmes répartis (NoSQL) dépend de deux facteurs: la topologie
+du système (maître-esclave ou multi-nœuds) et le caractère asynchrone ou non
+des écritures. Trois combinaisons sont possibles en pratique, illustrées
+par la  <a class="reference internal" href="#coherence"><span class="std std-numref">Fig. 58</span></a>.</p>
+<div class="figure align-center" id="id9">
+<span id="coherence"></span><a class="reference internal image-reference" href="_images/coherence.png"><img alt="_images/coherence.png" src="_images/coherence.png" style="width: 80%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 58 </span><span class="caption-text">Réplication et cohérence des données</span><a class="headerlink" href="#id9" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<p>Premier cas (A, en haut à gauche): la topologie est de type maître-esclave, et les écritures
+synchrones. Toutes les écritures se font par une requête adressée au nœud-maître qui se charge
+de les distribuer aux nœuds-esclaves. L’acquittement n’est envoyé au client que quand
+<em>toutes</em> les copies sont en phase.</p>
+<p>Ce cas assure la cohérence <em>forte</em>, car toute lecture du document, quel que soit le
+nœud sur lequel elle est effectuée, renvoie la même version, celle qui vient d’être mise à jour.
+Cette cohérence se fait au prix de l’attente que la synchronisation soit complète,
+et ce à chaque écriture.</p>
+<p>Dans le second cas (B), la topologie est toujours de type maître-esclave, mais
+les écritures sont asynchrones. La cohérence n’est plus forte: il est possible
+d’écrire en s’adressant au nœud-maître, et de lire sur un nœud-esclave. Si la
+lecture s’effectue <em>avant</em> la synchronisation, il est possible que la version
+du document retournée soit non pas <em>d</em> mais <span class="math notranslate nohighlight">\(d^{-1}\)</span>, celle qui précède la
+mise à jour.</p>
+<p>L’application client est alors confrontée à la situation, rare mais pertubante,
+d’une écriture sans effet apparent, au moins immédiat. <em>C’est le mode
+d’opération le plus courant des systèmes NoSQL, qui autorisent donc un décalage potentiel
+entre l’écriture et la lecture</em>. La garantie est cependant apportée que ce décalage
+est temporaire et que toutes les versions vont être synchronisées « à terme » (délai
+non précisé). On parle donc de <em>cohérence à terme</em> (<em>eventual consistency</em> en anglais).</p>
+<p>Enfin, le dernier cas, (C), correspond à une topologie multi-nœuds, en mode
+asynchrone. Les écritures peuvent se faire sur n’importe quel nœud, ce qui
+améliore la scalabilité du système. L’inconvénient est que deux écritures
+concurrentes du même document peuvent s’effectuer en parallèle sur deux
+nœuds distincts. Au moment où la synchronisation s’effectue, le système va découvrir
+(au mieux) que les deux versions sont en conflit. Le conflit est reporté
+à l’application qui doit effectuer une <em>réconciliation</em> (il n’existe pas
+de mode automatique de réconciliation).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>La dernière combinaison envisageable, entre une topologie multi-nœuds et des écritures
+synchrones, mène à des inter-blocages et n’est pas praticable.</p>
+</div>
+<p>En résumé, trois niveaux de cohérence peuvent se recontrer dans les systèmes NoSQL:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p><strong>cohérence forte</strong>: toutes les copies sont toujours en phase , le prix à payer
+étant un délai pour chaque écriture;</p></li>
+<li><p><strong>cohérence faible</strong>: les copies ne sont pas forcément en phase, et rien ne garantit
+qu’elles le seront; cette situation, trop problématique, a été abandonnée (à ma
+connaissance);</p></li>
+<li><p><strong>cohérence à terme</strong>: c’est le niveau de cohérence typique des systèmes NoSQL:
+les copies ne sont pas immédiatement en phase, mais le système garantit qu’elles
+le seront « à  terme ».</p></li>
+</ol>
+</div></blockquote>
+<p>Dans la cohérence à terme, il existe un risque, faible mais réel, de constater de
+temps en temps un décalage entre une écriture et une lecture. Il s’agit d’un « marqueur »
+typique des systèmes NoSQL par rapport aux systèmes relationnels, résultant d’un choix
+de conception privilégiant l’efficacité à la fiabilité stricte (voir aussi le théorème CAP,
+plus loin).</p>
+<div class="admonition-la-tendance admonition">
+<p class="admonition-title">La tendance.</p>
+<p>L’enthousiasme initial soulevé par les systèmes NoSQL a été
+refroidi par les problèmes de cohérence qu’ils permettent, et ce
+en comparaison de la garantie ACID apportée par les systèmes relationnels. On constate
+une tendance de ces systèmes à proposer des mécanismes transactionnels plus sûrs. Voir
+l’exercice sur les transactions distribubées en fin de chapitre.</p>
+</div>
+</div>
+<div class="section" id="equilibrage-entre-coherence-et-latence-le-principe-du-quorum">
+<h3>Equilibrage entre cohérence et latence: le principe du quorum<a class="headerlink" href="#equilibrage-entre-coherence-et-latence-le-principe-du-quorum" title="Lien permanent vers ce titre">¶</a></h3>
+<p>De ce que nous avons vu jusqu’à présent, le choix apparaît binaire entre la <em>cohérence</em>
+obtenue par des écritures synchrones, et la réduction de la latence (temps d’attente)
+obtenue par des écritures asynchrones.</p>
+<p>De nombreux systèmes proposent un paramétrage plus fin qui s’appuie sur trois paramètres</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><em>W</em> le nombre <em>d’écritures</em> synchrones avant acquittement au client</p></li>
+<li><p><em>R</em> le nombre de <em>lectures</em>  synchrones avant acquittement au client par renvoi de la copie la plus récente</p></li>
+<li><p><em>RF</em> le facteur de réplication.</p></li>
+</ul>
+</div></blockquote>
+<p>Les deux paramètres <em>W</em> et <em>R</em> ont une valeur comprise en 1 et <em>RF</em>. Une valeur élevée de <em>W</em>
+implique des écritures plus lentes mais plus sûres.  Une valeur élevée de <em>R</em>
+implique des lectures plus lentes mais plus cohérentes.</p>
+<p>Examinons la <a class="reference internal" href="#replication-quorum"><span class="std std-numref">Fig. 59</span></a>. Elle illustre les valeurs
+de paramètres <em>W=2</em>, <em>R=3</em> et <em>RF=4</em>. Les flêches représentent les opérations
+<em>synchrones</em>.</p>
+<div class="figure align-center" id="id10">
+<span id="replication-quorum"></span><a class="reference internal image-reference" href="_images/replication-quorum.png"><img alt="_images/replication-quorum.png" src="_images/replication-quorum.png" style="width: 80%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 59 </span><span class="caption-text">Paramétrage avec <em>W=2</em>, <em>R=3</em> et <em>RF=4</em></span><a class="headerlink" href="#id10" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<p>Le client A effectue une écriture d’un document. La <a class="reference internal" href="#replication-quorum"><span class="std std-numref">Fig. 59</span></a> montre que
+deux écritures synchrones ont été effectuées, sur les nœuds <span class="math notranslate nohighlight">\(N_1\)</span> et <span class="math notranslate nohighlight">\(N_3\)</span> (en vert foncé).
+Les deux autres copies, sur <span class="math notranslate nohighlight">\(N_2\)</span> et <span class="math notranslate nohighlight">\(N_4\)</span> sont en attente des écritures
+asynchrones et ne sont donc pas en phase.</p>
+<p>Le client B effectue une lecture du même document. Comme <em>R=3</em>, il doit lire au moins
+3 des 4 copies avant de répondre au client. En lisant (par exemple) sur <span class="math notranslate nohighlight">\(N_2\)</span>, <span class="math notranslate nohighlight">\(N_3\)</span> et <span class="math notranslate nohighlight">\(N_4\)</span>,
+il va trouver la version la plus récente sur <span class="math notranslate nohighlight">\(N_3\)</span> et on obtient donc une cohérence forte.</p>
+<p>On peut  établir
+la formule suivante qui guarantit la cohérence forte:</p>
+<div class="admonition-critere-de-coherence-forte admonition">
+<p class="admonition-title">Critère de cohérence forte</p>
+<p>La cohérence forte est assurée si <span class="math notranslate nohighlight">\(R + W &gt; RF\)</span>.</p>
+</div>
+<p>L’intuition
+est qu’il existe  dans ce cas un recouvrement entre les réplicas lus et les derniers réplicas écrits, de sorte qu’au moins une lecture
+va accéder à la dernière version. C’est ce qui est illustré par la <a class="reference internal" href="#replication-quorum"><span class="std std-numref">Fig. 59</span></a>, mais plusieurs
+autres situations sont possibles. En supposant <em>RF=4</em>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>si <em>W=4</em> et <em>R=1</em>: on se satisfait d’une lecture, mais comme tous les écritures sont synchronisées,
+on est sûr qu’elle renvoie la dernière mise à jour.</p></li>
+<li><p>si <em>W=1</em> et <em>R=4</em>, le raisonnement réciproque amène à la même conclusion</p></li>
+<li><p>si <em>W=3</em> et <em>R=2</em>,  on équilibre un peu mieux la latence entre écritures et lectures.
+En lisant 2 copies sur les 4 existantes, dont 3 sont synschrones, on est sûr d’obtenir
+la dernière version.</p></li>
+</ul>
+</div></blockquote>
+<p>Le <em>quorum</em> est la valeur <span class="math notranslate nohighlight">\(\lfloor \frac{RF}{2} \rfloor + 1\)</span>, où <span class="math notranslate nohighlight">\(\lfloor x \rfloor\)</span>
+désigne l’entier immédiatement inférieur à une valeur <span class="math notranslate nohighlight">\(x\)</span>. Le quorum est par exemple
+3 pour <em>RF=4</em> ou <em>RF=5</em>. En fixant dans un système <em>W=QUORUM</em> et <em>R=QUORUM</em>, on est sûr d’être cohérent:
+c’est la configuration la plus
+flexible, car s’adaptant automatiquement au niveau de réplication.</p>
+</div>
+<div class="section" id="replication-et-reprise-sur-panne">
+<h3>Réplication et reprise sur panne<a class="headerlink" href="#replication-et-reprise-sur-panne" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Voyons maintenant comment la réplication permet la reprise sur panne. Nous allons
+considérer la topologie maître-esclave, la plus courante. La situation de départ est illustrée
+par la  <a class="reference internal" href="#heartbeat"><span class="std std-numref">Fig. 60</span></a>. Tous les nœuds sont interconnectés et se surveillent les uns
+les autres par envoi périodique de courts messages dits <em>heartbeats</em>.</p>
+<div class="figure align-center" id="id11">
+<span id="heartbeat"></span><a class="reference internal image-reference" href="_images/heartbeat.png"><img alt="_images/heartbeat.png" src="_images/heartbeat.png" style="width: 80%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 60 </span><span class="caption-text">Surveillance par <em>heartbeat</em> dans un système distribué</span><a class="headerlink" href="#id11" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<p>Si l’un des nœuds-esclaves disparaît, la parade est assez simple: le nœud-maître va rediriger
+les requêtes des applications clientes vers les nœuds contenant des copies, et initier
+une nouvelle réplication pour revenir à une situation où
+le nombre de copies est au niveau requis. Si, par exemple, le nœud <span class="math notranslate nohighlight">\(N_x\)</span>
+disparaît, le maître <span class="math notranslate nohighlight">\(N_m\)</span> sait que l’esclave <span class="math notranslate nohighlight">\(N_y\)</span> contient
+une copie des données disparues (en reprenant les exemples de réplication
+donnés précédemment) et redirige les lectures vers <span class="math notranslate nohighlight">\(N_y\)</span>. Les copies
+placées sur <span class="math notranslate nohighlight">\(N_y\)</span> doivent également être répliquées sur un nouveau serveur.</p>
+<p>Si le nœud-maître disparaît, les nœuds-esclaves doivent élire un nouveau
+maître (!) pour que ce nouveau maître soit opérationnel, il faut probablement
+qu’il récupère des données administratives (configuration de la grappe de serveur)
+qui elles-mêmes ont dû être répliquées au préalable pour être toujours disponibles.
+Les détails peuvent varier d’un système à l’autre (nous verrons des exemples) mais
+le principe et là aussi de s’appuyer sur la réplication.</p>
+<div class="figure align-center" id="id12">
+<span id="reprise"></span><a class="reference internal image-reference" href="_images/reprise.png"><img alt="_images/reprise.png" src="_images/reprise.png" style="width: 80%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 61 </span><span class="caption-text">Un partitionnement réseau.</span><a class="headerlink" href="#id12" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<p>Tout cela fonctionne, sous réserve que la condition suivante soit respectée:
+<em>toute décision est prise par une sous-grappe comprenant la majorité des participants</em>.
+Considérons le cas de la  <a class="reference internal" href="#reprise"><span class="std std-numref">Fig. 61</span></a>. Un partitionnement du réseau
+a séparé la grappe en deux sous-ensembles. Si on applique la méthode de reprise
+décrite précédemment, que va-t-il se passer?</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>le maître survivant va essayer de se débrouiller avec l’unique esclave qui lui reste;</p></li>
+<li><p>les trois esclaves isolés vont élire un nouveau maître.</p></li>
+</ul>
+</div></blockquote>
+<p>On risque de se retrouver avec deux grappes agissant indépendamment, et une situation
+à peu près ingérable (divergence des données, perturbation des applications clientes, etc.)</p>
+<p>La règle (couramment établie dans les systèmes distribués bien avant le NoSQL) est
+<em>qu’un maître doit toujours régner sur la majorité des participants</em>. Pour élire
+un nouveau maître, un sous-groupe de nœuds doit donc atteindre le quorum de
+<span class="math notranslate nohighlight">\(\frac{n}{2}+1\)</span>, où <em>n</em> est le nombre initial de nœuds. Dans l’exemple
+de la   <a class="reference internal" href="#reprise"><span class="std std-numref">Fig. 61</span></a>, le maître existant est rétrogradé au rang d’esclave,
+et un nouveau maître est élu dans le second sous-groupe, le seul qui continuera
+donc à fonctionner.</p>
+<p>L’algorithme pour l’élection d’un maître relève des méthodes classiques en systèmes
+distribués. Voir par exemple
+<a class="reference external" href="http://en.wikipedia.org/wiki/Paxos_(computer_science)">l’algorithme Paxos</a>.</p>
+</div>
+<div class="section" id="culture-le-theoreme-cap">
+<h3>Culture: le théorème CAP<a class="headerlink" href="#culture-le-theoreme-cap" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Le moment est venu de citer une propriété (ou une incomplétude),
+énoncée par le <em>théorème CAP</em>. L’auteur (E. Brewer) ne l’a en fait pas
+présenté comme un « théorème » mais comme une simple conjecture, voire
+un constat pratique sans autre prétention. Il a  ensuite
+pris le statut d’une vérité absolue. Examinons donc ce qu’il en est.</p>
+<div class="admonition-le-theoreme-cap admonition">
+<p class="admonition-title">Le théorème CAP</p>
+<p>Un système distribué orienté données ne peut satisfaire à chaque instant que deux
+des trois propriétés suivantes</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>la cohérence (le « C »): toute lecture d’une donnée accède à sa dernière version;</p></li>
+<li><p>la disponibilité (le « A » pour <em>availability</em>): toute requête reçoit une réponse, sans latence excessive;</p></li>
+<li><p>la tolérance au partitionnement (le « P »): le système continue de fonctionner même
+en cas de partionnement réseau.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<p>Ce théorème est souvent cité sans trop réfléchir quand on parle des systèmes NoSQL.
+On peut  le lire en effet comme une justification
+du choix de ces systèmes  de privilégier  la disponibilité et la tolérance au partitionnement
+(reprise sur panne), en sacrifiant partiellement la cohérence. Ce seraient donc
+des systèmes AP, alors que les systèmes relationnels seraient plutôt des systèmes CP.
+Cette interprétation un peu simpliste mérite qu’on aille voir un peu plus loin.</p>
+<p>L’intuition derrière le théorème CAP est relativement simple: si une partition réseau
+intervient, il ne reste que deux choix possibles pour répondre à une requête:
+soit on répond avec les données  (ou l’absence de données) dont
+on dispose, soit on met la requête en attente d’un rétablissement du réseau. Dans
+le premier cas on sacrifie la cohérence et on obtient un système
+de type AP, dans le second on sacrifie la disponibilité et on obtient un
+système de type CP.</p>
+<p>Qu’en est-il alors de la troisième paire du triangle des propriétés, AC, « Cohérent et
+Disponible mais pas tolérant au Partitionnement »? Cette troisième branche est en fait un peu problématique,
+car on ne sait pas ce que signifie précisément « tolérance au Partitionnement ». Comment
+peut-on rester cohérent et disponible avec une panne réseau? Il faut bien sacrifier l’un des deux
+et on se retrouve donc devant un choix AP ou CP: le côté AC ressemble bien à une impasse.</p>
+<p>Il existe donc une asymétrie dans l’interprétation du théorème CAP. On commence par
+une question : « <em>Existe-t-il un partitionnement réseau</em> ». Si oui on a le choix entre
+deux solutions: sacrifier la cohérence ou sacrifier la disponibilité.</p>
+<p>Caractériser les systèmes NoSQL comme ceux qui feraient le choix de sacrifier
+la cohérence  en cas de partitionnement apparaît alors comme réducteur. Si c’était le cas, en l’absence
+de partitionnement, ils auraient la cohérence <em>et</em> la disponibilité, or on s’aperçoit
+que ce n’est pas le cas: la cohérence est (partiellement) sacrifiée par le choix
+d’une stratégie de réplication asynchrone afin de favoriser un quatrième facteur,
+ignoré du théorème CAP: la latence (ou temps de réponse).</p>
+<p>La <a class="reference internal" href="#pacelc"><span class="std std-numref">Fig. 62</span></a> résume le raisonnement précédent. Il correspond au modèle
+PACELC (le “E” vient du “Else”, représenté par un “Non” dans la figure) proposé
+dans cet article <a class="reference external" href="http://www.cs.umd.edu/~abadi/papers/abadi-pacelc.pdf">http://www.cs.umd.edu/~abadi/papers/abadi-pacelc.pdf</a> que je vous
+encourage à lire attentivement.</p>
+<div class="figure align-center" id="id13">
+<span id="pacelc"></span><a class="reference internal image-reference" href="_images/pacelc.png"><img alt="_images/pacelc.png" src="_images/pacelc.png" style="width: 80%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 62 </span><span class="caption-text">Le modèle PACELC, un CAP réorganisé et complété avec la latence</span><a class="headerlink" href="#id13" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<p>Tout cela nous ramène toujours au constat suivant: il faut toujours réfléchir indépendamment, lire
+attentivement les arguments et les peser, plutôt que d’avaler des slogans courts mais souvent mal compris.
+Qu’est-ce qu’un système NoSQL en prenant en compte ces considérations? La définition devient un
+peu plus complexe: c’est un système de gestion de données distribuées qui doit être tolérant
+au partitionnement, mais qui même en l’absence de partitionnement peut accepter de compromettre
+la cohérence au profit de la latence.</p>
+<p>Les trois systèmes que nous allons étudier dans ce qui suit gagneront à être interprétés
+dans cette optique explicative.</p>
+</div>
+<div class="section" id="quiz">
+<h3>Quiz<a class="headerlink" href="#quiz" title="Lien permanent vers ce titre">¶</a></h3>
+<div class="reauthoring_embedded_quiz" id="repl-1"><form class="reauthoring_embedded_quiz_questions"><p>Quelle est la définition de la <em>cohérence</em> étudiée dans cette session (et désignée
+par C dans CAP)?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> L’ordre des lectures et des écritures est préservé</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Une transaction ne voit pas les mises à jour d’une autre transaction qui n’a pas validé</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Toute transaction effectuant une lecture d’un document <em>d</em> accède à la dernière version de <em>d</em></p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="repl-2"><form class="reauthoring_embedded_quiz_questions"><p>Le modèle transactionnel des bases de données (relationnelles en particulier) s’appuie
+sur un ensemble de propriétés dites ACID (c’est le moment de les revoir si vous les avez oubliées).
+Dans le modèle transactionnel NoSQL évoqué ci-dessus, lesquelles de ces propriétés
+sont encore satisfaites?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Toutes</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Aucune</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> La cohérence et la durabilité</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="repl-3"><form class="reauthoring_embedded_quiz_questions"><p>Reprenons les paramètres <em>W</em>, <em>R</em> et <em>RF</em> pour le paramétrage des opérations synchrones.
+Quel est l’intérêt de choisir le quorum pour <em>W</em> et <em>R</em>?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  C’est le paramétrage qui garantit que <em>W+R</em> est minimale</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> C’est le paramétrage qui permet de s’adapter au changement du facteur de réplication <em>RF</em></p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> C’est le paramétrage qui garantit les meilleures performances</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="repl-4"><form class="reauthoring_embedded_quiz_questions"><p>À partir de combien de pannes simultanées un système distribué constitué de <em>n</em> nœuds
+ne fonctionne-t-il plus</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  Quand 2 nœuds tombent en panne en même temps.</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Quand il il ne reste plus qu’un nombre de nœuds égal au quorum - 1</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Quand il il ne reste plus qu’un nombre de nœuds égal au quorum</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="repl-5"><form class="reauthoring_embedded_quiz_questions"><p>Dans un système distribué maître-esclave, l’un des esclaves perd le contact avec le maitre.
+Que doit-il faire?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Se mettre au repos et refuser toute connexion</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Tenter de contacter une majorité d’autres esclaves pour élire un nouveau maître</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Elire un nouveau maître avec les esclaves avec lesquels il est encore en contact</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="repl-6"><form class="reauthoring_embedded_quiz_questions"><p>Un administrateur a divisé une grappe de serveurs en trois sous-ensemble égaux,
+répartis dans trois centres de données, dans le but d’optimiser sa sécurité. Qu’en pensez-vous?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> C’est une bonne idée car au pire ils pourront fonctionner de manière indépendante</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> C’est une bonne idée car si une grappe devient indisponible les deux autres
+sont largement suffisantes pour fonctionner</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Pas une bonne idée car en cas de panne réseau inter-grappes, plus rien ne fonctionne</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="repl-7"><form class="reauthoring_embedded_quiz_questions"><p>À la suite d’une partition réseau, un nouveau maître est élu, mais quelques secondes
+plus tard l’ancien nœud maître est de nouveau connecté à la grappe; que se passe-t-il?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Ca ne devrait pas arriver car l’ancien maître aurait dû être dégradé</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Il faut organiser un vote complémentaire entre les deux maîtres</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Le système doit s’interrompre pour un intervention de l’administrateur</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div></div>
+</div>
+<div class="section" id="s2-replication-dans-mongodb">
+<h2>S2: réplication dans MongoDB<a class="headerlink" href="#s2-replication-dans-mongodb" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="admonition-supports-complementaires admonition">
+<p class="admonition-title">Supports complémentaires</p>
+<ul class="simple">
+<li><p><a class="reference external" href="http://b3d.bdpedia.fr/files/slmongosys.pdf">Diapositives: distribution et réplication dans MongoDB</a></p></li>
+<li><p><a class="reference external" href="https://mediaserver.lecnam.net/permalink/v125f35a408e238tto4s/">Vidéo de la session</a></p></li>
+</ul>
+</div>
+<p>MongoDB présente un cas très représentatif de gestion de la réplication  et des reprises
+sur panne. La section qui suit est conçue pour accompagner une mise en
+œuvre pratique afin d’expérimenter les concepts étudiés précédemment. Si vous disposez
+d’un environnement à plusieurs machines, c’est mieux! Mais si vous n’avez
+que votre portable, cela suffit: les instructions données s’appliquent à ce dernier cas,
+et sont faciles à transposer à une véritable grappe de serveurs.</p>
+<div class="section" id="les-replica-set">
+<h3>Les <em>replica set</em><a class="headerlink" href="#les-replica-set" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Une grappe de serveurs partageant des copies d’un même ensemble de documents est appelée
+un <em>replicat set</em> (RS) dans MongoDB. Dans un RS, un des nœuds joue le rôle de maître (on
+l’appelle <em>primary</em>); les autres (esclaves) sont appelés <em>secondaries</em>. Nous allons nous en tenir
+à la terminologie maître-esclave pour rester cohérent.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Une version ancienne de MongoDB fonctionnait en mode dit « maître-esclave ». L’évolution
+de MongoDB (notamment avec la mise au point d’une méthode de <em>failover</em> automatique)
+a amené un changement de terminologie, mais les concepts restent identiques à ceux déjà présentés.</p>
+</div>
+<p>Un RS contient typiquement trois nœuds, un maître et deux esclaves. C’est un niveau
+de réplication suffisant pour assurer une sécurité presque totale des données. Dans une
+grappe MongoDB, on peut trouver plusieurs <em>replica sets</em>, chacun contenant un sous-ensemble
+d’une très grande collection: nous verrons cela quand nous étudierons le partitionnement.
+Pour l’instant, on s’en tient à un seul <em>replica set</em>.</p>
+<div class="figure align-center" id="id14">
+<span id="mongo-ms"></span><a class="reference internal image-reference" href="_images/mongo-ms.png"><img alt="_images/mongo-ms.png" src="_images/mongo-ms.png" style="width: 90%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 63 </span><span class="caption-text">Un <em>replica set</em> dans MongoDB</span><a class="headerlink" href="#id14" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<p>La  <a class="reference internal" href="#mongo-ms"><span class="std std-numref">Fig. 63</span></a>  montre le fonctionnement de MongoDB, à peu de chose près identique
+à celui décrit dans la section générale. Le maître est ici chargé du stockage de la donnée
+principale. L’écriture dans la base est paresseuse, et un journal des transactions est
+maintenu par le maître (c’est une collection spéciale nommée <code class="docutils literal notranslate"><span class="pre">opLog</span></code>). La réplication
+vers les deux esclaves se fait en mode asynchrone.</p>
+<p>Deux niveaux de cohérence sont proposés par MongoDB. La <em>cohérence forte</em> est obtenue
+en imposant au client d’effectuer toujours les lectures via le maître. Dans un
+tel mode, les esclaves ne servent pas à répartir la charge, mais jouent le rôle restreint
+d’une sauvegarde/réplication continue, avec remplacement automatique du maître si celui-ci
+subit une panne. On ne constatera aucune différence dans les performances avec
+un système constitué d’un seul nœud.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>La cohérence forte est le mode par défaut dans MongoDB.</p>
+</div>
+<p>La cohérence à terme est obtenue en autorisant les clients (autrement dit, très concrètement,
+le <em>driver</em> MongoDB intégré à une application) à effectuer des <em>lectures</em> sur les esclaves. Dans
+ce cas on se retrouve exactement dans la situation déjà décrite dans le commentaire
+de la  <a class="reference internal" href="#coherence"><span class="std std-numref">Fig. 58</span></a>.</p>
+</div>
+<div class="section" id="la-reprise-sur-panne-dans-mongodb">
+<h3>La reprise sur panne dans MongoDB<a class="headerlink" href="#la-reprise-sur-panne-dans-mongodb" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Tous les nœuds participant à un <em>replica set</em> échangent des messages de surveillance. La procédure
+de <em>failover</em> (reprise sur panne) est identique à celle décrite dans la section précédente,
+avec élection d’un nouveau maître par la majorité des nœuds survivants en cas de panne.</p>
+<p>Pour assurer qu’une élection désigne toujours un maître, il faut que le nombre de votants soit
+impair. Pour éviter d’imposer l’ajout d’un nœud  sur une machine supplémentaire,
+MongoDB permet de lancer un serveur <em>mongod</em>  en mode « arbitre ». Un nœud-arbitre ne
+stocke pas de données et en général ne consomme aucune ressource. Il sert juste à atteindre
+le nombre impair de votants requis pour l’élection. Si on ne veut que deux copies
+d’un document, on définira donc un <em>replica set</em> avec un maître, un esclave et un arbitre
+(tous les trois sur des machines différentes).</p>
+</div>
+<div class="section" id="a-l-action-creons-notre-replica-set">
+<h3>À l’action: créons notre <em>replica set</em><a class="headerlink" href="#a-l-action-creons-notre-replica-set" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Passons aux choses concrètes. Nous allons créer un <em>replica set</em> avec trois nœuds avec Docker. Chaque nœud
+est un serveur <code class="docutils literal notranslate"><span class="pre">mongod</span></code> qui s’exécute dans un conteneur. Ces serveurs doivent pouvoir communiquer entre
+eux par le réseau. Après quelques essais, la solution qui me semble la plus simple est de lancer
+chaque serveur sur un port spécial, et de publier ce port sur la machine hôte.</p>
+<p>Voici les commandes de création des conteneurs, nommés <code class="docutils literal notranslate"><span class="pre">mongo1</span></code>, <code class="docutils literal notranslate"><span class="pre">mongo2</span></code>
+et <code class="docutils literal notranslate"><span class="pre">mongo3</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run --name mongo1 --net host mongo mongod --replSet mon-rs --port <span class="m">30001</span>
+docker run --name mongo2 --net host mongo mongod --replSet mon-rs --port <span class="m">30002</span>
+docker run --name mongo3 --net host mongo mongod --replSet mon-rs --port <span class="m">30003</span>
+</pre></div>
+</div>
+<p>Pour bien comprendre:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>l’option <code class="docutils literal notranslate"><span class="pre">--net</span> <span class="pre">host</span></code> indique que les ports réseau des conteneurs sont publiés
+sur la machine-hôte de Docker;</p></li>
+<li><p>l’option <code class="docutils literal notranslate"><span class="pre">replSet</span></code> indique que les serveurs <em>mongod</em> sont prêts à participer à un <em>replica set</em>
+nommé <code class="docutils literal notranslate"><span class="pre">mon-rs</span></code> (donnez-lui le nom que vous voulez).</p></li>
+<li><p>l’option <code class="docutils literal notranslate"><span class="pre">--port</span></code> indique le port sur lequel le serveur <code class="docutils literal notranslate"><span class="pre">mongod</span></code> est à l’écoute; comme
+ce port est publié sur la machine hôte, en combinant l’IP de cette dernière et le port,
+on peut s’adresser à l’un des trois serveurs.</p></li>
+</ul>
+</div></blockquote>
+<p>Vous pouvez lancer ces commandes dans un terminal configuré pour dialoguer avec Docker. Si vous
+utilisez Kitematic, lancez un terminal depuis l’interface à partir du menu <code class="docutils literal notranslate"><span class="pre">File</span></code>.</p>
+<p>Une fois créés, les trois conteneurs sont visibles dans Kitematic, on peut les stopper
+ou les relancer.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>On suppose dans ce qui suit que l’IP de la machine-hôte est 192.168.99.100.</p>
+</div>
+<p>Tout est prêt, il reste à lancer les commandes pour connecter les nœuds les uns aux autres.
+Lancez un client <code class="docutils literal notranslate"><span class="pre">mongo</span></code> pour vous connecter au premier nœud.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mongo --host <span class="m">192</span>.168.99.100 --port <span class="m">30001</span>
+</pre></div>
+</div>
+<p>Initialisez le <em>replica set</em>, et ajoutez-lui les autres nœuds.</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">rs</span><span class="p">.</span><span class="nx">initiate</span><span class="p">()</span>
+<span class="nx">rs</span><span class="p">.</span><span class="nx">add</span> <span class="p">(</span><span class="s2">&quot;192.168.99.100:30002&quot;</span><span class="p">)</span>
+<span class="nx">rs</span><span class="p">.</span><span class="nx">add</span> <span class="p">(</span><span class="s2">&quot;192.168.99.100:30003&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Le <em>replica set</em> est maintenant en action! Pour savoir quel nœud a été élu maître, vous pouvez
+utiliser la fonction <code class="docutils literal notranslate"><span class="pre">db.isMaster()</span></code>. Et pour tout savoir sur le <em>replica set</em>:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">rs</span><span class="p">.</span><span class="nx">status</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Regardez attentivement la description des trois participants au <em>replica set</em>. Qui est maître,
+qui est esclave, quelles autres informations obtient-on?</p>
+<p>On peut donc insérer des données, qui devraient alors être répliquées. Connectez-vous au maître (pourquoi?)
+et insérer (par exemple) notre collection de films.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Rappelons que pour importer la collection vous utiliser <code class="docutils literal notranslate"><span class="pre">mongoimport</span></code></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mongoimport -d nfe204 -c movies --file movies.json --jsonArray --host &lt;hostIP&gt; --port &lt;xxx&gt;
+</pre></div>
+</div>
+<p>Ou bien importer le fichier  <a class="reference external" href="http://b3d.bdpedia.fr/files/movies-mongochef.json">http://b3d.bdpedia.fr/files/movies-mongochef.json</a> avec MongoChef.</p>
+</div>
+<p>Maintenant,
+on peut supposer que la réplication s’est effectuée. Vérifions: connectez-vous au maître
+et regardez le contenu de la collection <code class="docutils literal notranslate"><span class="pre">movies</span></code>.</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">use</span> <span class="nx">nfe204</span>
+<span class="nx">db</span><span class="p">.</span><span class="nx">movies</span><span class="p">.</span><span class="nx">find</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Maintenant, faites la même chose avec l’un des esclaves. Vous obtiendrez sans doute un message d’erreur.
+Ré-essayez après avoir entré la commande <code class="docutils literal notranslate"><span class="pre">rs.slaveOk()</span></code>. À vous de comprendre ce qui se passe.</p>
+<p>Vous pouvez faire quelques essais supplémentaires:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>insérer en vous adressant à un esclave,</p></li>
+<li><p>insérer un nouveau document avec un autre client (par exemple RoboMongo) et regarder
+quand la réplication est faite sur les esclaves,</p></li>
+<li><p>arrêter les serveurs, les relancer un par un, regarder sur la sortie console
+comment MongoDB cherche à reconstituer le <em>replica set</em>, le maître est-il toujours le même?</p></li>
+<li><p>et ainsi de suite: en bref, vérifiez que vous êtes en mesure de comprendre ce qui se passe,
+au besoin en effectuant quelques recherche ciblées sur le Web.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="testons-la-reprise-sur-panne">
+<h3>Testons la reprise sur panne<a class="headerlink" href="#testons-la-reprise-sur-panne" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Pour vérifier le comportement de la reprise sur panne nous allons (gentiment) nous
+débarasser de notre maître. Vous pouvez l’arrêter depuis Docker, ou entrer la commande suivante
+avec un client connecté au Maître.</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">use</span> <span class="nx">admin</span>
+<span class="nx">db</span><span class="p">.</span><span class="nx">shutdownServer</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Maintenant consultez les consoles pour regarder ce qui se passe. C’est un peu comme donner un coup
+de pied dans une fourmilière: tout le monde s’agite. Essayez de comprendre ce qui se passe.
+Qui devient le maître? Vérifiez, puis redémarrez le premier nœud maître. Vérifiez qu’une nouvelle élection
+survient. Qui est encore le maître à la fin?</p>
+</div>
+<div class="section" id="id1">
+<h3>Quiz<a class="headerlink" href="#id1" title="Lien permanent vers ce titre">¶</a></h3>
+<div class="reauthoring_embedded_quiz" id="mongodistr-1"><form class="reauthoring_embedded_quiz_questions"><p>Que diriez-vous du niveau de cohérence proposé par défaut par Mongo?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Cohérence faible</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Cohérence à terme</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Cohérence forte</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="mongodistr-2"><form class="reauthoring_embedded_quiz_questions"><p>Plusieurs niveaux de cohérence sont-ils possibles dans MongoDB?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Oui</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Non</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="mongodistr-3"><form class="reauthoring_embedded_quiz_questions"><p>Quel est le rôle d’un arbitre?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Il coordonne les écritures</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Il permet une majorité absolue en cas de partitionnement</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Il décide qui est le maître</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div></div>
+<div class="section" id="mise-en-pratique">
+<h3>Mise en pratique<a class="headerlink" href="#mise-en-pratique" title="Lien permanent vers ce titre">¶</a></h3>
+<div class="admonition-mep-ex-mep-1-comprendre-la-documentation admonition" id="ex-mep-1">
+<p class="admonition-title">MEP <a class="reference internal" href="#ex-mep-1">Ex-MEP-1</a>: comprendre la documentation</p>
+<p>Consultez la documentation en ligne MongoDB, et étudiez les points suivants</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>qu’est-ce que la notion de <em>write concern</em>, à quoi cela sert-il?</p></li>
+<li><p>qu’est-ce que la notion de <em>rollback</em> dans MongoDB, dans la cadre de la reprise sur panne?</p></li>
+<li><p>expliquez la notion d’idempotence et son utilité pour le journal des transactions (aide:
+lire la documentation sur l”<em>oplog</em>).</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="admonition-mep-ex-mep-2-gerer-une-vraie-grappe-de-serveurs admonition" id="ex-mep-2">
+<p class="admonition-title">MEP <a class="reference internal" href="#ex-mep-2">Ex-MEP-2</a>: gérer une vraie grappe de serveurs</p>
+<p>Cet exercice ne vaut que si vous avez une grappe de serveurs à votre disposition. Il est
+particulièrement conçu pour les exercices en direct du cours NFE204, en salle machine.</p>
+<p>Définissez votre grappe de serveurs (par exemple, toutes les machines d’une même rangée
+forment un grappe).</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>un <em>replica set</em> peut avoir <em>au plus</em> 7 nœuds votants.
+Si vous voulez avoir plus de 7 nœuds, certains doivent être configurés
+comme non-votants (chercher <code class="docutils literal notranslate"><span class="pre">non-voting-members</span></code> dans la documentation en ligne).</p>
+</div>
+<p>Définissez le nom de votre <em>replica set</em> (par exemple « rang7 »).</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>créez le <em>replica set</em> avec tous les serveurs de la grappe; identifiez le maître;</p></li>
+<li><p>insérez des données dans une collection commune, surveillez la réplication;</p></li>
+<li><p>tuez (gentiment) quelques-uns des esclaves, regardez ce qui se passe au niveau des connexions et échanges
+de messages (les serveurs impriment à la console);</p></li>
+<li><p>tuez le maître et regardez qui est nouvellement élu;</p></li>
+<li><p>essayez de tuer au moins la moitié des participants au même moment et regardez ce qui
+se passe avec ce pauvre <em>replica set</em>.</p></li>
+<li><p>ajoutez un quatrième nœud, comment se passe l’élection?</p></li>
+<li><p>ajoutez un nœud-arbitre, même question.</p></li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+</div>
+<div class="section" id="s3-elasticsearch">
+<h2>S3: ElasticSearch<a class="headerlink" href="#s3-elasticsearch" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="admonition-supports-complementaires admonition">
+<p class="admonition-title">Supports complémentaires</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://mediaserver.lecnam.net/permalink/v125f35a409416pwkqn3/">Vidéo de démonstration d’une grappe ElasticSearch</a></p></li>
+</ul>
+</div>
+<p>ElasticSearch est un moteur de recherche distribué bâti sur les index Lucene, comme Solr. Contrairement
+à Solr, il a été conçu dès l’origine pour un déploiement dans une grappe de serveur et
+bénéficie en conséquence d’une facilité de configuration et d’installation incomparables.</p>
+<div class="section" id="lancement-du-cluster">
+<h3>Lancement du cluster<a class="headerlink" href="#lancement-du-cluster" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Vous avez déjà installé ElasticSearch avec Docker avec un unique serveur. Nous allons maintenant
+créer une grappe (un <em>cluster</em>)  de plusieurs nœuds ElasticSearch et tester le comportement
+du système. Pour éviter de lancer beaucoup de commandes complexes, nous allons utiliser
+<code class="docutils literal notranslate"><span class="pre">docker-compose</span></code>, un utilitaire fourni avec le <em>Docker Desktop</em>  qui permet de regrouper
+les commandes et les configurations. Nous vous fournissons plusieurs fichiers YAML
+de paramétrage correspondant aux essais successifs de configuration que nous allons effectuer.
+Il suffit de passer le nom du fichier à <code class="docutils literal notranslate"><span class="pre">docker-compose</span></code> de la manière suivante:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker-compose -f &lt;nom-du-fichier.yml&gt; up
+</pre></div>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Il faut allouer au moins 4GB de mémoire RAM au <em>Docker Desktop</em> pour le système
+distribué que nous allons créer.
+Ouvrez votre interface <em>Docker Desktop</em> et indiquez bien 4GB pour l’option « Resources -&gt; memory ».</p>
+</div>
+<p>Le premier fichier est <a class="reference external" href="http://b3d.bdpedia.fr/files/dock-comp-es1.yml">dock-comp-es1.yml</a>.
+Voici son contenu.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">version</span><span class="p">:</span> <span class="s">&#39;2.2&#39;</span>
+<span class="nt">services</span><span class="p">:</span>
+  <span class="nt">es01</span><span class="p">:</span>
+    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">docker.elastic.co/elasticsearch/elasticsearch:7.9.3</span>
+    <span class="nt">container_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">es01</span>
+    <span class="nt">environment</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">node.name=es01</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">cluster.name=ma-grappe-es</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">discovery.seed_hosts=es01,es02</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">cluster.initial_master_nodes=es01,es02</span>
+    <span class="nt">ports</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">9200:9200</span>
+
+  <span class="nt">es02</span><span class="p">:</span>
+    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">docker.elastic.co/elasticsearch/elasticsearch:7.9.3</span>
+    <span class="nt">container_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">es02</span>
+    <span class="nt">environment</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">node.name=es02</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">cluster.name=ma-grappe-es</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">discovery.seed_hosts=es01,es02</span>
+    <span class="nt">ports</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">9201:9200</span>
+</pre></div>
+</div>
+<p>On crée donc (pour commencer) deux nœuds Elastic Search, <code class="docutils literal notranslate"><span class="pre">es01</span></code>  et <code class="docutils literal notranslate"><span class="pre">es02</span></code>. Ces deux nœuds
+sont placés dans une même grappe nommée <code class="docutils literal notranslate"><span class="pre">ma-grappe-es</span></code> (il va sans dire que les noms
+sont arbitraites et n’ont aucune signification propre).  Le premier va être en écoute (pour
+les clients REST) sur le port 9200, le second sur le port 9201.</p>
+<p>Le paramètre <code class="docutils literal notranslate"><span class="pre">discovery.seed_hosts</span></code> indique à chaque nœud les autres nœuds du <em>cluster</em>
+avec lesquels il doit se connecter et dialoguer. Au lancement, <code class="docutils literal notranslate"><span class="pre">es01</span></code>  et <code class="docutils literal notranslate"><span class="pre">es02</span></code> vont donc pouvoir
+se connecter l’un à l’autre et échanger des informations.</p>
+<p>Elastic Search fonctionne en mode Maître-esclave.
+Parmi les informations importantes se trouve la liste initiale des maîtres-candidats du <em>cluster</em>. Ici cette
+liste est donnée pour le nœud <code class="docutils literal notranslate"><span class="pre">es01</span></code> qui la communiquera ensuite à tous les autres nœuds. L’ensemble
+des nœuds ayant un statut de maître-candidat vont alors organiser une élection pour
+choisir le nœud-maitre du <em>cluster</em>,  qui dans ElasticSearch se charge de la gestion de la grappe,
+et notamment de l’ajout/suppression de nouveaux nœuds et des reprises sur panne.</p>
+<p>Dans le répertoire où vous avez placé ce fichier, exécutez la commande.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker-compose -f dock-comp-es1.yml up
+</pre></div>
+</div>
+<p>L’utilitaire va créer les deux nœuds et les mettre en communication.  Après le lancement,
+un accès avec votre navigateur (ou avec <code class="docutils literal notranslate"><span class="pre">cUrl</span></code>) à <a class="reference external" href="http://localhost:9200">http://localhost:9200</a> devrait renvoyer un document JSON semblable à
+celui-ci:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span> <span class="p">{</span>
+<span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;7a46670f6a9e&quot;</span><span class="p">,</span>
+<span class="nt">&quot;cluster_name&quot;</span><span class="p">:</span> <span class="s2">&quot;ma-grappe-es&quot;</span><span class="p">,</span>
+<span class="nt">&quot;cluster_uuid&quot;</span><span class="p">:</span> <span class="s2">&quot;89U3LpNhTh6Vr9UUOTZAjw&quot;</span><span class="p">,</span>
+<span class="nt">&quot;version&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;number&quot;</span><span class="p">:</span> <span class="s2">&quot;7.9.3&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;...&quot;</span><span class="p">:</span> <span class="s2">&quot;...&quot;</span><span class="p">,</span>
+     <span class="nt">&quot;lucene_version&quot;</span><span class="p">:</span> <span class="s2">&quot;8.5.1&quot;</span><span class="p">,</span>
+  <span class="p">},</span>
+<span class="nt">&quot;tagline&quot;</span><span class="p">:</span> <span class="s2">&quot;You Know, for Search&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Même chose pour l’URL  à <a class="reference external" href="http://localhost:9200">http://localhost:9201</a>. Notre grappe
+est prête à l’emploi.</p>
+</div>
+<div class="section" id="l-interface-cerebro">
+<h3>L’interface Cerebro<a class="headerlink" href="#l-interface-cerebro" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Pour une inspection confortable du serveur et des index ElasticSearch, nous
+vous conseillons d’utiliser une interface d’administration: <code class="docutils literal notranslate"><span class="pre">cerebro</span></code> (successeur
+de Kopf). Elle peut être téléchargée ici: <a class="reference external" href="https://github.com/lmenezes/cerebro">https://github.com/lmenezes/cerebro</a>.</p>
+<p>Vous obtenez un répertoire <code class="docutils literal notranslate"><span class="pre">cerebro-xx-yy-zz</span></code>. Il faut exécuter le programme
+<code class="docutils literal notranslate"><span class="pre">bin/cerebro</span></code> de ce répertoire.</p>
+<p>Sous Unix/Linux, voici la séquence de commandes correspondante :</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>wget https://github.com/lmenezes/cerebro/releases/download/v0.9.2/cerebro-0.9.2.tgz
+tar -xvzf cerebro-0.9.2.tgz<span class="p">;</span> <span class="nb">cd</span> cerebro-0.9.2<span class="p">;</span>
+./bin/cerebro
+</pre></div>
+</div>
+<p>Testez que tout fonctionne en visitant (avec un navigateur de votre machine)
+l’adresse <a class="reference external" href="http://localhost:9000/#/connect">http://localhost:9000/#/connect</a>, en saisissant l’adresse d’un des serveurs
+Elasticsearch dans la première fenêtre (par exemple <code class="code docutils literal notranslate"><span class="pre">http://localhost:9200/</span></code>,
+mais <code class="code docutils literal notranslate"><span class="pre">http://localhost:9201/</span></code> fonctionne également).
+Vous
+devriez  obtenir l’affichage de la  <a class="reference internal" href="#es-cluster"><span class="std std-numref">Fig. 64</span></a> montrant les  nœuds
+et proposant tout un ensemble
+d’actions. En particulier, la barre supérieure de l’interface propose</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>un bouton <code class="code docutils literal notranslate"><span class="pre">nodes</span></code>, pour inspecter les nœuds de la grappe.</p></li>
+<li><p>un bouton <code class="code docutils literal notranslate"><span class="pre">rest</span></code>, permettant d’accéder à un espace de travail optimisé pour éditer
+des requêtes et vérifier les résultats.</p></li>
+</ul>
+</div></blockquote>
+<p>La <a class="reference internal" href="#es-cluster"><span class="std std-numref">Fig. 64</span></a> montre nos deux nœuds. Regardez soigneusement les informations données, et cherchez
+par exemple quel est le maître.</p>
+<div class="figure align-center" id="id15">
+<span id="es-cluster"></span><a class="reference internal image-reference" href="_images/cerebro-cluster.png"><img alt="_images/cerebro-cluster.png" src="_images/cerebro-cluster.png" style="width: 90%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 64 </span><span class="caption-text">Cerebro montrant les nœuds de notre grappe initiale  ElasticSearch</span><a class="headerlink" href="#id15" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<p>Remarquez qu’un nœud peut tenir plusieurs rôles (<em>master</em>, <em>data</em>, etc.).
+L’étude de ces rôles fait l’objet d’un exercice en fin de chapitre.</p>
+</div>
+<div class="section" id="le-jeu-de-donnees">
+<h3>Le jeu de données<a class="headerlink" href="#le-jeu-de-donnees" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Pour charger des données, récupérez notre collection de films, au format JSON adapté à l’insertion en masse
+dans ElasticSearch,  sur le site <a class="reference external" href="https://deptfod.cnam.fr/bd/tp/datasets/">https://deptfod.cnam.fr/bd/tp/datasets/</a>. Le fichier
+se nomme <code class="docutils literal notranslate"><span class="pre">films_esearch.json</span></code>.
+Ensuite, importez les documents dans Elasticsearch avec la commande suivante (en
+étant placé dans le dossier où a été récupéré le fichier):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -s -XPOST http://localhost:9200/_bulk/ -H <span class="s1">&#39;Content-Type: application/json&#39;</span> --data-binary @films_esearch.json
+</pre></div>
+</div>
+<p>En accédant à l’interface Cerebro, vous
+devriez alors obtenir l’affichage de la  <a class="reference internal" href="#es-index-replicas"><span class="std std-numref">Fig. 65</span></a>.</p>
+<div class="figure align-center" id="id16">
+<span id="es-index-replicas"></span><a class="reference internal image-reference" href="_images/cerebro-index-replicas.png"><img alt="_images/cerebro-index-replicas.png" src="_images/cerebro-index-replicas.png" style="width: 90%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 65 </span><span class="caption-text">Cerebro montrant l’index répliqué</span><a class="headerlink" href="#id16" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<p>Que constate-t-on? Les nœuds <code class="docutils literal notranslate"><span class="pre">es01</span></code> <code class="docutils literal notranslate"><span class="pre">es02</span></code> apparaissent associés à des rectangles verts
+qui représentent l’index ElasticSearch, nommé <code class="docutils literal notranslate"><span class="pre">nfe204</span></code>,  stockant les quelques centaines de films de notre jeu
+de données.</p>
+<p>Un des rectangles est surbrillant et entouré
+d’un trait plein: c’est la <em>copie primaire de l’index</em>, celle sur laquelle s’effectuent
+les <em>écritures</em>, qui sont ensuite répliquées en mode asynchrone sur les autres copies.</p>
+<p>Il existe une distinction dans ElasticSearch entre la notion de <em>master</em>,
+désignant le nœud responsable de la gestion du <em>cluster</em>, et la notion  de
+<em>copie primaire</em> qui désigne le nœud stockant la copie sur laquelle s’effectuent
+en priorité les écritures. La copie primaire peut être sur un autre nœud que le <em>master</em>.
+Un système de <em>routage</em> permet de diriger une requête d’écriture vers la copie primaire, quel
+que soit le nœud de la grappe auquel la requête est adressée. Voir l’exercice en fin de chapitre
+sur ces notions.</p>
+<p>En revanche,
+dans Elastic Search, chaque nœud peut répondre aux requêtes de <em>lectures</em>. Il est donc
+possible qu’une écriture ait lieu sur la copie primaire, puis une lecture sur la
+copie secondaire, avant réplication, donnant donc un résultat obsolète, ou <em>incohérent</em>.
+Dès que la réplication est achevée, la cohérence est rétablie. Dans un moteur de recherche,
+la cohérence à terme est considérée comme tout à fait acceptable.</p>
+</div>
+<div class="section" id="changeons-la-replication">
+<h3>Changeons la réplication<a class="headerlink" href="#changeons-la-replication" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Commençons quelques manipulations de notre index <code class="docutils literal notranslate"><span class="pre">nfe204</span></code>. Par défaut, ElasticSearch
+effectue une réplication de chaque document. Nous souhaitons en faire deux pour avoir trois
+copies au total, ce qui est considéré comme une sécurité suffisante. Pour modifier
+ce paramètre, on effectue la commande suivante:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -X PUT <span class="s2">&quot;localhost:9200/nfe204/_settings?pretty&quot;</span> -H <span class="s1">&#39;Content-Type: application/json&#39;</span> -d<span class="s1">&#39; { &quot;number_of_replicas&quot;: 2 }&#39;</span>
+</pre></div>
+</div>
+<p>La <a class="reference internal" href="#cerebro-3-replicas"><span class="std std-numref">Fig. 66</span></a> montre ce que vous devez obtenir. L’index a trois copies, mais seulement deux nœuds.
+Un signe d’avertissement est apparu indiquant que l’une des copies manque d’un nœud pour être hébergée.</p>
+<div class="figure align-center" id="id17">
+<span id="cerebro-3-replicas"></span><a class="reference internal image-reference" href="_images/cerebro-3-replicas.png"><img alt="_images/cerebro-3-replicas.png" src="_images/cerebro-3-replicas.png" style="width: 90%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 66 </span><span class="caption-text">Cerebro montrant l’index avec 3 copies mais seulement 2 nœuds.</span><a class="headerlink" href="#id17" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<p>Il faut donc ajouter un nœud. Dans le fichier de configuration, on ajoute <code class="docutils literal notranslate"><span class="pre">es3</span></code> comme suit:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">es03</span><span class="p">:</span>
+  <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">docker.elastic.co/elasticsearch/elasticsearch:7.9.3</span>
+  <span class="nt">container_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">es03</span>
+  <span class="nt">environment</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">node.name=es03</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">cluster.name=ma-grappe-es</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">discovery.seed_hosts=es01,es02</span>
+  <span class="nt">ports</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">9202:9200</span>
+</pre></div>
+</div>
+<p>Le nœud s’appelle <code class="docutils literal notranslate"><span class="pre">es3</span></code>, il fait partie de la même grappe, et on lui indique qu’il peut se connecter
+aux nœuds <code class="docutils literal notranslate"><span class="pre">es01</span></code> ou <code class="docutils literal notranslate"><span class="pre">es02</span></code>  pour récupérer la configuration actuelle de la grappe, et notamment
+son nœud-maitre.</p>
+<p>On obtient un fichier <a class="reference external" href="http://b3d.bdpedia.fr/files/dock-comp-es2.yml">dock-comp-es2.yml</a>
+que vous pouvez récupérer. Arrêtez l’exécution du <code class="docutils literal notranslate"><span class="pre">docker-compose</span></code> en cours et
+relancez-le</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker-compose -f dock-comp-es2.yml up
+</pre></div>
+</div>
+<p>En consultant Cerebro, vous devriez obtenir l’affichage de la <a class="reference internal" href="#cerebro-3-replicas-sain"><span class="std std-numref">Fig. 67</span></a>,
+avec ses trois nœuds en vert, dont la copie primaire stockée sur le maître <code class="docutils literal notranslate"><span class="pre">es01</span></code>. Tout va bien!</p>
+<div class="figure align-center" id="id18">
+<span id="cerebro-3-replicas-sain"></span><a class="reference internal image-reference" href="_images/cerebro-3-replicas-sain.png"><img alt="_images/cerebro-3-replicas-sain.png" src="_images/cerebro-3-replicas-sain.png" style="width: 90%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 67 </span><span class="caption-text">Cerebro montrant l’index avec 3 copies mais seulement 2 nœuds.</span><a class="headerlink" href="#id18" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>En production, on ne procède évidemment pas à un arrêt et un redémarrage
+de l’ensemble des nœuds. Et d’ailleurs la configuration est plus complexe.</p>
+</div>
+</div>
+<div class="section" id="reprise-sur-panne">
+<h3>Reprise sur panne<a class="headerlink" href="#reprise-sur-panne" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Regardons plus précisément le fonctionnement de la réplication et de la reprise sur panne.
+ElasticSearch fonctionne en mode Maître-Esclave, avec reprise sur panne automatisée.
+Faites maintenant l’essai: interrompez le nœud-maître
+avec Docker.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Avec la commande <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">ps</span> <span class="pre">-a</span></code>  cherchez l’indentifiant du nœud maître (en principe <code class="docutils literal notranslate"><span class="pre">es01</span></code>)</p></li>
+<li><p>Arrêtez-le avec <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">stop</span> <span class="pre">&lt;identifant&gt;</span></code></p></li>
+</ul>
+</div></blockquote>
+<p>La communication de Cerebro avec le nœud sur le port 9200 est interrompue. En revanche vous
+pouvez connecter Cerebro au nœud du port 9201 (<code class="docutils literal notranslate"><span class="pre">es02</span></code>). Vous obtenez l’affichage de la
+<a class="reference internal" href="#cerebro-apres-reprise"><span class="std std-numref">Fig. 68</span></a>.</p>
+<div class="figure align-center" id="id19">
+<span id="cerebro-apres-reprise"></span><a class="reference internal image-reference" href="_images/cerebro-apres-reprise.png"><img alt="_images/cerebro-apres-reprise.png" src="_images/cerebro-apres-reprise.png" style="width: 90%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 68 </span><span class="caption-text">Cerebro montrant l’index après panne de <code class="docutils literal notranslate"><span class="pre">es01</span></code></span><a class="headerlink" href="#id19" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<p>Bonne nouvelle: le nœud maître est maintenant <code class="docutils literal notranslate"><span class="pre">es03</span></code> et la copie primaire de l’index est
+sur <code class="docutils literal notranslate"><span class="pre">es02</span></code>. L’index peut donc continuer à fonctionner. Mais c’est en mode dégradé:
+un de ses replicas est marqué comme « Unassigned » : il faut redémarrer le nœud <code class="docutils literal notranslate"><span class="pre">es01</span></code>
+pour que la grappe retrouve un statut sain avec les trois copies sur trois nœuds
+différents.</p>
+<p>Relancez le nœud <code class="docutils literal notranslate"><span class="pre">es01</span></code>  avec la commande <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">start</span> <span class="pre">&lt;identifiant&gt;</span></code>: tout devrait rentrer
+dans l’ordre. Par rapport à la situation avant la panne, le maître a changé, et la copie
+primaire a également changé.</p>
+<p>Vous avez tout compris? Passez au quiz. Les exercices en fin de chapitre proposent également
+un approfondissent de plusieurs notions survolées ici.</p>
+</div>
+<div class="section" id="id2">
+<h3>Quiz<a class="headerlink" href="#id2" title="Lien permanent vers ce titre">¶</a></h3>
+<div class="reauthoring_embedded_quiz" id="esearch-1"><form class="reauthoring_embedded_quiz_questions"><p>Quel est le niveau de cohérence dans ElasticSearch</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Cohérence faible</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Cohérence à terme</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Cohérence forte</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="esearch-2"><form class="reauthoring_embedded_quiz_questions"><p>Est-il possible de lire directement sur une copie secondaire sans passer par la copie primaire?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Oui</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Non</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="esearch-3"><form class="reauthoring_embedded_quiz_questions"><p>Est-il possible d’écrire directement sur une copie secondaire sans passer par la copie primaire?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Oui, la copie secondaire  se coordonne ensuite avec la copie primaire</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Non, toutes les écritures doivent être transmises à la copie primaire</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> On peut envoyer une demande d’écriture au nœud stockant
+la copie secondaire, mais celui-ci
+la transmet au nœud stockant la copie primaire qui se charge de la coordination.</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div></div>
+<div class="section" id="id3">
+<h3>Mise en pratique<a class="headerlink" href="#id3" title="Lien permanent vers ce titre">¶</a></h3>
+<div class="admonition-mep-ex-mep-es1-mise-en-pratique admonition" id="ex-mep-es1">
+<p class="admonition-title">MEP <a class="reference internal" href="#ex-mep-es1">Ex-MEP-ES1</a>: mise en pratique</p>
+<p>Vous êtes invités à reproduire les commandes ci-dessus pour créer votre
+index ElasticSearch et tester la reprise sur panne. Testez d’abord sur une machine isolée,
+puis (si vous êtes en salle de TP) groupez-vous pour former des grappes
+de quelques serveurs, et testez les commandes de création (envoyez des insertions
+sur les différents nœuds) et de recherche (idem).</p>
+</div>
+<div class="admonition-mep-ex-mep-es2-pour-aller-plus-loin-optionnel admonition" id="ex-mep-es2">
+<p class="admonition-title">MEP <a class="reference internal" href="#ex-mep-es2">Ex-MEP-ES2</a>:  pour aller plus loin (optionnel)</p>
+<p>Quelques questions intéressantes à creuser (en regardant la doc, en interrogeant Google). Ces
+questions peuvent former le point de départ d’une étude plus complète consacrée
+à ElasticSearch.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Si j’envoie des commandes d’insertion à n’importe quel nœud, est-ce
+que cela fonctionne? Cela signifie-t-il qu’ElasticSearch est en mode multinœuds
+et pas en mode maître-esclave? Cherchez les mot-clés « <em>primary shard</em> »
+pour étudier la question.</p></li>
+<li><p>Comment exploiter la disponibilité des mêmes données sur plusieurs nœuds
+pour améliorer les performances? Cherchez les mots-clés <em>ElasticSearch balancer</em> et faites
+des essais.</p></li>
+<li><p>La valeur par défaut du nombre de réplicas est 1: cela signifie qu’il
+existe une copie primaire et un réplica, soit deux nœuds. Mais nous savons qu’en
+cas de partitionnement réseau nous risquons de nous retrouver avec deux
+maitres?! Etudiez la solution proposée par ElasticSearch.</p></li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+</div>
+<div class="section" id="s4-cassandra">
+<h2>S4: Cassandra<a class="headerlink" href="#s4-cassandra" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="admonition-ressources-complementaires admonition">
+<p class="admonition-title">Ressources complémentaires</p>
+<ul class="simple">
+<li><p><a class="reference external" href="http://b3d.bdpedia.fr/files/slcassreplic.pdf">Diapositives: La réplication dans Cassandra.</a></p></li>
+<li><p>Vidéo à venir</p></li>
+</ul>
+</div>
+<p>Nous passons maintenant à une présentation de la réplication dans Cassandra.
+Un <em>cluster</em> Cassandra  fonctionne en mode multi-nœuds. La notion de nœud maître et
+nœud esclave n’existe
+donc pas. Chaque nœud du cluster a le même rôle et la même importance, et jouit donc
+de la capacité de lecture
+et d’écriture dans le cluster. Un nœud ne sera donc jamais préféré à un autre pour être interrogé par le client.</p>
+<p>Un client qui interroge Cassandra contacte  un nœud  au hasard parmi
+tous les nœuds du cluster.
+Ce nœud que l’on appellera <em>le coordinateur</em> va  gérer la demande d’écriture.</p>
+<p>Le facteur de réplication est le paramètre du <em>Keyspace</em> qui précise le nombre de réplicas qui seront utilisés.
+Le facteur de réplication par défaut est de 1, signifiant que la ressource (la ligne dans
+une table Cassandra) sera stockée sur un seul nœud; 3 est la valeur
+du facteur de réplication considérée comme optimale pour assurer la disponibilité complète du système.</p>
+<p>Le facteur de réplication est un indicateur qui précise le nombre final de copies du document dans le cluster.
+Si le facteur est de 3, il ne sera donc pas écrit 1 fois, puis répliqué 3 fois, mais écrit 1 fois, et répliqué 2 fois.
+Considérons pour
+l’instant que nous avons un cluster composé de 3 nœuds,
+et un facteur de
+réplication de 3. Comme expliqué précédemment, n’importe quel nœud peut recevoir la requête du client.
+Ce nœud,  que l’on nommera <em>coordinateur</em>, va écrire localement la ressource, et
+rediriger la requête d’écriture vers les 2 autres nœuds suivant.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Nous verrons dans le prochain chapitre que Cassandra effectue non seulement
+une réplication mais également un partitionnement des données, ce qui complique
+un peu le schéma présenté ci-dessus. Nous nous  concentrons ici sur la réplication.</p>
+</div>
+<div class="section" id="ecriture-et-coherence-des-donnees">
+<h3>Ecriture et cohérence des données<a class="headerlink" href="#ecriture-et-coherence-des-donnees" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Cassandra dispose de paramètres de configuration avancés qui servent à ajuster le compromis
+entre latence et cohérence. Tout ce qui suit est un excellent moyen de constater la mise
+en pratique des compromis nécessaires dans un système distribué entre disponibilité, latence,
+cohérence et tolérance aux pannes. Relire le début du chapitre (et la partie sur CAP
+et PACELC) si nécessaire.</p>
+<div class="section" id="mecanisme-d-ecriture">
+<h4>Mécanisme d’écriture<a class="headerlink" href="#mecanisme-d-ecriture" title="Lien permanent vers ce titre">¶</a></h4>
+<p>Commençons par regarder de près le mécanisme d’écriture de cassandra (<a class="reference internal" href="#cassandra-log"><span class="std std-numref">Fig. 69</span></a>). Il s’appuie
+sur des concepts que nous connaissons déjà, avec quelques particularités qui sont reprises de
+l’architecture de BigTable (d’où l’affirmation parfois rencontrée, mais rarement explicitée, que
+Cassandra emprunte pour sa conception à Dynamo ET à BigTable).</p>
+<p>Une application cliente a donc pris contact avec un des serveurs, que nous
+appelons le coordinateur (<a class="reference internal" href="#cassandra-log"><span class="std std-numref">Fig. 69</span></a>).</p>
+<div class="figure align-center" id="id20">
+<span id="cassandra-log"></span><a class="reference internal image-reference" href="_images/cassandra-log.png"><img alt="_images/cassandra-log.png" src="_images/cassandra-log.png" style="width: 80%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 69 </span><span class="caption-text">Le mécanisme d’écriture Cassandra</span><a class="headerlink" href="#id20" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<p>Ce dernier reçoit une demande d’écriture d’un document <em>d</em>. Ce document est immédiatement écrit
+dans le fichier <em>log</em> (flèche A) et placé
+dans une structure en mémoire, appelée <em>memtable</em> (flèche B). À ce stade, on peut considérer
+que l’écriture est effectuée de manière durable.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Notez sur la figure une zone mémoire, sur le coordinateur, nommée « Documents
+en attente ». Elle sert à stocker temporairement de demandes d’insertion qui n’ont
+pu être complètement satisfaites. Détails plus loin.</p>
+</div>
+<p>La figure donne quelques détails supplémentaires sur le stockage des documents sur disque. Quand
+la <em>memtable</em> est pleine, un <em>flush()</em> est effectué pour transférer son contenu sur disque, dans
+un fichier structuré sous forme de <em>SSTable</em>. Essentiellement, il s’agit d’une table dans laquelle
+les documents sont <em>triés</em>. L’intérêt du tri est de faciliter les recherches dans les SSTables. En effet:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>il est possible d’effectuer une recherche par dichotomie, ou de construire un index non dense
+(cf. <a class="reference external" href="http://sys.bdpedia.fr/arbreb.html">http://sys.bdpedia.fr/arbreb.html</a> pour des détails);</p></li>
+<li><p>il est facile et efficace de fusionner plusieurs <em>SSTables</em> en une seule pour contrôler
+la fragmentation.</p></li>
+</ul>
+</div></blockquote>
+<p>Ce mécanisme de maintien d’un stockage contenant des documents triés sur la clé est repris de BigTable,
+et est toujours utilisé dans son successeur, HBase. Vous pouvez vous reporter à la documentation de ce dernier,
+ou à l’article initial <a class="reference external" href="https://research.google.com/archive/bigtable.html">https://research.google.com/archive/bigtable.html</a> pour en savoir plus.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Le tri des documents (ou <em>rows</em>) Cassandra est effectué sur des attributs spécifiés sous
+forme de <em>compound key</em>. Faites une recherche dans la documentation officielle sur les termes
+<em>compound key</em> et <em>clustering</em> pour des détails.</p>
+</div>
+</div>
+<div class="section" id="parametrage-de-la-coherence-ecritures">
+<h4>Paramétrage de la cohérence (écritures)<a class="headerlink" href="#parametrage-de-la-coherence-ecritures" title="Lien permanent vers ce titre">¶</a></h4>
+<p>Avec Cassandra, la cohérence des données en écriture est paramétrable. Ce paramétrage est nécessaire pour affiner
+la stratégie à adopter en cas de problèmes d’écriture.</p>
+<p>Supposons par exemple que l’un des  nœuds sur lesquels on doit écrire un document soit indisponible.
+Lorsque cela arrive, le coordinateur peut attendre que le nœud
+soit de nouveau actif avant d’écrire. Bien entendu, rien ne l’empêche d’écrire sur les
+autres réplicas. Lorsque le coordinateur attend la remise à disponibilité du nœud, il stocke
+alors la ressource localement, dans la zone que nous avons nommée
+« Documents en attente » sur la <a class="reference internal" href="#cassandra-log"><span class="std std-numref">Fig. 69</span></a>.</p>
+<p><em>Si aucun nœud n’est disponible, le document n’est pas à proprement parler dans le cluster
+pendant cette attente</em>. Il n’est
+donc pas disponible à la lecture. Ce cas de figure (extrême) s’appelle un <em>Hinted Handoff</em>.</p>
+<p>La configuration du niveau de cohérence des écritures consiste à indiquer combien
+d’acquittements le coordinateur doit rececoir des nœuds de stockage avant d’acquitter
+à son tour le client.
+Voici les principales configurations possibles.
+Elles vont de celle qui maximise la disponibilité
+du système à celles qui maximisent la cohérence des données.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>ANY</strong> : Si tous les nœuds sont inactifs, alors le <em>Hinted Handoff</em> est appliqué: le document est écrit
+dans une zone temporaire, en attente d’une nouvelle tentative d’écriture. La cohérence
+est minimale puisqu’aucune lecture ne peut accéder au document!  C’est la stratégie qui
+rend le système le plus disponible. En l’occurrence,
+c’est aussi la stratégie la plus dangereuse: si le nœud qui détient la zone temporaire
+tombe en panne, que se passe-t-il?</p></li>
+<li><p><strong>ONE</strong> (<strong>TWO</strong>, <strong>THREE</strong>) : La réponse au client sera assurée si la ressource a été
+écrite sur au moins 1 (ou 2, ou 3) réplicas.</p></li>
+<li><p><strong>QUORUM</strong> : La réponse au client sera assurée si la ressource a été écrite sur un nombre de réplicas au moins égal à
+<span class="math notranslate nohighlight">\(\lfloor replication/2 \rfloor +1\)</span>. Avec un facteur de réplication de 3, il faudra donc (<span class="math notranslate nohighlight">\(\lfloor 3/2 \rfloor +1 = 2\)</span>
+réponses).
+C’est un très bon compromis, car la règle du quorum va s’adapter au nombre de réplicas considéré</p></li>
+<li><p><strong>ALL</strong> : La réponse au client sera assurée lorsque la ressource aura été écrite dans tous les réplicas. C’est la stratégie qui assure la meilleure cohérence des données, au prix de la disponibilité</p></li>
+</ul>
+</div></blockquote>
+<p>Comme dans d’autres systèmes de bases de données de type NoSQL, la stratégie à adopter pour assurer la cohérence des données
+en écriture est souvent affaire de compromis. Plus on fait en sorte que le système soit disponible, plus on
+s’expose à des lectures incohérentes, retournant un version précédente du document, ou indiquant
+qu’il n’existe pas.
+À contrario, si on veut assurer la meilleure cohérence des données, alors il faut s’assurer pour chaque écriture que
+la ressource a été écrite partout, ce qui rend du coup le système beaucoup moins disponible.</p>
+</div>
+</div>
+<div class="section" id="lecture-et-coherence-des-donnees">
+<h3>Lecture et cohérence des données<a class="headerlink" href="#lecture-et-coherence-des-donnees" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Comme pour l’écriture de données, il existe  des stratégies de cohérence de données en lecture. Certaines
+stratégies  vont optimiser la réactivité du système, et donc sa disponibilité. D’autres vont
+mettre en avant la vérification de la cohérence des ressources, au détriment de la disponibilité.</p>
+<div class="section" id="mecanisme-de-lecture">
+<h4>Mécanisme de lecture<a class="headerlink" href="#mecanisme-de-lecture" title="Lien permanent vers ce titre">¶</a></h4>
+<p>La lecture avec Cassandra est plus coûteuse que l’écriture. Sur chaque nœud, il faut en effet:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>chercher le document dans la <em>memtable</em> (en RAM)</p></li>
+<li><p>chercher également le document dans toutes les <em>SSTables</em></p></li>
+</ul>
+</div></blockquote>
+<p>Cela peut entraîner des accès disques, et donc une pénalité assez forte.</p>
+</div>
+<div class="section" id="parametrage-de-la-coherence-des-lectures">
+<h4>Paramétrage de la cohérence des lectures<a class="headerlink" href="#parametrage-de-la-coherence-des-lectures" title="Lien permanent vers ce titre">¶</a></h4>
+<p>La configuration consiste à spécifier le nombre de réplicas à obtenir avant de répondre au client. Dans tous les cas,
+une fois le nombre de réplicas obtenus, la version avec l’estampille la plus récente est renvoyée au client.</p>
+<p>Quelques stratégies
+sont résumées ci-dessous:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>ONE</strong> (<strong>TWO</strong>, <strong>THREE</strong>): Le coordinateur reçoit la réponse du premier réplica (ou de deux, ou de trois) et
+la renvoie au client. Cette stratégie assure une haute disponibilité, mais au risque de renvoyer
+un document qui n’est pas synchronisé avec les autres réplicas. Dans ce cas, la cohérence des données
+n’est pas assurée</p></li>
+<li><p><strong>QUORUM</strong> : Le coordinateur reçoit la réponse de au moins
+<span class="math notranslate nohighlight">\(\lfloor replication/2 \rfloor +1\)</span> réplicas.
+C’est la stratégie qui représente le meilleur compromis</p></li>
+<li><p><strong>ALL</strong> : Le coordinateur reçoit la réponse de tous les réplicas. Si un réplica ne répond pas,
+alors la requête sera en échec. C’est la stratégie qui assure la meilleure cohérence des données, mais au prix de
+la disponibilité du système</p></li>
+</ul>
+</div></blockquote>
+<p>Pour la lecture aussi, la performance du système est affaire de compromis. Pour assurer une réponse qui reflète exactement
+les ressources stockées en base, il faut interroger plusieurs réplicas (voire tous), ce qui prend du temps. La disponibilité
+du système va donc être fortement dégradée. Si au contraire, on veut le système le plus disponible possible, alors il faut
+ne lire la ressource que sur 1 seul réplica, et la renvoyer directement au client. Il faudra dans ce cas accepter qu’il
+n’est pas impossible que le client reçoive une ressource non synchronisée, et donc fausse.</p>
+<p>Lorsque en lecture la ressource n’est pas synchronisée entre les différents réplicas, le coordinateur détecte un conflit.
+Il déclenche alors deux actions:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>le réplica qui a l’estampille temporelle la plus récente parmi ceux reçu est considéré comme celui
+le plus à jour, et est donc retourné au client;</p></li>
+<li><p>une procédure de réconciliation est lancée sur cette ressource particulière pour garantir que,
+au prochain appel, les données seront de nouveau synchronisée.</p></li>
+</ul>
+</div></blockquote>
+<p>Il s’ensuit que pour assurer la cohérence des lectures, il faut <em>toujours</em> que la dernière version
+d’une ressource fasse partie des réplicas obtenus avant réponse au client.
+Une formule simple permet de savoir si c’est le cas. Si on
+note</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><em>W</em> le nombre de réplicas requis en écriture,</p></li>
+<li><p><em>R</em> le nombre de réplicas requis en lecture,</p></li>
+<li><p><em>RF</em> le facteur de réplication.</p></li>
+</ul>
+</div></blockquote>
+<p>alors la cohérence est assurée si <span class="math notranslate nohighlight">\(R + W &gt; RF\)</span>. Je vous laisse y réfléchir: l’intuition (si cela peut aider)
+est qu’il existe un recouvrement entre les réplicas lus et les derniers réplicas écrits, de sorte qu’au moins une lecture
+va accéder à la dernière version.</p>
+<p>Par exemple,</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>si <em>W=ALL</em> et <em>R=1</em>: on se satisfait d’une lecture, mais comme tous les écritures sont synchronisées,
+on est sûr qu’elle renvoie la dernière mise à jour.</p></li>
+<li><p>si <em>W=1</em> et <em>R=ALL</em>, le raisonnement réciproque amène à la même conclusion</p></li>
+<li><p>enfin, si <em>W=QUORUM</em> et <em>R=QUORUM</em>, on est sûr d’être cohérent: c’est la configuration la plus
+flexible, car s’adaptant automatiquement au niveau de réplication.</p></li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="id4">
+<h3>Mise en pratique<a class="headerlink" href="#id4" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Voici un exemple de mise en pratique pour tester le fonctionnement d’un <em>cluster</em> Cassandra
+et quelques options. Pour aller plus lon, vous pouvez recourir à l’un des tutoriaux de
+Datastax, par exemple
+<a class="reference external" href="http://docs.datastax.com/en/cql/3.3/cql/cql_using/useTracing.html">http://docs.datastax.com/en/cql/3.3/cql/cql_using/useTracing.html</a> pour inspecter
+le fonctionnement des niveaux de cohérence.</p>
+<div class="section" id="notre-cluster">
+<h4>Notre <em>cluster</em><a class="headerlink" href="#notre-cluster" title="Lien permanent vers ce titre">¶</a></h4>
+<p>Créons maintenant un cluster Cassandra, avec 5 nœuds. Pour cela,
+nous créons un premier nœud qui nous servira de point d’accès (<em>seed</em> dans
+la terminologie Cassandra) pour en ajouter d’autres.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run -d -e <span class="s2">&quot;CASSANDRA_TOKEN=1&quot;</span> <span class="se">\</span>
+     --name cass1 -p <span class="m">3000</span>:9042 spotify/cassandra:cluster
+</pre></div>
+</div>
+<p>Notez que nous indiquons explicitement le placement du serveur sur l’anneau. En production, il est préférable
+de recourir aux nœuds virtuels, comme expliqué précédemment. Cela demande un peu de configuration, et nous
+allons nous contenter d’une exploration simple ici.</p>
+<p>Il nous faut l’adresse IP de ce premier serveur. La commande suivant extrait l’information
+<code class="docutils literal notranslate"><span class="pre">NetworkSettings.IPAddress</span></code> du document JSON renvoyé par l’instruction <code class="docutils literal notranslate"><span class="pre">inspect</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker inspect -f <span class="s1">&#39;{{.NetworkSettings.IPAddress}}&#39;</span> cass1
+</pre></div>
+</div>
+<p>Vous obtenez une adresse. Par la suite on supppose qu’elle vaut 172.17.0.2.</p>
+<p>Créons les autres serveurs, en indiquant le premier comme serveur-<em>seed</em>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run -d -e <span class="s2">&quot;CASSANDRA_TOKEN=10&quot;</span> -e <span class="s2">&quot;CASSANDRA_SEEDS=172.17.0.2&quot;</span> <span class="se">\</span>
+    --name cass2 spotify/cassandra:cluster
+
+docker run -d -e <span class="s2">&quot;CASSANDRA_TOKEN=100&quot;</span> -e <span class="s2">&quot;CASSANDRA_SEEDS=172.17.0.2&quot;</span> <span class="se">\</span>
+    --name cass3 spotify/cassandra:cluster
+
+docker run -d -e <span class="s2">&quot;CASSANDRA_TOKEN=1000&quot;</span> -e <span class="s2">&quot;CASSANDRA_SEEDS=172.17.0.2&quot;</span> <span class="se">\</span>
+    --name cass4 spotify/cassandra:cluster
+
+docker run -d -e <span class="s2">&quot;CASSANDRA_TOKEN=10000&quot;</span> -e <span class="s2">&quot;CASSANDRA_SEEDS=172.17.0.2&quot;</span> <span class="se">\</span>
+    --name cass5 spotify/cassandra:cluster
+</pre></div>
+</div>
+<p>Nous venons de créer un cluster de 5 nœuds Cassandra, qui tournent tous en tâche de fond grâce à Docker.</p>
+</div>
+<div class="section" id="keyspace-et-donnees">
+<h4>Keyspace et données<a class="headerlink" href="#keyspace-et-donnees" title="Lien permanent vers ce titre">¶</a></h4>
+<p>Insérons maintenant des données. Vous pouvez utiliser le client <em>DevCenter</em>. À
+l’usage, il est peut être plus rapide de lancer  directement
+l’interpréteur de commandes sur l’un des nœuds avec la commande:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker <span class="nb">exec</span> -it cass1 /bin/bash
+<span class="o">[</span>docker<span class="o">]</span>$ cqlsh <span class="m">172</span>.17.0.X
+</pre></div>
+</div>
+<p>Créez un <em>keyspace</em>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>CREATE keyspace repli
+         with <span class="nv">replication</span> <span class="o">=</span> <span class="o">{</span><span class="s1">&#39;class&#39;</span>:<span class="s1">&#39;SimpleStrategy&#39;</span>, <span class="s1">&#39;replication_factor&#39;</span>:3<span class="o">}</span><span class="p">;</span>
+USE repli<span class="p">;</span>
+</pre></div>
+</div>
+<p>Insérons un document.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="k">data</span> <span class="p">(</span><span class="n">id</span> <span class="nb">int</span><span class="p">,</span> <span class="n">value</span> <span class="nb">text</span><span class="p">,</span> <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="n">id</span><span class="p">));</span>
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="k">data</span> <span class="p">(</span><span class="n">id</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="k">VALUES</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="s1">&#39;Premier document&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Nous venons de créer un <em>keyspace</em>, qui va répliquer les données sur 3 nœuds.
+Testons que le document inséré précedemment a bien été répliqué sur 2 nœuds.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker <span class="nb">exec</span> -it cass1 /bin/bash
+<span class="o">[</span>docker<span class="o">]</span>$ /usr/bin/nodetool cfstats -h <span class="m">172</span>.17.0.2 repli
+</pre></div>
+</div>
+<p>Regardez pour chaque nœud la valeur de <em>Write Count</em>. Elle devrait être à 1 pour 3 nœuds
+consécutifs sur l’anneau,
+et 0 pour les autres. Vérifions maintenant qu’en se connectant à un nœud qui ne contient
+pas le document, on peut
+tout de même y accéder. Considérons par exemple que le nœud <code class="docutils literal notranslate"><span class="pre">cass1</span></code>  ne contient pas le document.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker <span class="nb">exec</span> -it cass1 /bin/bash
+<span class="o">[</span>docker<span class="o">]</span>$ cqlsh <span class="m">172</span>.17.0.X
+cqlsh &gt; USE repli<span class="p">;</span>
+cqlsh:repli &gt; SELECT * FROM data<span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="coherence-des-lectures">
+<h4>Cohérence des lectures<a class="headerlink" href="#coherence-des-lectures" title="Lien permanent vers ce titre">¶</a></h4>
+<p>Pour étudier la cohérence des données en lecture, nous allons utiliser la ressource stockée, et
+stopper 2 nœuds
+Cassandra sur les 3. Pour ce faire, nous allons utiliser Docker. Considérons que la donnée
+est stockée sur les
+nœuds cass1, cass2 et cass3</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker pause cass2
+docker pause cass3
+docker <span class="nb">exec</span> -it cass1 /bin/bash
+<span class="o">[</span>docker<span class="o">]</span>$ /usr/bin/nodetool ring
+</pre></div>
+</div>
+<p>Vérifiez que les nœuds sont bien au statut <em>Down</em>.</p>
+<p>Nous pouvons maintenant paramétrer le niveau de cohérence des données. Réalisons une requête de lecture.
+Le système est paramétré pour assurer la meilleure cohérence des données. On s’attend à ce que la requête plante car en
+mode <code class="docutils literal notranslate"><span class="pre">ALL</span></code>, Cassandra attend la réponse de tous les nœuds.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker <span class="nb">exec</span> -it cass1 /bin/bash
+<span class="o">[</span>docker<span class="o">]</span>$ cqlsh <span class="m">172</span>.17.0.X
+cqlsh &gt; use repli<span class="p">;</span>
+<span class="c1"># devrait renvoyer Consistency level set to ALL.</span>
+cqlsh:repli &gt; consistency all<span class="p">;</span>
+<span class="c1"># devrait renvoyer Unable to complete request: one or more nodes were unavailable.</span>
+cqlsh:repli &gt; <span class="k">select</span> * from data<span class="p">;</span>
+</pre></div>
+</div>
+<p>Comme attendu, la réponse renvoyée au client est une erreur. Testons maintenant le mode <code class="docutils literal notranslate"><span class="pre">ONE</span></code>, qui devrait normalement
+renvoyer la ressource du nœud le plus rapide. On s’attend à ce que la ressource du nœud 172.17.0.X soit renvoyée.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker <span class="nb">exec</span> -it cass1 /bin/bash
+<span class="o">[</span>docker<span class="o">]</span>$ cqlsh <span class="m">172</span>.17.0.X
+cqlsh &gt; use repli<span class="p">;</span>
+cqlsh:repli &gt; consistency one<span class="p">;</span>  <span class="c1"># devrait renvoyer Consistency level set to ONE.</span>
+cqlsh:repli &gt; <span class="k">select</span> * from data<span class="p">;</span>
+</pre></div>
+</div>
+<p>Dans ce schéma, le système est très disponible, mais ne vérifie pas la cohérence des données. Pour preuve,
+il renvoie effectivement la ressource au client alors que tous les autres nœuds qui
+contiennent la ressource sont
+indisponibles (ils pourraient contenir une version pus récente).
+Enfin, testons la stratégie du quorum. Avec 2 nœuds sur 3 perdus, la requête devrait
+normalement renvoyer au client une erreur.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker <span class="nb">exec</span> -it cass1 /bin/bash
+<span class="o">[</span>docker<span class="o">]</span>$ cqlsh <span class="m">172</span>.17.0.X
+cqlsh &gt; use repli<span class="p">;</span>
+<span class="c1"># devrait renvoyer Consistency level set to QUORUM.</span>
+cqlsh:repli &gt; consistency quorum<span class="p">;</span>
+<span class="c1"># devrait renvoyer Unable to complete request: one or more nodes were unavailable.</span>
+cqlsh:repli &gt; <span class="k">select</span> * from data<span class="p">;</span>
+</pre></div>
+</div>
+<p>Le résultat obtenu est bien celui attendu. Moins de la moitié des réplicas est disponible, la requête
+renvoie donc une erreur. Réactivons un nœud, et re-testons.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker unpause cass2
+docker <span class="nb">exec</span> -it cass1 /bin/bash
+<span class="o">[</span>docker<span class="o">]</span>$ nodetool ring
+<span class="o">[</span>docker<span class="o">]</span>$ cqlsh <span class="m">172</span>.17.0.X
+cqlsh &gt; use repli<span class="p">;</span>
+<span class="c1"># devrait renvoyer Consistency level set to QUORUM.</span>
+cqlsh:repli &gt; consistency quorum<span class="p">;</span>
+cqlsh:repli &gt; <span class="k">select</span> * from data<span class="p">;</span>
+</pre></div>
+</div>
+<p>Lorsque le nœud est réactivé (via Docker), il faut tout de même quelques dizaines de secondes avant qu’il soit
+effectivement réintégré dans le cluster. Le plus important est que la règle du quorum soit validée, avec 2 nœuds sur
+3 disponibles, Cassandra accepte de retourner au client une ressource.</p>
+</div>
+</div>
+<div class="section" id="id5">
+<h3>Quiz<a class="headerlink" href="#id5" title="Lien permanent vers ce titre">¶</a></h3>
+<div class="reauthoring_embedded_quiz" id="cassandra-1"><form class="reauthoring_embedded_quiz_questions"><p>Quel est le niveau de cohérence dans Cassandra</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Cohérence faible</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Cohérence à terme</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Le niveau de cohérence est entièrement paramétrable</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="cassandra-2"><form class="reauthoring_embedded_quiz_questions"><p>Si on choisit le niveau QUORUM pour les deux paramètres, on obtient</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> La cohérence faible</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> La cohérence à terme</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> la cohérence forte</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="cassandra-3"><form class="reauthoring_embedded_quiz_questions"><p>Peut-on écrire sur n’importe quel nœud avec Cassandra</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Oui, Cassandra est un système multi-nœuds dans lequel
+chaque nœud joue le rôle de maître pour les clients avec lesquels il communique.</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Non,  toute demande d’écriture est d’abord transmise
+au maître.</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> On peut demander l’écriture à n’importe quel nœud, qui joue alors le
+rôle de coordinateur mais n’écrit pas forcément lui-même localement</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div></div>
+</div>
+<div class="section" id="exercices">
+<h2>Exercices<a class="headerlink" href="#exercices" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="admonition-exercice-ex-rep-1-comment-fonctionne-un-site-de-commerce-electronique admonition" id="ex-rep-1">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-rep-1">Ex-rep-1</a>: comment fonctionne un site de commerce électronique?</p>
+<p>Prenons un site de commerce électronique à grande échelle, type Amazon. En interne,
+ce système s’appuie sur un système NoSQL avec cohérence à terme.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Décrivez un scénario où vous choisissez un produit, sans le voir apparaître dans
+votre panier.</p></li>
+<li><p>Vous ré-affichez votre panier, le produit apparaît. Que s’est-t-il passé?</p></li>
+<li><p>Vous supprimez un produit, en choisissez un autre, les deux apparaissent dans votre panier.
+Que s’est-t-il passé?</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="admonition-exercice-ex-rep-2-le-probleme-des-deux-armees admonition" id="ex-rep-2">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-rep-2">Ex-rep-2</a>: le problème des deux armées</p>
+<p>Pour bien comprendre la difficulté de construire des systèmes distribués fiables (et l’importance
+de la réplication), voici un premier problème classique, celui des deux armées. Un fort
+défendu par une armée verte est encerclé par deux armées, la rouge au nord, la bleue au sud.
+Les généraux des armées bleue et rouge (appelons-les B et R)
+doivent se coordonner pour attaquer en convenant
+d’un jour et d’une heure précis: c’est la condition
+nécessaire et suffisante de la réussite. Il peuvent envoyer des messagers, mais il est possible
+que ces derniers soient interceptés par les défenseurs.</p>
+<blockquote>
+<div><div class="figure align-center" id="id21">
+<span id="armees"></span><a class="reference internal image-reference" href="_images/2armees.png"><img alt="_images/2armees.png" src="_images/2armees.png" style="width: 60%;" /></a>
+<p class="caption"><span class="caption-number">Fig. 70 </span><span class="caption-text">Les deux armées et le défenseur</span><a class="headerlink" href="#id21" title="Lien permanent vers cette image">¶</a></p>
+</div>
+</div></blockquote>
+<p>Le problème est un classique des enseignements de systèmes distribués
+et vise à illustrer un cas de recherche de consensus en l’absence de communications
+totalement fiables. Il faut donc chercher à définir un protocole <em>tolérant aux pannes de communication</em>.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Quelle stratégie permet à B et R de s’assurer qu’ils sont d’accord pour attaquer
+au même moment? Raisonnez « par cas » en étudiant les différentes possibilités et essayez d’en trouver
+un dans lequel les deux généraux peuvent savoir de manière sûre qu’ils partagent la
+même information.</p></li>
+<li><p>(Plus difficile) Vous devriez arriver à vous faire une idée sur l’existence ou non
+d’un procole: démontrez cette intuition!</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="admonition-exercice-ex-rep-3-le-probleme-des-epoux-trompes admonition" id="ex-rep-3">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-rep-3">Ex-rep-3</a>: le problème des époux trompés</p>
+<p>Encore un petit problème de calcul distribué qui montre un autre type de raisonnement à priori
+insoluble mais qui (cette fois) trouve sa solution. Nous sommes au royaume des Amazones, chaque
+amazone a un époux, et certains sont infidèles (entendons-nous bien: le problème pourrait
+être exposé dans beaucoup de situations équivalentes, ou en transposant les rôles). Comme de
+juste, quand l’époux d’une amazone est infidèle, tout le monde le sait sauf elle.</p>
+<p>Un jour la reine prend la parole: « je sais
+de source sûre qu’il existe des infidélités dans mon royaume; je n’ai pas le droit
+de les révéler et aucune d’entre vous non plus, mais si vous êtes sûre que votre époux
+est infidèle, je vous ordonne de le sacrifier le soir à minuit ». Il y a 17 époux
+infidèles: le 17ème jour, à minuit, les 17 amazones trompées sacrifient leur époux.</p>
+<p>Comment ont-elles fait? À vous d’exposer le protocole et de montrer qu’il est correct (ce qui
+est préférable). Un peu d’aide: commencer à raisonner dans le cas où il y a un seul époux infidèle
+dans le royaume. Il reste ensuite à construire un raisonnement incrémental.</p>
+<p>Question subsidiaire: le discours de la reine ne semble contenir aucune information. En quoi
+joue-t-il le rôle déclencheur?</p>
+</div>
+<div class="admonition-exercice-ex-rep-4-une-autre-approche-pour-la-coherence-forte admonition" id="ex-rep-4">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-rep-4">Ex-rep-4</a>: une autre approche pour la cohérence forte</p>
+<p>Supposons que l’on applique la règle du quorum au moment d’une lecture: sur les
+<em>R</em> versions que l’on récupère, on choisit celle qui apparaît en majorité.</p>
+<p>Montrer que la règle <em>R +W &gt; RF</em> ne garantit plus la cohérence. Prendre par exemple
+RF=5, W=R=3 et donner un contre-exemple.</p>
+</div>
+<div class="admonition-exercice-ex-rep-5-allons-plus-loin-avec-elastic-search admonition" id="ex-rep-5">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-rep-5">Ex-rep-5</a>: allons plus loin avec Elastic Search</p>
+<p>Cet exercice consiste à explorer la documentation Elastic Search pour
+répondre à certaines questions laissées en suspens dans la section
+consacrée à ce système.</p>
+<p>Commencez par étudier les différents types de nœuds:
+<a class="reference external" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-node.html">https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-node.html</a>.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Expliquez  les différences entre les rôles <em>master</em> et <em>data</em>.</p></li>
+<li><p>Expliquez en quoi consiste un nœud coordinateur</p></li>
+<li><p>Peut-on avoir un nœud qui n’a que le rôle <em>master</em>? Expliquez.</p></li>
+<li><p>Peut-on avoir un nœud qui n’a que le rôle <em>coordinateur</em>? Expliquez.</p></li>
+</ul>
+</div></blockquote>
+<p>Regardez ensuite la section <a class="reference external" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-discovery.html">https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-discovery.html</a>.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Expliquez comment un nœud ajouté à un grappe trouve le <em>master</em> de la grappe</p></li>
+<li><p>Expliquez comment Elastic Search détermine un nouveau <em>master</em> en cas de panne affectant
+un nœud. Vous pouvez citer en référence des liens vers les parties de la documentation concernées.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="admonition-exercice-ex-rep-5-parlons-des-transactions-acid-distribuees admonition" id="ex-rep-6">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-rep-5">Ex-rep-5</a>: parlons des transactions ACID distribuées</p>
+<p>Les transactions considérées dans la session qui précède sont très éloignées
+de celles, dites ACID,  en usage dans les SGBD relationnelles. Dans une transaction
+ACID, on ne regarde pas une opération, mais une <em>séquence</em> d’opérations censées s’effectuer
+de manière solidaire (« tout ou rien », c’est <em>l’atomicité</em>), marquée de manière définitive
+par des <em>commit</em> ou des <em>rollback</em> (c’est la <em>durabilité</em>), et pendant lesquelles les mises
+à jour effectuées par une transaction <span class="math notranslate nohighlight">\(T\)</span> sont invisibles des autres (c’est <em>l’isolation</em>).</p>
+<p>En l’absence de propriétés ACID, il est bien difficile d’utiliser un système
+pour, par exemple, effectuer des virements bancaires ou réserver des billets d’avion.</p>
+<p>Il existe un protocole pour effectuer des transactions ACID dans un système distribué:
+<em>le commit à deux phases</em> (TPC). Il arrivera (peut-être / sans doute) dans le systèmes NoSQL.
+En attendant il est instructif de se pencher sur son fonctionnement.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Cet exercice est long et assez difficile, il s’apparente à un atelier
+d’approfondissement. <strong>À faire de manière optionnelle si vous avez le temps
+et l’appétit pour des sujets avancés en gestion de données.</strong></p>
+</div>
+<dl class="simple">
+<dt>Commencer par étudier le fonctionnement de l’algorithme, par exemple depuis les sources suivantes</dt><dd><ul class="simple">
+<li><p><a class="reference external" href="https://en.wikipedia.org/wiki/Two-phase_commit_protocol">https://en.wikipedia.org/wiki/Two-phase_commit_protocol</a></p></li>
+<li><p><a class="reference external" href="http://courses.cs.vt.edu/~cs5204/fall00/distributedDBMS/duckett/tpcp.html">http://courses.cs.vt.edu/~cs5204/fall00/distributedDBMS/duckett/tpcp.html</a></p></li>
+</ul>
+</dd>
+<dt>Répondez aux questions suivantes</dt><dd><ul class="simple">
+<li><p>Quelles sont les hypothèses requises sur le fonctionnement du système pour que
+le TPC fonctionne?</p></li>
+<li><p>Expliquer pourquoi le coordinateur ne peut pas envoyer directement
+un ordre <em>commit</em> (ou <em>rollback</em>) à chaque participant (« <em>One phase commit</em> »).</p></li>
+<li><p>En fonction de ce que nous a apris l’exemple des deux armées, dressez la
+liste des problèmes qui peuvent se poser et empêcher la finalisation
+d’une transaction TPC.</p></li>
+<li><p>À l’issue de la première phase, quels engagements a pris chaque participant?</p></li>
+<li><p>Qu’est-ce qui garantit qu’une transaction distribuée va finir par s’exécuter?</p></li>
+<li><p>Quel est le plus grand inconvénient du TPC?</p></li>
+</ul>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+            <div>        
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Licence Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">
+  Ce cours</span> de <a xmlns:cc="http://creativecommons.org/ns#" href="http://www.bdpedia.fr" property="cc:attributionName" rel="cc:attributionURL">Philippe Rigaux</a> est mis à disposition selon les termes de la <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">licence Creative Commons Attribution - Pas d’Utilisation Commerciale - Partage dans les Mêmes Conditions 4.0 International</a>.
+</div>
+        <hr/>
+          <h3>Table Of Contents</h3>
+          <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docker.html">Préliminaires: Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docstruct.html">Modélisation de bases NoSQL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bddoc.html">Interrogation de bases NoSQL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mapreduce.html">MapReduce, premiers pas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cassandra_tp.html">Cassandra - Travaux Pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mongodb_tp.html">MongoDB - Travaux Pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ri-intro.html">Introduction à la recherche d’information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ri-indexation.html">Recherche d’information : l’indexation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ri-ranking.html">Recherche avec classement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ri-tpelasticdsl.html">Recherche d’information - TP ElasticSearch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ri-tpranking.html">Recherche d’information - TP ElasticSearch : pertinence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cloud.html">Le <em>cloud</em>, une nouvelle machine de calcul</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Systèmes NoSQL: la réplication</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#s1-replication-et-reprise-sur-panne">S1: réplication et reprise sur panne</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#la-replication-pourquoi">La réplication, pourquoi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#la-replication-comment">La réplication, comment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#coherence-des-donnees">Cohérence des données</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#equilibrage-entre-coherence-et-latence-le-principe-du-quorum">Equilibrage entre cohérence et latence: le principe du quorum</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#replication-et-reprise-sur-panne">Réplication et reprise sur panne</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#culture-le-theoreme-cap">Culture: le théorème CAP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quiz">Quiz</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#s2-replication-dans-mongodb">S2: réplication dans MongoDB</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#les-replica-set">Les <em>replica set</em></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#la-reprise-sur-panne-dans-mongodb">La reprise sur panne dans MongoDB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#a-l-action-creons-notre-replica-set">À l’action: créons notre <em>replica set</em></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#testons-la-reprise-sur-panne">Testons la reprise sur panne</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Quiz</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mise-en-pratique">Mise en pratique</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#s3-elasticsearch">S3: ElasticSearch</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#lancement-du-cluster">Lancement du cluster</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#l-interface-cerebro">L’interface Cerebro</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#le-jeu-de-donnees">Le jeu de données</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#changeons-la-replication">Changeons la réplication</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reprise-sur-panne">Reprise sur panne</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Quiz</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">Mise en pratique</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#s4-cassandra">S4: Cassandra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ecriture-et-coherence-des-donnees">Ecriture et cohérence des données</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#mecanisme-d-ecriture">Mécanisme d’écriture</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#parametrage-de-la-coherence-ecritures">Paramétrage de la cohérence (écritures)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lecture-et-coherence-des-donnees">Lecture et cohérence des données</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#mecanisme-de-lecture">Mécanisme de lecture</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#parametrage-de-la-coherence-des-lectures">Paramétrage de la cohérence des lectures</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">Mise en pratique</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#notre-cluster">Notre <em>cluster</em></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#keyspace-et-donnees">Keyspace et données</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#coherence-des-lectures">Cohérence des lectures</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">Quiz</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#exercices">Exercices</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="sharding.html">Systèmes NoSQL: le partitionnement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calculdistr.html">Calcul distribué: Hadoop et MapReduce</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spark-batch.html">Traitement de données massives avec Apache Spark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="flink-streaming.html">Traitement de flux massifs avec Apache Flink</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pigtp.html">Pig : Travaux pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="projet.html">Projets NFE204</a></li>
+<li class="toctree-l1"><a class="reference internal" href="annales.html">Annales des examens</a></li>
+</ul>
+
+          <h3 style="margin-top: 1.5em;">Recherche</h3>
+          <form class="search" action="search.html" method="get">
+            <input type="text" name="q" />
+            <input type="submit" value="Go" />
+            <input type="hidden" name="check_keywords" value="yes" />
+            <input type="hidden" name="area" value="default" />
+          </form>
+          <p class="searchtip" style="font-size: 90%">
+      Saisissez un ou plusieurs mots-clés.
+          </p>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <a href="cloud.html" title="Le cloud, une nouvelle machine de calcul"
+             >précédent</a> |
+          <a href="sharding.html" title="Systèmes NoSQL: le partitionnement"
+             >suivant</a> |
+          <a href="genindex.html" title="Index général"
+             >index</a>
+        </div>
+
+        <div class="right">
+        <a href="index.html">Systèmes NoSQL: la réplication</a><br/>
+          
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2014-2023, Nicolas Travers, Raphaël Fournier S&#39;niehotta et Philippe Rigaux.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>
