@@ -97,7 +97,7 @@ def setup(app):
 docstruct = 'public'
 mongoquery = 'public'
 mongomapreduce = 'public'
-mrbasic = 'private'
+mrbasic = 'public'
 cassandratp = 'public'
 mongodbtp = 'public'
 mongodbtp2 = 'public'

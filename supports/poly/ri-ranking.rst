@@ -1370,6 +1370,7 @@ Pour les exercices qui suivent vous pouvez vous appuyer sur un outil en ligne co
 celui-ci: http://www.webworkshop.net/pagerank_calculator.php. Le but est quand
 même de comprendre ce qui se passe, donc utilisez *aussi* votre cerveau!
 
+
 .. _Ex-S3-1:
 .. admonition:: Exercice `Ex-S3-1`: le plus petit graphe du monde
 

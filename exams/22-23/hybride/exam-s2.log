@@ -1,8 +1,8 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.12.16)  18 APR 2023 13:52
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.12.16)  28 APR 2023 18:50
 entering extended mode
- \write18 enabled.
+ restricted \write18 enabled.
  %&-line parsing enabled.
-**exam-s2.tex
+**exam-s2
 (./exam-s2.tex
 LaTeX2e <2016/03/31>
 Babel <3.9r> and hyphenation patterns for 83 language(s) loaded.
@@ -910,98 +910,6 @@ Package: pdfescape 2016/05/16 v1.14 Implements pdfTeX's escape features (HO)
 \CommentStream=\write5
 
 Excluding comment 'comment')
-(/usr/local/texlive/2016/texmf-dist/tex/latex/minted/minted.sty
-Package: minted 2015/09/09 v2.1 Yet another Pygments shim for LaTeX
-
-(/usr/local/texlive/2016/texmf-dist/tex/latex/oberdiek/kvoptions.sty
-Package: kvoptions 2016/05/16 v3.12 Key value format for package options (HO)
-
-(/usr/local/texlive/2016/texmf-dist/tex/generic/oberdiek/kvsetkeys.sty
-Package: kvsetkeys 2016/05/16 v1.17 Key value parser (HO)
-
-(/usr/local/texlive/2016/texmf-dist/tex/generic/oberdiek/etexcmds.sty
-Package: etexcmds 2016/05/16 v1.6 Avoid name clashes with e-TeX commands (HO)
-Package etexcmds Info: Could not find \expanded.
-(etexcmds)             That can mean that you are not using pdfTeX 1.50 or
-(etexcmds)             that some package has redefined \expanded.
-(etexcmds)             In the latter case, load this package earlier.
-)))
-(/usr/local/texlive/2016/texmf-dist/tex/latex/float/float.sty
-Package: float 2001/11/08 v1.3d Float enhancements (AL)
-\c@float@type=\count120
-\float@exts=\toks40
-\float@box=\box35
-\@float@everytoks=\toks41
-\@floatcapt=\box36
-)
-(/usr/local/texlive/2016/texmf-dist/tex/latex/ifplatform/ifplatform.sty
-Package: ifplatform 2010/10/22 v0.4 Testing for the operating system
-
-(/usr/local/texlive/2016/texmf-dist/tex/generic/oberdiek/catchfile.sty
-Package: catchfile 2016/05/16 v1.7 Catch the contents of a file (HO)
-)
-runsystem(uname -s > "exam-s2.w18")...executed.
-
-
-(./exam-s2.w18)
-runsystem(rm -- "exam-s2.w18")...executed.
-
-)
-(/usr/local/texlive/2016/texmf-dist/tex/latex/etoolbox/etoolbox.sty
-Package: etoolbox 2015/08/02 v2.2a e-TeX tools for LaTeX (JAW)
-\etb@tempcnta=\count121
-)
-(/usr/local/texlive/2016/texmf-dist/tex/generic/xstring/xstring.sty
-(/usr/local/texlive/2016/texmf-dist/tex/generic/xstring/xstring.tex
-\@xs@message=\write6
-\integerpart=\count122
-\decimalpart=\count123
-)
-Package: xstring 2013/10/13  v1.7c  String manipulations (C Tellechea)
-)
-(/usr/local/texlive/2016/texmf-dist/tex/latex/lineno/lineno.sty
-Package: lineno 2005/11/02 line numbers on paragraphs v4.41
-\linenopenalty=\count124
-\output=\toks42
-\linenoprevgraf=\count125
-\linenumbersep=\dimen132
-\linenumberwidth=\dimen133
-\c@linenumber=\count126
-\c@pagewiselinenumber=\count127
-\c@LN@truepage=\count128
-\c@internallinenumber=\count129
-\c@internallinenumbers=\count130
-\quotelinenumbersep=\dimen134
-\bframerule=\dimen135
-\bframesep=\dimen136
-\bframebox=\box37
-LaTeX Info: Redefining \\ on input line 3056.
-)
-\minted@appexistsfile=\read4
-\FV@BreakIndent=\dimen137
-\FV@BreakSymbolSepLeft=\dimen138
-\FV@BreakSymbolSepRight=\dimen139
-\FV@BreakSymbolIndentLeft=\dimen140
-LaTeX Font Info:    Try loading font information for T1+txtt on input line 688.
-
-
-(/usr/local/texlive/2016/texmf-dist/tex/latex/txfonts/t1txtt.fd
-File: t1txtt.fd 2000/12/15 v3.1
-)
-\FV@BreakSymbolIndentRight=\dimen141
-\c@FancyVerbLineBreakLast=\count131
-\FV@LineBox=\box38
-\FV@LineIndentBox=\box39
-\minted@bgbox=\box40
-\minted@code=\write7
-\c@minted@FancyVerbLineTemp=\count132
-\@float@every@listing=\toks43
-\c@listing=\count133
-)
-runsystem(mkdir -p "_minted-exam-s2")...executed.
-
-
-(./_minted-exam-s2/default.pygstyle)
 (/usr/local/texlive/2016/texmf-dist/tex/latex/lastpage/lastpage.sty
 Package: lastpage 2015/03/29 v1.2m Refers to last page's name (HMM; JPG)
 )
@@ -1015,11 +923,7 @@ File: lstmisc.sty 2015/06/04 1.6 (Carsten Heinz)
 \Urlmuskip=\muskip11
 Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
 )
-\c@Exercice=\count134
-runsystem(which "pygmentize" && touch "exam-s2.aex")...executed.
-
-runsystem(rm "exam-s2.aex")...executed.
-
+\c@Exercice=\count120
  (./exam-s2.aux)
 \openout1 = `exam-s2.aux'.
 
@@ -1079,17 +983,17 @@ LaTeX Info: Redefining \up on input line 84.
 
 (/usr/local/texlive/2016/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count135
-\scratchdimen=\dimen142
-\scratchbox=\box41
-\nofMPsegments=\count136
-\nofMParguments=\count137
-\everyMPshowfont=\toks44
-\MPscratchCnt=\count138
-\MPscratchDim=\dimen143
-\MPnumerator=\count139
-\makeMPintoPDFobject=\count140
-\everyMPtoPDFconversion=\toks45
+\scratchcounter=\count121
+\scratchdimen=\dimen132
+\scratchbox=\box35
+\nofMPsegments=\count122
+\nofMParguments=\count123
+\everyMPshowfont=\toks40
+\MPscratchCnt=\count124
+\MPscratchDim=\dimen133
+\MPnumerator=\count125
+\makeMPintoPDFobject=\count126
+\everyMPtoPDFconversion=\toks41
 ) (/usr/local/texlive/2016/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
 Package: epstopdf-base 2016/05/15 v2.6 Base part for package epstopdf
 
@@ -1099,6 +1003,19 @@ Package: grfext 2016/05/16 v1.2 Manage graphics extensions (HO)
 (/usr/local/texlive/2016/texmf-dist/tex/generic/oberdiek/kvdefinekeys.sty
 Package: kvdefinekeys 2016/05/16 v1.4 Define keys (HO)
 ))
+(/usr/local/texlive/2016/texmf-dist/tex/latex/oberdiek/kvoptions.sty
+Package: kvoptions 2016/05/16 v3.12 Key value format for package options (HO)
+
+(/usr/local/texlive/2016/texmf-dist/tex/generic/oberdiek/kvsetkeys.sty
+Package: kvsetkeys 2016/05/16 v1.17 Key value parser (HO)
+
+(/usr/local/texlive/2016/texmf-dist/tex/generic/oberdiek/etexcmds.sty
+Package: etexcmds 2016/05/16 v1.6 Avoid name clashes with e-TeX commands (HO)
+Package etexcmds Info: Could not find \expanded.
+(etexcmds)             That can mean that you are not using pdfTeX 1.50 or
+(etexcmds)             that some package has redefined \expanded.
+(etexcmds)             In the latter case, load this package earlier.
+)))
 Package grfext Info: Graphics extension search list:
 (grfext)             [.png,.pdf,.jpg,.mps,.jpeg,.jbig2,.jb2,.PNG,.PDF,.JPG,.JPE
 G,.JBIG2,.JB2,.eps]
@@ -1108,8 +1025,8 @@ G,.JBIG2,.JB2,.eps]
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
-\c@lstlisting=\count141
-\AtBeginShipoutBox=\box42
+\c@lstlisting=\count127
+\AtBeginShipoutBox=\box36
 
 (/usr/local/texlive/2016/texmf-dist/tex/latex/oberdiek/pdflscape.sty
 Package: pdflscape 2016/05/14 v0.11 Display of landscape pages in PDF (HO)
@@ -1122,7 +1039,6 @@ Package pdflscape Info: Auto-detected driver: pdftex on input line 81.
 (/usr/local/texlive/2016/texmf-dist/tex/generic/ifxetex/ifxetex.sty
 Package: ifxetex 2010/09/12 v0.6 Provides ifxetex conditional
 ))
-(./_minted-exam-s2/default-pyg-prefix.pygstyle)
 Package lastpage Info: Please have a look at the pageslts package at
 (lastpage)             https://www.ctan.org/pkg/pageslts
 (lastpage)             ! on input line 84.
@@ -1160,206 +1076,74 @@ File: utxsyc.fd 2000/12/15 v3.1
 File: exam-21-presseuber.pdf Graphic file (type pdf)
 
 <use exam-21-presseuber.pdf>
-Package pdftex.def Info: exam-21-presseuber.pdf used on input line 104.
+Package pdftex.def Info: exam-21-presseuber.pdf used on input line 117.
 (pdftex.def)             Requested size: 341.43306pt x 82.4291pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 140--150
+Underfull \hbox (badness 10000) in paragraph at lines 153--163
 [][]
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 154--163
+Underfull \hbox (badness 10000) in paragraph at lines 167--176
 [][]
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 165--174
+Underfull \hbox (badness 10000) in paragraph at lines 178--187
 [][]
  []
 
-\openout4 = `exam-s2.pyg'.
-
-runsystem(pygmentize -l json -f latex -P commandprefix=PYG -F tokenmerge -o "_m
-inted-exam-s2/FB928EBB94DFEC97378607E3E2FE3CABCFDD5D6AE931F93736E33CFDD99301F0.
-pygtex" "exam-s2.pyg" )...executed.
-
-
-! Package minted Error: Missing Pygments output; \inputminted was
-probably given a file that does not exist--otherwise, you may need 
-the outputdir package option, or may be using an incompatible build tool.
-
-See the minted package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.199     \end{minted}
-                      
-? 
 [1
 
 {/usr/local/texlive/2016/texmf-var/fonts/map/pdftex/updmap/pdftex.map} <./exam-
 21-presseuber.pdf>]
-\openout4 = `exam-s2.pyg'.
-
-runsystem(pygmentize -l json -f latex -P commandprefix=PYG -F tokenmerge -o "_m
-inted-exam-s2/1742EA356818E21FD3A37764A6372C58CFDD5D6AE931F93736E33CFDD99301F0.
-pygtex" "exam-s2.pyg" )...executed.
+LaTeX Font Info:    Try loading font information for T1+txtt on input line 198.
 
 
+(/usr/local/texlive/2016/texmf-dist/tex/latex/txfonts/t1txtt.fd
+File: t1txtt.fd 2000/12/15 v3.1
+) [2]
+Overfull \hbox (10.1559pt too wide) in paragraph at lines 274--274
+ []         \T1/txtt/m/n/10 // On va s'épargner le petit algo de regroupement d
+es auteurs sur le titre[] 
+ []
 
-! Package minted Error: Missing Pygments output; \inputminted was
-probably given a file that does not exist--otherwise, you may need 
-the outputdir package option, or may be using an incompatible build tool.
-
-See the minted package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.225     \end{minted}
-                      
-? 
-\openout4 = `exam-s2.pyg'.
-
-runsystem(pygmentize -l javascript -f latex -P commandprefix=PYG -F tokenmerge 
--o "_minted-exam-s2/4E86FEF37B81671C1FA58D0289AF81FB48F6B2C162DAC64DBEF18DC55A1
-F36AE.pygtex" "exam-s2.pyg" )...executed.
+[3]
+Overfull \hbox (29.6522pt too wide) in paragraph at lines 353--353
+ []\T1/txtt/m/n/10.95 articlesComplet = cogroup articleEtAuteur by ref, Diffusi
+ons by refArticle;[] 
+ []
 
 
-! Package minted Error: Missing Pygments output; \inputminted was
-probably given a file that does not exist--otherwise, you may need 
-the outputdir package option, or may be using an incompatible build tool.
+Overfull \hbox (31.15584pt too wide) in paragraph at lines 409--409
+ []               \T1/txtt/m/n/10 .reduce( (accum, lecture) => (accum.ref, accu
+m + lecture.contribution) }[] 
+ []
 
-See the minted package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.252     \end{minted}
-                      
-? 
-\openout4 = `exam-s2.pyg'.
-
-runsystem(pygmentize -l javascript -f latex -P commandprefix=PYG -F tokenmerge 
--o "_minted-exam-s2/13F7FD382B2663AD53BECB14F91CA35F48F6B2C162DAC64DBEF18DC55A1
-F36AE.pygtex" "exam-s2.pyg" )...executed.
-
-
-! Package minted Error: Missing Pygments output; \inputminted was
-probably given a file that does not exist--otherwise, you may need 
-the outputdir package option, or may be using an incompatible build tool.
-
-See the minted package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.266     \end{minted}
-                      
-? 
-\openout4 = `exam-s2.pyg'.
-
-runsystem(pygmentize -l javascript -f latex -P commandprefix=PYG -F tokenmerge 
--o "_minted-exam-s2/83E5577F88296E2316DF06418438B9DD48F6B2C162DAC64DBEF18DC55A1
-F36AE.pygtex" "exam-s2.pyg" )...executed.
-
-
-! Package minted Error: Missing Pygments output; \inputminted was
-probably given a file that does not exist--otherwise, you may need 
-the outputdir package option, or may be using an incompatible build tool.
-
-See the minted package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.282     \end{minted}
-                      
-? 
-\openout4 = `exam-s2.pyg'.
-
-runsystem(pygmentize -l javascript -f latex -P commandprefix=PYG -F tokenmerge 
--o "_minted-exam-s2/BABB9D1E298AEA3238DDF0A8D72FBBEF48F6B2C162DAC64DBEF18DC55A1
-F36AE.pygtex" "exam-s2.pyg" )...executed.
-
-
-! Package minted Error: Missing Pygments output; \inputminted was
-probably given a file that does not exist--otherwise, you may need 
-the outputdir package option, or may be using an incompatible build tool.
-
-See the minted package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.289     \end{minted}
-                      
-? 
-\openout4 = `exam-s2.pyg'.
-
-runsystem(pygmentize -l javascript -f latex -P commandprefix=PYG -F tokenmerge 
--o "_minted-exam-s2/1D2B3CCB8E7BB39233F12AAA45A1D44348F6B2C162DAC64DBEF18DC55A1
-F36AE.pygtex" "exam-s2.pyg" )...executed.
-
-
-! Package minted Error: Missing Pygments output; \inputminted was
-probably given a file that does not exist--otherwise, you may need 
-the outputdir package option, or may be using an incompatible build tool.
-
-See the minted package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.296     \end{minted}
-                      
-? 
-\openout4 = `exam-s2.pyg'.
-
-runsystem(pygmentize -l json -f latex -P commandprefix=PYG -F tokenmerge -o "_m
-inted-exam-s2/8794DDAC396943660CF82106B7B83C30CFDD5D6AE931F93736E33CFDD99301F0.
-pygtex" "exam-s2.pyg" )...executed.
-
-
-! Package minted Error: Missing Pygments output; \inputminted was
-probably given a file that does not exist--otherwise, you may need 
-the outputdir package option, or may be using an incompatible build tool.
-
-See the minted package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.314     \end{minted}
-                      
-? 
-\openout4 = `exam-s2.pyg'.
-
-runsystem(pygmentize -l sql -f latex -P commandprefix=PYG -F tokenmerge -o "_mi
-nted-exam-s2/4AE2FDF6C4DF5B67BA9ADE4B88968E1C20EA2CFA0FC93DCC29683FFB7C77C9BE.p
-ygtex" "exam-s2.pyg" )...executed.
-
-
-! Package minted Error: Missing Pygments output; \inputminted was
-probably given a file that does not exist--otherwise, you may need 
-the outputdir package option, or may be using an incompatible build tool.
-
-See the minted package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.334 \end{minted}
-                  
-? 
-! Emergency stop.
- ...                                              
-                                                  
-l.334 \end{minted}
-                  
-This could be caused by using -output-directory or -aux-directory 
-without setting minted's outputdir, or by using a build tool that 
-changes paths in ways minted cannot detect.
-
- 
+[4] [5] 
+AED: lastpage setting LastPage
+[6] (./exam-s2.aux) ) 
 Here is how much of TeX's memory you used:
- 10121 strings out of 493014
- 153531 string characters out of 6133350
- 276490 words of memory out of 5000000
- 13361 multiletter control sequences out of 15000+600000
- 45316 words of font info for 83 fonts, out of 8000000 for 9000
+ 8316 strings out of 493014
+ 115100 string characters out of 6133350
+ 204569 words of memory out of 5000000
+ 11605 multiletter control sequences out of 15000+600000
+ 47194 words of font info for 87 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 36i,8n,49p,797b,439s stack positions out of 5000i,500n,10000p,200000b,80000s
-!  ==> Fatal error occurred, no output PDF file produced!
+ 38i,9n,49p,247b,439s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/local/texlive/2016/texmf-dist/fonts/enc/dvips/base/8
+r.enc}</usr/local/texlive/2016/texmf-dist/fonts/type1/public/txfonts/rtxmi.pfb>
+</usr/local/texlive/2016/texmf-dist/fonts/type1/public/txfonts/rtxr.pfb></usr/l
+ocal/texlive/2016/texmf-dist/fonts/type1/public/txfonts/rtxsc.pfb></usr/local/t
+exlive/2016/texmf-dist/fonts/type1/public/txfonts/t1xtt.pfb></usr/local/texlive
+/2016/texmf-dist/fonts/type1/public/txfonts/txsy.pfb></usr/local/texlive/2016/t
+exmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2016/texmf-dist/
+fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2016/texmf-dist/fonts/type
+1/urw/times/utmri8a.pfb>
+Output written on exam-s2.pdf (6 pages, 80449 bytes).
+PDF statistics:
+ 79 PDF objects out of 1000 (max. 8388607)
+ 56 compressed objects within 1 object stream
+ 0 named destinations out of 1000 (max. 500000)
+ 6 words of extra memory for PDF output out of 10000 (max. 10000000)
+
