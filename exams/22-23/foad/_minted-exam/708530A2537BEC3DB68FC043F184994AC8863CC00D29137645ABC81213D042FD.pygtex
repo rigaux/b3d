@@ -1,8 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{k}{case} \PYG{k}{class} \PYG{n+nc}{Lecture}\PYG{o}{(}\PYG{n}{refArticle}\PYG{k}{:} \PYG{k+kt}{String}\PYG{o}{,} \PYG{n}{contribution}\PYG{k}{:} \PYG{k+kt}{float}\PYG{o}{)}
-\PYG{k}{val} \PYG{n}{w} \PYG{k}{=} \PYG{n}{lectures}\PYG{o}{.}\PYG{n}{keyBy}\PYG{o}{(}\PYG{l+s}{\PYGZdq{}refArticle\PYGZdq{}}\PYG{o}{)} \PYG{c+c1}{// Regroupement par article}
-               \PYG{o}{.}\PYG{n}{window}\PYG{o}{(}\PYG{l+m+mi}{6}\PYG{o}{*}\PYG{l+m+mi}{60}\PYG{o}{*}\PYG{l+m+mi}{60}\PYG{o}{)} \PYG{c+c1}{// Si on exprime en secondes}
-               \PYG{o}{.}\PYG{n}{reduce}\PYG{o}{(} \PYG{o}{(}\PYG{n}{accum}\PYG{o}{,} \PYG{n}{lecture}\PYG{o}{)} \PYG{k}{=\PYGZgt{}} \PYG{o}{(}\PYG{n}{accum}\PYG{o}{.}\PYG{n}{ref}\PYG{o}{,} \PYG{n}{accum} \PYG{o}{+} \PYG{n}{lecture}\PYG{o}{.}\PYG{n}{contribution}\PYG{o}{)} \PYG{o}{\PYGZcb{}}
-               \PYG{o}{.}\PYG{n}{print}\PYG{o}{()}
-\PYG{n}{senv}\PYG{o}{.}\PYG{n}{execute}\PYG{o}{(}\PYG{l+s}{\PYGZdq{}\PYGZdq{}}\PYG{o}{)}
-\end{Verbatim}
