@@ -1,8 +1,8 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.12.16)  4 JUN 2023 14:28
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.12.16)  11 JUL 2023 09:46
 entering extended mode
  \write18 enabled.
  %&-line parsing enabled.
-**exam-s1.tex
+**exam-s1
 (./exam-s1.tex
 LaTeX2e <2016/03/31>
 Babel <3.9r> and hyphenation patterns for 83 language(s) loaded.
@@ -1011,7 +1011,6 @@ File: lstlang1.sty 2015/06/04 1.6 listings language file
 (/usr/local/texlive/2016/texmf-dist/tex/latex/listings/lstmisc.sty
 File: lstmisc.sty 2015/06/04 1.6 (Carsten Heinz)
 )
-Excluding comment 'solution'
 (/usr/local/texlive/2016/texmf-dist/tex/latex/url/url.sty
 \Urlmuskip=\muskip11
 Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
@@ -1191,34 +1190,31 @@ Overfull \hbox (9.28764pt too wide) in paragraph at lines 236--244
 [][] 
  []
 
-[2] Excluding 'solution' comment. Excluding 'solution' comment.
-Excluding 'solution' comment. Excluding 'solution' comment.
-Excluding 'solution' comment. Excluding 'solution' comment.
-Excluding 'solution' comment. [3] Excluding 'solution' comment.
-Excluding 'solution' comment. 
+[2] [3] 
 AED: lastpage setting LastPage
 [4] (./exam-s1.aux) ) 
 Here is how much of TeX's memory you used:
- 10098 strings out of 493014
- 151592 string characters out of 6133350
+ 10100 strings out of 493014
+ 151607 string characters out of 6133350
  278490 words of memory out of 5000000
- 13343 multiletter control sequences out of 15000+600000
+ 13345 multiletter control sequences out of 15000+600000
  48527 words of font info for 87 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 36i,9n,49p,797b,439s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 36i,9n,49p,793b,439s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2016/texmf-dist/fonts/enc/dvips/base/8
 r.enc}</usr/local/texlive/2016/texmf-dist/fonts/type1/public/txfonts/rtxi.pfb><
 /usr/local/texlive/2016/texmf-dist/fonts/type1/public/txfonts/rtxmi.pfb></usr/l
 ocal/texlive/2016/texmf-dist/fonts/type1/public/txfonts/rtxr.pfb></usr/local/te
 xlive/2016/texmf-dist/fonts/type1/public/txfonts/rtxsc.pfb></usr/local/texlive/
 2016/texmf-dist/fonts/type1/public/txfonts/t1xtt.pfb></usr/local/texlive/2016/t
-exmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2016/texmf-dist/
-fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2016/texmf-dist/fonts/type
-1/urw/times/utmri8a.pfb>
-Output written on exam-s1.pdf (4 pages, 79340 bytes).
+exmf-dist/fonts/type1/public/txfonts/txsy.pfb></usr/local/texlive/2016/texmf-di
+st/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2016/texmf-dist/fonts/t
+ype1/urw/times/utmr8a.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/urw/t
+imes/utmri8a.pfb>
+Output written on exam-s1.pdf (4 pages, 84430 bytes).
 PDF statistics:
- 73 PDF objects out of 1000 (max. 8388607)
- 52 compressed objects within 1 object stream
+ 77 PDF objects out of 1000 (max. 8388607)
+ 55 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  6 words of extra memory for PDF output out of 10000 (max. 10000000)
 
