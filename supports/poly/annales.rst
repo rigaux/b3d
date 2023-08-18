@@ -311,8 +311,8 @@ Voici quelques analyses à exprimer avec MapReduce et Pig.
     Donnez le pseudo-code de chaque
     fonction, ou indiquez par un texte clair son déroulement.
 
-    Vous disposez d'une fonction *contains($texte, $mot)* qui renvoie vrai
-    si ``$texte`` contient ``$mot``. 
+    Vous disposez d'une fonction *contains(:math:`texte, :math:`mot)* qui renvoie vrai
+    si ``:math:`texte`` contient ``:math:`mot``. 
 
  #. Quel est le programme Pig qui exprime ce traitement MapReduce?
   
@@ -469,11 +469,11 @@ un document en entrée. Voici le pseudo-code.
 
 .. code-block:: bash
 
-    function fonctionMap ($doc) # doc est un document centré étudiant 
+    function fonctionMap (:math:`doc) # doc est un document centré étudiant 
     {
       # On parcourt les UEs du tableau UEs
-      for    [$ue in $doc.UEs] do 
-         emit ($ue.id, $doc.nom)
+      for    [:math:`ue in :math:`doc.UEs] do 
+         emit (:math:`ue.id, :math:`doc.nom)
       done 
     }
 
@@ -511,9 +511,9 @@ Il reste à appliquer la fonction de Reduce à chaque groupe.
 
 .. code-block:: bash
 
-    function fonctionReduce ($clé, $tableau) 
+    function fonctionReduce (:math:`clé, :math:`tableau) 
     {
-      return ($clé, count($tableau)
+      return (:math:`clé, count(:math:`tableau)
     }
 
 Et voilà.
@@ -1157,7 +1157,7 @@ dans une base :math:`DB_1`.
                     return ([pseudo, date], groupby (listeContacts))
                 }
 
-          Pour la base relationnelle, il faut une table des rencontres quotidiennes\,:
+          Pour la base relationnelle, il faut une table des rencontres quotidiennes :
            
           .. code-block:: sql
 
@@ -1347,9 +1347,9 @@ ces mêmes contacts.
                 jojoXYZ, 1/3, 2/3,   0,  0  
                 Ubbdyu,    1,  0, 0, 0  
 
-        - Voir figure :numref:`reseau-social`
+        - Voir figure :numref:`reseausocial`
 
-          .. _reseau-social:
+          .. _reseausocial:
           .. figure:: ../figures/reseau-social.png       
              :width: 70%
              :align: center
@@ -1360,7 +1360,7 @@ ces mêmes contacts.
           probabilité :math:`\frac{1}{3}` d'infecter  ``tat37HG``,  :math:`\frac{2}{3}` 
           d'infecter ``xuyh57``
       
-          Seconde étape\,: le vecteur est :math:`(1/3, 2/3, 0, 0)`. Si on part
+          Seconde étape : le vecteur est :math:`(1/3, 2/3, 0, 0)`. Si on part
           de ``tat37HG``, ça nous laisse  une probabilité :math:`\frac{3}{15}`
           d'infecter ``Ubbdyu``.
 
@@ -1478,4 +1478,254 @@ un document {"id": \&t5x, "lig": 2, "col": 1, "poids": 7}
     Pour illustrer le calcul, prenez la matrice :math:`4\times4` donnée en exemple, et le vecteur :math:`V = [4,3,2,1]`.
       
   - Expliquez pour finir comment calculer  la similarité cosinus entre :math:`V` et les :math:`L_i`. 
+
+
+**********************
+Examen du 28 juin 2023
+**********************
+
+
+Première partie : modélisation NoSQL (7 pts)
+============================================
+
+
+Les articles de recherche universitaires sont maintenant gérés dans des dépôts
+d'archive, comme HAL en France. Posons-nous quelques questions sur le fonctionnement
+d'une telle archive.
+Un modèle très sommaire du dépôt est donné dans la figure ci-dessous. 
+Les chercheurs
+publient des articles (qui peuvent avoir plusieurs co-auteurs) et sont \emph{affiliés} à des organismes
+de recherche. Ces organismes sont hiérarchiquement structurés : un chercheur peut être
+attaché à une équipe (organisme de base), qui fait partie d'un laboratoire (organisme
+parent) qui lui-même fait partie d'un établissement (par exemple le Cnam), etc.
+
+
+.. _depothal:
+.. figure:: ../figures/exam-20-hal.png       
+        :width: 90%
+        :align: center
+   
+        Modèle (sommaire) du dépôt
+
+
+Voici également un tout petit échantillon de la base relationnelle.
+
+
+.. csv-table:: 
+	:header: "ref", "titre", "année"
+	:widths: 10, 20, 20             
+	
+	hal-875, Music modeling, 2018
+	hal-293, Recommendations on Twitter, 2019
+	
+La table ``Article``
+
+
+.. csv-table:: 
+	:header: "id", "nom", "affiliation"
+	:widths: 10, 20, 20
+	
+	nt,   Travers,  DVRC
+	pr,  Rigaux,  Vertigo 
+	rfs,  Fournier-S'niehotta,  Vertigo 
+	cdm,  du Mouza,  ISID 
+	
+La table ``Chercheur``
+
+.. csv-table:: 
+	:header: "refArticle", "idAuteur"
+	:widths: 20, 20          
+	
+	hal-875,  nt 
+	hal-293,  nt 
+	hal-875,  pr 
+	hal-875,  rfs 
+	hal-293,  cdm 
+
+La table ``Auteur``
+
+
+ - Proposez un format de document JSON représentant toutes les informations
+   relatives à l'article hal-875 présentes dans les trois tables ci-dessus (représentation A).
+
+ - Proposez un document JSON représentant toutes les
+   informations relatives à l'organisme Vertigo présentes dans 3 tables ci-dessus
+   (représentation B).
+
+ - Expliquez le calcul MapReduce permettant de produire les documents
+   B à partir des documents A.
+   **Important** : pour spécifier les calculs MapReduce, donner les fonctions de Map 
+   et de Reduce, en javascript,
+   en pseudo-code, au pire en langage naturel en étant le plus précis possible.
+
+ - Maintenant on prend en compte la table décrivant la hiérarchie des organismes,
+   dont voici un échantillon.
+   
+   .. csv-table:: 
+		:header: "id", "intitulé", "ville", "idParent"
+		:widths: 10, 20, 10, 10
+	
+		Vertigo ,  Données et apprentissage ,  Paris ,  cedric 
+		DVRC ,  Systèmes intelligents ,  Nanterre ,  De Vinci 
+		ISID ,  Systèmes d'information ,  Paris ,   cedric
+		cedric ,  Centre informatique  ,  Paris ,   Cnam
+
+
+   Dessinez cette hiérarchie, et proposez une modélisation JSON pour ajouter l'information
+   sur les organismes dans la représentation B. Illustrez cette modélisation
+   sur le document "Vertigo" de la seconde question.
+
+ - Les références bibliographiques sont gérées depuis des dizaines d'années dans
+   un format texte dit Bibtex. Voici par exemple
+   un document Bibtex représentant un article.
+
+   .. code-block:: text
+
+		@article{frt-02435620,
+		  TITLE = {{Modeling Music as Synchronized Time Series}},
+			AUTHOR = {Fournier-S'niehotta, Raphael and Rigaux, Philippe and Travers, Nicolas},
+			URL = {https://hal-cnam.archives-ouvertes.fr/hal-02435620},
+			JOURNAL = {{Information Systems}},
+			PUBLISHER = {{Elsevier}},
+			VOLUME = {73},
+			PAGES = {35-49},
+			YEAR = {2018},
+		}
+   
+   
+   Comment qualifieriez-vous ce format par rapport à JSON ? Voyez-vous
+   des inconvénients, des avantages, à cette représentation ?
+
+
+Deuxième partie : recherche d'information (7 pts)
+=================================================
+
+Les articles ont des résumés, et on va construire un index sur ces résumés à des fins
+de classification et d'analyse. Voici un extrait des résumés de 5 articles
+:math:`A_1, ..., A_5`.
+
+
+	- :math:`A_1` : Cet article compare les stratégies d'optimisation des échanges réseaux entre processeurs
+	- :math:`A_2` : Un orchestre moderne doit savoir maîtriser une harmonie atonale
+	- :math:`A_3` : Comparaison entre les propriétés des réseaux filaires et des réseaux optiques
+	- :math:`A_4` : Pourquoi un processeur quantique ne peut surmonter un processeur standard qu'en présence d'un réseau performant
+	- :math:`A_5`   Mozart est-il mieux servi par un orchestre de chambre ou un orchestre philarmonique?
+
+On va se limiter au vocabulaire (\texttt{harmonie, processeur, réseau, orchestre}).
+(NB: on suppose
+une phase préalable de normalisation qui élimine les pluriels, majuscules, etc.)
+
+ - Donnez une matrice d'incidence contenant les tf,
+   et un tableau donnant les idf (sans le :math:`\log`), pour les  termes précédents. Placez
+   les termes en ligne, les résumés en colonne.
+
+   .. csv-table:: 
+		:header: " ", "A1", "A2", "A3", "A4", "A5"
+		:widths: 25, 10, 10, 10, 10, 10
+
+		harmonie 5/1   , 0           , 1           , 0          , 0         , 0
+		processeur  5/2  , 1           , 0           , 0           , 2        , 0
+		réseau  5/3  , 1           , 0           , 2          , 1         , 0
+		orchestre 5/2  , 0           , 1           , 0           , 0        , 2
+
+
+   Donnez les normes des vecteurs représentant ces résumés.
+   
+\begin{solution}
+
+  - Les normes: 
+  
+     - :math:`||A_1|| = \sqrt{2}`; 
+     - :math:`||A_2|| = \sqrt{2}`; 
+     - :math:`||A_3|| = \sqrt{2}`;
+     - :math:`||A_4|| = \sqrt{5}` 
+     - :math:`||A_5|| = \sqrt{4}`
+
+\end{solution}
+
+ - Dans un espace vectoriel à deux dimensions avec "processeur" en abcisse
+   et "réseau" en ordonnée, placez les vecteurs représentant nos documents.
+
+ - Donner les résultats classés par similarité cosinus basée sur les tf
+   (on ignore l'idf) pour les requêtes suivantes. Detaillez les calculs.
+
+	- processeur et réseau
+	- harmonie et orchestre
+  
+ - Sans calcul, indiquez quel document est classé en tête pour la requête
+   avec le seul mot "réseau", et expliquez pourquoi.
+
+Troisième partie : systèmes distribués (5 pts)
+==============================================
+
+Voici quelques aspects d'Elastic Search qui devraient vous être familiers, 
+et d'autres qui n'ont pas été abordés en cours
+
+La documentation nous dit :
+*When you index a document, it is stored on a single 
+primary shard determined by a simple formula* : :math:`shard = hash(id) \%\ \rm{number\_of\_primary\_shards}`
+    
+Voici la configuration initiale de votre *cluster* 
+ElasticSearch pour les questions qui suivent 
+(rappel: réplica = :math:`n` signifie :math:`n+1` copies d'un document).
+
+	- Nombre de fragments (*{shards*) : 3
+	- Nombre de réplicas : 2
+
+Et je crée un index. Chacune des questions ci-dessous vaut 
+1 point. Une brève explication sera appréciée.
+
+ - Est-ce que mon *cluster* peut être constitué d'un seul nœud (un seul serveur) ?
+ 
+   Oui, mais l'index sera en situation périlleuse puisqu'il manquera deux serveurs pour 
+   héberger les réplicas. Autre réponse : non car il faut stocker les réplicas 
+   sur des serveurs distincts.
+
+ - Est-ce que je peux augmenter le nombre de *shards* sans récréer l'index ?
+
+   Non, c'est du hachage statique, toute affectation à un fragment est définitive, sauf à reconstituer l'index.
+
+ - Est-ce que je peux augmenter le nombre de réplicas ?
+
+   Oui, aucun problème, à condition d'avoir assez de serveurs sinon ça n'a pas vraiment de sens.
+
+ - Est-ce que je peux ajouter des nœuds à mon *cluster* ?
+
+   Oui, ça peut améliorer la distribution des fragments.
+
+ - Si oui, à partir de quand est-ce que ça ne sert plus à rien d'ajouter des 
+   nœuds, en prenant  en compte la configuration initiale ?
+
+   Quand on a un fragment par serveur, ça ne sert à rien d'en ajouter. 
+   Donc :math:`3*(2+1)=9` serveurs.
+
+Un dernier point à gagner. Un de vos collègues vous affirme qu'il vaut mieux
+créer un index avec beaucoup de *shards*, pour anticiper la croissance future. Voici
+un argument contre ce choix, issu de la documentation.
+*Term statistics, used to calculate relevance, are per shard. Having a small amount of 
+data in many shards leads to poor relevance.}*
+
+Que répondeez-vous à votre collègue?
+
+Quatrième partie : questions de cours (2 pts)
+=============================================
+
+Nous avons vu que dans un système comme cassandra, on pouvait régler des paramètres
+:math:`W `(acquittements en écriture) et :math:`R` (acquittements en lecture). 
+
+Ce réglage correspond à la recherche d'un compromis, mais entre quelles propriétés ?  
+Reprenez le théorème CAP et donnez des réponses argumentées aux questions suivantes :
+
+
+ - Si :math:`W `est fixé à :math:`1`, quelle(s) propriété(s) est/sont sacrifiée(s) avec une faible valeur de :math:`R` ? 
+   Et avec la valeur de :math:`R` maximale ?
+
+   Si :math:`R` est faible, on sacrifie la cohérence car on augmente la probabilité de lire une valeur obsolète.
+   En augmentant :math:`R` on améliore la cohérence, mais on diminue la disponibilité et la tolérance.
+
+ - Si :math:`W` est fixé à la valeur maximale, le choix de :math:`R` 
+   influe-t-il sur les propriétés CAP ? 
+
+   Non, si on a réussi à faire l'écriture aevc tous les acquittements, toute lecture ramène une valeur cohérente,
+   la disponibilité et la tolérance sont aussi maximales.
 
