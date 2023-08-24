@@ -93,7 +93,8 @@ def setup(app):
     app.add_config_value('pasfini', '', True)
     app.add_config_value('annales18', '', True)
     app.add_config_value('annales20', '', True)
-
+    app.add_config_value('annales23', '', True)
+	
 docstruct = 'public'
 mongoquery = 'public'
 mongomapreduce = 'public'
@@ -117,6 +118,7 @@ flink2 = 'public'
 pigtp = 'public'
 annales18 = 'public'
 annales20 = 'public'
+annales23 = 'public'
 pasfini = 'public'
 
 

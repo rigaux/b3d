@@ -1619,29 +1619,31 @@ une phase préalable de normalisation qui élimine les pluriels, majuscules, etc
    et un tableau donnant les idf (sans le :math:`\log`), pour les  termes précédents. Placez
    les termes en ligne, les résumés en colonne.
 
-   .. csv-table:: 
-		:header: " ", "A1", "A2", "A3", "A4", "A5"
-		:widths: 25, 10, 10, 10, 10, 10
 
-		harmonie 5/1   , 0           , 1           , 0          , 0         , 0
-		processeur  5/2  , 1           , 0           , 0           , 2        , 0
-		réseau  5/3  , 1           , 0           , 2          , 1         , 0
-		orchestre 5/2  , 0           , 1           , 0           , 0        , 2
+   .. ifconfig:: annales23 in ('public')
 
+		.. admonition:: Correction
+
+			.. csv-table:: 
+				:header: " ", "A1", "A2", "A3", "A4", "A5"
+				:widths: 25, 10, 10, 10, 10, 10
+
+				harmonie 5/1   , 0           , 1           , 0          , 0         , 0
+				processeur  5/2  , 1           , 0           , 0           , 2        , 0
+				réseau  5/3  , 1           , 0           , 2          , 1         , 0
+				orchestre 5/2  , 0           , 1           , 0           , 0        , 2
 
    Donnez les normes des vecteurs représentant ces résumés.
-   
-\begin{solution}
+      
+   .. ifconfig:: annales23 in ('public')
 
-  - Les normes: 
-  
-     - :math:`||A_1|| = \sqrt{2}`; 
-     - :math:`||A_2|| = \sqrt{2}`; 
-     - :math:`||A_3|| = \sqrt{2}`;
-     - :math:`||A_4|| = \sqrt{5}` 
-     - :math:`||A_5|| = \sqrt{4}`
+		.. admonition:: Correction
 
-\end{solution}
+			- :math:`||A_1|| = \sqrt{2}`; 
+			- :math:`||A_2|| = \sqrt{2}`; 
+			- :math:`||A_3|| = \sqrt{2}`;
+			- :math:`||A_4|| = \sqrt{5}` 
+			- :math:`||A_5|| = \sqrt{4}`
 
  - Dans un espace vectoriel à deux dimensions avec "processeur" en abcisse
    et "réseau" en ordonnée, placez les vecteurs représentant nos documents.
@@ -1676,28 +1678,51 @@ Et je crée un index. Chacune des questions ci-dessous vaut
 1 point. Une brève explication sera appréciée.
 
  - Est-ce que mon *cluster* peut être constitué d'un seul nœud (un seul serveur) ?
- 
-   Oui, mais l'index sera en situation périlleuse puisqu'il manquera deux serveurs pour 
-   héberger les réplicas. Autre réponse : non car il faut stocker les réplicas 
-   sur des serveurs distincts.
+
+   .. ifconfig:: annales23 in ('public')
+
+		.. admonition:: Correction
+
+			Oui, mais l'index sera en situation périlleuse puisqu'il manquera deux serveurs pour 
+			héberger les réplicas. Autre réponse : non car il faut stocker les réplicas 
+			sur des serveurs distincts.
 
  - Est-ce que je peux augmenter le nombre de *shards* sans récréer l'index ?
 
-   Non, c'est du hachage statique, toute affectation à un fragment est définitive, sauf à reconstituer l'index.
+
+   .. ifconfig:: annales23 in ('public')
+
+		.. admonition:: Correction
+
+			Non, c'est du hachage statique, toute affectation à un fragment est définitive, sauf à reconstituer l'index.
 
  - Est-ce que je peux augmenter le nombre de réplicas ?
 
-   Oui, aucun problème, à condition d'avoir assez de serveurs sinon ça n'a pas vraiment de sens.
+
+   .. ifconfig:: annales23 in ('public')
+
+		.. admonition:: Correction
+
+			Oui, aucun problème, à condition d'avoir assez de serveurs sinon ça n'a pas vraiment de sens.
 
  - Est-ce que je peux ajouter des nœuds à mon *cluster* ?
 
-   Oui, ça peut améliorer la distribution des fragments.
+   .. ifconfig:: annales23 in ('public')
+
+		.. admonition:: Correction
+		
+			Oui, ça peut améliorer la distribution des fragments.
 
  - Si oui, à partir de quand est-ce que ça ne sert plus à rien d'ajouter des 
    nœuds, en prenant  en compte la configuration initiale ?
 
-   Quand on a un fragment par serveur, ça ne sert à rien d'en ajouter. 
-   Donc :math:`3*(2+1)=9` serveurs.
+
+   .. ifconfig:: annales23 in ('public')
+
+		.. admonition:: Correction
+
+			Quand on a un fragment par serveur, ça ne sert à rien d'en ajouter. 
+			Donc :math:`3*(2+1)=9` serveurs.
 
 Un dernier point à gagner. Un de vos collègues vous affirme qu'il vaut mieux
 créer un index avec beaucoup de *shards*, pour anticiper la croissance future. Voici
@@ -1705,7 +1730,7 @@ un argument contre ce choix, issu de la documentation.
 *Term statistics, used to calculate relevance, are per shard. Having a small amount of 
 data in many shards leads to poor relevance.}*
 
-Que répondeez-vous à votre collègue?
+Que répondez-vous à votre collègue?
 
 Quatrième partie : questions de cours (2 pts)
 =============================================
@@ -1720,12 +1745,20 @@ Reprenez le théorème CAP et donnez des réponses argumentées aux questions su
  - Si :math:`W `est fixé à :math:`1`, quelle(s) propriété(s) est/sont sacrifiée(s) avec une faible valeur de :math:`R` ? 
    Et avec la valeur de :math:`R` maximale ?
 
-   Si :math:`R` est faible, on sacrifie la cohérence car on augmente la probabilité de lire une valeur obsolète.
-   En augmentant :math:`R` on améliore la cohérence, mais on diminue la disponibilité et la tolérance.
+   .. ifconfig:: annales23 in ('public')
+
+		.. admonition:: Correction
+
+			Si :math:`R` est faible, on sacrifie la cohérence car on augmente la probabilité de lire une valeur obsolète.
+			En augmentant :math:`R` on améliore la cohérence, mais on diminue la disponibilité et la tolérance.
 
  - Si :math:`W` est fixé à la valeur maximale, le choix de :math:`R` 
    influe-t-il sur les propriétés CAP ? 
 
-   Non, si on a réussi à faire l'écriture aevc tous les acquittements, toute lecture ramène une valeur cohérente,
-   la disponibilité et la tolérance sont aussi maximales.
+   .. ifconfig:: annales23 in ('public')
+
+		.. admonition:: Correction
+
+			Non, si on a réussi à faire l'écriture aevc tous les acquittements, toute lecture ramène une valeur cohérente,
+			la disponibilité et la tolérance sont aussi maximales.
 
