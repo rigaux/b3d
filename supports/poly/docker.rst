@@ -19,14 +19,14 @@ d'émuler un système distribué de serveurs.
 Un *serveur* est une entité
 qui fournit un service (!). Concrètement:
 
-  - un *serveur machine* est un ordinateur, tournant sous un système d'exploitation,
+  - un *serveur (machine)* est un ordinateur, tournant sous un système d'exploitation,
     et connecté en permanence au réseau via des *ports*; un serveur machine est
     identifiable sur le réseau par son adresse IP.
-  - un *serveur logiciel* est un processus exécuté en tâche de fond d'un serveur machine qui
+  - un *serveur (logiciel)*, ou *service*, est un processus exécuté en tâche de fond d'un serveur machine qui
     communique avec des *clients (logiciels)* via un port particulier.
-  - un *système distribué* est constitué de plusieurs serveurs qui communiquent les uns
-    avec les autres.
-  - un *client (logiciel)* est un programme qui communique avec un serveur (logiciel);
+  - un *système distribué* est constitué de plusieurs services qui communiquent les uns
+    avec les autres ; ces services peuvent ou non être répartis sur plusieurs serveurs-machine.
+  - un *client (logiciel)* est un programme qui communique avec un service;
   - une *machine virtuelle* est un programme qui simule, sur une machine hôte,
     un autre ordinateur.
     
@@ -104,7 +104,7 @@ faut, à chaque fois, faire tourner un système d'exploitation complet, avec tou
 ce que cela implique, en terme d'emprise mémoire notamment.
 
 Docker propose une solution beaucoup plus légère, basée sur la capacité
-du système Linux à créer des espaces isolés auxquels on affecte une partie
+du système Linux (généralisée à Mac OS et Windows) à créer des espaces isolés auxquels on affecte une partie
 des ressources de la machine-hôte. Ces espaces, ou *containers* partitionnent
 en quelque sorte le système-hôte en sous-systèmes étanches, au sein desquels 
 le nommage (des processus, des utilisateurs, des ports réseaux) est purement local.
@@ -114,9 +114,9 @@ sans conflit ni confusion.
 Tous les nommages sont en quelque sorte interprétés par rapport à un container donné (notion
 *d'espace de nom*). 
 
-*Les conteneurs Linux sont beaucoup plus légers en consommation de ressources que 
+*Les conteneurs sont beaucoup plus légers en consommation de ressources que 
 les VMs, puisqu'ils s'exécutent au sein d'un unique système d'exploitation*. Docker
-exploite cette spécificité du système Linux pour proposer un mode de virtualisation
+exploite cette spécificité pour proposer un mode de virtualisation
 (que nous avons appelé "pseudo-serveur" en préambule) léger et flexible.
 
 Docker et ses conteneurs
@@ -129,7 +129,7 @@ Un peu de vocabulaire: dans tout ce qui suit,
 
   - Le *système hôte* est le système d'exploitation principal gérant votre machine ;
     c'est par exemple Windows, ou Mac OS.
-  - *Docker engine* ou *moteur docker*  est le programme qui gère les conteneurs; 
+  - *Docker engine* ou *moteur docker*  est le programme qui gère les conteneurs.
   - Un *conteneur* est une partie autonome du système hôte, se comportant comme une
     machine indépendante.
   - Le *client Docker* est l'utilitaire  grâce auquel on transmet au moteur 
@@ -189,7 +189,7 @@ est donc accessible à l'adresse IPb, sur le port 3306, le second
  
 .. important:: Le *docker engine* implante un système automatique
    de "renvoi" qui "publie" le service d'un conteneur sur 
-   le port correspondant du sysème hôte. Le premier
+   le port correspondant du système hôte. Le premier
    conteneur MySQL par exemple est *aussi* accessible sur le port 3306
    de la machine hôte. Pour le second, ce n'est pas possible car le port
    est déjà occupé, et il faut donc configurer manuellement ce renvoi:
@@ -320,7 +320,7 @@ l'arrêter  avec la commande ``stop``.
    
      docker stop d1c2291dc9f9
      
-Arrêter un conteneur ne signifie par qu'il n'existe plus, mais qu'il n'est plus actif. 
+Arrêter un conteneur ne signifie pas qu'il n'existe plus, mais qu'il n'est plus actif. 
 On peut le relancer avec la commande ``start``.
 
 .. code-block:: bash
@@ -348,7 +348,7 @@ Installons un serveur Web
 Testons Docker avec un des services les plus simples qui soient: un serveur web,
 Apache. 
 La démarche générale pour une installation
-consiste à cherche l'image qui vous convient sur le site https://hub.docker.com qui donne
+consiste à chercher l'image qui vous convient sur le site https://hub.docker.com qui donne
 accès au catalogue des images Docker fournies par la communauté des utilisateurs. 
    
 
@@ -388,8 +388,6 @@ la commande suivante:
 Voici les options choisies:
 
    - ``name`` est le nom du conteneur: il peut remplacer l'id du conteneur quand on veut l'arrêter / le relancer, etc.
-   - ``-e`` est une option: ici on autorise le lancement d'un serveur MySQL sans mot de passe pour le compte 'ROOT' 
-     ce qui est interdit par défaut
    - ``--detach``  (ou ``-d``) indique que le conteneur
      est lancé en tâche de fond, ce qui évite de bloquer le terminal
    - on indique enfin l'image à utiliser, ainsi que la version: prenez ``latest`` (ou ne précisez rien)
@@ -417,7 +415,7 @@ du conteneur.
 
 Notez que le serveur web est accessible sur le port 80 de la machine sur laquelle 
 le *Docker Desktop*
-a été lancée, soit ``localhost``. Comment est-ce possible alors que nous avons dit que 
+a été lancée, soit ``localhost``. Comment est-ce possible alors que nous avons dit 
 que chaque conteneur était une petite machine indépendante et disposait donc 
 de sa propre adresse IP? La réponse est que le Docker Desktop se charge 
 automatiquement de *renvoyer* le port du conteneur
@@ -431,7 +429,7 @@ Installons plusieurs serveurs web
 =================================
 
 Docker fournit un mécanisme dit *de publication* pour indiquer sur quel  
-port se met en écoute un conteneur. On indiaue simplement avec l'option
+port se met en écoute un conteneur. On spécifie simplement avec l'option
 ``--publish`` (ou ``-p``) comment on associe un port du conteneur à un port du
 système hôte. Exemple:
 
@@ -461,7 +459,7 @@ Dans le cas d'un serveur web, ou en général de tout service qui communique
 selon le protocole HTTP, un navigateur web fait parfaitement l'affaire.  
 Avec votre navigateur préféré, essayer d'accéder aux adresses http://localhost:80
 et http://localhost:81: les services web Docker que vous venez d'installer 
-devraient répondre.
+devraient répondre par un message basique mais réconfortant.
 
 
 .. _docker-httpd-client:
@@ -529,7 +527,7 @@ Quiz
    A) La machine Docker est un serveur
    #) La machine Docker est un client
    #) La machine Docker s'exécute dans un conteneur
-   #) La machine Docker s'exécute dans un système Linux
+   #) La machine Docker s'exécute dans un système hôte
 
    Après avoir installé un serveur dans un conteneur Docker, que reste-t-il à faire:
 
@@ -543,7 +541,7 @@ Quiz
 Exercices
 =========
 
-Dans ces exercices vous devez mettre en ction les principes de Docker vus ci-dessus, et vous
+Dans ces exercices vous devez mettre en action les principes de Docker vus ci-dessus, et vous
 êtes également invités à découvrir l'outil ``docker compose`` qui nous permet de configurer
 une fois pour toutes un environnement distribué constitué de plusieurs serveurs.
 
@@ -576,7 +574,10 @@ une fois pour toutes un environnement distribué constitué de plusieurs serveur
 
     - Après installation de Docker, créez un conteneur avec la dernière version de MySQL. Vous pouvez
       utiliser la ligne de commande ou le *dashboard*.
-      Installez également un client MySQL sur votre machine et connectez-vous à votre conteneur Docker.
+      
+      Installez également un client MySQL sur votre machine (par exemple le
+      *MySQL Workbench* accessible à https://www.mysql.com/products/workbench/)
+      et connectez-vous à votre conteneur Docker.
       
     - Au lieu de lancer toujours la même ligne de commande, on peut créer un fichier de configuration
       (dans un format qui s'appelle YAML) et l'exécuter avec l'utilitaire ``docker-compose``. Voici un
@@ -596,15 +597,16 @@ une fois pour toutes un environnement distribué constitué de plusieurs serveur
       
       .. code-block:: bash
       
-           docker compose -f mysql-compose.yml run
+           docker compose -f mysql-compose.yml up
            
       Voici quelques exercices à faire:
       
          - Testez que vous pouvez bien accéder à votre conteneur avec le client MySQL (quel est le port d'accès
            défini dans la configuration Yaml?)
          - Configurez votre conteneur MySQL pour définir un compte d'accès ``root`` avec un mot
-           de passe et donnez à la base le nom ``nfe204`` (aide: cherchez sur le Web les variables
-           d'environnement MySQL)
+           de passe et donnez à la base le nom ``nfe204`` (aide: lisez 
+           la documentation associée au conteneur MySQL, laquelle
+           se trouve ici: https://hub.docker.com/_/mysql)
          - Configurez un ensemble de trois conteneurs MySQL. Vérifiez que vous pouvez vous connecter à chacun.
          - Arrêtez/redémarrez le conteneur (cherchez la commande ``docker-compose``), enfin supprimez-le.
   
@@ -612,12 +614,16 @@ une fois pour toutes un environnement distribué constitué de plusieurs serveur
 .. admonition:: Exercice `Ex-S2-1`_: installez MongoDB
 
    Même exercice, mais cette fois avec MongoDB, un système NoSQL très utilisé.
-   Les principes sont les mêmes: vous récupérez une image de MongoDB, vous l'instanciez,
+   Les principes sont les mêmes: vous récupérez une image de MongoDB après voir
+   fouillé sur http://hub.docker.com, vous l'instanciez,
    vous configurez le port d'accès, et vous testez l'accès avec un client à partir
    de la machine-hôte. 
    
-   Pour MongoDB, voici quelques interfaces client: Studio 3T (ou Robo 3T pour une version non commerciale), 
-   Compass (livré avec Mongo en principe), NoSQLBooster, ... cherchez les autres!
+   Pour MongoDB, voici les deux principaux  clients disponibles gratuitement: 
+   
+     - Studio 3T (*free edition*), un des plus anciens, disponible à https://robomongo.org/
+     - Compass, disponible à https://www.mongodb.com/products/tools/compass,
+       le client graphique ``officiel'' de MongoDB
    
    Créez un fichier de configuration pour ``docker-compose``  également, afin d'instancier
    trois conteneurs.

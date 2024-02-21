@@ -12,10 +12,10 @@ pour la gestion de \alert{collections} à très grande échelle dans des environ
 
 \vfill
 
-Les grands thèmes:
+\alert{Quatre}  thèmes traités successivement\,:
 
 \begin{redbullet}
-  \item modélisation sous forme  de \alert{document}, structuré, semi-structuré, non structuré; 
+  \item \alert{modélisation} sous forme  de \alert{document}, structuré, semi-structuré, non structuré; 
   \item \alert{recherche d'information}  dans de très grandes collections;
   \item \alert{distribution du stockage} pour maintenir de très grands volumes de données;
   \item \alert{distribution des calculs}, notamment pour les méthodes analytiques.
@@ -39,10 +39,10 @@ gérant des informations \alert{structurées} et \alert{régulières}\,: applica
 \vfill
 
 \begin{redbullet}
-  \item Une modélisation normalisée.
-  \item Un langage (SQL) très bien défini, normalisé lui aussi.
-  \item De très bonnes performances, obtenues \alert{automatiquement}.
-  \item Une gestion robuste de la concurrence d'accès.
+  \item Une modélisation normalisée
+  \item Un langage (SQL) très bien défini, normalisé lui aussi
+  \item De très bonnes performances, obtenues \alert{automatiquement}
+  \item Une gestion robuste de la concurrence d'accès
 \end{redbullet}
 
 
@@ -53,8 +53,7 @@ marginalement, on perd beaucoup)
 
 \vfill
 \begin{blocgauche}
-Révisions nécessaires? Mieux vaut s'en apercevoir \alert{maintenant}. Révisions
-sur \url{http://www.bdpedia.fr}
+Révisions nécessaires? Voir  \url{http://sql.bdpedia.fr} et \url{http://sys.bdpedia.fr}
 \end{blocgauche}
 
 \end{frame}
@@ -197,31 +196,30 @@ Des environnements de développement et d'exécution
 \begin{frame}
 \frametitle{Plan du cours}
 
-\alert{Quatre parties, 3 semaines chacune, 1 jalon à la fin de chaque partie }
+\alert{Quatre parties}, $\approx$ 3 semaines chacune, 1 jalon à la fin de chaque partie
 
 \begin{redbullet}
   \item \alert{Représentation de documents textuels}\,: les formats XML et JSON; la modélisation
     de documents, les langages 
-     de manipulation.
+     de manipulation
 
   \item \alert{Recherche d'information dans les bases documentaires}\,:  moteurs 
-    de recherche, index, algorithmes.
+    de recherche, index, algorithmes
     
    \item \alert{Stockage distribué}. Systèmes 
-    distribués; NoSQL. 
+    distribués; NoSQL
    
-   \item \alert{Calcul distribué}. MapReduce, et au-delà
+   \item \alert{Calcul distribué}. MapReduce, et au-delà avec Spark et Flink
 \end{redbullet}
 
 \vfill
 \alert{Connaissances pratiques (en cours, en TP, chez vous)}
 
 \begin{redbullet}
-  \item Des systèmes "NoSQL"; (MongoDB, CouchDB, Cassandra) 
-  \item Des moteurs de recherche (Solr, ElasticSearch).
-   \item  Systèmes distribués : MongoDB, 
-      ElasticSearch, Cassandra.
-    \item Traitement massif: Hadoop, Spark, Flink
+  \item Des systèmes ``NoSQL'' ; illustré avec MongoDB, CouchDB et Cassandra
+  \item Des moteurs de recherche\,. avec ElasticSearch
+   \item  Systèmes distribués\,; avec MongoDB,  ElasticSearch et Cassandra.
+    \item Calculs distribués\,; avec Hadoop, Spark, Flink
 \end{redbullet}
 
 \end{frame}
@@ -240,14 +238,13 @@ Des environnements de développement et d'exécution
    \item \alert{Une aisance minimale dans un environnement de développement}. Editer un fichier, lancer une commande, 
       ne pas paniquer devant un nouvel outil, savoir résoudre un problème avec un minimum de tenacité, etc.      
 
-    $\Rightarrow$   Vous devez reproduire les exemples donnés.
+    $\Rightarrow$   il est utile (ais pas \alert{obligatoire}) reproduire les exemples donnés.
       
 \end{redbullet}
 
 \begin{blocgauche}
-La connaissance de langage de programmation comme Java ou Python est un plus
-pour  consolider 
-      vos nouvelles connaissances. 
+Il ne s'agit pas \alert{d'apprendre} des systèmes, mais de comprendre 
+des principes via la pratique (limitée)
 \end{blocgauche}
 
 \end{frame}
@@ -256,7 +253,7 @@ pour  consolider
 \subsection{Environnement de travail}
 \begin{frame}{Environnement matériel et logiciel}
 
-\alert{Le cours repose beaucoup sur la mise en pratique}. 
+\alert{Pour la mise en pratique}\,: 
 
 \begin{redbullet}
   \item au Cnam, tout vous est fourni;
@@ -267,17 +264,17 @@ pour  consolider
 
 \alert{Tous les logiciels utilisés sont libres de droits}. Nous travaillons essentiellement avec
 \begin{redbullet}
-   \item \href{http://lucene.apache.org/solr}{Solr}, et  \href{http://elasticsearch.org}{ElasticSearch} 
+   \item  \href{http://elasticsearch.org}{ElasticSearch} 
       pour l'indexation de documents.
-   \item \href{http://mongodb.com}{MongoDB}, Cassandra,  et plusieurs autres outils NoSQL. 
-   \item \href{http://flink.apache.org}{Flink} et \href{http://spark.apache.org}{Spark}.
+   \item \href{http://mongodb.com}{MongoDB} et Cassandra
+   \item \href{http://spark.apache.org}{Spark} et (un peu) \href{http://flink.apache.org}{Flink}
    \end{redbullet}
 
 \vfill
 
 \begin{blocgauche}
 L'installation de ces outils (et leur utilisation) peut se faire avec \alert{Docker}, un
-gestionnaire de systèmes distribués \alert{virtuels}.
+gestionnaire de systèmes distribués virtuels.
 \end{blocgauche}
 \end{frame}
 
@@ -289,8 +286,7 @@ Le cours est découpé en \alert{chapitres}, couvrant un sujet bien déterminé,
 
 \smallskip
 
-\alert{L'unité de travail est la session}. Chaque session
-demande quelques heures   de travail personnel
+\alert{L'unité de travail est la session}, correspondant à 1-2 heures de travail personnel
 
 \vfill
 
@@ -308,7 +304,8 @@ Pour assimiler une session vous pouvez combiner les ressources suivantes:
 
 \vfill
 \begin{blocgauche}
-\alert{La réalisation des exercices et des manipulations est essentielle}.
+Pendant les visios\,: reprise (rapide) des principes, et nous
+faisons les quiz.
 \end{blocgauche}
 
 \end{frame}
@@ -324,7 +321,11 @@ où elles sont proposées}.
 
 \vfill
 
-\alert{Reproduisez les exemples de code}. Tous les exemples donnés sont testés et doivent donc fonctionner.
+\alert{Suivez la visio}, pour une synthèse et un média complémentaire
+
+\vfill
+
+Reproduisez les exemples de code, \alert{sans y passer trop de temps}
 
 \vfill
 
@@ -338,7 +339,7 @@ où elles sont proposées}.
 
 \vfill
 
-\alert{Répondez au Quiz} proposé en fin des principaux chapitres.
+\alert{Préparez les quiz} proposés en fin des principaux chapitres.
 \end{blocgauche}
 
 \end{frame}
