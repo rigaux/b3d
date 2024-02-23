@@ -1895,8 +1895,45 @@ Voici un exemple parlant:
                     actors set< frozen<artist>>,
                  primary key (id) );
 
-Je vous laisse tester l'insertion des documents tels qu'ils sont fournis par
-le site http://deptfod.cnam.fr/bd/tp/datasets/, avec tous les acteurs d'un film.
+Les acteurs sont donc une liste d'instances du type ``artist``, ce qui correspond
+en JSON à la structure suivante:
+
+.. code-block:: sql
+
+	insert into movies JSON '{
+		"id": "movie:11",
+		"title": "Star Wars",
+		"year": 1977,
+		"genre": "Adventure",
+		"country": "US",
+		"director": {
+			"id": "artist:1",
+			"last_name": "Lucas",
+			"first_name": "George",
+			"birth_date": 1944
+		},
+		"actors": [
+			{
+				"last_name": "Hamill",
+				"first_name": "Mark",
+				"birth_date": 1951
+			},
+			{
+				"last_name": "Ford",
+				"first_name": "Harrison",
+				"birth_date": 1942
+			},
+			{
+				"last_name": "Fisher",
+				"first_name": "Carrie",
+				"birth_date": 1956
+			}
+		]
+	}')
+
+Je vous laisse tester l'insertion de l'ensemble des films tels qu'ils sont fournis par
+le site http://deptfod.cnam.fr/bd/tp/datasets/cassandra, avec tous les acteurs d'un film. Nous
+nous en servirons pour l'interrogation CQL ensuite.
 
 En résumé:
 
@@ -1918,8 +1955,9 @@ Mise en pratique
 .. admonition:: MEP `MEP-S3-1`_:  mise en route de Cassandra
 
    Votre tâche est simple: installer Cassandra, un client de votre choix
-   (DevCenter recommandé), 
-   reproduire les commandes ci-dessus et créer une base ``movies`` avec nos films.
+   (DbVisualizer recommandé), 
+   reproduire les commandes ci-dessus et créer une base ``movies`` avec nos films
+   récupérés sur http://deptfod.cnam.fr/bd/tp/datasets/.
    Profitez-en pour vous familiariser avec l'interface graphique.
    
 
@@ -1938,12 +1976,19 @@ répartir le stockage et les traitements: nous verrons cela ultérieurement. Ce 
 concentre sur MongoDB vu comme une base *centralisée* pour le stockage de documents JSON.
 
 L'objectif est d'apprécier les capacités d'un système de ce type (donc, non relationnel)
-pour les fonctionnalités standard attendues d'un système de gestion de bases de données. Comme nous
-le verrons, MongoDB n'impose pas de schéma, ce qui peut être vu comme un avantage initialement,
-mais s'avère rapidement pénalisant puisque la charge du contrôle des données
-est reportée du côté de l'application; MongoDB propose un langage d'interrogation qui 
-lui est propre (donc, non standardisé), pratique mais limité; enfin MongoDB n'offre aucun support
-transactionnel. 
+pour les fonctionnalités standard attendues d'un système de gestion de bases de données. 
+
+  - MongoDB n'impose pas de schéma, ce qui peut être vu comme un avantage 
+    initialement, mais s'avère rapidement pénalisant puisque la charge du 
+    contrôle des données est reportée du côté de l'application; des 
+    contraintes basées sur la spécification JsonSchema (https://json-schema.org/) 
+    peuvent être spécifiées
+  - MongoDB propose un langage d'interrogation qui  lui est propre 
+   (donc, non standardisé), pratique mais peu clair et assez limité; 
+  - enfin, depuis la version 4.0  MongoDB offre un support transactionnel optionnel. 
+
+C'est donc un système assez riche, très utilisé, et offrant des capacités
+de distribution puissantes (nous y reviendrons).
 
 Les données utilisées en exemple ici sont celles de notre base de films.
 Si vous disposez de documents JSON plus proches
@@ -1953,7 +1998,8 @@ vous êtes bien entendu invités à les prendre comme base d'essai.
 Installation de MongoDB
 =======================
 
-L'installation Docker se fait en 2 clics. Voici la commande pour un serveur accessible 
+L'installation Docker se fait en 2 clics ou  commande!  Voici celle
+qui instancie un serveur accessible 
 à localhost:30001.
 
 
@@ -1964,8 +2010,8 @@ L'installation Docker se fait en 2 clics. Voici la commande pour un serveur acce
 
 MongoDB fonctionne en mode classique client/serveur. 
 Le serveur ``mongod`` est en attente sur le port 27017 dans son conteneur, et
-peut être redirigé vers un port de la machine Docker.
-
+peut être redirigé vers un port de la machine Docker, comme le port 30001
+dans la commande précédente.
    
 En ce qui concerne les *applications* clientes, nous avons en gros deux possibilités: 
 l'interpréteur de commande ``mongo`` (qui suppose d'avoir installé MongoDB sur la machine hôte)
@@ -1996,8 +2042,10 @@ comme suit:
      connecting to: test
      > 
 
-La base par défaut est ``test``. Cet outil est en fait un interpréteur javascript (ce qui est cohérent
-avec la représentation JSON) et on peut donc lui soumettre des instructions en Javascript, ainsi que
+La base par défaut est ``test``. Cet outil est en fait un interpréteur 
+javascript (ce qui est cohérent
+avec la représentation JSON) et on peut donc lui soumettre des instructions 
+en Javascript, ainsi que
 des commandes propres à MongoDB. Voici quelques instructions de base.
 
   * Pour se placer dans une base::
@@ -2047,13 +2095,13 @@ des commandes propres à MongoDB. Voici quelques instructions de base.
       
   * On peut compter le nombre de documents dans la collection::
    
-      db.movies.count()
+      db.movies.countDocuments()
    
   * Et finalement, on peut supprimer une collection::
   
      db.movies.drop()
      
-C'est un bref aperçu des commandes.  On peut se lasser au bout d'un certain temps d'entrer
+Ce n'est un bref aperçu des commandes.  On peut se lasser au bout d'un certain temps d'entrer
 des commandes à la main, et préférer utiliser une interface graphique. 
 
 Le client ``Studio3T``
@@ -2063,11 +2111,11 @@ Studio3T propose
 un interpréteur de commande intelligent (autocomplétion, exécution de scripts placés
 dans des fichiers), des fonctionnalités d'import et d'export. C'est le choix
 recommandé. Installation en quelques clics, là encore, sur toutes les
-plateformes. La  :numref:`mongochef`  montre l'interface en action.
+plateformes. La  :numref:`studio3t`  montre l'interface en action.
 
-   .. _mongochef:
-   .. figure:: ../figures/mongochef.png
-      :width: 80%
+   .. _studio3t:
+   .. figure:: ../figures/studio3t.png
+      :width: 100%
       :align: center
    
       L'interface de Studio3T
@@ -2100,8 +2148,8 @@ de chargement. Voici deux possibilités: l'utilitaire d'import de MongoDB, ou
 Studio3T.
 
 L'utilitaire d'import de MongoDB prend en entrée un tableau JSON contenant la liste des objets
-à insérer. Dans notre cas, nous allons utiliser l'export JSON de la base Webscope
-dont le format est le suivant.
+à insérer. Dans notre cas, nous allons utiliser l'export JSON de  http://deptfod.cnam.fr/bd/tp/datasets/
+dont le format est le suivant (remarquez les crochets qui indiquent un tableau).
 
 .. code-block:: javascript
 
@@ -2151,7 +2199,7 @@ d'objets à créer individuellement, et pas d'un unique document JSON.
 Si vous utilisez Studio3T, il existe une option d'import de collection qui accepte un format
 légèrement différent de celui ci-dessus. Un fichier conforme à ce format est disponible
 parmi les jeux de données de http://deptfod.cnam.fr/bd/tp/datasets/. Vous pouvez le télécharger et l'utiliser
-pour insérer directement les films dans la base avec Studio3T.
+pour insérer directement les films dans la base avec l'utilitaire d'import de Studio3T.
 
 Mise en pratique
 ================
