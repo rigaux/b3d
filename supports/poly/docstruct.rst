@@ -1446,18 +1446,19 @@ des services qui tournent en tâche de fond et dont on ne se sert pas.
 Le serveur
 ----------
 
-Reportez-vous au chapitre :ref:`chap-docker`  pour l'introduction à Docker. Vous devriez
-avoir une machine Docker disponible, et disposer  d'un terminal 
-(ou utiliser Kitematic pour une simplicité maximale). 
-En ligne de commande, entrez: 
+Reportez-vous au chapitre :ref:`chap-docker`  pour l'introduction à Docker. Vous
+pouvez utiliser le desktop, ou la ligne de commande. C'est cette dernière
+que je vous montre pour plus de clarté et de simplicité. Entrez: 
 
 .. code-block:: bash
 
      docker run --name mon-cassandra -p 3000:9042  -d cassandra:latest
 
-Pour l'interface CQL (que nous allons utiliser), c'est le port 9042 du conteneur qui doit être 
-renvoyé vers un port du système hôte. 
-Normalement, vous savez faire, sinon relisez encore
+On communique avec Cassandra via un langage, CQL, dont les
+commandes doivent être transmises au port 9042 du conteneur. Dans l'instruction
+ci-dessus, ce port est renvoyé sur le  
+port 3000 du système hôte avec l'option ``-p``. 
+Normalement, tout cela est clair, sinon relisez encore
 et encore le chapitre sur Docker. 
 
 L'image Docker de cassandra  est alors téléchargée et instanciée. Vérifiez-le en listant
@@ -1467,13 +1468,15 @@ vos conteneurs:
 
     $ docker ps
 
-Vous pouvez obtenir l'adresse IP de la machine Docker.
+Vous pouvez obtenir l'adresse IP (champ ``IPAddress``) de la machine Docker.
 
 .. code-block:: bash
 
     $ docker inspect <id-conteneur>
 
-Il est donc possible de se connecter à Casandra soit à l'adresse 127.0.0.1:3000,
+Il est donc possible de se connecter à Casandra soit sur le port
+3000 de la machine hôte (donc, ``localhost`` si vous travaillez 
+sur votre ordinateur personnel),
 soit sur le port 9042 du conteneur.
 
 Nous sommes prêts à nous connecter au serveur Cassandra et  à interagir avec 
@@ -1485,26 +1488,30 @@ Le client
 Il vous faut un client sur la machine hôte. L'application cliente de base est l'interpréteur de commandes
 ``cqlsh``, ce qui nécessite une installation des binaires Cassandra.
 
-Des clients graphiques existent. Le plus complet (à ce jour) semble 
-le *Datastax DevCenter*, qui
-impose malheureusement la création d'un compte chez Datastax 
-(merci à eux quand même) et
-des sollicitations par la suite pour essayer de vous vendre des services 
-Cassandra. C'est le
-client que j'utilise par la suite. Aux dernières nouvelles il est disponible ici:
-https://downloads.datastax.com/#devcenter.
+Des clients graphiques existent. Datastax propose des outils, dont
+le Datastax Studio qui est assez agréable à utiliser mais
+l'installation est un peu lourde. Un "petit" utilitare graphique 
+assez complet *DbVisualizer*, disponible en version
+gratuite à l'adresse https://www.dbvis.com/.  Il permet classiquement 
+de créer des connexions, d'inspecter un schéma et de transmettre des 
+requêtes. 
+
+DbVisualizer peut être utilisé avec beaucoup de bases de données (dont MongoDB
+et ElasticSearch que nous découvrirons plus loin). Selon le système choisi,
+il faut télécharger des connecteurs spécifiques (*drivers*). Cela se fait
+de manière assez intuitive via DbVis lui-même. Dans le cas de Cassandra,
+il faut prendre le *driver* ``Cassandra DataStax``.
 
 
-La 
-:numref:`devcenter`  montre l'interface, avec les fenêtres permettant d'explorer 
-le schéma de la base et d'interroger cette dernière grâce au langage dédié CQL.
-
-..  _devcenter:
-..  figure:: ../figures/DevCenter.png
+..  _dbvis:
+..  figure:: ../figures/dbvis.png
     :width: 80%
     :align: center
     
     Le client *DevCenter* fourni par la société *Datastax*.
+
+La  :numref:`dbvis`  montre l'interface, après création d'un *keyspace*,
+de tables et de données. Commençons par expliquer tout cela.
 
 Le modèle de données
 ====================
@@ -1572,7 +1579,7 @@ de caractères) ou complexe (dictionnaire, liste).
    l'on affecte une valeur
    à une clé, cette valeur est étiquetée par l'estampille temporelle courante, et il est possible
    de conserver, pour une même clé, la série temporelle des valeurs successives. 
-   Cassandra, à strictement parler, gère donc des *triplets* (clé, estampille, valeur)*. C'est
+   Cassandra, à strictement parler, gère donc des *triplets* (clé, estampille, valeur). C'est
    un héritage de BigTable, que l'on retrouve encore dans HBase par exemple.
    
    L'estampille a une utilité dans le fonctionnement interne de Cassandra, 
@@ -1581,18 +1588,19 @@ de caractères) ou complexe (dictionnaire, liste).
 
 Un *document* dans Cassandra  est un identifiant unique associé à
 un ensemble de paires *(clé, valeur)*. Il s'agit ni plus ni moins de la notion traditionnelle 
-de dictionnaire que nous avons rencontrée dès le premier chapitre de ce cours et qu'il est très facile de représenter
-en JSON par exemple (ou en XML bien entendu). 
+de dictionnaire que nous avons rencontrée dès le premier chapitre de ce cours et qu'il 
+serait très facile de représenter
+en JSON par exemple. 
 
 
 .. admonition:: **Vocabulaire**
 
    Cassandra appelle *row* les documents, et *row key* l'identifiant unique. La notion
    de ligne (*row*) vient également de BigTable. Conceptuellement, il n'y a pas
-   de différence avec les documents semi-structurés que nous étudions depuis le début 
+   de différence avec les documents structurés que nous étudions depuis le début 
    de ce cours. 
 
-Dans les versions initiales de Cassandra, le nombre de paires clé-valeur ("colonnes") 
+Dans les versions initiales de Cassandra, le nombre de paires clé-valeur 
 constituant un document (ligne) n'était pas limité. On pouvait donc imaginer avoir 
 des documents contenant des milliers de paires, tous différents les uns des autres. Ce
 n'est plus possible dans les versions récentes, chaque document devant être conforme
@@ -1652,8 +1660,7 @@ et peu représentative d'une organisation assez classique structurée selon les 
 Une fois dépassée ce petit obstacle, on constate une adoption des principes fondamentaux des systèmes
 documentaires distribués: des documents à la structure flexible construits sur la cellule (clé, valeur),
 entités d'information autonomes conçus pour le partitionnement dans un système distribué. 
-Cassandra conserve quelques particularités provenant de BigTable (comme le versionnement des valeurs ou l'ajout
-de niveaux intermédiaires). 
+
 
 De nombreux conseils sont disponibles pour la conception d'un schéma Cassandra. Cette conception est 
 nécessairement 
@@ -1691,19 +1698,17 @@ Créons notre base
 
 À vous de vous retrousser les manches pour créer votre base Cassandra et y insérer nos films
 (ou toute autre jeu de données de votre choix). Les commandes de base sont données ci-dessous;
-elles peuvent être entrées directement dans l'interpéteur de commande, ou par l'intermédiaire
-d'un client graphique comme DevCenter.
+elles peuvent toutes être entrées directement dans client graphique comme DbVisualizer.
 
 Le *keyspace*
 -------------
 
-.. note:: L'éditeur DevCenter propose une interface de définition des *keyspaces* qui semble
-   mieux fonctionner que l'exécution directe de la commande, d'après certains retours.
-   
 Rappelons que *keyspace* est le nom que Cassandra donne à une base de données. 
-Cassandra est fait pour fonctionner dans un environnement distribué. Pour créer un *keyspace*, 
+Cassandra est fait pour fonctionner dans un environnement distribué. Pour créer 
+un *keyspace*, 
 il faut donc  
-préciser la stratégie de réplication à adopter. Nous verrons plus en détail après comment 
+préciser la stratégie de réplication à adopter. Nous verrons plus en détail 
+après comment 
 tout ceci fonctionne. Voici 
 la commande:
 
@@ -1712,7 +1717,12 @@ la commande:
     CREATE KEYSPACE IF NOT EXISTS Movies 
            WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor': 3 };
 
-Une fois le *keyspace* créé, essayez les commandes suivantes (sous ``cqlsh`` uniquement).
+Sous DbVisualizer, les *keyspaces* apparaissent à gauche de la 
+fenêtre principale (voir figure  :numref:`dbvis`). Un clic bouton droit 
+permet d'ouvrir un formulaire de création d'un *keyspace*.
+
+Une fois le *keyspace* créé, essayez les commandes suivantes 
+(sous ``cqlsh`` uniquement).
 
 .. code-block:: bash
 
@@ -1736,10 +1746,9 @@ des données "à plat", avec des types atomiques. Commençons par créer une tab
                    );
 
 Je vous renvoie à la documentation Cassandra pour la liste des types atomiques disponibles. Ce sont,
-à peu de chose près, ceux de SQL.  On peut noter que Cassandra fournit maintenant des commandes  ``create table`` et 
-``describe table`` pour  parler de ce qui s'appelait encore récemment ``column family``.
+à peu de chose près, ceux de SQL.  
 
-L'insertion de données suit elle aussi la syntaxe SQL.
+L'insertion de données suit elle aussi la syntaxe SQL. Insérons quelques artistes.
 
 .. code-block:: sql
  
@@ -1761,6 +1770,10 @@ On peut vérifier que l'insertion a bien fonctionné en sélectionnant les donn�
       'artist1' | Depardieu   | Gérard         | 1948
       'artist2' | Baye        | Nathalie       | 1948
       'artist3' | Marceau     | Sophie         | null
+
+Sous DbVusualizer, lancer un "SQL commander" et entrer la
+requête.
+On se retrouve avec l'affichage de la figure  :numref:`dbvis`
 
 À la dernière insertion, nous avons délibérément omis de renseigner la colonne ``birth_date``, et 
 Cassandra accepte la commande sans retourner d'erreur. Cette flexibilité est l'un des aspects
