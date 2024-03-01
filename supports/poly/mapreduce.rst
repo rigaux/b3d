@@ -189,7 +189,9 @@ vous n'avez pas besoin de recruter des éplucheurs  avec des compétences supér
 de votre atelier artisanal du début. Chaque éplucheur épluche ses pommes et n'a
 pas besoin de se soucier de ce que font les autres, à quel rythme ils travaillent,
 etc. Vous n'avez pas non plus besoin d'un matériel nouveau
-et radicalement plus cher. 
+et radicalement plus cher. En d'autres termes vous avez défini un processus
+qui passe sans douleur à un stade **industriel** où seulent comptent l'organisation
+et l'affecation de ressources, pas l'augmetation des compétences.
 
 *Vous pouvez même prétendre que la rentabilité économique est préservée*.
 Si un éplucheur épluche 50 Kgs de pomme par jour,
@@ -662,7 +664,7 @@ pouvoir tester le MapReduce de CouchDB grâce à l'interface de définition
 de ces vues temporaires
 
 Accédez à l'interface d'administration de CouchDB à l'URL ``_utils``,
-puis choisissez la basedes films (que vous devez avoir chargé au cours d'un
+puis choisissez la base des films (que vous devez avoir chargé au cours d'un
 exercice précédent). Vous devriez avoir l'affichage de la
 :numref:`couch-films`.
 
@@ -749,7 +751,8 @@ qui repose sur l'ordre des clés indexées. Pour MapReduce, le fait que les
 paires intermédiaires soient triées facilite les regroupements sur la clé
 puisque les documents à regrouper sont consécutifs dans la liste.
 
-Vérifiez: cherchez dans la liste des documents de la vue Bruce Willis par exemple.
+Vérifiez: cherchez dans la liste des documents de la vue Bruce Willis par exemple
+(ou Adam Driver qui est plus près de la première page).
 Vous remarquerez qu'il apparaît pour chaque film dans lequel il joue un rôle, 
 et que toutes ces occurrences sont en séquence dans la liste. Pour effectuer
 ce regroupement, on applique une fonction de Reduce. La voici:
@@ -787,6 +790,18 @@ S3: *Frameworks* MapReduce: MongoDB
      * `Présentation: MapReduce et MongoDB  <http://b3d.bdpedia.fr/files/slmongomr.pdf>`_
      * `Vidéo présentant la programmation MapReduce avec MongoDB <https://mediaserver.lecnam.net/permalink/v125f35a35fc7ddbt3to/>`_
     
+.. important:: Depuis la version 5.0, MongoDB a remplacé ses fonctions MapReduce
+   par un système plus général de *workflow*. Ce qui suit ne vaut donc
+   que pour les versions antérieures à la V5. Je n'ai pas encore décidé
+   si j'intégrais une présentation des *workflows* de MongoDB alors qu'il
+   est sans doute plus intéressant de se concentrer sur Spark. En résumé:
+   
+     - si vous y tenez vous pouvez installer une version 4 de MongoDB et tester
+       les fonctions ci-dessous
+     - si vous n'avez pas de temps à perdre vous pouvez vous contenter
+       d'une lecture rapide, et garder vos forces pour des environnements
+       de calcul distribué plus généraux comme Spark.
+       
 Passons à la pratique, en restant dans un contexte centralisé, avec MongoDB.
 MongoDB est un des exemples de *framework* MapReduce. Commençons par une petite
 discussion sur cette notion de *framework* avant de passer à la pratique.

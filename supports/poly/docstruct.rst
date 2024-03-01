@@ -1931,8 +1931,10 @@ en JSON à la structure suivante:
 		]
 	}')
 
-Je vous laisse tester l'insertion de l'ensemble des films tels qu'ils sont fournis par
-le site http://deptfod.cnam.fr/bd/tp/datasets/cassandra, avec tous les acteurs d'un film. Nous
+Je vous laisse effectuer l'insertion de l'ensemble des films tels qu'ils sont fournis par
+le site http://deptfod.cnam.fr/bd/tp/datasets/cassandra, avec tous les acteurs d'un film.
+Il suffit de récupérer le fichier contenant l'ensemble des commandes d'insertion
+et de l'exécuter comme un script. Nous
 nous en servirons pour l'interrogation CQL ensuite.
 
 En résumé:

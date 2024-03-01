@@ -180,7 +180,7 @@ sont la forme la plus courante rencontrée dans ce contexte.
 L'architecture REST
 ===================
 
-REST est une forme de service Web (l'autre, beaucoup plus complexe, est SOAP)
+REST est une forme de service Web 
 dont le parti pris est de s'appuyer sur HTTP, ses opérations, la notion de ressource
 et l'adressage par URL. REST est donc très proche du Web, la principale distinction 
 étant que REST est orienté vers l'appel à des services à base d'échanges par documents structurés,
@@ -222,13 +222,14 @@ La définition d'un service REST se doit d'être plus rigoureuse.
    potentiellement un changement d'état (par exemple la création d'une nouvelle ressource).   
  
 Les messages sont transmis en HTTP (voir ci-dessus) ce qui offre, entre autres avantages, de
-ne pas avoir à redéfinir un nouveau protocole (jetez un œil à SOAP si vous voulez
-apprécier vraiment cet avantage!). Le contenu du message est une information codée en XML ou
+ne pas avoir à redéfinir un nouveau protocole. Le contenu du message est une information codée en XML ou
 en JSON (le plus souvent), soit ce que nous avons appelé jusqu'à présent un *document*.
 
   * quand le client émet une requête REST, le document contient les paramètres d'accès
     au service (par exemple les valeurs de la ressource à créer);
-  * quand la ressource répond au client, le document contient l'information constituant le résultat du service.
+  * quand la ressource répond au client, le document contient l'information 
+    constituant le résultat du service; en cas d'erreur ou d'anomalie (droit
+    d'accès insuffisant par exemple) un code d'erreur HTTP peut être utilisé.
 
 .. important:: En toute rigueur, il faut bien distinguer la ressource et le document
    qui représente une information produite par la ressource.
@@ -242,10 +243,41 @@ en ligne de commande, est cURL. S'il n'est pas déjà installé dans votre envir
 de le faire dès maintenant: le site de référence est http://curl.haxx.se/.
    
 Voici quelques exemples d'utilisation de cURL pour parler le HTTP avec un service REST.
-Ici nous nous adressons à  l'API REST de *Open Weather Map*, un service fournissant
-des informations météorologiques.
+Notre base de films est obtenue par appel à l'API REST de *themoviedb.org*. Voici
+la requête qui cherche le film ``tt10404944``. 
 
-Pour connaître la météo sur Paris (en JSON):
+
+.. code-block:: bash
+
+    https://api.themoviedb.org/3/find/tt10404944?api_key=8f479aa1cb024ffe0d95da8c4ee56fe7&external_source=imdb_id
+
+Ce qui retourne le document suivant.
+
+.. code-block:: javascript
+
+	{
+	"adult": false,
+	"backdrop_path": "/vkIJ2QgcKMJRvi6pBW4Tr2kgLdy.jpg",
+	"id": 637534,
+	"title": "The Stronghold",
+	"original_language": "fr",
+	"original_title": "BAC Nord",
+	"overview": "A police brigade works in the dangerous northern neighborhoods of Marseille, where the level of crime is higher than anywhere else in France.",
+	"poster_path": "/nLanxl7Xhfbd5s8FxPy8jWZw4rv.jpg",
+	"media_type": "movie",
+	"genre_ids": [53, 28, 80],
+	"popularity": 21.929,
+	"release_date": "2021-08-18",
+	"video": false,
+	"vote_average": 7.426,
+	"vote_count": 1147
+	}
+
+Notez le placement de paramètres dans l'URL, et notamment une clé
+d'accès, souvent requise pour utiliser des services. Autre exemple, 
+l'API REST de *Open Weather Map*, un service fournissant
+des informations météorologiques (créez une clé API et ajoutez-la 
+à l'URL pour obtenir une réponse complète).
 
 .. code-block:: bash
 
@@ -301,10 +333,11 @@ qui nous suffiront à comprendre les interfaces (ou API) REST que nous allons re
    type *dictionnaire*: toutes les données ont une adresse, 
    on peut accéder à la donnée par son adresse (``get``), insérer une donnée à une adresse (``put``), 
    détruire la donnée à une adresse  (``delete``). De nombreux systèmes
-   NoSQL se contentent de ces opérations qui peuvent s'implanter très efficacement. 
+   NoSQL se contentent de ces opérations qui peuvent s'implanter très simplement et efficacement. 
     
-Pour être concret et rentrer au plus vite dans le cœur du sujet, nous présentons l'API de CouchDB
-qui est conçu comme un serveur de documents (JSON) basé sur REST.
+Pour être concret et rentrer au plus vite dans le cœur du sujet, nous présentons 
+l'API de CouchDB qui est conçu comme un serveur de documents (JSON) basé sur REST.
+
 
 L'API REST de  CouchDB
 =======================
@@ -346,12 +379,13 @@ CouchDB devrit vous répondre par un message JSON:
 
 .. code-block:: json
 
-       {"couchdb":"Welcome",
-        "version":"2.2.0",
-        "git_sha":"2a16ec4",
-        "features":["pluggable-storage-engines","scheduler"],
-         "vendor": {"name":"The Apache Software Foundation"}
-       }
+	{
+	"couchdb": "Welcome",
+	"version": "3.3.3",
+	"git_sha": "40afbcfc7",
+	"uuid": "0f4f4743bf65f3c4cd61caf3e789c559",
+	"vendor": {"name": "The Apache Software Foundation"}
+	}
 
 .. note:: Vous noterez qu'il faut indiquer dans l'URL le compte
    d'accès (admin/admin) juste avant le nom du serveur. 
@@ -364,7 +398,7 @@ complète http://localhost:5984/_utils dans notre cas). La
 :numref:`couch-fauxton` montre l'aspect de cette interface graphique, très pratique.
 
 .. _couch-fauxton:
-.. figure:: ../figures/couch-fauxton.png
+.. figure:: ../figures/fauxton.png
       :width: 80%
       :align: center
    
@@ -632,7 +666,7 @@ les connaissances précédentes.
 .. admonition:: MEP `MEP-S1-4`_: explorer les services Web et l'Open data.
 
    Le Web est une source immense de données structurées représentées en JSON ou en XML. 
-   Allez voir sur le sit http://programmableweb.com et regardez la liste de services. Vous
+   Vous
    voulez connaître le programme d'une station de radio, accéder à une entre Wikipedia
    sous forme structurée, gérer des calendriers? On trouve à peu près tout sous forme
    de services.
@@ -642,7 +676,7 @@ les connaissances précédentes.
    
    Autre source de données: les données publiques. Allez voir par exemple sur
    
-     - https://www.data.gouv.fr/fr/.
+     - https://www.data.gouv.fr/fr/
      - http://data.iledefrance.fr/page/accueil/
      - http ://data.enseignementsup-recherche.gouv.fr/
      - http://www.data.gov/ (Open data USA)
@@ -650,59 +684,6 @@ les connaissances précédentes.
        de données, mais de nombreux outils d'analyse et de visualisation.
      
    Essayer d'imaginer une application qui combine plusieurs sources de données.
-
-
-À titre d'exemple, voici comment récupérer toutes les heures les informations sur les Vélibs. Les commandes ci-desous
-supposent une machine Linux connectée à l'Internet.  Je vous laisse transposer pour Windows.
-Il faut également demander une clé d'accès au service 
-sur le site `http://api.jcdecaux.com`.
-
-Premièrement, voici le code du script ``recup_velib.sh``.
-
-.. code-block:: bash
-
-    #!/bin/sh
-    # Récuperation des données dans un fichier txt
-    wget 'https://api.jcdecaux.com/vls/v1/stations?contract=Paris&apiKey=efa96ce1fb1e3a694799818be 0b499f7ffeb09b2'
-    mv 'stations?contract=Paris&apiKey=efa96ce1fb1e3a694799818be0b499f7ffeb09b2' resultat-`date +% Y-%m-%d-%H-%M`.json
-    
-Chaque appel produit un fichier JSON nommé de la manière suivante:
-
-.. code-block:: text
-
-     resultat-2016-12-13-17-00.json : resultat-annee-mois-jour-HH-MM.json
-
-Voici le format du contenu:
-
-.. code-block:: json
-
-  {
-        "number": "int",
-        "name": "String",
-        "address": "String",
-        "position": {
-            "lat": "float",
-            "lng": "float"
-        },
-        "banking": "Boolean",
-        "bonus": "Boolean",
-        "status": "String",
-        "contract_name": "String",
-        "bike_stands": "int",
-        "available_bike_stands": "int",
-        "available_bikes": "int",
-        "last_update": "float"
-     }
-
-Il faut automatiser l'exécution de ce script, avec ``cron`` sous Linux (https://doc.ubuntu-fr.org/cron par exemple). Voicil
-le contenu du fichier ``contrab``  pour exécuter la commande toutes les heures (faut-il préciser que le chemin 
-d'accès au fichier est donné pour l'exemple?).
-
-.. code-block:: text
-
-    0 * * * * sh /home/philippe/recup_velib.sh
-
-Et voilà, comptez environ 1500 documents JSON par heure, quelques centaines de MO par mois. 
 
 **********************
 S2: requêtes Cassandra
@@ -714,7 +695,7 @@ base Cassandra est nécessairement une base à très grande échelle, et que les
 seules requêtes raisonnables sont celles pour lequelles la structuration des données
 permet des temps de réponse acceptables. 
 
-.. note:: Cette session une démonstration pratique ces capacités d'interrogation
+.. note:: Cette session est une démonstration pratique ces capacités d'interrogation
    de Cassandra. Si vous souhaitewz reproduire les manipulations, il vous
    faut un environnement constitué d'un serveur Cassandra,
    d'un client et de la base de données des films. Les instructions pour installer
@@ -807,7 +788,7 @@ On peut effectuer des filtrages avec la clause ``where``. Par exemple:
 
 .. code-block:: sql
 
-       from artists where id='artist:31';
+       select  *  from movies where id='movie:33';
 
 
 Remarque importante: le critère de sélection porte ici sur la *clé*. On peut 
@@ -815,15 +796,15 @@ généraliser à plusieurs valeurs avec la clause ``in``.
 
 .. code-block:: sql
 
-      select  * from artists 
-      where id in ('artist:31', 'artist:17', 'artist:65');
-
+ 	select  * from movies 
+    where id in ('movie:33', 'movie:44214', 'movie:29845');
+      
 Tentons maintenant une recherche sur un attribut non-clé.
 
 .. code-block:: sql
 
-     select  * from artists 
-     where last_name='Cruise' ;
+     select  * from movies 
+     where title='Elle' ;
      
 *Vous devriez obtenir un rejet de cette requête avec le message suivant*:
 
@@ -833,6 +814,15 @@ Tentons maintenant une recherche sur un attribut non-clé.
      filtering and thus may have unpredictable performance. If you want
      to execute this query despite the performance unpredictability,
      use ALLOW FILTERING.
+
+En revanche, en ajoutant l'option ALLOW FILTERING, on obtient 
+le résultat.
+
+.. code-block:: sql
+
+     select  * from movies 
+     where title='Elle' 
+     ALLOW FILTERING;
 
 Nous avons atteint les limites de CQL en tant que clône de SQL. 
 
@@ -866,8 +856,8 @@ Tentons une requête sur la clé primaire, mais avec un critère *d'inégalité*
 
 .. code-block:: sql
 
-     select  * from artists 
-     where id > 'hhh'
+     select  * from movies 
+     where id > '000000';
      
 On obtient un rejet avec un message indiquant que seule l'égalité est autorisée sur la clé
 (et d'autres détails à éclaircir ultérieurement).
@@ -876,11 +866,11 @@ Peut-on trier les données avec la clause ``order by``? Essayons.
 
 .. code-block:: sql
 
-    select  * from artists order by id;
     select  * from movies order by title;
 
 Les deux requêtes sont rejetées. Le message nous dit (à peu près)
-que le tri est autorisé seulement quand on est assuré que les données à trier proviennent
+que le tri est autorisé seulement quand on est assuré que les données à 
+trier proviennent
 d'une seule partition. En (un peu plus) clair: Cassandra ne veut pas avoir à trier des données
 provenant de plusieurs serveurs, dans un environnement distribué avec répartition d'une table
 sur plusieurs nœuds. 
@@ -888,23 +878,20 @@ sur plusieurs nœuds.
 Et voilà. Cassandra interdit tout usage de CQL qui amènerait à parcourir toute la base ou
 une partie non prédictible de la base pour constituer le résultat. Cette interdiction
 n'est cependant pas totale. Dans le cas de la clause ``where``, l'utilisateur 
-peut prendre explicitement ses responsabilités en ajoutant la clause ``allow filtering``.
-Dans ce cas, on peut partir à la recherche de Tom Cruise.
-
-.. code-block:: sql
-
-     select  * from artists 
-     where last_name='Cruise' allow filtering;
+peut prendre explicitement ses responsabilités en ajoutant la clause ``allow filtering``,
+comme nous l'avons montré ci-dessus.
 
 Si la table contient des milliards de ligne (bon, c'est peu probable ici), il faudra certainement
 attendre longtemps et exploiter intensivement les ressources du système pour un résultat
-médiocre (on ne parle pas de Tom Cruise, mais du nombre de lignes ramenées). À utiliser
+limité. À utiliser
 à bon escient donc.
 
-Il faut penser que le coût d'évaluation de cette requête est proportionnel à la taille de la base. Cassandra
-tente de limiter les requêtes à celles dont le coût est proportionnel à la taille du résultat.
+Il faut penser que le coût d'évaluation de cette requête est proportionnel à la taille 
+de la base. Cassandra
+tente de limiter les requêtes à celles dont le coût est proportionnel à la 
+taille du résultat.
 
-.. note:: Cette remarque explique pourquoi la requête ``select * from artists;``, qui
+.. note:: Cette remarque explique pourquoi la requête ``select * from movies;``, qui
    parcourt toute la base, est autorisée.
 
 À partir du moment où on autorise explicitement le filtrage, on peut combiner plusieurs
@@ -912,8 +899,8 @@ critères de recherche, comme en SQL.
 
 .. code-block:: sql
 
-     select  * from artists 
-     where last_name='Cruise' and first_name='Tom' allow filtering;
+     select  * from movies 
+     where country='US' and year=2020 allow filtering;
 
 *Mais*, si c'est pour faire du SQL, autant choisir une base relationnelle. Les restrictions
 de Cassandra doivent s'interpréter dans un contexte *Big Data* où l'accès aux données
@@ -931,7 +918,7 @@ Cassandra autorise alors de requêtes avec la clause ``where`` portant sur les a
 
 .. code-block:: sql
      
-    select * from movies where year = 1992;
+    select * from movies where year = 2020;
 
 En présence d'un index, il n'est plus nécessaire de parcourir toute la collection. Cette option
 est cependant à utiliser avec prudence. En premier lieu, un index peut être coûteux à maintenir.
@@ -980,11 +967,10 @@ Il consiste à interroger *une* collection en donnant un  objet (le "motif/*patt
 attribut est interprété comme une contrainte sur la
 structure des objets à rechercher. 
 Voici des exemples, plus parlants que de longues explications. Nous travaillons sur la
-base contenant les films complets, sans référence (donc, celle nommée ``nfe204`` 
+base contenant les films complets, sans référence (donc, celle nommée ``movies`` 
 si vous avez suivi les instructions du chapitrte précédent).
 
-L'apprentissage de ce langage n'a strictement aucun intérêt, sauf si vous comptez
-vraiment utiliser MongoDB dans un contexte professionnel. Ce qui suit ne vise
+L'apprentissage de ce langage n'est pas le sujet de cette session. Ce qui suit ne vise
 qu'à illustrer une approche délibérement différente de SQL pour tenter d'adapter
 l'interrogation de bases de données aux documents structurés. Une courte discussion
 est consacrée à l'opération de jointure, qui n'existe en pas en MongoDB mais qui 
@@ -1005,7 +991,7 @@ comment savoir combien de documents comprend le résultat?
 
 .. code-block:: javascript
 
-    db.movies.count ()
+    db.movies.countDocuments ()
 
 Comme en SQL (étendu),
 les options ``skip`` et ``limit`` permettent de "paginer" le résultat. La requête
@@ -1041,14 +1027,14 @@ Si on connaît l'identifiant, on effectue la recherche ainsi.
 
 .. code-block:: javascript
 
-    db.movies.find ({"_id": "movie:2"})
+    db.movies.find ({"_id": "movie:33"})
 
 Une requête sur l'identifiant ramène (au plus) un seul document. Dans un tel cas, on
 peut utiliser ``findOne``.
 
 .. code-block:: javascript
 
-    db.movies.findOne ({"_id": "movie:2"})
+    db.movies.findOne ({"_id": "movie:33"})
 
 Cette fonction renvoie toujours *un* document (au plus), alors que la fonction ``find`` renvoie
 un *curseur* sur un ensemble de documents (même si c'est un singleton). La différence est
@@ -1078,10 +1064,14 @@ Et pour les acteurs, qui sont eux-mêmes dans un tableau? Ca fonctionne de la m�
      
 La requête s'interprète donc comme: "Tous les films dont *l'un* des acteurs se nomme Tarantino".
 
-Conformément aux principes du semi-structuré, on accepte sans protester la référence à des attributs
-ou des chemins qui n'existent pas. En fait, dire "ce chemin n'existe pas" n'a pas grand sens 
-puisqu'il n'y a pas de schéma, pas de contrainte sur la structure des objets, et que donc
-tout chemin existe potentiellement: il suffit de le créer. La requête suivante ne ramène rien,
+Conformément aux principes du semi-structuré, on accepte sans 
+protester la référence à des attributs
+ou des chemins qui n'existent pas. En fait, dire "ce chemin n'existe pas" 
+n'a pas grand sens 
+puisqu'il n'y a pas de schéma, pas de contrainte sur la structure des objets, 
+et que donc
+tout chemin existe potentiellement: il suffit de le créer. 
+La requête suivante ne ramène rien,
 mais ne génére pas d'erreur.
 
 .. code-block:: javascript
@@ -1099,17 +1089,17 @@ le titre commence par ``Re``? Voici:
 
 .. code-block:: javascript
 
-    db.movies.find ({"title": /^Re/}, {"actors": null, "summary": 0} )
+    db.movies.find ({"title": /^Re/})
     
 Pas d'apostrophes autour de l'expression régulière. On peut aussi effectuer des recherches par intervalle.
 
 .. code-block:: javascript
 
-    db.movies.find( {"year": { $gte: "2000", $lte: "2005" } }, {"title": 1} )
+    db.movies.find( {"year": { $gte: 2000, $lte: 2005 } })
 
 .. important: Il n'y a pas de schéma, et donc les attributs ne sont pas *typés*. Ici,
-   l'année des films est représentée par une *chaîne de caractères* dans nos objets JSON,
-   et il faut donc faire la comparaison avec des chaînes de caractères. Rien ne nous l'indique,
+   l'année des films est représentée par un entier dans nos objets JSON,
+   et il faut donc faire la comparaison avec des entiers. Rien ne nous l'indique,
    et aucun contrôle n'est (et ne peut) être effectué.   
    
 Projections
@@ -1120,18 +1110,11 @@ peut aussi faire des *projections*, en passant un second argument à la fonction
 
 .. code-block:: javascript
 
-     db.movies.find ({"actors.last_name": "Tarantino"}, {"title": true, "actors": 'j'} )
+     db.movies.find ({"director.last_name": "Tarantino"}, {"title": true, "actors": 'j'} )
 
-Le second argument est un objet JSON dont les attributs sont ceux à conserver dans le résultat. La valeur
-des attributs dans cet objet-projection ne prend que deux interprétations. Toute valeur autre que 0 ou ``null``
-indique que l'attribut doit être conservé. Si on choisit au contraire d'indiquer les attributs à *exclure*,
-on leur donne la valeur 0 ou ``null``. Par exemple, la requête suivante retourne les films sans les acteurs
-et sans le résumé.
-
-.. code-block:: javascript
-
-    db.movies.find ({"actors.last_name": "Tarantino"}, {"actors": null, "summary": 0}) 
-    
+Le second argument est un objet JSON dont les attributs sont ceux à conserver dans le résultat. 
+Notez que seules les clés du document JSON sont prises en compte (et correspondent 
+aux attributs à conserver). La valeur ne compte pas, pourvu qu'elle soit différente de 0 ou ``null``.
 
 Opérateurs ensemblistes
 -----------------------
@@ -1160,13 +1143,13 @@ implicitement, en SQL, à la clause ``ANY``. Pour exprimer le fait que
 
 .. code-block:: javascript
 
-    db.movies.find({"actors._id": {$all: ["artist:23","artist:147"]}})
+    db.movies.find({"director._id": {$all: ["artist:23","artist:147"]}})
 
 Le ``not in`` correspond à l'opérateur ``$nin``. 
 
 .. code-block:: javascript
 
-    db.artists.find({"_id": {$nin: ["artist:34","artist:98","artist:1"]}})
+    db.movies.find({"director._id": {$nin: ["artist:34","artist:98","artist:1"]}})
 
 Comment trouver les films qui n'ont pas d'attribut ``summary``? 
 
@@ -1183,7 +1166,7 @@ qui est appliquée. On peut l'indiquer explicitement. Voici la syntaxe
 
 .. code-block:: javascript
 
-    db.movies.find({$and : [{"year": "1997"}, {actors.last_name: "DiCaprio"}]} )
+    db.movies.find({$and : [{"year": 1997}, {"actors.last_name": "DiCaprio"}]} )
     
 L'opérateur ``and`` s'applique à un tableau de conditions. Bien entendu il
 existe un opérateur ``or``  avec la même syntaxe. Les films
@@ -1191,7 +1174,7 @@ parus en 1997 *ou* avec Leonardo DiCaprio.
 
 .. code-block:: javascript
 
-    db.movies.find({$or : [{"year": "1997"}, {actors.last_name: "DiCaprio"]} )
+    db.movies.find({$or : [{"year": 1997}, {"actors.last_name": "DiCaprio"}]} )
 
 Voici pour l'essentiel en ce qui concerne les recherches portant sur *une* collection
 et consistant à sélectionner des documents. Grosso modo, on obtient
@@ -1205,13 +1188,53 @@ Jointures
 La jointure, au sens de: associer des objets *distincts*, provenant en général de *plusieurs*
 collections, pour appliquer des critères de recherche croisés, 
 n'existe pas en MongoDB. C'est une limitation
-très importante du point de vue de la gestion de données. On peut considérer qu'elle est cohérente
-avec une approche documentaire dans laquelle les documents sont supposés indépendants les uns des autres,
-avec une description interne suffisamment riche pour que toute recherche porte sur le 
-contenu du document lui-même. Cela étant, on peut imaginer toutes sortes de situations où
+importante du point de vue de la gestion de données. On peut considérer qu'elle est cohérente
+avec une approche documentaire dans laquelle les documents s'appuient
+sur la dénormalisation et sont supposés 
+indépendants les uns des autres. Cela étant, on peut imaginer toutes sortes de situations où
 une jointure est *quand même* nécessaire dans une aplication de traitement de données. 
 
-Le serveur ne sachant pas effectuer de jointures, on en est réduit à les faire côté client,
+Voyons
+comment nous pouvons contourner le problème. Nous allons supposer pour les besoins
+de la cause que la collection des films ne contient que les identifiants des artistes 
+impliquées, et qu'une seconde collection contient les informations sur ces artistes
+(vous pouvez charger cette dernière collection à partir d'un fichier disponible sur le site).
+
+
+Une première approche est de créer une *vue* qui assemble deux collections dans 
+une troisième, virtuel. Cela suppose qu'on accepte de créer une vue pour chaque 
+jointure...
+
+La création de vue est la suivante:
+
+.. code-block:: javascript
+
+	db.createView( "full_movies", "movies", [
+   	{
+    	  $lookup:
+        	 {
+            	from: "artists",
+            	localField: "director._id",
+            	foreignField: "_id",
+            	as: "metteur_en_scene"
+         	}
+   	}] 
+   )
+
+On crée une collection-vue ``full_movies`` qui étend chaque document de la collection 
+``movies``en y intégrant un champ ``metteur_en_scene``, lequel contient 
+le document de la collection ``artists`` correspondant à l'identifiant 
+``director._id``` (relisez encore une fois si ce n'est pas clair...).
+
+On peut alors interroger la collection ``full_movies``, qui implante à peu près
+l'équivalent d'une jointure externe en relationnel.
+
+.. code-block:: javascript 
+
+	db.full_movies.find()
+
+
+L'autre approche consiste à effectuer la jointure  côté client,
 comme illustré sur la :numref:`jointure-serveur-client`. Cela
 revient essentiellement à appliquer l'algorithme de jointures par boucle imbriquées en stockant
 des données temporaires dans des structures de données sur le client, et en effectuant des échanges
@@ -1229,9 +1252,6 @@ Comme l'interpréteur ``mongo`` permet de programmer en Javascript, nous pouvons
 illustrer la méthode assez simplement. Considérons la requête: "Donnez tous les films dont
 le directeur est Clint Eastwood". 
 
-.. note:: Nous travaillons sur la base ``moviesref`` dans laquelle
-  un film ne contient que la *référence* au metteur en scène, ce qui évite les redondances, mais complique
-  la reconstitution de l'information.
 
 La première étape dans la jointure côté client consiste à chercher l'artiste Clint Eastwood
 et à le stocker dans l'espace mémoire du client (dans une variable, pour dire les choses simplement).
