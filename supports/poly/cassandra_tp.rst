@@ -8,18 +8,18 @@ Les exercices qui suivent sont à effectuer sur machine, avec Cassandra.
 
 Après avoir lancé votre machine Cassandra (avec docker, voir chapitre
 :ref:`chap-docstruct`), vous aurez besoin d'une interface cliente pour y
-accéder. Pour cela, nous utiliserons **DevCenter** de *DataStax*:
+accéder. Pour cela, nous utiliserons **DbVisualizer**,
+voir le chapitre :ref:`chap-docstruct` pour des détails.
 
-   * *DevCenter* : <https://academy.datastax.com/downloads/ops-center#devCenter>
 
-Vous pourrez également interagir en ligne de commande avec ``cqlsh`` avec la
-commande :
+Si vous êtes à l'aise en ligne de commande, vous pourrez également accéder à Cassandra 
+avec ``cqlsh`` qui se lance avec la commande suivante :
 
 .. code-block:: bash
 
    sudo docker exec -it mon-cassandra cqlsh
    # ceci suppose que mon-cassandra est le nom de votre container
-   # it pour disposer d'un terminal interactif persistant
+   # Option -it pour disposer d'un terminal interactif persistant
    # cqlsh pour lancer cette commande au démarrage
 
 Le sujet des travaux pratiques est la mise en place d'une base de données représentant
@@ -57,7 +57,8 @@ Avant d'interroger la base de données, il nous la créer. Pour commencer :
 
   .. code-block:: sql
 
-    CREATE KEYSPACE IF NOT EXISTS resto_NY WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor': 1};
+    CREATE KEYSPACE IF NOT EXISTS resto_NY 
+       WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor': 1};
 
 Nous créons ainsi une base de données *resto_NY* pour laquelle le facteur de réplication 
 est mis à 1, ce qui suffit dans un cadre centralisé. 
@@ -69,7 +70,8 @@ de données pour vos prochaines requêtes.
 
       USE resto_NY;
 
-L'équivalent existe dans une interface graphique bien entendu.
+Bien entendu vous 
+pouvez exécuter ces commandes via DbVisualizer.
 
 Tables
 ------
@@ -95,7 +97,7 @@ pour Cassandra) *Restaurant* et *Inspection* à partir du schéma suivant :
 
    CREATE INDEX fk_Inspection_Restaurant ON Inspection ( Grade ) ;
 
-Nous pouvons remarquer que chaque inspection est liée à un   restaurant via 
+Nous pouvons remarquer que chaque inspection est liée à un  restaurant via 
 l'identifiant de ce dernier. 
 
 Pour vérifier si les tables ont bien été créées (sous ``cqlsh``).
@@ -155,7 +157,7 @@ Maintenant, nous pouvons importer les fichiers CSV pour remplir les *Column Fami
                                 violationdescription, criticalflag, score, grade)
                FROM '/restaurants_inspections.csv' WITH DELIMITER=',';
             
-        .. note:: les fichiers sont copiés à la racine du container, si vous le changez il faut l'impacter dans l'instruction précédente.
+        .. note:: les fichiers sont copiés à la racine du container. Si vous changez le dossier de stockage, il faut bien sûr  l'indiquer dans l'instruction précédente.
 
           Vous pouvez vérifier l'existence des fichiers dans le container avec : 
 
@@ -169,6 +171,9 @@ Pour vérifier le contenu des tables:
 
       SELECT count(*) FROM Restaurant;
       SELECT count(*) FROM Inspection;
+
+Ce qui devrait vous indiquer environ 25 000 restaurants et 150 000 inspections. Nous
+sommes prêts!
 
 Interrogation
 =============
@@ -184,15 +189,15 @@ Requêtes CQL simples
 
 Pour la suite des exercices, exprimer en *CQL* les requêtes suivantes :
 
-   #. Liste de tous les restaurants.
-   #. Liste des noms de restaurants.
-   #. Nom et quartier (*borough*) du restaurant N° 41569764.
-   #. Dates et grades des inspections de ce restaurant.
-   #. Noms des restaurants de cuisine Française (*French*).
-   #. Noms des restaurants situés dans *BROOKLYN* (attribut *borough*).
-   #. Grades et scores donnés pour une inspection pour le restaurant n° 41569764 avec un score d'au moins 10.
-   #. Grades (non nuls) des inspections dont le score est supérieur à 30.
-   #. Nombre de lignes retournées par la requête précédente.
+   #. Liste de tous les restaurants
+   #. Liste des noms de restaurants
+   #. Nom et quartier (*borough*) du restaurant dont l'id est 41569764
+   #. Dates et grades des inspections de ce restaurant
+   #. Noms des restaurants de cuisine Française (*French*)
+   #. Noms des restaurants situés dans *BROOKLYN* (attribut *borough*; si vous recevez une erreur en retour notez-la bien) 
+   #. Grades et scores donnés pour une inspection pour le restaurant n° 41569764 avec un score d'au moins 10
+   #. Grades (non nuls) des inspections dont le score est supérieur à 30
+   #. Nombre de lignes retournées par la requête précédente
 
 .. ifconfig:: cassandratp in ('public')
 
