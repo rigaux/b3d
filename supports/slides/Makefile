@@ -18,6 +18,12 @@ modelisation :
 	mv genslides.pdf ../ressources-web/slmodelisation.pdf
 	make clean
 
+cassandra-swh : 
+	pdflatex  -shell-escape "\newcommand\titreDiapos{Jeudi 28 mars 2024}\newcommand\inputFile{cassandra-swh}\input{swhslides}"
+	mv swhslides.pdf ../ressources-web/slcassandra-swh.pdf
+	make clean
+	
+	
 cass-model : 
 	pdflatex  -shell-escape "\newcommand\titreDiapos{Cassandra: mod\'elisation des donn\'ees}\newcommand\inputFile{cass-model}\input{genslides}"
 	mv genslides.pdf ../ressources-web/slcass-model.pdf
