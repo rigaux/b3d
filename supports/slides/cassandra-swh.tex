@@ -15,6 +15,7 @@
   \item Imbrication (\textit{nesting}) de valeurs structurées
   \item Pas d'indépendance logique/physique\,: la clé
       détermine le placement
+   \item Sauf exception, les recherches se font sur la clé
   \end{redbullet}
 
   \vfill
@@ -64,15 +65,18 @@ les données le plus possible dans des lignes pour éviter les jointures.
 
 \vfill
 
-Un attribut  attribut peut correspondre\,:
+Une valeur d'attribut  peut correspondre\,:
 \begin{redbullet}
 	\item à un ensemble de valeurs (non ordonnées)\,: \textbf{SET} 
-	\item à une liste de valeurs \textbf{LIST}
+	\item à une liste de valeurs\,: \textbf{LIST}
 	\item à un dictionnaire\,: \textbf{MAP} 
-	\item à un tuple\,: \textbf{TUPLE} 
+	\item à un nuplet\,: \textbf{TUPLE} 
 	\item à une instance d'un type utilisateur
 \end{redbullet}
 
+\vfill
+
+Les ensembles doivent rester de taille raisonnable
 \end{frame}
 
 \begin{frame}[fragile] \frametitle{Clé de partitionnement = placement}
@@ -85,9 +89,9 @@ Un attribut  attribut peut correspondre\,:
  \begin{column}{0.45\textwidth}
 \begin{redbullet}
 		\item Pour chaque ligne on applique une fonction de hachage 
-		          aux valeurs de la clé de partitionnement
+		          aux valeurs de la clé de \alert{partitionnement}
 		\item La valeur de hachage détermine le placement dans le système distribué
-		\item $\Rightarrow$ une requête avec comme critère une clé de partitionnement
+		\item $\Rightarrow$ une requête incluant comme critère une clé de partitionnement
 		     ne concerne qu'un seul serveur
 	\end{redbullet}
 
@@ -111,7 +115,7 @@ Un attribut  attribut peut correspondre\,:
 		sur la clé primaire
 		\item Pour une même valeur de partitionnement,  les lignes 
 		   sont \alert{consécutives} et ordonnées sur la clé de regroupement
-		\item $\Rightarrow$ une requête sur une préfix de la clé 
+		\item $\Rightarrow$ une requête sur une préfixe de la clé 
 		    primaire (part. + regroupement)
 		     correspond à un parcours \alert{séquentiel} sur un seul nœud
 	\end{redbullet}
@@ -124,8 +128,8 @@ Un attribut  attribut peut correspondre\,:
 %%%%%%%%%%%
 \begin{frame}[fragile] \frametitle{Principes de conception}
 
-Très différent du relationnel. On adopte un des nombreux choix possible en 
-fonction des besoins supposés.
+On adopte un des nombreux schémas possibles en 
+fonction des besoins.
 
 \vfill
 
@@ -153,11 +157,15 @@ Acceptable pour une approche WORM (\textit{Write Once, Read many})
 \begin{center}
 \includegraphics[height=.6\textheight]{../figures/modele_swh.pdf}
 \end{center}
+
+Pour chaque table on a un point d'accès (pe \texttt{'origin'}) et l'identification
+relative à ce point d'accès (pe \texttt{'snapshot'}). On nommera la table 
+\texttt{snapshot\_by\_origin}
 \end{frame}
 
 
 %%%%%%%%%%%%%
-\begin{frame}[fragile] \frametitle{Commençons\,: cherchons les visites}
+\begin{frame}[fragile] \frametitle{Quelques exemples\,: cherchons les visites}
 
 Une première approche purement relationnelle ne fonctionne pas.
 \vfill
@@ -204,7 +212,7 @@ Une première approche purement relationnelle ne fonctionne pas.
   where origin_id = oid
   \end{minted}
   \vfill
-  Et Cassandra refuse les deux !
+  Et Cassandra refuse les deux ! 
 \end{column}
 \end{columns}
 
@@ -212,7 +220,7 @@ Une première approche purement relationnelle ne fonctionne pas.
 
 
 %%%%%%%%%%%%%
-\begin{frame}[fragile] \frametitle{Mieux}
+\begin{frame}[fragile] \frametitle{Organisons les clés et chemins d'accès}
 
 Les critères de recherche doivent être dans la clé
 
@@ -228,23 +236,35 @@ Les critères de recherche doivent être dans la clé
   \end{minted}
   
   \begin{minted}{sql}
-  create table Visit 
+  create table Visit_by_origin
      (url_origin varchar,
       visit_ref int,
       date date,
-      primary key (url_origin, visit_id)
+      primary key (url_origin, 
+                   visit_ref)
       )
   \end{minted}
   \end{column}
  \begin{column}{0.45\textwidth}
-  Une requête localisée et séquentielle
-  \vfill
 
   \begin{minted}{sql}
-  select * from Visit 
+  select * from Origin 
   where  url ='swh.org'
   \end{minted}
   
+  \vfill
+    \begin{minted}{sql}
+  select * from Visit_by_origin 
+  where  url ='swh.org'
+  \end{minted}
+    \vfill
+   
+  \begin{minted}{sql}
+  select * from Visit_by_origin 
+  where  url ='swh.org'
+  and visit_ref < 3
+  \end{minted}
+    
 \end{column}
 \end{columns}
 
@@ -252,7 +272,7 @@ Les critères de recherche doivent être dans la clé
 	
 	
 %%%%%%%%%%%%%
-\begin{frame}[fragile] \frametitle{Avec dénormalisation}
+\begin{frame}[fragile] \frametitle{Imbriquons pour avoir moins de tables}
 
 \vfill
 \begin{columns}
@@ -290,12 +310,12 @@ Les critères de recherche doivent être dans la clé
   \end{minted}
   
   \vfill
-  La seconde visite
+  Les origines visitées au moins 10 fois
   
    \begin{minted}{sql}
   select * from Origin 
   where  url ='swh.org'
-  and visit.number=2
+  and count(visit.number) >= 10
   \end{minted}
   
 \end{column}
@@ -305,7 +325,7 @@ Les critères de recherche doivent être dans la clé
 
 
 %%%%%%%%%%%%%
-\begin{frame}[fragile] \frametitle{En privilégiant l'accès \texttt{Origin} $\to$ \texttt{Snapshot}}
+\begin{frame}[fragile] \frametitle{Tentons une modélisation complète\,: \texttt{Snapshot}}
 
 
 \begin{columns}
@@ -319,19 +339,17 @@ Les critères de recherche doivent être dans la clé
     
     \vfill
   \begin{minted}{sql}
-  create table Snapshot 
+  create table Snapshot_by_origin
      (url varchar, 
       snapshot_date,
       snapshot_id uuid,
       origin Origin,
-      visits map<date, Visit>,
-      branches list<string>,
-      primary key (url, snapshot_date)
-      )
+      visits list<Visit>,
+      branches map<string, uuid>,
+      primary key (url, 
+      snapshot_date)  )
   \end{minted}
-  
-  \vfill
-  Suppose un nombre limité de visites et de branches
+  Avec peu de branches par snapshot
    \end{column}
  \begin{column}{0.45\textwidth}
   Tous les snapshots d'une origine.
@@ -339,7 +357,7 @@ Les critères de recherche doivent être dans la clé
   \vfill
   
   \begin{minted}{sql}
-  select * from Snapshot 
+  select * from Snapshot_by_origin 
   where  url ='swh.org'
   \end{minted}
   
@@ -347,12 +365,14 @@ Les critères de recherche doivent être dans la clé
    Snapshots après une date et contenant une branche \texttt{master}
    
  \begin{minted}{sql}
-  select * from Snapshot 
+  select * from Snapshot_by_origin 
   where  url ='swh.org'
   and snapshot_date > '01-MARCH-2024'
   and branches contains key 'master'
   \end{minted}
 
+\vfill 
+  On obtient les id des snapshots et des branches
 \end{column}
 \end{columns}
 	
@@ -360,35 +380,172 @@ Les critères de recherche doivent être dans la clé
 	
 	
 %%%%%%%%%%%%%
-\begin{frame}[fragile] \frametitle{Exemples pour \texttt{Revision}, \texttt{Directory}, \texttt{Entry}}
+\begin{frame}[fragile] \frametitle{Connaissant une branche\,: les \texttt{Revision}s}
 
 
 \begin{columns}
     \begin{column}{0.45\textwidth}
-   Ici, vraie sructure de graphe. À creuser, car autant
-   de requêtes que d'ancêtres\ldots
-   
+  Ici, vraie structure de graphe. Pas idéal\ldots
+    
   \begin{minted}{sql}
-  create table Revision 
+  create table Revision_by_branch
      (branch_id uuid, 
       revision_id uuid,
-      parent_id uuid,
+      parents list<uuid>,
       author varchar,
       message varchar,
-      timestamp date, 
-      primary key (branch_id, revision_id)
+      tstamp date, 
+      primary key (branch_id, 
+       revision_id)
       )
   \end{minted}
   
   
    \end{column}
  \begin{column}{0.45\textwidth}
+   Toutes les révisions d'une branche par Stefano.
+  
+  \begin{minted}{sql}
+  select * from Revision_by_branch 
+  where  branch_id ='bxyz'
+  and author = 'Stefano'
+  \end{minted}
+  
+   \vfill
+    Les révisions dont un parent est la révision 'abcd'
+   
+ \begin{minted}{sql}
+  select * from Revision_by_branch 
+  where   branch_id ='bxyz'
+  and parents contains 'abcd'
+  \end{minted}
+
+\vfill 
+  On obtient les id des révisions d'une branche
+  
+\end{column}
+\end{columns}
+	
+\end{frame}
+	
+
+	
+%%%%%%%%%%%%%
+\begin{frame}[fragile] \frametitle{Connaissant une \texttt{Revision}\,: les \texttt{Directory}}
+
+
+\begin{columns}
+    \begin{column}{0.45\textwidth}
+    Idem, structure d'arbre (?), une requête
+  par directory. Pas idéal\ldots
+  
+  \vfill
+  
+   \begin{minted}{sql}
+  create table Directory_by_revision
+     (revision_id uuid,
+      directory_id uuid,
+      children list<uuid>,
+      parent_id uuid,
+      primary key (revision_id,
+          directory_id)
+      )
+  \end{minted}
+
+   On peut naviguer parent/enfants, mais une requête à chaque fois
+   \end{column}
+ \begin{column}{0.45\textwidth}
+     À l'inverse si je veux avoir la liste des révisions
+     d'une directory, je dois inverser la clé\ldots
+   \begin{minted}{sql}
+  create table Revision_by_directory 
+     (directory_id uuid,
+      revision_id uuid,
+      children list<uuid>,
+      primary key (revision_id,
+          directory_id)
+      )
+  \end{minted}
+   \texttt{Revision\_by\_directory} peut être une \alert{vue matérialisée}
+    
+\end{column}
+\end{columns}
+	
+\end{frame}
+
+%%%%%%%%%%%%%
+\begin{frame}[fragile] \frametitle{Connaissant une \texttt{Directory}\,: les \texttt{Entry}}
+
+
+\begin{columns}
+    \begin{column}{0.40\textwidth}
+   
+  \begin{minted}{sql}
+  create table Entry_by_dir
+     (directory_id uuid, 
+      name varchar,
+      access_rights varchar,
+      content_ref varchar,
+      primary key (directory_id, 
+       name)
+      )
+  \end{minted}
+
+\vfill
+ NB\,: sans doute trop d'entrées par directory 
+ pour les représenter par une liste imbriquée
+  
+   \end{column}
+ \begin{column}{0.50\textwidth}
+  
+  Toutes les entrées d'une directory
+  
+  \begin{minted}{sql}
+  select name from Entry_by_dir
+  where directory_id = 'xyz'
+  \end{minted}
+  
+   \vfill
+   
+   Une entrée \texttt{README.md}
+ \begin{minted}{sql}
+  select content_ref from Entry_by_dir
+  where directory_id = 'xyz'
+  and name = 'README.md'
+  \end{minted}
  
 \end{column}
 \end{columns}
 	
 \end{frame}
 	
+	
+	
+%%%%%%%%%%%%%
+\begin{frame}[fragile] \frametitle{En résumé (provisoire)}
+
+En synthèse\,:
+
+\begin{redbullet}
+
+   \item La clé primaire détermine le stockage \emph{et} les requêtes possibles
+   
+     $\Rightarrow$ \alert{clé de partitionnement} = point d'accès, \alert{clé de regroupement} =
+   identifiant relatif au point d'accès
+  
+  \item Il faut parfois ``retourner'' une clé primaire si on souhaite un accès 
+     symétrique à une table existante      (cf. exemple \texttt{révision/Directory})
+     
+      $\Rightarrow$  automatisable avec une vue matérialisée (forte redondance)
+
+   \item L'imbrication d'ensembles ou listes peut limiter le nombre d'étapes 
+   
+      $\Rightarrow$ leur taille doit être restreinte, cf. exemple des branches
+   
+\end{redbullet}
+	
+\end{frame}
+
 \end{document}
 
 
