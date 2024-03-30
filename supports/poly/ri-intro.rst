@@ -663,49 +663,47 @@ sous tous les systèmes et mettre ElasticSearch en attente sur le port 9200.
 
 .. code-block:: bash
 
-    docker run -d --name es1 -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node"  elasticsearch:7.8.1
-
-.. docker network create ElasticNetwork
-     
-Quelques remarques:
-
- - L'option ``-d`` lance le serveur ElasticSearch en tâche de fond (vous pouvez
-   l'enlever, mais vous devrez utiliser une autre console pour lancer des
-   commandes, elle sera dévolue aux messages du serveur)
- - Les serveurs ElasticSearch prennent par défaut des noms tirés du catalogue des héros Marvel.
-
-.. - L'option ``-D`` permet de configurer le serveur en affectant des valeurs à certains paramètres.
+    docker run -d --name es1 -p 9200:9200  elasticsearch:8.13.0
 
 .. admonition:: Les versions d'ElasticSearch
 
    ElasticSearch évolue rapidement. Pour éviter que les instructions qui suivent
    ne deviennent rapidement obsolètes, j'indique le numéro de version dans
-   l'installation avec Docker (la 7.8.1, de juillet 2020). 
+   l'installation avec Docker (la 8.13.0, de mars 2024). 
 
-Ici, le nombre de fragments de l'index est fixé à 1, et le degré de réplication
-à 0. Cela revient à demander à ElasticSearch de s'exécuter en mode local, sans
-distribution. Tout cela sera revu plus tard.
 
-Toutes les interactions avec un serveur ElasticSearch passent par une interface
-REST basée sur JSON (revoyez au besoin le chapitre :ref:`chap-bddoc`). Vous
-pouvez directement vous adresser au serveur REST en écoute sur le port 9200. 
-
-Vous pouvez obtenir l'IP de votre conteneur (que l'on a nommé *es1*) avec la
-commande Bash suivante:
+Quelques commandes supplémentaires sont nécesssaires. Un compte ``elastic`` 
+est créé, on lui attribue un mot de passe avec la commande suivante:
 
 .. code-block:: bash
 
-     docker inspect --format '{{ .NetworkSettings.IPAddress }}' es1
+	docker exec -it es1 /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic
 
-.. admonition:: localhost
+Notez le mot de passe et placez-le éventuellement dans une variable
+d'environnement
 
-   Pour simplifier le travail des élèves sur les machines du CNAM, nous
-   utilisons dans la suite "localhost" comme nom de machine (équivalent à
-   127.0.0.1). Si vous travaillez sur une autre machine, relevez l'IP obtenue
-   ci-dessus et remplacez localhost par cette adresse IP dans les commandes.
+.. code-block:: bash
 
-Un accès avec votre navigateur (ou avec ``cUrl``) à `http://localhost:9200
-<http://localhost:9200>`_ devrait renvoyer un document JSON semblable à
+	export ELASTIC_PASSWORD=<le_mot_de_passe>
+	
+Si vous voulez interagir avec ``curl``, il faut récupérer un certificat
+d'authentification SSL.
+
+.. code-block:: bash
+
+	docker cp es1:/usr/share/elasticsearch/config/certs/http_ca.crt .
+	
+
+Toutes les interactions avec un serveur ElasticSearch passent par une interface
+REST basée sur JSON (revoyez au besoin le chapitre :ref:`chap-bddoc`). Vous
+pouvez directement vous adresser au serveur REST en écoute 
+sur https://localhost:9200. Avec ``curl`` vous pouvez donc faire:
+
+.. code-block:: bash
+
+	curl --cacert http_ca.crt  -U elastic:mot_de_passe https://localhost:9200 
+
+Vous devriez obtenir un document JSON semblable à
 celui-ci:
 
 .. code-block:: json
@@ -715,59 +713,36 @@ celui-ci:
     "cluster_name": "docker-cluster",
     "cluster_uuid": "89U3LpNhTh6Vr9UUOTZAjw",
     "version": {
-        "number": "7.8.1",
+        "number": "8.13.0",
         "...": "...",
-         "lucene_version": "8.5.1",
+         "lucene_version": "9.1.1",
       },
     "tagline": "You Know, for Search"
     }
 
 Pour une inspection confortable du serveur et des index ElasticSearch, nous
-vous conseillons d'utiliser une interface d'admiistration: ``cerebro`` (successeur
-de Kopf). Elle peut être téléchargée ici: https://github.com/lmenezes/cerebro.
+vous conseillons d'utiliser une interface d'administration: ``ElasticVue``,
+disponible sous toutes les plateformes. 
+Elle peut être téléchargée ici: https://elasticvue.com/.
 
-Vous obtenez un répertoire ``cerebro-xx-yy-zz``. Il faut exécuter le programme 
-``bin/cerebro`` de ce répertoire.
-
-Sous Unix/Linux, voici la séquence de commandes correspondante :
-
-.. code-block:: bash
-
-  wget https://github.com/lmenezes/cerebro/releases/download/v0.9.2/cerebro-0.9.2.tgz
-  tar -xvzf cerebro-0.9.2.tgz; cd cerebro-0.9.2;
-  ./bin/cerebro
-
-Testez que tout fonctionne en visitant (avec un navigateur de votre machine)
-l'adresse http://localhost:9000/#/connect, en saisissant l'adresse du serveur
-Elasticsearch dans la première fenêtre (:code:`http://localhost:9200/`). Vous
-devriez  obtenir l'affichage de la  :numref:`es-webui` montrant le serveur (ici
-ayant l'identifiant :code:`dce64308a5d1`) et proposant tout un ensemble
-d'actions. En particulier, la barre supérieure de l'interface propose un bouton
-:code:`rest`, permettant d'accéder à un espace de travail optimisé pour éditer
-des requêtes et vérifier les résultats.
+En lançant l'application, on peut se connecter au serveur https://localhost:9200
+et on obtient l'interface de la figure :numref:`es-webui`.
+La barre supérieure de l'interface propose des options ``REST`` 
+et ``SEARCH`` qui vont nous intéresser dans un premier temps.
 
 .. _es-webui:
-.. figure:: ../figures/es-cerebro-webui.png
+.. figure:: ../figures/elasticvue.png
       :width: 90%
       :align: center
    
-      Le tableau de bord proposé par Cerebro.
-      
-ElasticSearch organise les données selon trois niveaux:
-
-  - *l'index* regroupe des chemins d'accès à un collection de documents;
-  - *le type* désigne le format du document indexé;
-  - *l'identifiant* sert de clé d'accès à un document;
-  - enfin chaque document a un numéro de version.
-  
-.. _sec-introri-premierdoc:
+      Le tableau de bord proposé par ElasticVue.
 
 Première indexation
 -------------------
 
 L'indexation dans un moteur de recherche, c'est l'opération qui consiste à
 stocker un document, à l'aide des *index*. Nous allons dans ce qui suit indexer
-un de nos films dans l'index ``nfe204-1``, avec le type ``movies``. Elasticsearch
+un de nos films dans l'index ``nfe204-1``. Elasticsearch
 est par défaut assez souple et se charge d'inférer la nature des champs du
 document que nous lui transmettons. Nous verrons dans le chapitre
 :ref:`chap-indexation` que l'on peut paramétrer précisément cette étape, pour
@@ -776,67 +751,40 @@ utilisateurs de notre application.
 
 Téléchargez le document `movie_1.json <http://b3d.bdpedia.fr/files/movie_1.json>`_.
 
-Pour transmettre notre document à Elasticsearch, on exécute la commande
-suivante, dans un terminal (dans le dossier où se trouve ``movie_1.json``) :  
+Pour créer l'index on envoie un ``PUT`` à l'adresse
+https://localhost:9200/nfe204-1 pour créer la ressource.
+C'est facile avec la fenêtre REST d'ElasticVue: voir 
+:numref:`es-create-index`.
 
-.. code-block:: bash
-
-     curl -X PUT http://localhost:9200/nfe204-1/movies/movie:1 -H 'Content-Type: application/json' --data-binary @movie_1.json
-    
-.. note:: Les versions récentes d'ElasticSearch n'acceptent pas d'attribut nommé ``_id`` dans le document
-   JSON. Retirez-le avant d'effectuer l'insertion, s'il est présent.
-   
-Le ``PUT`` crée une "ressource" (au sens Web/REST du terme, cf. chapitre
-:ref:`chap-bddoc`) à l'URL indiquée. Attention à bien spécifier comme
-identifiant de la ressource la même valeur que celle du champ ``_id`` du
-document JSON. Si vous avez pratiqué un peu l'interface REST de CouchDB, vous
-remarquerez que l'on retrouve exactement les mêmes principes.
-
-La réponse devrait être:
-
-.. code-block:: json
-
-    {
-      "_index": "nfe204-1",
-      "_type": "movies",
-      "_id": "movie:1",
-      "_version": 1,
-      "result": "created",
-      "_shards": {
-        "total": 2,
-        "successful": 1,
-        "failed": 0
-      },
-      "_seq_no": 0,
-      "_primary_term": 1
-    }
-    
-Attention, comme on a fait une indexation directe qui crée l'index, il nous faut
-saisir cette commande pour ajuster un paramètre d'Elasticsearch (sinon le
-cluster passe en orange dans l'interface Cerebro, avec un problème de
-`sharding`) :
-
-.. code-block:: bash
-
-    curl -X PUT "localhost:9200/nfe204-1/_settings?pretty" -H 'Content-Type: application/json' -d' { "number_of_replicas": 0 }'
-
-Si nous rafraichissons l'interface web, nous obtenons l'affichage de la 
-:numref:`es-insert`, avec un nouvel index ``nfe204-1``. 
-
-.. _es-insert:
-.. figure:: ../figures/es-cerebro-insert.png
+.. _es-create-index:
+.. figure:: ../figures/es-create-index.png
       :width: 90%
       :align: center
    
-      Apparition d'un nouvel index (encadré en rouge)
+      Utilisation d'ElasticVue pour transmettre des commandes REST
 
+Le ``PUT`` crée une "ressource" (au sens Web/REST du terme, cf. chapitre
+:ref:`chap-bddoc`) à l'URL indiquée.
 
-La ressource étant créée, un ``GET`` permet de la ramener.
+Nous pouvons maintenant insérer un document en transmettant 
+un ``POST`` à l'index https://localhost:9200/nfe204-1/_doc, 
+ou un ``PUT`` à l'adresse https://localhost:9200/nfe204-1/doc-id 
+où ``doc-id`` désigne l'identifiant du document. 
 
-.. code-block:: bash
+Dans le cas du ``POST`` cet identifiant est pris dans le document lui-même
+(champ ``_id``) ou généré par ElasticSearch. Vous pouvez utiliser ``curl`` ou,
+beaucoup plus facile, ElasticVue comme montré dans la :numref:`es-index-doc`.
 
-    curl -X GET http://localhost:9200/nfe204-1/movies/movie:1
-        
+.. _es-index-doc:
+.. figure:: ../figures/es-index-doc.png
+      :width: 90%
+      :align: center
+   
+      Utilisation d'ElasticVue pour insérer un document
+
+La ressource étant créée, un ``GET`` permet de la ramener.  C'est le moment
+de tester la fenêtre ``SEARCH`` d'ElasticVue qui devrait vous ramener
+votre premier document.
 
 Indexer davantage de documents
 ------------------------------
@@ -854,26 +802,23 @@ utilisateurs du système :
 - un document présent dans l'index mais détruit dans la source, trouvé donc 
   par une recherche alors qu'il n'existe pas.
 
-Dans les versions précédentes d'Elasticsearch, il existait un mécanisme de
-*river* (fleuve), par lequel les documents de Mongodb pouvaient *couler*
-(automatiquement) vers Elasticsearch. Ce mécanisme a disparu, nous verrons en
+Nous verrons en
 Travaux Pratiques comment automatiser tout de même cette synchronisation. Pour
 le moment, nous allons nous contenter d'utiliser une autre interface
 d'Elasticsearch, appelée ``bulk`` (*en grosses quantités*), qui permet comme son
 nom l'indique d'indexer de nombreux documents en une seule commande. 
 
 Récupérez notre collection de films, au format JSON adapté à l'insertion en masse
-dans ElasticSearch,  sur le site http://deptfod.cnam.fr/bd/tp/datasets. Le fichier
+dans ElasticSearch,  sur le site http://deptfod.cnam.fr/bd/tp/datasets/. Le fichier
 se nomme ``films_esearch.json``.
 
 Vous pouvez l'ouvrir pour voir le format.  Chaque document
-"film" (sur une seule ligne) est précédé d'un petit document JSON qui précise l'index (``movies``), le
-type de document (``movie``) et l'identifiant (``1``).
+"film" (sur une seule ligne) est précédé d'un petit document JSON qui précise l'index (``movies``), 
+et l'identifiant (``1``).
 
 .. code-block:: json
 
-    {"index":{"_index": "nfe204","_type":"movies","_id": "movie"}}
-    
+    {"index":{"_index": "nfe204", "_id": "movie"}}
     
 On trouve ensuite les documents JSON proprement dits. **Attention il ne doit pas y avoir de retour à la
 ligne dans le codage JSON**, ce qui est le cas dans le document que nous fournissons.
@@ -882,29 +827,15 @@ ligne dans le codage JSON**, ce qui est le cas dans le document que nous fournis
 
     {"title": "Mars Attacks!", "summary": "...", "...": "..."}
  
-Ensuite, importez les documents dans Elasticsearch avec la commande suivante (en
-étant placé dans le dossier où a été récupéré le fichier):
-
-.. code-block:: bash
-
-   curl -s -XPOST http://localhost:9200/_bulk/ -H 'Content-Type: application/json' --data-binary @films_esearch.json
-
-Puis, comme précédemment (pour le partitionnement) :
-
-.. code-block:: bash
-
-    curl -X PUT "localhost:9200/nfe204/_settings?pretty" -H 'Content-Type: application/json' -d' { "number_of_replicas": 0 }'
+Ensuite, importez les documents dans Elasticsearch en le transmettant par 
+un ``POST``  à l'URL https://localhost:9200/_bulk/
 
 Avec les paramètres spécifiés dans le fichier ``films_esearch.json``, vous
 devriez retrouver un index ``nfe204``  maintenant présent dans l'interface, contenant
 les données sur les films.
 
-Nous sommes prêts à interroger notre moteur de recherche avec l'API REST. Dans
-l'interface Cerebro, ou simplement avec votre navigateur (qui agit comme un
-client HTTP et donc REST, rappelons-le), utilisez le chemin ``_search`` pour
-déclencher la fonction de recherche. Vous pouvez également transmettre quelques
-requêtes par mot-clé sur un des index, par exemple
-``nfe204/movies/_search?q=Logan``. 
+Nous sommes prêts à interroger notre moteur de recherche 
+en entrant des requêtes dans la fenêtre ``SEARCH``. 
 
 
 Mise en pratique
@@ -913,19 +844,10 @@ Mise en pratique
 .. _MEP-S2-1:
 .. admonition:: Exercice  `MEP-S2-1`_: mise en route ElasticSearch
 
-   Installez ElasticSearch sur votre machine, avec l'une des interfaces d'aministration
-   proposée ci-dessus (nous vous conseillons Kopf). Insérez le fichier des films. Vous pouvez alors en 
-   profiter pour explorer les options de l'interface ce qui vous facilitera les choses
+   Installez ElasticSearch sur votre machine selon les instruction précédentes. 
+   Insérez le fichier des films. Vous pouvez alors en 
+   profiter pour explorer les options de l'interface ElasticVue, ce qui vous facilitera les choses
    par la suite.
-   
-     * Cherchez comment ElasticSearch a interprété la structure des documents fournis (information
-       dite de *Mapping*).
-     * Vous trouverez une option de "rafraichissement" d'index. Essayez de comprendre de
-       quoi il s'agit (aide: reprenez ce que nous avons dit sur les différences entre
-       une base de données et un moteur de recherche).
-     * Exécutez les requêtes et regardez les options proposées pas
-       l'interface (``explain`` par exemple).
-
 
 Quiz
 ====
