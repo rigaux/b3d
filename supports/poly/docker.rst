@@ -496,7 +496,7 @@ et des images et fournit un tableau de bord sur le système
 distribué virtuel
 (:numref:`dashboard`).
 
-.. _dashboard
+.. _dashboard:
 .. figure:: ../figures/docker-dashboard.jpg   
       :width: 70%
       :align: center
@@ -621,9 +621,9 @@ une fois pour toutes un environnement distribué constitué de plusieurs serveur
    
    Pour MongoDB, voici les deux principaux  clients disponibles gratuitement: 
    
-     - Studio 3T (*free edition*), un des plus anciens, disponible à https://robomongo.org/
+     - Studio 3T (*free edition*), un des plus anciens, disponible à https://studio3t.com/
      - Compass, disponible à https://www.mongodb.com/products/tools/compass,
-       le client graphique ``officiel'' de MongoDB
+       le client graphique "officiel" de MongoDB
    
    Créez un fichier de configuration pour ``docker-compose``  également, afin d'instancier
    trois conteneurs.

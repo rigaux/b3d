@@ -1985,8 +1985,7 @@ pour les fonctionnalités standard attendues d'un système de gestion de bases d
     contrôle des données est reportée du côté de l'application; des 
     contraintes basées sur la spécification JsonSchema (https://json-schema.org/) 
     peuvent être spécifiées
-  - MongoDB propose un langage d'interrogation qui  lui est propre 
-   (donc, non standardisé), pratique mais peu clair et assez limité; 
+  - MongoDB propose un langage d'interrogation qui  lui est propre (donc, non standardisé), pratique mais peu clair et assez limité; 
   - enfin, depuis la version 4.0  MongoDB offre un support transactionnel optionnel. 
 
 C'est donc un système assez riche, très utilisé, et offrant des capacités

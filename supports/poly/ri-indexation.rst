@@ -335,8 +335,8 @@ Le schéma
 
 Un document est, on l'a vu, constitué de *champs* (*fields*), chaque champ étant
 indexé séparément. Le schéma indique les paramètres d'indexation pour chaque
-champ. Revenons au document de la section :ref:`sec-introri-premierdoc`, qui
-décrit un film dans la base Webscope, avec une liaison vers une collection
+champ. Revenons au document 
+décrivant un film dans la base Webscope, avec une liaison vers une collection
 d'artistes : 
 
     .. code-block:: json	
