@@ -901,35 +901,21 @@ Le langage de base
 
 Une première méthode pour transmettre des recherches est de passer une
 expression en paramètre à l'URL à laquelle répond votre serveur ElasticSearch.
-Reprenez l'URL que vous avez obtenue pour votre conteneur dans la section Mise
-en place ou, si vous travaillez en local, utilisez ``localhost``. La suite de
-l'URL sera composée de l'index, puis du type de documents, puis de l'interface.
-Nous allons commencer par l'interface ``search``, qui permet comme son nom
-l'indique d'effectuer des recherches. 
-
-Nous pouvons donc travailler avec l'URL
-http://localhost:9200/movies/movie/_search, directement dans votre navigateur ou  avec
-cURL. Il est
-également possible de travailler dans l'interface Kopf, en se plaçant dans
-l'onglet Rest. La forme la plus simple d'expression est une liste de mots-clés.
+La forme la plus simple d'expression est une liste de mots-clés.
 Voici quelques exemples d'URLs de recherche:
+
 
 .. code-block:: html
 
-     http://localhost:9200/nfe204/movies/_search?q=alien
-     http://localhost:9200/nfe204/movies/_search?q=alien,coppola
-     http://localhost:9200/nfe204/movies/_search?q=alien,coppola,1994
+     https://localhost:9200/nfe204/_search?q=alien
+     https://localhost:9200/nfe204/_search?q=alien,coppola
+     https://localhost:9200/nfe204/_search?q=alien,coppola,1994
 
-Ce sont des requêtes essentiellement *non structurées*, très faciles à exprimer,
-mais donnant peu de contrôle et d'expressivité. La réponse est dans un format
-JSON avec peu d'espaces, vous pouvez le rendre lisible en ajoutant à la fin de
-l'URL le paramètre ``&pretty=true`` (et voyez cette page `Common Options
-<https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html>`_
-pour d'autres paramètres éventuels).
-
-.. code-block:: bash
-
-    curl http://localhost:9200/nfe204/movies/_search?q=alien&pretty=true
+Les dernières versions (à partir de la 8)
+d'ElasticSearch ont introduit des mesures de sécurité qui compliquent 
+fortement l'accès au serveur en HTTPS direct. Mieux vaut donc utiliser
+ElasticVue avec la fenêtre ``SEARCH``  qui se charge se constituer l'URL 
+de requête.
 
 Une seconde méthode est de transmettre un document JSON décrivant la recherche. L'envoi
 d'un document suppose que l'on utilise la méthode ``POST``. Voici
@@ -945,21 +931,20 @@ par exemple un document avec une recherche sur trois mots-clé.
      }
    }
    
-Pour la tester, il est plus pratique d'utiliser l'interface Web. La 
-:numref:`es-search` montre l'exécution avec l'interface Kopf.
+La 
+:numref:`es-search` montre l'exécution avec l'interface ElasticVue.
 
 .. _es-search:
 .. figure:: ../figures/es-search.png
       :width: 100%
       :align: center
    
-      L'interface Kopf avec recherches structurées
+      L'interface ElasticVue avec recherches structurées
       
 On voit clairement (mais partiellement) le résultat, produit sous la forme d'un
 document JSON énumérant les documents trouvés dans un tableau ``hits``. Notez
 que le  document indexé lui-même est présent, dans le champ ``_source``,
-correspondant à un comportement par défaut d'ElasticSearch (dans sa version
-actuelle) : *la totalité des documents sont dupliqués dans ElasticSearch*:  la
+correspondant à un comportement par défaut d'ElasticSearch: *la totalité des documents sont dupliqués dans ElasticSearch*:  la
 question de l'utilisation de *deux* systèmes qui semblent partiellement
 redondants se pose. Nous revenons sur cette question plus loin. 
 
@@ -985,10 +970,11 @@ source du résultat.
    }
 
 
-Nous allons pour l'instant nous contenter d'une variante du language, dite *Query String*, qui
+Nous allons pour l'instant nous contenter d'une variante du language, 
+dite *Query String*, qui
 correspond, essentiellement, au langage de base de Lucene.  Toutes les
 expressions données ci-dessous peuvent être entrées comme valeur du champ
-``query`` dans le document-recherche donné
+``query`` dans le document-recherche passé à l'interface ``REST``.
 
 Termes
 ======
@@ -998,18 +984,26 @@ séquence de mots (une *phrase*) placée entre apostrophes. La recherche:
 
 .. code-block:: sql
 
-   neo apprend
+   Princess Leia
 
-retourne tous les documents contenant soit "neo", soit "apprend". La recherche
+retourne tous les documents contenant soit "Princess", soit "Leia". La recherche
 
 .. code-block:: sql
 
-  "neo apprend"
+  "Princess Leia"
   
 ramène les documents contenant les deux mots côte à côte (vous devez utiliser
 \\" pour intégrer un guillemet double dans une requête). 
 
+.. code-block:: json
 
+   { 
+    "query": {
+       "query_string" : {
+           "query" : "\"Princess Leia\""
+       }
+     } 
+   }
 Par défaut, la recherche  s'effectue toujours sur tous les champs d'un document
 indexé (ou , plus précisément, sur un champ ``_all`` dans lequel ElasticSearch
 concatène toutes les chaînes de caractères). La syntaxe complète pour associer
@@ -1032,7 +1026,7 @@ utiliser la syntaxe suivante :
      } 
    }
 
-Revenez au fichier ``movies_elastic.json``  et à la structure de ses documents pour
+Revenez au fichier JSON  et à la structure de ses documents pour
 voir que les données de chaque film sont imbriquées sous un champ ``fields``.
 Nous l'omettons dans la suite, pensez à l'ajouter.
 
@@ -1041,7 +1035,7 @@ Les requêtes précédentes sont donc équivalentes à:
 
 .. code-block:: sql
 
-   _all:"neo apprend"
+   _all:"Princess Leia"
   
 Les valeurs des termes (dans la requête) et le texte indexé sont tous deux
 soumis à des transformations que nous étudierons dans le chapitre suivant. Une
@@ -1049,7 +1043,7 @@ transformation simple est de tout transcrire en minuscules. La requête:
 
 .. code-block:: sql
 
-   _all:"NEO APPREND"
+   _all:"PRINCESS LEIA"
 
 devrait donc donner le même résultat, les majuscules étant converties en
 minuscules. La conception d'un index doit soigneusement indiquer les
@@ -1279,6 +1273,3 @@ Exercices
    Vous êtes invités à effectuer les recherches avec ou sans majuscules, à chercher
    des phrases comme "féroce et meurtrier", à indiquer ou non des noms de champs,
    et à interpréter les résultats (ou l'absence de résultat) obtenus.
-   
-   Exemple: cherchez le titre "Titanic", puis "titanic", puis effectuez une recherche
-   sans précisez le nom du champ. Alors?
