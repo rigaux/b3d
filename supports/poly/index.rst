@@ -19,10 +19,8 @@ Cours de bases de données documentaires et distribuées
   
 
   ri-intro
-  ri-indexation
   ri-ranking
-  ri-tpelasticdsl
-  ri-tpranking
+  ri-recherches
   
   cloud
   replication

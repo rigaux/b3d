@@ -1,8 +1,8 @@
 .. _chap-ranking:
    
-#########################
-Recherche avec classement
-#########################
+####################################
+Principes du classement de documents
+####################################
 
 Supports complémentaires:
 
@@ -260,12 +260,11 @@ Quiz
 
     Comment est interprétée une requête *q* ?
    
-    A) :eqt:`I` C'est une séquence d"opérations à appliquer à la collection
+    A) :eqt:`I` C'est une séquence d'opérations à appliquer à la collection
     #) :eqt:`I` C'est une spécification de critères de recherche filtrant la collection
     #) :eqt:`C` C'est un document de même type que ceux de la collection
     #) :eqt:`I` C'est une sous-chaîne des documents textuels de la collection
    
-
 
 .. eqt:: ri-rank1-5
 
@@ -1430,14 +1429,5 @@ même de comprendre ce qui se passe, donc utilisez *aussi* votre cerveau!
       .. admonition:: Correction
 
         Vous devriez pouvoir y arriver tout seul....
-
-*****************************************************
-Implémenter le classement dans un moteur de recherche
-*****************************************************
-
-Pour poursuivre ce cours sur le classement, vous pouvez suivre les Travaux
-pratiques dans le chapitre :ref:`chap-ritp_tpranking`, dans lequel vous
-expérimenterez différentes manières de pondérer un classement avec
-ElasticSearch. 
 
 

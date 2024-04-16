@@ -242,8 +242,8 @@ S2: L'indexation dans ElasticSearch
 Par défaut, Elasticsearch propose une analyse des documents automatisée,
 *inférant* la nature des champs qui sont présents dans les documents qu'on lui
 propose par l'interface ``_bulk`` (voir chapitre précédent). Vous pouvez par
-exemple consulter l'analyse qui a été réalisée pour les films en saisissant la
-commande suivante (dans le terminal ou dans Kopf) :
+exemple consulter l'analyse qui a été réalisée pour les films 
+en interrogeant simplement l'index (:numref:`es-schema`).
 
   .. code-block:: bash
 

@@ -539,14 +539,222 @@ Quiz
 
 
 
-**********************************************
-S2: Bases documentaires et moteur de recherche
-**********************************************
+**************************
+S2: L'analyse de documents 
+**************************
+
+.. admonition:: Supports complémentaires:
+
+    * `Présentation: Recherche d'information - analyse de documents <http://b3d.bdpedia.fr/files/slri-indexation-analyse.pdf>`_
+    * `Vidéo : Pré-traitement des documents  textuels  <https://mediaserver.lecnam.net/permalink/v125f5947d4batpxkr93/>`_  
+  
+En présence d'un document textuel un tant soit peu complexe, on ne peut pas se
+contenter de découper plus ou moins arbitrairement en mots sans se poser
+quelques questions et appliquer un pré-traitement du texte. Les effets de ce
+pré-traitement doivent être compris et maîtrisés: ils influent directement sur
+la précision et le rappel. Quelques exemples simples pour s'en convaincre:
+
+ - si on cherche les documents contenant le mot "loup", on s'attend généralement
+   à trouver ceux contenant "loups", "Loup", "louve"; il faut donc, quand on
+   conserve un document dans Elasticsearch, qu'il soit en mesure de mettre ces
+   différentes formes dans *le même index inversé*;
+   
+ - si on ne normalise pas (on conserve les majuscules et les pluriels), on va dégrader
+   le rappel, puisqu'un utilisateur saisissant le mot-clef "loup" ne trouvera
+   pas les documents dans lesquels ce terme apparaît *seulement* sous la forme "Loup" ou "loups";
+   
+ - on le comprend immédiatement avec le cas de "loup / louve", il faut une
+   connaissance experte de la langue pour décider que "louve" et "loup" doivent
+   être associés, ce qui requiert une transformation qui dépend de la langue et
+   nécessite une analyse approfondie du contenu;
+
+ - inversement, si on normalise (retrait des accents, par exemple) "cote",
+   "côte", "côté", on va unifier des mots dont le sens est différent, et on va
+   diminuer la précision.
+
+En fonction des caractéristiques des documents traités, des utilisateurs de
+notre système de recherche, il faudra trouver un bon équilibre, aucune solution
+n'étant parfaite. C'est de l'art et du réglage... 
+
+L'analyse se compose de plusieurs phases: 
+
+  * *Tokenization*: découpage du texte en "termes".
+  * *Normalisation*: identification de toutes les variantes d'écritures d'un
+    même terme et choix d'une règle de normalisation (que faire des majuscules? acronymes? apostrophes? accents?).     
+  * *Stemming* ("racinisation"): rendre la racine des mots pour éviter le biais des 
+    variations autour d'un même sens (auditer, auditeur, audition, etc.)
+  * *Stop words* ("mots vides"), comment éliminer les mots très courants qui ne rendent
+    pas compte de la signification propre du document?
+
+Ce qui suit est une brève introduction, essentiellement destinée à comprendre
+les outils prêts à l'emploi que nous utiliserons ensuite. Remarquons en
+particulier que les étapes ci-dessus sont parfois décomposées en sous-étapes
+plus fines avec des algorithmes spécifiques (par exemple, un pour les accents,
+un autre pour les majuscules). L'ordre que nous donnons ci-dessus est un exemple, 
+il peut y avoir de légères variations. Enfin, notez bien que **le texte
+transformé dans une étape sert de texte d'entrée à la transformation suivante**
+(nous y reviendrons dans la partie pratique).
+
+Tokenisation et normalisation
+=============================
+
+Un *tokenizer* prend en entrée un texte (une chaîne de caractères) et produit
+une séquence de *tokens*. Il effectue donc un traitement purement lexical,
+consistant typiquement à éliminer les espaces blancs, la ponctuation, les
+liaisons, etc., et à identifier les "mots". Des transformations peuvent
+également intervenir (suppression des accents par exemple, ou normalisation des
+acronymes - U.S.A. devient USA). 
+
+La tokenization est très fortement dépendante de la langue. La première chose à
+faire est d'identifier cette dernière. En première approche on peut examiner le
+jeu de caractères (:numref:`characters`).
+
+.. _characters:
+.. figure:: ../figures/characters.png
+      :width: 10%
+      :align: center
+   
+      Quelques jeux de caractères ... exotiques
+      
+Il s'agit respectivement du: Coréen, Japonais, Maldives, Malte, Islandais. 
+Ce n'est évidemment pas suffisant pour distinguer des langues utilisant le
+même jeu de caractères. Une extension simple est d'identifier
+les *séquences de caractères fréquents*, (*n*-grams).
+Des bibliothèques fonctionnelles font ça très bien (e.g., Tika, http://tika.apache.org)
+
+Une fois la langue identifiée, on divise le texte en *tokens* ("mots"). 
+Ce n'est pas du tout aussi facile qu'on le dirait!
+
+  * Dans certaines langues (Chinois, Japonais), les mots  *ne sont pas* séparés par des espaces.
+  * Certaines langues s'écrivent de droite à gauche, de haut en bas.
+  * Que faire (et de manière *cohérente*) des acronymes, élisions, nombres, unités, URL, email, etc.
+  * Que faire des *mots composés*: les séparer en *tokens* ou les regrouper en un seul? Par exemple:
+  
+    - Anglais: *hostname*, *host-name* et *host name*, ...
+    - Français: Le Mans, aujourd'hui, pomme de terre, ...
+    - Allemand: *Levensversicherungsgesellschaftsangestellter* (employé d’une société d’assurance vie).
+
+Pour les majuscules et la ponctuation, une solution simple est de 
+normaliser systématiquement (minuscules, pas de ponctuation). Ce qui
+donnerait le résultat suivant pour notre petit jeu de données.
+
+     * :math:`d_1`: ``le loup est dans la bergerie``
+     * :math:`d_2`: ``le loup et les trois petits cochons``
+     * :math:`d_3`: ``les moutons sont dans la bergerie``
+     * :math:`d_4`:  ``spider cochon spider cochon il peut marcher au plafond``
+     * :math:`d_5`: ``un loup a mangé un mouton les autres loups sont restés dans la bergerie``
+     * :math:`d_6`:  ``il y a trois moutons dans le pré et un mouton dans la gueule du loup``
+     * :math:`d_7`: ``le cochon est à 12 euros le kilo le mouton à  10 euros kilo``
+     * :math:`d_8`: ``les trois petits loups et le grand méchant cochon``
+
+Stemming (racine), lemmatisation
+================================
+
+La racinisation consiste à *confondre* toutes les formes d'un même mot, ou de 
+mots apparentés, en une seule *racine*. Le  *stemming morphologique*
+retire les pluriels, marque de genre, conjugaisons, modes, etc. 
+Le *stemming lexical* fond les termes proches lexicalement: 
+"politique, politicien, police (?)" ou   "université, universel, univers (?)".
+Ici, le choix influe clairement sur la précision et le rappel (plus d'unification
+favorise le rappel au détriment de la précision).
+
+La racinisation 
+est très dépendante de la langue et peut nécessiter une analyse linguistique
+complexe.  En anglais, *geese* est le pluriel de *goose*, *mice* de *mouse*; 
+les formes   masculin / féminin en français n'ont parfois rien à voir ("loup / louve")
+mais aussi ("cheval / jument": parle-t-on de la même chose?) Quelques
+exemples célèbres montrent les difficultés d'interprétation:
+
+ * "Les poules du couvent couvent": où est le verbe, où est le substantif?
+ * "La petite brise la glace":  idem.
+
+Voici un résultat possible de la racinisation pour nos documents.
+
+     * :math:`d_1`: ``le loup etre dans la bergerie``
+     * :math:`d_2`: ``le loup et les trois petit cochon``
+     * :math:`d_3`: ``les mouton etre dans la bergerie``
+     * :math:`d_4`:  ``spider cochon spider cochon il pouvoir marcher au plafond``
+     * :math:`d_5`: ``un loup avoir manger un mouton les autre loup etre rester dans la bergerie``
+     * :math:`d_6`:  ``il y avoir trois mouton dans le pre et un mouton dans la gueule du loup``
+     * :math:`d_7`: ``le cochon etre a 12 euro le kilo le mouton a 10 euro kilo``
+     * :math:`d_8`: ``les trois petit loup et le grand mechant cochon``
+
+Il existe des procédures spécialisées pour chaque langue. En anglais,
+l'algorithme `Snowball <http://snowballstem.org/>`_ de Martin Porter fait
+référence et est toujours développé aujourd'hui. Il a connu des déclinaisons
+dans de nombreuses langues, dont le français, par un travail collaboratif. 
+
+Mots vides et autres filtres
+============================
+
+Un des filtres les plus courants consiste
+à retire les mots porteurs d'une information faible
+("*stop words*" ou "mots vides")  afin de limiter le stockage.
+
+  * Les articles: *le*, *le*, *ce*, etc.
+  * Les verbes "fonctionnels": *être*, *avoir*, *faire*, etc.
+  * Les conjonctions: *et*, *ou*, etc.
+  * et ainsi de suite. 
+  
+Le choix est délicat car, d'une part, ne pas supprimer
+les mots vides augmente l'espace de stockage nécessaire (et ce d'autant
+plus que la liste associée à un mot très fréquent est très longue),
+d'autre part les éliminer peut diminuer la pertinence des 
+recherches  ("pomme de terre", "Let it be", "Stade de France").
+
+Parmi les autres filtres, citons en vrac: 
+
+  * *Majuscules / minuscules*. On peut tout mettre en minuscules, mais
+    on perd alors la distinction nom propre / nom commu,, par exemple Lyonnaise des Eaux, Société Générale, Windows, etc.
+  * *Acronymes*.
+    CAT = *cat* ou *Caterpillar Inc.*?  M.A.A.F ou MAAF ou Mutuelle ... ?
+  * *Dates, chiffres*.
+    Monday 24, August, 1572 -- 24/08/1572 -- 24 août 1572;
+    10000 ou 10,000.00 ou 10,000.00
+
+Dans tous les cas, les même règles de transformation s'appliquent aux documents 
+ET à la requête. Voici, au final, pour chaque document la liste
+des *tokens* après application de quelques règles simples.
+
+     * :math:`d_1`: ``loup etre bergerie``
+     * :math:`d_2`: ``loup trois petit cochon``
+     * :math:`d_3`: ``mouton etre bergerie``
+     * :math:`d_4`:  ``spider cochon spider cochon pouvoir marcher plafond``
+     * :math:`d_5`: ``loup avoir manger  mouton autre loup etre rester bergerie``
+     * :math:`d_6`:  ``avoir trois mouton pre mouton gueule loup``
+     * :math:`d_7`: ``cochon etre douze euro kilo mouton dix euro kilo``
+     * :math:`d_8`: ``trois petit loup grand mechant cochon``
+
+Quiz
+====
+
+.. eqt:: ri-analysedoc-1
+
+    Qu'est-ce que la tokenisation?
+   
+    A) :eqt:`I`  C'est l'élimination de toute ponctuation
+    #) :eqt:`C`  C'est le découpage d'un texte en unités lexicales
+    #) :eqt:`I` C'est l'extraction des termes d'un dictionnaire présents dans un texte
+
+.. eqt:: ri-analysedoc-2
+
+    Quelle opération ci-dessous ne relèvent pas de la stemmisation?
+   
+    A) :eqt:`C`  Rassembler tous les synonymes en un seul terme
+    #) :eqt:`I`  Supprimer toutes les formes plurielles
+    #) :eqt:`I`  Ramener tous les verbes à la forme infinitive
+    
+
+********************************
+S3: Introduction à ElasticSearch
+********************************
 
 .. admonition:: Supports complémentaires
 
    * `Diaporama sur le couplage BD documentaire / moteur de recherche <http://b3d.bdpedia.fr/files/slri-intro-debuterES.pdf>`_
    * `Vidéo de la session Bases documentaires et moteur de recherche <https://mediaserver.lecnam.net/permalink/v125f5947d4bf7inn4n4/>`_  
+   * `Présentation: Requêtes booléennes <http://b3d.bdpedia.fr/files/slri-intro-lucene-query.pdf>`_
+   * `Vidéo de la session requêtes booléennes <https://mediaserver.lecnam.net/permalink/v125f5947d4bf62u4nbc/>`_  
 
 Dans cette section, nous allons passer au concret en introduisant les moteurs de
 recherche. Nous allons utiliser ici `Elastic Search <http://elastic.co>`_, un
@@ -837,67 +1045,13 @@ les données sur les films.
 Nous sommes prêts à interroger notre moteur de recherche 
 en entrant des requêtes dans la fenêtre ``SEARCH``. 
 
+Interrogation
+=============
 
-Mise en pratique
-================
-
-.. _MEP-S2-1:
-.. admonition:: Exercice  `MEP-S2-1`_: mise en route ElasticSearch
-
-   Installez ElasticSearch sur votre machine selon les instruction précédentes. 
-   Insérez le fichier des films. Vous pouvez alors en 
-   profiter pour explorer les options de l'interface ElasticVue, ce qui vous facilitera les choses
-   par la suite.
-
-Quiz
-====
-
-.. eqt:: ri-se-1
-
-    Parmi les arguments ci-dessous, lequel vous semble faux pour
-    distinguer un moteur de stockage NoSQL d'un moteur de recherche comme Elastic Search?
-   
-    A) :eqt:`I`  Les mises à jour du contenu ou du schéma
-       sont plus difficiles avec un moteur de recherche à cause 
-       de la compression des  listes inversées
-    #) :eqt:`C`  On ne peut pas faire de recherche structurée avec un moteur de recherche
-    #) :eqt:`I` Un moteur de recherche étant conçu comme une structure secondaire, il n'offre pas la même sécurité de stockage.
-
-.. eqt:: ri-se-2
-
-    Quelles sont les conséquences techniques d'une architecture comme celle de la :numref:`archi-ri`
-   
-    A) :eqt:`I`  Il faut reconstruire l'index du moteur de recherche tous les soirs
-    #) :eqt:`C`  Il faut synchroniser toute mise à jour du moteur de stockage vers l'index
-    #) :eqt:`I` Il faut synchroniser toute mise à jour de l'index vers le  moteur de stockage
-
-.. eqt:: ri-se-3
-
-    Quel est le protocole d'échange avec Elastic Search
-   
-    A) :eqt:`C`  HTTP
-    #) :eqt:`I`  Swift
-    #) :eqt:`I` Un protocole propriétaire
-
-
-
-************************************
-S3: la pratique: requêtes booléennes
-************************************
-
-.. admonition:: Supports complémentaires:
-
-      * `Présentation: Requêtes booléennes <http://b3d.bdpedia.fr/files/slri-intro-lucene-query.pdf>`_
-      * `Vidéo de la session requêtes booléennes <https://mediaserver.lecnam.net/permalink/v125f5947d4bf62u4nbc/>`_  
-
-Nous avons dit qu'ElasticSearch s'appuie sur le système d'indexation Lucene.
-Lucene propose un langage de recherche basé sur des combinaisons de mot-clés,
-accessible dans ElasticSearch. Ce dernier propose également un langage étendu et
-raffiné (appelé DSL), permettant des requêtes complexes et puissantes, nous
-l'aborderons en Travaux Pratiques.
-
-Le langage de base
-==================
+Nous reverrons plus longuement les méthodes d'interrogation après 
+avoir expliqué, dans le prochain chapitre, les techniques
+de classement. En attendant voici un premier aperçu qui vous
+permettra de vérifier que vos données sont bien là. 
 
 Une première méthode pour transmettre des recherches est de passer une
 expression en paramètre à l'URL à laquelle répond votre serveur ElasticSearch.
@@ -913,7 +1067,7 @@ Voici quelques exemples d'URLs de recherche:
 
 Les dernières versions (à partir de la 8)
 d'ElasticSearch ont introduit des mesures de sécurité qui compliquent 
-fortement l'accès au serveur en HTTPS direct. Mieux vaut donc utiliser
+fortement l'accès direct au serveur en HTTPS. Mieux vaut donc utiliser
 ElasticVue avec la fenêtre ``SEARCH``  qui se charge se constituer l'URL 
 de requête.
 
@@ -951,8 +1105,7 @@ redondants se pose. Nous revenons sur cette question plus loin.
 Exprimer une recherche revient donc à envoyer à ElasticSearch 
 (utiliser la méthode ``POST``) un document encodant la requête.
 Le langage de recherche proposé par ElasticSearch, dit "DSL" pour *Domain
-Specific Language*,  est très riche (voir la documentation en ligne pour tous
-les détails, et les Travaux Pratiques).  Pour vous donner juste un exemple,
+Specific Language*,  est très riche.  Pour vous donner juste un exemple,
 voici comme on prend les 5 premiers documents d'une requête, en excluant la
 source du résultat.
 
@@ -977,7 +1130,7 @@ expressions données ci-dessous peuvent être entrées comme valeur du champ
 ``query`` dans le document-recherche passé à l'interface ``REST``.
 
 Termes
-======
+------
 
 La notion de base est celle de *terme*. Un terme est soit un mot, soit une
 séquence de mots (une *phrase*) placée entre apostrophes. La recherche:
@@ -1073,7 +1226,7 @@ entre 1990 et 2005:
     year:[1990 TO 2005]
    
 Connecteurs booléens
-====================
+--------------------
 
 Les critères de recherche peuvent être combinés avec les connecteurs Booléens 
 ``AND``, ``OR`` et ``NOT``. Quelques exemples.
@@ -1107,8 +1260,48 @@ de bases de données". Dans le premier cas, on cherche les documents les plus "p
 les plus "pertinents", et on classe par pertinence.
 
 
+
+Mise en pratique
+================
+
+.. _MEP-S2-1:
+.. admonition:: Exercice  `MEP-S2-1`_: mise en route ElasticSearch
+
+   Installez ElasticSearch sur votre machine selon les instruction précédentes. 
+   Insérez le fichier des films. Vous pouvez alors en 
+   profiter pour explorer les options de l'interface ElasticVue, ce qui vous facilitera les choses
+   par la suite.
+
 Quiz
 ====
+
+.. eqt:: ri-se-1
+
+    Parmi les arguments ci-dessous, lequel vous semble faux pour
+    distinguer un moteur de stockage NoSQL d'un moteur de recherche comme Elastic Search?
+   
+    A) :eqt:`I`  Les mises à jour du contenu ou du schéma
+       sont plus difficiles avec un moteur de recherche à cause 
+       de la compression des  listes inversées
+    #) :eqt:`C`  On ne peut pas faire de recherche structurée avec un moteur de recherche
+    #) :eqt:`I` Un moteur de recherche étant conçu comme une structure secondaire, il n'offre pas la même sécurité de stockage.
+
+.. eqt:: ri-se-2
+
+    Quelles sont les conséquences techniques d'une architecture comme celle de la :numref:`archi-ri`
+   
+    A) :eqt:`I`  Il faut reconstruire l'index du moteur de recherche tous les soirs
+    #) :eqt:`C`  Il faut synchroniser toute mise à jour du moteur de stockage vers l'index
+    #) :eqt:`I` Il faut synchroniser toute mise à jour de l'index vers le  moteur de stockage
+
+.. eqt:: ri-se-3
+
+    Quel est le protocole d'échange avec Elastic Search
+   
+    A) :eqt:`C`  HTTP
+    #) :eqt:`I`  Swift
+    #) :eqt:`I` Un protocole propriétaire
+
 
 .. eqt:: ri-bool-1
 
@@ -1136,6 +1329,7 @@ Quiz
    
     A) :eqt:`C`  Oui
     #) :eqt:`I`  Non
+
 
 *********
 Exercices
@@ -1231,9 +1425,9 @@ Exercices
   
           * L'exactitude tend vers 1
           * Il suffit de renvoyer un résultat vide, quelle que soit la requête.
-      
-.. 
-   admonition:: Exercice `Ex-S1-4`_: matrice d'incidence
+ 
+.. _Ex-S1-4:      
+.. admonition:: Exercice `Ex-S1-4`_: matrice d'incidence
 
    Faire un fichier Excel (ou l'équivalent) qui calcule la taille d'une
    collection, la taille de la matrice d'incidence, et la densité de 1 dans
@@ -1244,8 +1438,8 @@ Exercices
       * *m*, le nombre moyen de mots dans un document,
       * *w*, la taille moyenne d'un mot (en octets).
 
-
-    admonition:: Exercice `Ex-S1-5`_: algorithme de négation
+.. _Ex-S1-5:
+..  admonition:: Exercice `Ex-S1-5`_: algorithme de négation
 
     On sait faire une fusion pour une recherche de type ET. La recherche
     de type OU est évidente (?). Montrer qu'un
@@ -1253,8 +1447,8 @@ Exercices
     qui parlent de loup mais pas de mouton").
 
 
-.. _Ex-S3-1:
-.. admonition:: Exercice  `Ex-S3-1`_: recherches
+.. _Ex-S1-6:
+.. admonition:: Exercice  `Ex-S1-6`_: recherches
 
    Exprimez les recherches suivantes sur votre base de données
    
