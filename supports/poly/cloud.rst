@@ -319,8 +319,8 @@ Gestion des pannes, ou *failover*
 ---------------------------------
 
 L'infrastructure à base de composants bon marché est soumise à des pannes fréquentes. Il est exclu 
-de pallier ces pannes par la mobilisation permanente d'une armée d'ingénieurs systèmes, et
-un caractère distinctif des systèmes distribuées (et en particulier de ceux dits NoSQL)
+de pallier ces pannes par la mobilisation permanente d'une armée d'ingénieurs système, et
+un caractère distinctif des systèmes distribués (et en particulier de ceux dits NoSQL)
 est d'être capable de fonctionner sans interruption en dépit des pannes, par application
 d'une méthode de reprise sur panne souvent désignée par le mot *failover*.
 
@@ -353,7 +353,7 @@ Une solution tout à fait
 naturelle aurait été d'adopter les systèmes relationnels *distribués* qui existent depuis
 longtemps et ont fait leur preuve. Pour des raisons qui tiennent à la nature plus "documentaire"
 des données massives (voir le début de ce cours) et à la perception des lourdeurs de certains
-aspects des systèmes relationnels (transactions  notamment), un autre choix s'est  imposé. Il
+aspects des systèmes relationnels (jointures et transactions  notamment), un autre choix s'est  imposé. Il
 consiste à sacrifier certaines fonctionnalités (modèle, langage normalisé et puissament
 expressif, transactions)
 au profit de la capacité à se déployer dans un environnement distribué, à en tirer parti au 
@@ -375,48 +375,16 @@ que nous allons justement essayer de mettre en valeur dans tout ce qui suit. Ré
 
   - capacité à exploiter de manière équilibrée un ensemble de machines en vue d'une tâche précise;
   - capacité à détecter les pannes et à s'y adapter automatiquement;
-  - capacité à évoluer par ajout/suppression de nouvelles ressources matérielle, sans interruption de service.
+  - capacité à évoluer par ajout/suppression de nouvelles ressources matérielles, sans interruption de service.
 
-Il n'est pas question ici d'énumérer tous les systèmes existant. Ce serait laborieux, répétitif
+Il n'est pas question ici d'énumérer tous les systèmes existants. Ce serait laborieux, répétitif
 et fragile puisqu'il en apparaît (et peut-être disparaît) tous les jours. 
-Un petit historique permet de mieux se situer. Il faut admettre qu'il donne le beau rôle
-aux grands acteurs du Web plus qu'aux laboratoires de recherche, mais c'est un peu normal
-étant donné la pression que subissent les premiers pour mettre au point des systèmes
-qui fonctionnent. 
-
-Commençons avec la mise en mode distribué du plus basique des outils de stockage: les
-systèmes de fichier. En 2003, des ingénieurs de Google publient un article sur le 
-`Google File System (GFS) <http://fr.wikipedia.org/wiki/Google_File_System>`_.  En
-2004, un nouvel article explique la méthode de traitement à grande échelle
-utilisée en interne par Google, `MapReduce <http://en.wikipedia.org/wiki/MapReduce>`_. 
-Puis, en 2006, c'est un système de plus haut niveau qui est dévoilé, 
-`BigTable <http://en.wikipedia.org/wiki/BigTable>`_,
-sorte de table répartie basée sur un modèle de données flexible. Ces publications
-ont donné un grand coup de fouet à la communauté du logiciel libre qui a aussitôt lancé
-des projets pour développer des systèmes équivalents (Google ne diffuse pas son code).
-Cela a donné le système `Hadoop <http://hadoop.apache.org>`_, qui comprend 
-entre autres HDFS (clone de GFS),
-HBase (clone de BigTable) et un environnement d'exécution MapReduce. Parmi les systèmes
-comparables, citons `Cassandra <http://cassandra.apache.org>`_, inspiré de BigTable/HBase,
-développé initialement par Facebook. Tous ces systèmes peuvent être classés dans la
-catégorie que nous appellerons *systèmes analytiques*: ils stockent des données
-massives dans un environnement distribué, et permettent l'application de traitements
-distribués à l'ensemble de ces données.
-
-Un autre article très influent est la publication consacrée en 2007  au système
-interne d'Amazon, `Dynamo <http://en.wikipedia.org/wiki/Dynamo_(storage_system)>`_. Cette
-fois on est plutôt dans la catégories des systèmes temps réels puisque l'article explique
-la structure distribuée utilisée pour gérer les clients d'Amazon, leur panier, et la haute disponibilité
-requise même à l'échelle de centaines de millions de transactions concurrentes.  Dynamo a été 
-cloné par `Voldemort <http://www.project-voldemort.com/>`_, et ses principes (l'article est très riche) repris dans
-de très nombreux systèmes: MongoDB, Riak, CouchDB, etc. En résumé, ces systèmes
-s'appuient sur un modèle de données *(clé, valeur)* extrêmement simplifié, et fournissent
-des primitives d'accès *put(k, v)* (pour créer/mettre à jour) et *v = get(k)* pour rechercher.
-MongoDB et CouchDB se distinguent entre autres par un modèle de données plus riche (JSON).
-
-Arrêtons-là le panorama (très incomplet). Ce qu'il faut retenir essentiellement, c'est que:
+Ce qu'il faut retenir essentiellement, c'est que:
 
   - ces systèmes fournissent nativement une adaptation à une infrastructure distribuée;
+  - les modèles de données sont principalement de nature documentaire (ceux que nous
+    étudions principalement), graphe (réputés assez peu scalables) et ...
+    pas de modèle du tout: on stocke des chaînes d'octets !
   - on peut distinguer les systèmes à orientation analytique (traitements longs appliqués
     à une partie significative des données à des fins statistiques) et temps réel (accès
     instantané, quelques millisecondes, à des unités d'informations/documents).
@@ -886,14 +854,14 @@ entre les 5 serveurs partageant un même port.
 L'accès la RAM d'un serveur en dehors de la baie subit l'effet combiné du réseau
 (10 Gbits/s, soit 1,25 GO/s) et du facteur 5.
 
-Il reste à donner une idée du coût. À ce jour (2016) voici ce qu'il en est pour une mémoire de 1 TO.
+Il reste à donner une idée du coût. À ce jour (2024) voici ce qu'il en est pour une mémoire de 1 TO.
 
-  - RAM: eniron 10 000 $
-  - SSD: environ 400 $
-  - Disque: environ 50 $
+  - RAM: environ 3 000 $
+  - SSD: environ 100 $
+  - Disque: environ 20 $
   
 C'est sans doute moins cher si on achète en gros, mais cela donne une idée du rapport. Le SSD
-est très attractif mais reste encore presque 10 fois plus cher qu'un disque magnétique classique.  
+est très attractif mais reste encore presque 5 fois plus cher qu'un disque magnétique classique.  
 
 
 Le principe de localité des données

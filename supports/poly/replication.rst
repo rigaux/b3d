@@ -819,7 +819,7 @@ Il suffit de passer le nom du fichier à ``docker-compose`` de la manière suiva
 
 .. code-block:: bash
 
-     docker-compose -f <nom-du-fichier.yml> up
+     docker compose -f <nom-du-fichier.yml> up
      
 
 .. important:: Il faut allouer au moins 4GB de mémoire RAM au *Docker Desktop* pour le système
@@ -832,7 +832,6 @@ Voici son contenu.
 
 .. code-block:: yaml
 
-    version: '2.2'
     services:
       es01:
         image: docker.elastic.co/elasticsearch/elasticsearch:7.9.3
@@ -857,7 +856,7 @@ Voici son contenu.
 
 On crée donc (pour commencer) deux nœuds Elastic Search, ``es01``  et ``es02``. Ces deux nœuds
 sont placés dans une même grappe nommée ``ma-grappe-es`` (il va sans dire que les noms
-sont arbitraites et n'ont aucune signification propre).  Le premier va être en écoute (pour 
+sont arbitraires et n'ont aucune signification propre).  Le premier va être en écoute (pour 
 les clients REST) sur le port 9200, le second sur le port 9201.
 
 Le paramètre ``discovery.seed_hosts`` indique à chaque nœud les autres nœuds du *cluster*
@@ -875,70 +874,41 @@ Dans le répertoire où vous avez placé ce fichier, exécutez la commande.
 
 .. code-block:: bash
 
-    docker-compose -f dock-comp-es1.yml up
+    docker compose -f dock-comp-es1.yml up
     
-L'utilitaire va créer les deux nœuds et les mettre en communication.  Après le lancement,
-un accès avec votre navigateur (ou avec ``cUrl``) à `http://localhost:9200
-<http://localhost:9200>`_ devrait renvoyer un document JSON semblable à
-celui-ci:
+L'utilitaire va créer les deux nœuds et les mettre en communication.  
+Nous pouvons alors accéder à ce *cluster* avec ElasticVue.
 
-.. code-block:: json
-
-     {
-    "name": "7a46670f6a9e",
-    "cluster_name": "ma-grappe-es",
-    "cluster_uuid": "89U3LpNhTh6Vr9UUOTZAjw",
-    "version": {
-        "number": "7.9.3",
-        "...": "...",
-         "lucene_version": "8.5.1",
-      },
-    "tagline": "You Know, for Search"
-    }
-
-Même chose pour l'URL  à `http://localhost:9201 <http://localhost:9200>`_. Notre grappe
-est prête à l'emploi.
-
-L'interface Cerebro
-===================
+Gérer un cluster avec ElasticVue
+================================
 
 Pour une inspection confortable du serveur et des index ElasticSearch, nous
-vous conseillons d'utiliser une interface d'administration: ``cerebro`` (successeur
-de Kopf). Elle peut être téléchargée ici: https://github.com/lmenezes/cerebro.
+allons reprendre ElasticVue. Il faut pour cela ajouter une connexion
+au *cluster* ``ma-grappe--es`` et indiquer au moins un serveur d'accès
+(par exemple http://localhost:9200). La :numref:`evue-cluster` montre 
+l'affichage ElasticVue.
 
-Vous obtenez un répertoire ``cerebro-xx-yy-zz``. Il faut exécuter le programme 
-``bin/cerebro`` de ce répertoire.
 
-Sous Unix/Linux, voici la séquence de commandes correspondante :
+.. _evue-cluster:
+.. figure:: ../figures/evue-cluster.png
+   :width: 90%
+   :align: center
+   
+   ElasticVue montrant les nœuds de notre grappe initiale  ElasticSearch
 
-.. code-block:: bash
+En cliquant sur le menu *Nodes*, vous obtenez l'affiche
+de la :numref:`evue-noeuds`. Regardez soigneusement les informations 
+données, et cherchez
+par exemple quel est le maître. D'autres informations,
+comme *Master eligible*, *Data node*, *Ingest node* se
+comprennent aisément.
 
-  wget https://github.com/lmenezes/cerebro/releases/download/v0.9.2/cerebro-0.9.2.tgz
-  tar -xvzf cerebro-0.9.2.tgz; cd cerebro-0.9.2;
-  ./bin/cerebro
-
-Testez que tout fonctionne en visitant (avec un navigateur de votre machine)
-l'adresse http://localhost:9000/#/connect, en saisissant l'adresse d'un des serveurs
-Elasticsearch dans la première fenêtre (par exemple :code:`http://localhost:9200/`,
-mais :code:`http://localhost:9201/` fonctionne également).
-Vous
-devriez  obtenir l'affichage de la  :numref:`es-cluster` montrant les  nœuds 
-et proposant tout un ensemble
-d'actions. En particulier, la barre supérieure de l'interface propose 
-
-  - un bouton :code:`nodes`, pour inspecter les nœuds de la grappe.
-  - un bouton :code:`rest`, permettant d'accéder à un espace de travail optimisé pour éditer
-    des requêtes et vérifier les résultats.
-
-La :numref:`es-cluster` montre nos deux nœuds. Regardez soigneusement les informations données, et cherchez
-par exemple quel est le maître. 
-
-.. _es-cluster:
-.. figure:: ../figures/cerebro-cluster.png
+.. _evue-noeuds:
+.. figure:: ../figures/evue-noeuds.png
       :width: 90%
       :align: center
    
-      Cerebro montrant les nœuds de notre grappe initiale  ElasticSearch
+      Evue montrant les nœuds de notre grappe initiale  ElasticSearch
       
 Remarquez qu'un nœud peut tenir plusieurs rôles (*master*, *data*, etc.). 
 L'étude de ces rôles fait l'objet d'un exercice en fin de chapitre.
@@ -949,31 +919,40 @@ Le jeu de données
 Pour charger des données, récupérez notre collection de films, au format JSON adapté à l'insertion en masse
 dans ElasticSearch,  sur le site https://deptfod.cnam.fr/bd/tp/datasets/. Le fichier
 se nomme ``films_esearch.json``.
-Ensuite, importez les documents dans Elasticsearch avec la commande suivante (en
-étant placé dans le dossier où a été récupéré le fichier):
-
-.. code-block:: bash
-
-   curl -s -XPOST http://localhost:9200/_bulk/ -H 'Content-Type: application/json' --data-binary @films_esearch.json
-
-En accédant à l'interface Cerebro, vous
-devriez alors obtenir l'affichage de la  :numref:`es-index-replicas`.
+Ensuite, importez les documents dans le *cluster* 
+en envoyant un ``POST`` à l'URL ``_bulk`` 
+et le contenu du fichier, comme le montre
+la :numref:`evue-bulk`.
 
 
-.. _es-index-replicas:
-.. figure:: ../figures/cerebro-index-replicas.png
+.. _evue-bulk:
+.. figure:: ../figures/evue-bulk.png
       :width: 90%
       :align: center
    
-      Cerebro montrant l'index répliqué  
+      Insertion dans le cluster avec ElasticVue
+
+En accédant au menu *Shards* dans ElasticVue,  vous
+devriez alors obtenir l'affichage de la  :numref:`evue-shards`.
+
+
+.. _evue-shards:
+.. figure:: ../figures/evue-shards.png
+      :width: 90%
+      :align: center
+   
+      ElasticVue montrant la réplication  
 
 Que constate-t-on? Les nœuds ``es01`` ``es02`` apparaissent associés à des rectangles verts
-qui représentent l'index ElasticSearch, nommé ``nfe204``,  stockant les quelques centaines de films de notre jeu
-de données. 
+qui représentent l'index ElasticSearch, nommé ``nfe204``,  
+stockant les quelques centaines de films de notre jeu
+de données. Remarquez que l'index apparaît en vert.
 
-Un des rectangles est surbrillant et entouré
-d'un trait plein: c'est la *copie primaire de l'index*, celle sur laquelle s'effectuent
-les *écritures*, qui sont ensuite répliquées en mode asynchrone sur les autres copies. 
+Un des rectangles est  entouré
+d'un trait plein: c'est la *copie primaire de l'index*, celle sur 
+laquelle s'effectuent
+les *écritures*, qui sont ensuite répliquées en mode asynchrone 
+sur les autres copies. 
 
 Il existe une distinction dans ElasticSearch entre la notion de *master*,
 désignant le nœud responsable de la gestion du *cluster*, et la notion  de 
@@ -994,23 +973,29 @@ Changeons la réplication
 ========================
 
 Commençons quelques manipulations de notre index ``nfe204``. Par défaut, ElasticSearch 
-effectue une réplication de chaque document. Nous souhaitons en faire deux pour avoir trois
+effectue une réplication de chaque document. Nous souhaitons 
+en faire deux pour avoir trois
 copies au total, ce qui est considéré comme une sécurité suffisante. Pour modifier
-ce paramètre, on effectue la commande suivante:
+ce paramètre, envoyez en méthode ``PUT`` à l'URL ``_settings`` le document
+de paramétrage suivant:
 
-.. code-block:: bash
+.. code-block:: json
 
-    curl -X PUT "localhost:9200/nfe204/_settings?pretty" -H 'Content-Type: application/json' -d' { "number_of_replicas": 2 }'
+    { "number_of_replicas": 2 }
 
-La :numref:`cerebro-3-replicas` montre ce que vous devez obtenir. L'index a trois copies, mais seulement deux nœuds.
-Un signe d'avertissement est apparu indiquant que l'une des copies manque d'un nœud pour être hébergée.
+La :numref:`evue-replicas` montre ce que vous devez obtenir
+en réaffichant le menu ``Shards``. L'index a trois copies, 
+mais seulement deux nœuds.
+Un signe d'avertissement (le nom de l'index est en orange!)
+est apparu indiquant que l'une des copies 
+manque d'un nœud pour être hébergée.
 
-.. _cerebro-3-replicas:
-.. figure:: ../figures/cerebro-3-replicas.png
+.. _evue-replicas:
+.. figure:: ../figures/evue-replicas.png
       :width: 90%
       :align: center
    
-      Cerebro montrant l'index avec 3 copies mais seulement 2 nœuds.   
+      ElasticVue montrant l'index avec 3 copies mais seulement 2 nœuds.   
 
 Il faut donc ajouter un nœud. Dans le fichier de configuration, on ajoute ``es3`` comme suit:
 
@@ -1026,32 +1011,34 @@ Il faut donc ajouter un nœud. Dans le fichier de configuration, on ajoute ``es3
         ports:
           - 9202:9200
 
-Le nœud s'appelle ``es3``, il fait partie de la même grappe, et on lui indique qu'il peut se connecter
+Le nœud s'appelle ``es03``, il fait partie de la même grappe, et 
+on lui indique qu'il peut se connecter
 aux nœuds ``es01`` ou ``es02``  pour récupérer la configuration actuelle de la grappe, et notamment
 son nœud-maitre.
  
 On obtient un fichier `dock-comp-es2.yml <http://b3d.bdpedia.fr/files/dock-comp-es2.yml>`_
-que vous pouvez récupérer. Arrêtez l'exécution du ``docker-compose`` en cours et 
-relancez-le 
+que vous pouvez récupérer. Arrêtez l'exécution du ``docker compose`` 
+avec la commande ``down``, et 
+relancez-le avec le nouveau fichier.
 
 
 .. code-block:: bash
 
-    docker-compose -f dock-comp-es2.yml up
+    docker compose -f dock-comp-es2.yml up
 
-En consultant Cerebro, vous devriez obtenir l'affichage de la :numref:`cerebro-3-replicas-sain`,
-avec ses trois nœuds en vert, dont la copie primaire stockée sur le maître ``es01``. Tout va bien!
+En consultant ElasticVue, vous devriez obtenir l'affichage de 
+la :numref:`evue-replicas-sain`,
+avec ses trois nœuds et son index en vert, dont la copie primaire stockée sur le maître ``es03``. Tout va bien!
 
-.. _cerebro-3-replicas-sain:
-.. figure:: ../figures/cerebro-3-replicas-sain.png
+.. _evue-replicas-sain:
+.. figure:: ../figures/evue-replicas-sain.png
       :width: 90%
       :align: center
    
-      Cerebro montrant l'index avec 3 copies mais seulement 2 nœuds.   
+      ElastiVue montrant l'index avec 3 copies sur 3 nœuds.   
 
 .. important:: En production, on ne procède évidemment pas à un arrêt et un redémarrage
    de l'ensemble des nœuds. Et d'ailleurs la configuration est plus complexe.
-   
 
 Reprise sur panne
 =================
@@ -1059,29 +1046,29 @@ Reprise sur panne
 Regardons plus précisément le fonctionnement de la réplication et de la reprise sur panne. 
 ElasticSearch fonctionne en mode Maître-Esclave, avec reprise sur panne automatisée. 
 Faites maintenant l'essai: interrompez le nœud-maître
-avec Docker. 
+avec Docker. C'est facile avec le *Dashboard*, sinon en
+ligne de commande:
 
   -  Avec la commande ``docker ps -a``  cherchez l'indentifiant du nœud maître (en principe ``es01``)
   - Arrêtez-le avec ``docker stop <identifant>``
 
-La communication de Cerebro avec le nœud sur le port 9200 est interrompue. En revanche vous
-pouvez connecter Cerebro au nœud du port 9201 (``es02``). Vous obtenez l'affichage de la 
-:numref:`cerebro-apres-reprise`.
+Vous obtenez l'affichage de la 
+:numref:`evue-apres-reprise`.
 
-.. _cerebro-apres-reprise:
-.. figure:: ../figures/cerebro-apres-reprise.png
+.. _evue-apres-reprise:
+.. figure:: ../figures/evue-apres-reprise.png
       :width: 90%
       :align: center
    
-      Cerebro montrant l'index après panne de ``es01`` 
+      ElasticSearch montrant l'index après panne de ``es03`` 
 
-Bonne nouvelle: le nœud maître est maintenant ``es03`` et la copie primaire de l'index est
+Bonne nouvelle: le nœud maître est maintenant ``es01`` et la copie primaire de l'index est
 sur ``es02``. L'index peut donc continuer à fonctionner. Mais c'est en mode dégradé:
-un de ses replicas est marqué comme "Unassigned" : il faut redémarrer le nœud ``es01``
+un de ses replicas est marqué comme "Unassigned" : il faut redémarrer le nœud ``es03``
 pour que la grappe retrouve un statut sain avec les trois copies sur trois nœuds
 différents.
 
-Relancez le nœud ``es01``  avec la commande ``docker start <identifiant>``: tout devrait rentrer
+Relancez le nœud ``es03``  avec la commande ``docker start <identifiant>``: tout devrait rentrer
 dans l'ordre. Par rapport à la situation avant la panne, le maître a changé, et la copie 
 primaire a également changé.
 

@@ -93,8 +93,6 @@ d'une clé: *par intervalle* et *par hachage*.
   - Dans le second cas (par hachage), une fonction appliquée à la clé 
     détermine le fragment d'affectation.
 
-Elle déterminent
-la construction des *structures de données* représentant le partitionnement. 
 Que le partitionnement soit par hachage ou par intervalle, ces structures
 sont toujours au nombre de deux.
 
@@ -243,16 +241,12 @@ Pour rappel, il se trouve ici: `dock-comp-es1.yml <http://b3d.bdpedia.fr/files/d
 
 .. code-block:: bash
 
-    docker-compose -f dock-comp-es1.yml up
+    docker compose -f dock-comp-es1.yml up
 
 .. note:: Si vous en êtes restés à la configuration avec trois nœuds, il faut
    les supprimer (avec ``docker rm``) avant la commande ci-dessus pour réinitiliaser proprement
    votre *cluster* ElasticSearch. De même si un index ``nfe204`` existe déjà,
-   vous pouvez le supprimer avec la commande:
-   
-    .. code-block:: bash
-    
-        curl -X DELETE "localhost:9200/nfe204"  
+   vous pouvez le supprimer (très facile avec ElasticVue)
 
 Bien. Maintenant nous allons adopter une configuration avec 5 fragments et 1 réplica (donc,
 2 copies de chaque document). Pour changer la configuration par défaut, il faut transmettre
@@ -261,8 +255,7 @@ Bien. Maintenant nous allons adopter une configuration avec 5 fragments et 1 ré
 .. code-block:: json
 
     {
-      "index_patterns": ["*"],
-      "order": -1,
+      "index_patterns": "*",
       "settings": {
           "number_of_shards": "5",
           "number_of_replicas": "1"
@@ -270,32 +263,38 @@ Bien. Maintenant nous allons adopter une configuration avec 5 fragments et 1 ré
     }
 
 Vous pouvez le récupérer ici: `es_shards_params.json <http://b3d.bdpedia.fr/files/es_shards_params.json>`_.
-Et la commande ``REST``  pour le transmettre est la suivante:
+Pour des raisons que nous verrons ensuite, on ne peut pas
+changer le nombre de *shards* *après* la création d'un index.
+Le fichier de paramètres ci-dessus s'applique à tous 
+les index à venir. On transmets ce fichier à
+l'URL ``_template/index_defaults``  avec un ``PUT``, comme
+montré sur la :numref:`change_nb_shards`.
 
-.. code-block:: bash
 
-        curl -X POST "localhost:9200/_template/default" -H 'Content-Type: application/json' -d @es_shards_params.json 
+.. _change_nb_shards:
+.. figure:: ../figures/change_nb_shards.png
+   :width: 80%
+   :align: center
+   
+   Commande de changement du nombre de fragments et de réplicas par défaut
 
-Installez et exécutez  Cérebro comme expliqué dqns le chapitre :ref:`chap-sysdistr`.
 Il reste à charger les données. Récupérez notre collection de films, au format JSON adapté à l'insertion en masse
-dans ElasticSearch,  sur le site https://deptfod.cnam.fr/bd/tp/datasets/. Le fichier
-se nomme ``films_esearch.json`` et importez-les:
+dans ElasticSearch, et importez-les comme nous l'avons déjà vu plusieurs
+fois.
 
-.. code-block:: bash
+L'interface ElasticVue  devrait vous montrer l'équivalent de la  :numref:`evue-sharding`.
 
-   curl -s -XPOST http://localhost:9200/_bulk/ -H 'Content-Type: application/json' --data-binary @films_esearch.json
-
-
-L'interface Cérebro  devrait vous montrer l'équivalent de la  :numref:`es-shards`.
-
-.. _es-shards:
-.. figure:: ../figures/es-shards.png
+.. _evue-sharding:
+.. figure:: ../figures/evue-sharding.png
       :width: 90%
       :align: center
    
       Un index ElasticSearch avec 5 fragments.
       
-Nous avons donc 5 fragments, répliqués chacun une fois, soit 10 fragments au total. Avec deux
+Nous avons donc 5 fragments primaires (les ``p``), répartis
+équitablement (à une unité près) sur nos deux
+serveurs, et répliqués chacun une fois (les ``r``), 
+soit 10 fragments au total. Avec deux
 serveurs, chaque fragment est stocké sur chaque serveur. 
 
 Ajout / suppression de nœuds
@@ -309,14 +308,15 @@ relancez-le
 
 .. code-block:: bash
 
-    docker-compose -f dock-comp-es2.yml up
+    docker compose -f dock-comp-es2.yml up
     
 
 Avec trois serveurs, vous devriez
-obtenir un affichage semblable à celui de la  :numref:`es-distribute`.
+obtenir un affichage semblable à celui de la  :numref:`evue-distribute`.
+Je vous laisse analyser ce qui s'est passé.
 
-.. _es-distribute:
-.. figure:: ../figures/es-distribute.png
+.. _evue-distribute:
+.. figure:: ../figures/evue-distribute.png
       :width: 100%
       :align: center
    
@@ -324,10 +324,14 @@ obtenir un affichage semblable à celui de la  :numref:`es-distribute`.
       
       
 On voit maintenant que la notion de "maître" est en fait raffinée dans ElasticSearch au niveau
-du fragment: chaque nœud est responsable (en tant que *primary*) d'un sous-ensemble des
-*shards*, et est en contact avec les autres nœuds, dont ceux stockant le réplica
-du fragment primaire. Une requête d'insertion est toujours redirigée vers le serveur
-stockant le fragment primaire dans lequel le nouveau document doit être placé. Une
+du fragment: chaque nœud est responsable (en tant que nœud de  *stockage*)
+d'un sous-ensemble des
+*shards*, et est en contact (en tant que nœud de *routage*) avec les autres nœuds, 
+dont ceux stockant les réplicas
+des fragments primaires. Une requête d'insertion est *toujours* 
+redirigée par le nœud qui reçoit la requête vers le serveur
+stockant le fragment primaire dans lequel le nouveau document 
+doit être placé. Une
 requête de lecture en revanche peut être satisfaite par n'importe quel nœud d'un
 *cluster* ElasticSearch, sans distinction du statut primaire/secondaire des fragments auxquels
 on accède.
