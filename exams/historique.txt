@@ -1,0 +1,88 @@
+17-18
+=====
+ 
+FOAD
+----
+
+ S1: (CORRECTION EN LIGNE) Cassandra
+ S2: tickets de caisse
+
+PRESENTIEL
+----------
+
+ S1: Blablacar
+ S2: tickets de caisse
+
+18-19
+=====
+
+Présentiel
+----------
+
+S1: restaurants / notations
+S2: tickets de caisse
+
+FOAD
+----
+
+S1: tickets de caisse
+
+19-20
+=====
+
+Foad
+----
+ S1: (CORRECTION EN LIGNE) épidémie
+ S2: (CORRECTION EN LIGNE) généalogie
+ 
+Présentiel
+----------
+
+ S1: (CORRECTION EN LIGNE) chercheurs / articles 
+
+20-21
+=====
+
+Foad
+----
+
+ S1: journalistes / articles /plateformes
+ S2: tickets de caisse
+ 
+Hybride
+-------
+ S1: journalistes / articles /plateformes
+ S2: tickets de caisse
+ 
+21-22
+=====
+
+Foad
+----
+
+  S1: journalistes / articles /plateformes
+  S2: (CORRECTION EN LIGNE) chercheurs / articles 
+
+Hybride
+-------
+
+ S1: journalistes / articles /plateformes
+ S2: tickets de caisse
+ 
+22-23
+=====
+
+Foad
+----
+
+  S1: (CORRECTION EN LIGNE) chercheurs / articles 
+  S2: restaurants / notations
+  
+
+Hybride
+-------
+
+  S1: restaurants / notations 
+  S2: journalistes / articles /plateformes
+  
+  

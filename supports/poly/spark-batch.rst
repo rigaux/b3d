@@ -23,15 +23,7 @@ progressivement affiné à chaque exécution. Ce type d'algorithme est très
 fréquent dans le domaine général de la fouille de données: PageRank, *kMeans*,
 calculs de composantes connexes dans les graphes, etc.
 
-Ce chapitre propose une introduction au système Spark. Nous nous contenterons
-d'entrer des commandes grâce à l'interpréteur de commandes ``spark-shell``.
-Le plus simple pour reproduire ces commandes est donc de télécharger la dernière
-version de Spark depuis le site http://spark.apache.org. L'installation comprend
-un sous-répertoire ``bin`` dans lequel se trouvent les commandes qui nous
-intéressent. Vous pouvez donc placer le chemin vers ``spark/bin``  dans votre
-variable ``PATH``, selon des spécificités qui dépendent de votre environnement:
-à ce stade du cours vous devriez être rôdés à ce type de manœuvre.
-
+Ce chapitre propose une introduction au système Spark.
 
 ************************
 S1: Introduction à Spark
@@ -477,37 +469,46 @@ S2: Spark en pratique
 
 Il est temps de passer à l'action. Nous allons commencer par montrer  comment effectuer
 des transformations sur des données non-structurées avec des DataFrames standard.
+Les exemples qui suivent sont proposés en Python, mais d'autres
+interfaces existent, notamment en Scala et en R. Scala est un 
+langage fonctionnel, doté
+d'un système d'inférence de types puissant, ce qui le rend
+particulièrement approprié pour exprimer des chaînes de traitements sous
+la forme d'une séquence d'appels de fonctions. Je fais l'hypothèse 
+que la plupart de mes lecteurs seront plus familiers avec Python.
 
-.. important:: Les exemples qui suivent sont en langage Scala. Ce n'est pas
-      pour le plaisir d'introduire un nouveau langage que vous ne connaissez
-      (sans doute) pas. Il se trouve que Scala est un langage fonctionnel, doté
-      d'un système d'inférence de types puissant, ce qui le rend
-      particulièrement approprié pour exprimer des chaînes de traitements sous
-      la forme d'une séquence d'appels de fonctions. Scala est entièrement
-      compatible avec Java, mais beaucoup, beaucoup moins verbeux, comme le
-      montreront les exemples qui suivent. Les commentaires devraient vous
-      permettre de vous familiariser progressivement avec le langage. La
-      `documentation officielle est disponible <http://docs.scala-lang.org/tour/tour-of-scala.html>`_ en
-      anglais seulement.
-
-Pour tout ce qui suit, il faut d'abord lancer l'interpréteur de commandes qui se trouve dans ``spark/bin``,
-et donc en principe accessible dans votre ``PATH``  des chemins d'accès aux fichiers exécutables
-si vous avez effectués les quelques opérations post-installation nécessaires..
+Le plus simple pour reproduire ces commandes est  
+de télécharger dans un répertoire ``spark`` la dernière
+version de Spark depuis le site http://spark.apache.org. 
+L'installation comprend
+un sous-répertoire ``bin`` dans lequel se trouvent les commandes 
+qui nous intéressent (et notamment l'interpréteur ``pyspark``). 
+Vous pouvez  placer le chemin vers ``spark/bin``  dans votre
+variable ``PATH``, selon des spécificités qui dépendent de votre environnement:
+à ce stade du cours vous devriez être rôdés à ce type de manœuvre.
 
 .. code-block:: bash
 
-    spark-shell
-    
+    pyspark
+  
+Aux numéros de version près, vous devriez obtenir l'affichage suivant:
 
+.. code-block:: text
 
-.. note:: Comme Pig, l'interpréteur de Spark affiche de nombreux messages à la console ce qui est perturbant. Pour s'en débarasser:
-   
-     - copiez le fichier ``sparkdir/conf/log4j.properties.template`` en ``sparkdir/conf/log4j.properties``;
-     - éditez ``log4j.properties`` et remplacez dans la première ligne le niveau ``INFO`` par ``ERROR``.
-     
-  Ceci en supposant que les choses n'ont pas changé entre votre version et la mienne. Sinon, cherchez
-  sur le web.
+		Welcome to
+		      ____              __
+		     / __/__  ___ _____/ /__
+		    _\ \/ _ \/ _ `/ __/  '_/
+		   /__ / .__/\_,_/_/ /_/\_\   version 3.4.3
+		      /_/
 
+		Using Python version 3.10.0 (v3.10.0:b494f5935c, Oct  4 2021 14:59:20)
+		Spark context Web UI available at http://163.173.78.98:4040
+		Spark context available as 'sc' (master = local[*], app id = local-1718116101741).
+		SparkSession available as 'spark'.
+		>>> 
+
+C'est parti !
 
 Transformations et actions
 ==========================
@@ -515,127 +516,197 @@ Transformations et actions
 Vous pouvez récupérer le fichier http://b3d.bdpedia.fr/files/loups.txt pour
 faire un essai (il est temps de savoir à quoi s'en tenir à propos de ces loups
 et de ces moutons!), sinon n'importe quel fichier texte fait l'affaire.
-Copiez-collez les commandes ci-dessous. Les commandes sont précédées de ``scala>``, 
-elles sont parfois suivies du résultat de leur exécution dans le *shell*
-spark.
+Copiez-collez les commandes ci-dessous. 
 
-.. code-block:: scala
+.. code-block:: python
 
-     scala> val loupsEtMoutons = spark.read.textFile("loups.txt")
-     loupsEtMoutons: org.apache.spark.sql.Dataset[String] = [value: string] 
+     loupsEtMoutons = spark.read.text("loups.txt")
 
-Nous avons créé un premier DataFrame. Spark propose des *actions* directement
-applicable à un DataFrame et produisant des résultats scalaires.
-(Un DataFrame est interfacé comme un objet auquel nous pouvons appliquer des méthodes.)
+Nous avons créé un premier DataFrame nommé ``loupsEtMoutons``
+contenant autant de documents que de lignes dans le fichier en entrée,
+avec une unique colonne ``value``. 
+Spark propose des *actions* directement
+applicables à un DataFrame et produisant des résultats scalaires.
+(Un DataFrame est interfacé comme un objet auquel nous pouvons appliquer 
+des méthodes.) Voici des exemples des méthodes ``count()`` et ``first()``.
 
-.. code-block:: scala
 
-    scala> loupsEtMoutons.count() // Nombre de documents dans ce RDD
+.. code-block:: python
+
+    loupsEtMoutons.count() # Nombre de documents dans ce RDD
       res0: Long = 4
 
-    scala> loupsEtMoutons.first() // Premier document du RDD
+    loupsEtMoutons.first() // Premier document du RDD
       res1: String = Le loup est dans la bergerie.
 
-    scala> loupsEtMoutons.collect() // Récupération du RDD complet
+La fonction ``show()`` est particulière: elle affiche le contenu 
+du Dataframe sous forme de table.
+
+
+.. code-block:: python
+
+	loupsEtMoutons.show() // Récupération du dataframe complet
      
 
+	+--------------------+
+	|               value|
+	+--------------------+
+	|Le loup est dans ...|
+	|Les moutons sont ...|
+	|Un loup a mangé u...|
+	|Il y a trois mout...|
+	+--------------------+
+
 .. note:: Petite astuce: en entrant le nom de l'objet (``loupsEtMoutons.``) suivi de la touche TAB,
-   l'interpréteur Scala vous affiche la liste des méthodes disponibles.
+   l'interpréteur vous affiche la liste des méthodes disponibles.
 
 Passons aux *transformations*. Elles prennent un (ou deux) DataFrame en entrée,
 produisent un DataFrame en sortie. On peut sélectionner (filtrer) les documents
 (lignes) qui contiennent "bergerie".
 
-.. code-block:: scala
+.. code-block:: python
 
-    scala> val bergerie = loupsEtMoutons.filter({ line => line.contains("bergerie") })
+    bergerie = loupsEtMoutons.filter(loupsEtMoutons.value.contains("bergerie"))
 
-La fonction :code:`filter()` prend en paramètre une fonction booléenne (qui
-renvoie ``True`` ou ``False`` pour chaque ligne), et ne conserve dans la
+Notez l'accès à l'attribut ``value`` qui est simplement le contenu
+textuel de chaque document du Dataframe. 
+La fonction :code:`filter()`  reçoit un booléen (ici, application
+de la fonction Python standard ``contains()``) et ne conserve dans la
 collection résultante que les lignes pour lesquelles ``True`` était retourné.
-Ici, nous utilisons la fonction ``contains()`` (qui prend en paramètre un motif)
-et qui renvoie ``True`` or ``False`` selon que la chaîne (ici, la ligne)
-contient le motif (ici, "bergerie"). Remarquez aussi la syntaxe reposant sur une
-fonction anonyme comme paramètre de la fonction ``filter()`` : chaque ligne
-s'appelle temporairement ``line``, et on lui associe le résultat de
-``line.contains("bergerie")`` avec l'opérateur ``=>``.
 
-Nous avons créé un second DataFrame. Nous sommes en train de définir une chaîne
+Nous avons créé un second DataFrame nommé ``bergerie``. 
+Nous sommes en train de définir une chaîne
 de traitement qui part ici d'un fichier texte et applique des transformations
 successives. 
 
 À ce stade, rien n'est calculé, on s'est contenté de déclarer les étapes. Dès
 que l'on déclenche une *action*, comme par exemple l'affichage du contenu d'un
-DataFrame (avec ``collect()``), Spark va déclencher l'exécution.
+DataFrame (avec ``show()``), Spark va déclencher l'exécution.
 
-.. code-block:: scala
+.. code-block:: python
 
-    scala> bergerie.collect()
-    res3: Array[String] = Array(Le loup est dans la bergerie., Les moutons sont
-      dans la bergerie., Un loup a mangé un mouton, les autres loups sont restés
-      dans la bergerie.)
+	bergerie.show()
+    
+    +--------------------+
+    |               value|
+    +--------------------+
+    |Le loup est dans ...|
+    |Les moutons sont ...|
+    |Un loup a mangé u...|
+    +--------------------+
+ 
+On peut combiner une transformation et une action. En fait, comme
+avec pig, on peut chaîner
+les opérations et ainsi définir très concisément le *workflow*. Combien 
+de documents contiennent le mot "loup" ?
 
-On peut combiner une transformation et une action. En fait, avec Scala, on peut chaîner
-les opérations et ainsi définir très concisément le *workflow*.
+.. code-block:: python
 
-.. code-block:: scala
-
-    scala> loupsEtMoutons.filter({ line => line.contains("loup") }).count()
-    res4: Long = 3
+    loupsEtMoutons.filter(loupsEtMoutons.value.contains("loup")).count()
+    3
     
 Et pour conclure cette petite session introductive, voici comment on implante en
-Spark le compteur de termes dans une collection, en DataFrame et en RDD.
+le compteur de termes dans une collection.
 
 Compteur de termes, en DataFrames
 ---------------------------------
 
-On crée un premier DataFrame constitué de tous les termes: 
+Nous allons avoir besoin de la librairie des fonctions Spark/Python. On l'importe
+comme suit:
+
+.. code-block:: python
+
+		from pyspark.sql import functions as sf
+		
+On crée un premier DataFrame constitué de tous les termes obtenus
+en appliquant la fonction (standard) Python ``split()`` aux documents:
    
-.. code-block:: scala
+.. code-block:: python
 
-    scala> val termes = loupsEtMoutons.flatMap({ line => line.split(" ") })
-    
-La méthode ``split`` décompose une chaîne de caractères (ici, en prenant comme séparateur un espace). 
-Notez l'opérateur ``flatMap`` qui produit plusieurs documents (ici un terme) pour un document en entrée (ici une ligne).
-
-.. code-block:: scala
-
-    scala> val termesGroupes = termes.groupByKey(_.toLowerCase)
-
-Rappelons qu'à chaque étape, vous pouvez afficher le contenu du DataFrame avec ``collect()`` (attention toutefois, ici ``termesGroupes`` est de type ``KeyValueGroupedDataset`` et n'a pas cette méthode).
-Une manière un peu complexe de visualiser le contenu de termesGroupes:
-
-.. code-block:: scala
-
-    scala> termesGroupes.mapGroups{(k, v) => (k, v.toArray)}.collect
-
-Passons maintenant au décompte, avec un ``count()`` :
-
-.. code-block:: scala
-
-    scala> val sommes = termesGroupes.count()
-
-Enfin, on affiche les décomptes, c'est-à-dire les lignes du Dataset ``sommes``.
-
-.. code-block:: scala
-
-    scala> sommes.show()
+    termes = loupsEtMoutons.select(sf.split(loupsEtMoutons.value, "\s+").name("mots"))
 
 
-Et voilà! On aurait pu tout exprimer en une seule fois.
+La méthode ``split`` décompose une chaîne de caractères (ici, en prenant comme séparateur un espace)
+en une liste de mots.
+On donne un nom à la colonne
+avec ``name()``(sinon la colonne est nommée par défaut `split(value, \s+, -1)split(value, \s+, -1)``, 
+pas très pratique.
 
-.. code-block:: scala
+.. code-block:: python
 
-    scala> val compteurTermes = loupsEtMoutons.flatMap({ line => line.split(" ") })
-                                  .groupByKey(_.toLowerCase)
-                                  .count()
-                                  .show()
+	+--------------------+
+	|                mots|
+	+--------------------+
+	|[Le, loup, est, d...|
+	|[Les, moutons, so...|
+	|[Un, loup, a, man...|
+	|[Il, y, a, trois,...|
+	+--------------------+
 
-.. admonition:: Astuce
+Nous allons maintenant "applatir" chaque tableau pour, à partir d'une
+ligne de la colonne ``mots``, obtenir autant de lignes qu'il y a de mots.
+C'est l'équivalent de la fonction ``flatten`` dans Pig. Concrètement: 
 
-     Si vous voulez entrer des instructions multi-lignes dans l’interpréteur Scala, utilisez 
-     la commande :paste, suivi de vos instructions, et CTRL D pour finir.
+.. code-block:: python
 
+		listeMots = termes.select(sf.explode(termes.mots).alias("mot"))
+		
+Ce qui donne un nouveau Dataframe ``listeMots``:
+
+.. code-block:: python
+
+	+---------+
+	|      mot|
+	+---------+
+	|       Le|
+	|     loup|
+	|      est|
+	|     dans|
+	|       la|
+	|bergerie.|
+	|      ...|
+
+Groupons maintenant les mots: 
+
+.. code-block:: python
+
+    compteurTermes = listeMots.groupBy("mot")
+
+On obtient une structure intermédiaire de type ``GroupedData`` sur
+laquelle on eut appliquer des opérations d'agrégation, la plus
+simple étant ``count``.
+
+.. code-block:: python
+
+		compteurTermes.count().show()
+	
+		+---------+-----+
+		|      mot|count|
+		+---------+-----+
+		|bergerie.|    3|
+		|       du|    1|
+		|     pré,|    1|
+		|    mangé|    1|
+		|       Le|    1|
+		|   autres|    1|
+		|     sont|    2|
+
+Et voilà! On a décomposé chaque étapé, mai on aurait pu 
+exprimertoute la chaîne de traitement  en une seule fois.
+
+.. code-block:: python
+
+    compteurTermes = loupsEtMoutons.select(sf.split(loupsEtMoutons.value, "\s+"
+                      ).name("mots")
+                      ).select(sf.explode(sf.col("mots")
+                      ).name("mot")
+                      ).groupBy("mot"
+                      ).count(
+                      ).show()
+
+
+.. note:: Attention aux indentations en Python... Si vous voulez
+   reproduire la commande, le plus simple est de tout mettre sur une seule ligne.
 
 Le résultat pourra vous sembler un peu étrange (``pré,``) : il manque les
 diverses étapes de simplification du texte qui sont de mise pour un moteur de
@@ -643,86 +714,22 @@ recherche (vues dans le chapitre :ref:`chap-ranking` pour les détails). Mais
 l'essentiel est de comprendre l'enchaînement des opérateurs.
 
 Finalement, si on souhaite conserver en mémoire le DataFrame final pour le
-soumettre à divers traitements, il suffit d'appeler:
+soumettre à divers traitements, il suffit d'appeler la fonction ``cache()`:
 
-.. code-block:: scala
+.. code-block:: python
 
-    scala> compteurTermes.persist()
+    compteurTermes.cache()
 
-Compteur de termes, en RDD
---------------------------
-
-Avec les RDD, on dispose de fonctions ``map()`` et ``reduce()``, moins proches
-de SQL et moins haut niveau, mais efficaces. 
-
-On commence par créer le premier RDD :
-
-.. code-block:: scala
-
-    scala> val loupsEtMoutonsRDD = spark.read.textFile("loups.txt").rdd
-
-On décompose les lignes en termes : 
-
-.. code-block:: scala
-
-    scala> val termes = loupsEtMoutonsRDD.flatMap({ line => line.split(" ") })
-
-On introduit la notion de comptage: chaque terme vaut 1. L'opérateur ``map`` produit *un*
-document en sortie pour chaque document en entrée. On peut s'en servir ici pour enrichir
-chaque terme avec son compteur initial.
-
-.. code-block:: scala
-    
-    scala> val termeUnit = termes.map({word => (word, 1)})
-
-L'étape suivante regroupe les termes et effectue la somme de leurs compteurs:
-c'est un opérateur ``reduceByKey``.
-
-.. code-block:: scala
-
-    scala> val compteurTermes = termeUnit.reduceByKey({(a, b) => a + b})
-
-On passe à l'opérateur une fonction de réduction, ici notée littéralement dans
-la syntaxe Scala. Une telle fonctiàn prend en entrée deux paramètres: un
-accumulateur (ici ``a``) et la nouvelle valeur à agréger à l'accumulateur
-(ici ``b``). L'agrégation est ici simplement la somme.   
-
-Il reste à exécuter le traitement complet :
-
-.. code-block:: scala
-
-    scala> compteurTermes.collect()
-
-Tout en une fois :
-
-.. code-block:: scala
-
-    scala> val compteurTermes = loupsEtMoutonsRDD.flatMap({ line => line.split(" ") })
-                           .map({ word => (word, 1) })
-                           .reduceByKey({ (a, b) => a + b })
-    scala> compteurTermes.collect
-
-
-    
 L'interface de contrôle Spark
 =============================
 
 Spark dispose d'une interface Web qui permet de consulter les entrailles du système et de mieux comprendre
 ce qui est fait. Elle est accessible sur le port 4040, donc à l'URL http://localhost:4040 pour 
 une exécution du *shell*. 
-Pour explorer les informations fournies par cette interface, nous allons exécuter notre
-*workflow*, assemblé en une seule chaîne d'instructions Scala.
-
-.. code-block:: scala
-
-     val compteurTermes =  sc.textFile("loups.txt")
-            .flatMap(line => line.split(" "))
-            .map({ word => (word, 1) })
-            .reduceByKey({ (a, b) => a + b })
-
-     compteurTermes.collect()
-
-Lancez le *shell* est exécutez ce *workflow*.
+Pour explorer les informations fournies par cette interface, nous allons exécuter 
+notre
+*workflow*, assemblé en une seule chaîne d'instructions .
+Lancez  *pyspark* est exécutez ce *workflow*.
 
 Maintenant, vous devriez pouvoir accéder à l'interface et obtenir un affichage semblable 
 à celui de la :numref:`sparkUI`. En particulier, le *job* que vous venez d'exécuter devrait
@@ -740,9 +747,10 @@ L'onglet *jobs*
 
 Cliquez sur le nom du *job* pour obtenir des détails sur les étapes du calcul
 (:numref:`sparkQueryPlan`). Spark nous
-dit que l'exécution s'est faite en deux étapes. La première comprend les transformations
-``textFile``, ``flatMap`` et ``map``, la seconde la transformation ``reduceByKey``. 
-les deux étapes sont séparées par une phase de *shuffle*.
+dit que l'exécution s'est faite en deux étapes. Ce n'est pas forcément
+très clair, mais la première comprend les 
+transformations textuelle, et la seconde les opérations d'agrégation.
+Les deux étapes sont séparées par une phase de *shuffle*.
 
 
 .. _sparkQueryPlan:
@@ -787,18 +795,28 @@ jours.
 L'onglet *Storage*
 ------------------
 
-Maintenant, consultez l'onglet *Storage*. Il devrait être vide et c'est normal: aucun *job* n'est en cours d'exécution.
-Notre fichier de départ est trop petit pour que la durée d'exécution soit significative. Mais entrez
-la commande suivante:
+Maintenant, consultez l'onglet *Storage*. Il devrait être vide et c'est normal: 
+aucun *job* n'est en cours d'exécution.
+Notre fichier de départ est trop petit pour que la durée 
+d'exécution soit significative. Mais introduisez l'opération de persistance
+``cache()`` dans le *workflow*:  
 
-.. code-block:: scala
 
-       compteurTermes.persist()
+.. code-block:: python
+
+       compteurTermes = loupsEtMoutons.select(sf.split(loupsEtMoutons.value, "\s+"
+                      ).name("mots")
+                      ).select(sf.explode(sf.col("mots")
+                      ).name("mot")
+                      ).groupBy("mot"
+                      ).count(
+                      ).cache(
+                      )
        
-Et exécutez à nouveau l'action ``collect()``. Cette fois un RDD devrait apparaître dans l'onglet *Storage*,
+Et exécutez à nouveau l'action ``compteurTermes.show()``. Cette fois un RDD devrait apparaître dans l'onglet *Storage*,
 et de plus vous devriez comprendre pourquoi!
 
-Exécutez une nouvelle fois l'action ``collect()`` et consultez les statistiques des temps d'exécution. 
+Exécutez une nouvelle fois l'action ``show()`` et consultez les statistiques des temps d'exécution. 
 La dernière exécution devrait être significativement plus rapide que les précédentes. Comprenez-vous
 pourquoi? Regardez les étapes, et clarifiez tout cela dans votre esprit.
 
@@ -821,6 +839,11 @@ Mise en pratique
 
 .. _MEP-Spark-2:
 .. admonition:: Exercice `MEP-SPark-2`_: Passons à PageRank
+
+  
+   .. note:: cet exercice est donnée en Scala, la version Python viendra
+      prochainement, mais en attendant considérez qu'il s'agit d'une proposition
+      optionnelle.
 
    Essayons d'implanter notre PageRank avec Spark. On va supposer que notre graphe est
    stocké dans un fichier texte ``graphe.txt`` avec une ligne par arête, 
@@ -868,7 +891,7 @@ Mise en pratique
    
    .. code-block:: scala
    
-       ranks.collect()
+       ranks.show()
 
    Une fois que cela fonctionne, vous pouvez effectuer quelques améliorations
    

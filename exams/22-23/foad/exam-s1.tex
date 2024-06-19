@@ -174,15 +174,27 @@ hal-293 & cdm \\
   \item Proposez un format de document JSON représentant toutes les informations
         relatives à l'article hal-875 présentes dans les trois tables ci-dessus (représentation A).
 
+{"ref": "hal-875", "titre": "...", "année": 2018, "auteurs": [{"id": "nt", "nom": "...", "affiliation": "..."}, {}, {}]}
+
   \item Proposez un document JSON représentant toutes les
         informations relatives à l'organisme Vertigo présentes dans 3 tables ci-dessus
          (représentation B).
 
+\item {"organisme": "Vertigo", "membres": [{"ref": "pr", "nom": "Rigaux"}, {"ref":"rsf", "nom": "Fournier", "articles": [{"ref": "hal-875", "titre": ""}]}]}
+\item 
    \item Expliquez le calcul MapReduce permettant de produire les documents
    B à partir des documents A.
    \textbf{Important}\,: pour spécifier les calculs MapReduce, donner les fonctions de Map et de Reduce, en javascript,
 en pseudo-code, au pire en langage naturel en étant le plus précis possible.
 
+fonction (art: Article)
+for each auteur in art.auteurs: emit (auteur.organisme, art)
+\item 
+\item fonction reduce (organisme, liste (articles))
+for each article in articles:
+\item for each membre in article.auteurs:
+\item if (membre.organisme == organisme) -> ajouter membre
+\item 
 
    \item Maintenant on prend en compte la table décrivant la hiérarchie des organismes,
          dont voici un échantillon.
@@ -269,7 +281,7 @@ On va se limiter au vocabulaire (\texttt{harmonie, processeur, réseau, orchestr
 \begin{solution}
 Les normes
 \begin{itemize}
-  \item $||A_1|| = \sqrt{2}$; $||A_2|| = \sqrt{2}$; $||A_3|| = \sqrt{2}$;
+  \item $||A_1|| = \sqrt{2}$; $||A_2|| = \sqrt{2}$; $||A_3|| = \sqrt{4}$;
     $||A_4|| = \sqrt{5}$, $||A_5|| = \sqrt{4}$
 \end{itemize}
 \end{solution}
