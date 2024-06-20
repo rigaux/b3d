@@ -1548,15 +1548,131 @@ La table ``Auteur``
  - Proposez un format de document JSON représentant toutes les informations
    relatives à l'article hal-875 présentes dans les trois tables ci-dessus (représentation A).
 
+   .. ifconfig:: annales23 in ('public')
+
+		.. admonition:: Correction
+
+			On part de la ligne relationnelle ``hal-875`` puis on
+			"navigue" dans la base pour trouver les informations
+			liées à l'article, soit les auteurs. 
+			
+			.. code-block:: json
+			
+				{
+				  "ref": 'hal-875',
+				  "titre": "Music modeling",
+				  "année": 2018,
+				  "auteurs": [
+				    {"id": "nt",
+				      "nom": "Travers",
+				      "affiliation": "DVRC"
+				    },
+				    {"id": "pr",
+				      "nom": "Rigaux",
+				      "affiliation": "Vertigo"
+				    },
+				    {"id": "rfs",
+				      "nom": " Fournier-S'niehotta",
+				      "affiliation": "Vertigo"
+				    },				    
+				  ]
+				}
+
  - Proposez un document JSON représentant toutes les
    informations relatives à l'organisme Vertigo présentes dans 3 tables ci-dessus
    (représentation B).
+
+   .. ifconfig:: annales23 in ('public')
+
+		.. admonition:: Correction
+
+			On sait peu de choses sur Vertigo, à part son intitulé.
+			On développe donc la liste des chercheurs, puis,
+			pour chaque chercheur, de ses articles, ce qui introduit
+			une redondance importante.
+			
+			.. code-block:: json
+			
+				{
+				  "organisme": 'Vertigo',
+				  "chercheurs": [
+				    {"id": "pr",
+				      "nom": "Rigaux",
+				      "articles": [
+						{
+						  "ref": 'hal-875',
+						  "titre": "Music modeling",
+				  		  "année": 2018,
+				   		]
+				    },
+				    {"id": "rfs",
+				      "nom": " Fournier-S'niehotta",
+				      "articles": [
+						{
+						  "ref": 'hal-875',
+						  "titre": "Music modeling",
+				  		  "année": 2018,
+				   		]
+				    }		    
+				  ]
+				}
 
  - Expliquez le calcul MapReduce permettant de produire les documents
    B à partir des documents A.
    **Important** : pour spécifier les calculs MapReduce, donner les fonctions de Map 
    et de Reduce, en javascript,
    en pseudo-code, au pire en langage naturel en étant le plus précis possible.
+
+   .. ifconfig:: annales23 in ('public')
+
+		.. admonition:: Correction
+
+			Dans un document de type A, reçu par la fonction de Map,
+			on doit aller chercher dans les auteurs de l'article
+			l'affiliation, et émettre une paire dont
+			cette affiliation est la clé.
+			
+			.. code-block:: bash
+			
+				function fonctionMap ($doc) # doc est un document de type Article
+				{
+					# On parcourt les auteurs
+					for    [$c in $doc.auteurs] do 
+						emit ($c.affiliation, $doc)
+					done 
+				 }
+                     
+             Remarques: on va faire autant de ``emit``  qu'il
+             y a d'auteurs dans l'article. Et pour chaque
+             ``emit`` on va envoyer comme valeur de la
+             paire intermédiaire l'ensemble de l'article, à charge
+             pour la fonction de reduce d'en extraire les informations
+             nécessaires aux documents de type B. C'est un choix paresseux:
+             ces articles vont transiter sur le réseau pendant le
+             *shuffle*, avec un coût important. 
+             
+             La fonction de Reduce reçoit donc un nom d'organisme,
+             et la liste des articles dont l'un des auteurs 
+             est affilié à l'organisme. Il reste à reconstituer
+             le document B. Le schéma est donné ci-dessous
+             (on n'en demande pas plus)
+
+			.. code-block:: bash
+			
+				function fonctionReduce ($organisme, $articles) 
+				{
+					# On parcourt les articles et leurs auteurs 
+					# pour ne garder que ceux affiliés
+					document = {"organisme": $organisme}
+					for    [$a in $articles] do 
+  					  for [$c in $a.auteurs] do 
+  					    if $c.affiliation == $organisme then
+						 # On a trouvé un chercheur de l'organisme
+						 document.ajout ($c)
+					  done 
+					done
+					return $document
+				 }
 
  - Maintenant on prend en compte la table décrivant la hiérarchie des organismes,
    dont voici un échantillon.
@@ -1574,6 +1690,31 @@ La table ``Auteur``
    Dessinez cette hiérarchie, et proposez une modélisation JSON pour ajouter l'information
    sur les organismes dans la représentation B. Illustrez cette modélisation
    sur le document "Vertigo" de la seconde question.
+
+   .. ifconfig:: annales23 in ('public')
+
+		.. admonition:: Correction
+		
+		   La modélisation JSON se prête bien aux structures
+		   hiérarchiques. Ici, on obtiendrait des documents de la 
+		   forme suivante:
+		   
+			.. code-block:: json
+			
+				{
+				  "organisme": 'Cédric',
+				  "composantes": [
+				  	{
+				  		"organisme": 'Vertigo',
+				  		"composantes": []
+				  	},
+				  	{
+				  		"organisme": 'ISID',
+				  		"composantes": []
+				  	}	
+				  ]		 
+				}
+
 
  - Les références bibliographiques sont gérées depuis des dizaines d'années dans
    un format texte dit Bibtex. Voici par exemple
@@ -1595,6 +1736,21 @@ La table ``Auteur``
    
    Comment qualifieriez-vous ce format par rapport à JSON ? Voyez-vous
    des inconvénients, des avantages, à cette représentation ?
+
+
+   .. ifconfig:: annales23 in ('public')
+
+		.. admonition:: Correction
+		
+		   On voit que Bibtex est un version un peu primitive de JSON
+		   ou XML, avec notamment une gestion peu robuste
+		   des structures imbriquées. Les auteurs par exemple
+		   seraient modélisés comme un tableau dans JSON,
+		   et sont ici dans une chaîne de caractères, 
+		   les éléments étant conventionnellement séparés par des
+		   ``and``. Mais on retrouve quelques idées 
+		   importantes comme la flexibilité du schéma
+		   et la sérialisation textuelle qui facilite les échanges.
 
 
 Deuxième partie : recherche d'information (7 pts)
@@ -1654,8 +1810,22 @@ une phase préalable de normalisation qui élimine les pluriels, majuscules, etc
 	- processeur et réseau
 	- harmonie et orchestre
   
+   .. ifconfig:: annales23 in ('public')
+
+		.. admonition:: Correction
+		
+		   Calculs cosinus standards.
+		   
  - Sans calcul, indiquez quel document est classé en tête pour la requête
    avec le seul mot "réseau", et expliquez pourquoi.
+
+   .. ifconfig:: annales23 in ('public')
+
+		.. admonition:: Correction
+		
+		   C'est bien sûr le A3. Comme la requête, il parle de réseau
+		   ET uniquement de réseaux. Les deux vecteurs sont
+		   donc co linéaires.
 
 Troisième partie : systèmes distribués (5 pts)
 ==============================================
