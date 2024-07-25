@@ -176,7 +176,7 @@ Après décryptage, les messages obtenus ont la forme suivante:
     "contenu": "Hmm hmm hmmm",
     "probaSpectre": 0.6,
     "station": "Covent Garden"
-    }
+    
     
 Il y en a des milliards: vous avez quelques heures pour trouver la solution.
 
@@ -349,20 +349,20 @@ par chacun.e.
       "_id": 978,
       "nom": "Jean Dujardin",
       "annee": "2016",
-        "UE": [{"ue":11, "note": 12},
-                {"ue":27, "note": 17},
-                 {"ue":37,  "note": 14} 
+        "UE": [{"ue":11, "note": 12,
+                {"ue":27, "note": 17,
+                 {"ue":37,  "note": 14 
                 ]
-     },
+     ,
     {
     "_id": 476,
     "nom": "Vanessa Paradis",
     "annee": "2016",
-    "UE": [{"ue": 13, "note": 17},
-            {"ue":27, "note": 10},
-            {"ue":76,  "note": 11} 
+    "UE": [{"ue": 13, "note": 17,
+            {"ue":27, "note": 10,
+            {"ue":76,  "note": 11 
          ]
-    }
+    
   ]
 
 Question 1: documents et base relationnelle
@@ -396,24 +396,24 @@ Voilà, à compléter avec les UEs 13 et 37.
       "_id": 387,
       "UE": 11,
       "inscrits": [
-         {"nom": "Jean Dujardin", "annee": "2016", "note": 12}
+         {"nom": "Jean Dujardin", "annee": "2016", "note": 12
        ]
-      },
+      ,
       {
       "_id": 3809,
       "UE": 27,
       "inscrits": [
-         {"nom": "Jean Dujardin", "annee": "2016", "note": 17},
-         {"nom": "Vanessa Paradis", "annee": "2016", "note": 10},
+         {"nom": "Jean Dujardin", "annee": "2016", "note": 17,
+         {"nom": "Vanessa Paradis", "annee": "2016", "note": 10,
        ]
-      },
+      ,
       {
       "_id": 987,
       "UE": 76,
       "inscrits": [
-         {"nom": "Vanessa Paradis", "annee": "2016", "note": 11}
+         {"nom": "Vanessa Paradis", "annee": "2016", "note": 11
        ]
-      }
+      
   ]
   
 Question 3: MapReduce et la notion de document "autonome"
@@ -475,24 +475,24 @@ un document en entrée. Voici le pseudo-code.
       for    [:math:`ue in :math:`doc.UEs] do 
          emit (:math:`ue.id, :math:`doc.nom)
       done 
-    }
+    
 
 Quand on traite le premier document de notre exemple, on obtient donc
 trois paires intermédiaires:
 
 .. code-block:: javascript
 
-    {"ue:11", "Jean Dujardin"}
-    {"ue:27", "Jean Dujardin"}
-    {"ue:37", "Jean Dujardin"}
+    {"ue:11", "Jean Dujardin"
+    {"ue:27", "Jean Dujardin"
+    {"ue:37", "Jean Dujardin"
 
 Et quand on traite le second document, on obtient:
 
 .. code-block:: javascript
 
-    {"ue:13", "Vanessa Paradis"}
-    {"ue:27", "Vanessa Paradis"}
-    {"ue:76", "Vanessa Paradis"}
+    {"ue:13", "Vanessa Paradis"
+    {"ue:27", "Vanessa Paradis"
+    {"ue:76", "Vanessa Paradis"
 
 Toutes ces paires sont alors transmises à "l'atelier d'assemblage" qui
 les regroupe sur la clé. Voici la liste des groupes (un par UE).
@@ -500,11 +500,11 @@ les regroupe sur la clé. Voici la liste des groupes (un par UE).
 
 .. code-block:: javascript
 
-    {"ue:11", ["Jean Dujardin"]}
-    {"ue:13", "Vanessa Paradis"}
-    {"ue:27", ["Jean Dujardin", "Vanessa Paradis"]}
-    {"ue:37", "Jean Dujardin"}
-    {"ue:76", "Vanessa Paradis"}
+    {"ue:11", ["Jean Dujardin"]
+    {"ue:13", "Vanessa Paradis"
+    {"ue:27", ["Jean Dujardin", "Vanessa Paradis"]
+    {"ue:37", "Jean Dujardin"
+    {"ue:76", "Vanessa Paradis"
 
 Il reste à appliquer la fonction de Reduce à chaque groupe. 
 
@@ -514,7 +514,7 @@ Il reste à appliquer la fonction de Reduce à chaque groupe.
     function fonctionReduce (:math:`clé, :math:`tableau) 
     {
       return (:math:`clé, count(:math:`tableau)
-    }
+    
 
 Et voilà.
 
@@ -565,13 +565,13 @@ deux exemples.
          {"internaute": "chocho@monsite.com",
         "note": 5,
         "commentaire": "Les décisions du nouveau président sont inquiétantes ..."
-        },
+        ,
         {"internaute": "alain@dugenou.com",
         "note": 2,
         "commentaire": "Arrêtons de critiquer ce grand homme..."
-        }
+        
       ]
-    }
+    
     {
     "_id": 54,
     "source": "nimportequoi.fr",
@@ -582,9 +582,9 @@ deux exemples.
         {"internaute": "alain@dugenou.com",
          "note": 5,
         "commentaire": "Enfin un site qui n'a pas peur de dire la vérité ..."
-        }
+        
      ]
-    }
+    
 
 Les notes vont de 1 à 5, 1 exprimant un fort désacord avec le contenu de l'article, et 5 un accord complet.
 
@@ -642,25 +642,25 @@ Questions:
       
       Les normes
 
-       -  :math:`||d_1|| = \sqrt{4+ 1} = \sqrt{5}`
-       - :math:`||d_2|| = \sqrt{1+1+1+1} = 2`
-       -  :math:`||d_3|| = \sqrt{1}`
-       - :math:`||d_4|| = \sqrt{1+4}=\sqrt{5}`
+       -  :math:`||d_1|| = \sqrt{4+ 1 = \sqrt{5`
+       - :math:`||d_2|| = \sqrt{1+1+1+1 = 2`
+       -  :math:`||d_3|| = \sqrt{1`
+       - :math:`||d_4|| = \sqrt{1+4=\sqrt{5`
 
       Les cosinus (requête non normalisée).
 
-        -  Bush: d2 : :math:`\frac{1}{2}=0,5` ;  d4 : :math:`\frac{2}{\sqrt{5}} \simeq 0,89` ; d4 est premier car il mentionne deux fois Bush.
-        - Trump et Clinton:  d1 : :math:`\frac{2+1}{\sqrt{5}}`; d2 : :math:`\frac{1+1}{2}`; d4 : :math:`\frac{1}{\sqrt{5}}`; 
+        -  Bush: d2 : :math:`\frac{1{2=0,5` ;  d4 : :math:`\frac{2{\sqrt{5 \simeq 0,89` ; d4 est premier car il mentionne deux fois Bush.
+        - Trump et Clinton:  d1 : :math:`\frac{2+1{\sqrt{5`; d2 : :math:`\frac{1+1{2`; d4 : :math:`\frac{1{\sqrt{5`; 
     
           d1 est premier comme on pouvait s'y attendre: il parle exclusivement 
           de Trump et Clinton. Viennent ensuite d2 puis d4.
     
         - Trump et Sanders
   
-            - d1 : :math:`\frac{1}{\sqrt{5}}`
-            - d2 : :math:`\frac{2}{2}`
-            - d3 :  :math:`\frac{1}{1}`  
-            - d4 :  :math:`\frac{1}{\sqrt{5}}` 
+            - d1 : :math:`\frac{1{\sqrt{5`
+            - d2 : :math:`\frac{2{2`
+            - d3 :  :math:`\frac{1{1`  
+            - d4 :  :math:`\frac{1{\sqrt{5` 
     
          d2 et d3 arrivent à égalité. Intuitivement, il parlent tous les deux "à moitié"
          de Trump et Sanders.  d1 et d4 parlent de Trump *ou* de Sanders et aussi des autres
@@ -915,7 +915,7 @@ On veut maintenant équiper notre système d'une fonction de recherche plein tex
  
    .. math::
    
-         cos { } \theta  = \sum_{i=1}^n v[i] \times q[i]
+         cos {  \theta  = \sum_{i=1^n v[i] \times q[i]
 
    Où :math:`x[i]` désigne le nombre d'occurrences du *i*ème terme dans un vecteur *x*. 
    Expliquez pourquoi 
@@ -951,7 +951,7 @@ transmis en vrac sous la forme suivante:
 
 .. code-block:: json
 
-     {"idMessage": "Xh9788&&", "mot": "force"}
+     {"idMessage": "Xh9788&&", "mot": "force"
 
 Les Jedi disposent d'une fonction secrète :math:`f()` qui prend l'identifiant d'un message et 
 renvoie **vrai** ou **faux**.
@@ -967,7 +967,7 @@ renvoie **vrai** ou **faux**.
    .. admonition:: Correction
    
        Le programme "fonction secrète", va donc prendre tous les couples (clé, mots) 
-       ``{"idMessage": "Xh9788&&", "mot": "force"}`` en entrée, afin de concaténer 
+       ``{"idMessage": "Xh9788&&", "mot": "force"`` en entrée, afin de concaténer 
        les paires(k,[v]) par une fonction reducer. Le reducer va concatener 
        les mots sans ordre particulier.
        
@@ -1014,14 +1014,14 @@ renvoie **vrai** ou **faux**.
         
         .. code-block:: json
         
-            [{"idMessage": "Xh9788&&", "pos": {"indice": "1", "mot": "la"}},  
-             {"idMessage": "Xh9788&&", "pos": {"indice": "3", "mot": "force"}},  
-             {"idMessage": "Xh9788&&", "pos": {"indice": "9", "mot": "avec"}},  
-             {"idMessage": "Xh9788&&", "pos": {"indice": "14", "mot": "toi"}}
+            [{"idMessage": "Xh9788&&", "pos": {"indice": "1", "mot": "la",  
+             {"idMessage": "Xh9788&&", "pos": {"indice": "3", "mot": "force",  
+             {"idMessage": "Xh9788&&", "pos": {"indice": "9", "mot": "avec",  
+             {"idMessage": "Xh9788&&", "pos": {"indice": "14", "mot": "toi"
             ]
             
         Puis le reducer va recevoir les paires : 
-        {"idMessage": "Xh9788&&", {"place": "1", "mot": "la"}}, 
+        {"idMessage": "Xh9788&&", {"place": "1", "mot": "la", 
         puis va les ordonner en fonction de leur "place", pour 
         enfin reconstrituer la phrase. Le reducer devra également 
         combiner plusieurs fonctions. Ordonner les valeurs, puis concaténer les mots.
@@ -1057,9 +1057,9 @@ envoie au serveur un *message  de contact* dont voici  trois exemples:
 
 .. code-block:: json
 
-        {"_id": "7ytGy", "pseudo1": "xuyh57", "pseudo2": "jojoXYZ", "date": "30/06/2020"}
-        {"_id": "ui9xiuu", "pseudo1": "jojoXYZ", "pseudo2": "tat37HG", "date": "30/06/2020"}
-        {"_id": "Iuuu76", "pseudo1": "jojoXYZ", "pseudo2": "xuyh57", "date": "30/06/2020"}
+        {"_id": "7ytGy", "pseudo1": "xuyh57", "pseudo2": "jojoXYZ", "date": "30/06/2020"
+        {"_id": "ui9xiuu", "pseudo1": "jojoXYZ", "pseudo2": "tat37HG", "date": "30/06/2020"
+        {"_id": "Iuuu76", "pseudo1": "jojoXYZ", "pseudo2": "xuyh57", "date": "30/06/2020"
 
 Ce message contient donc un identifiant unique, les pseudonymes
 des deux personnes et la date de la rencontre. Un pseudonyme
@@ -1086,10 +1086,10 @@ dans une base :math:`DB_1`.
 
          { "pseudo": "jojoXYZ",
             "date": "30/06/2020",
-            "contacts": [{"pseudo": "tat37HG", "count": 1},
-                         {"pseudo": "xuyh57", "count": 2}
+            "contacts": [{"pseudo": "tat37HG", "count": 1,
+                         {"pseudo": "xuyh57", "count": 2
                         ]
-           }
+           
     
     Vous disposez d'une fonction *groupby()* qui prend un ensemble de valeurs et produit
     une liste contenant chaque valeur et son nombre d'occurrences. 
@@ -1099,10 +1099,10 @@ dans une base :math:`DB_1`.
     Voici quatre documents. les deux premiers sont stockés sur le serveur :math:`S_1`, 
     le troisième sur le serveur :math:`S_2`, et le dernier sur le serveur :math:`S_3`.
     
-       - :math:`d_1`: ``{"_id", "pseudo1": "X1", "pseudo2": "X2", "date": "30/06/2020" }}``
-       - :math:`d_2`: : ``{"_id", "pseudo1": "X3", "pseudo2": "X2", "date": "30/06/2020"}}``
-       - :math:`d_3`: : ``{"_id", "pseudo1": "X2", "pseudo2": "X4", "date": "30/06/2020"}}``
-       - :math:`d_4`: : ``{"_id", "pseudo1": "X1", "pseudo2": "X4", "date": "30/06/2020"}}``
+       - :math:`d_1`: ``{"_id", "pseudo1": "X1", "pseudo2": "X2", "date": "30/06/2020"} ``
+       - :math:`d_2`: : ``{"_id", "pseudo1": "X3", "pseudo2": "X2", "date": "30/06/2020"}``
+       - :math:`d_3`: : ``{"_id", "pseudo1": "X2", "pseudo2": "X4", "date": "30/06/2020"}``
+       - :math:`d_4`: : ``{"_id", "pseudo1": "X1", "pseudo2": "X4", "date": "30/06/2020"}``
 
     Inspirez-vous de la figure :numref:`mr-execution-ex`.
     pour montrer le déroulement du traitement MapReduce avec deux *reducers*. 
@@ -1121,7 +1121,7 @@ dans une base :math:`DB_1`.
 
     .. code-block:: json
 
-          {"mesPseudos": ["jojoXYZ", "johj0N", "fjhukij87", "kodhvy"]}
+          {"mesPseudos": ["jojoXYZ", "johj0N", "fjhukij87", "kodhvy"]
 
     Tous les jours on stocke les listes dans une collection ``Infections``.
     Donnez la chaîne de traitement qui construit la collection de tous les pseudos qui ont
@@ -1145,7 +1145,7 @@ dans une base :math:`DB_1`.
                 {
                     emit ([doc.pseudo1, doc.date], "pseudo": doc.pseudo2)
                     emit ([doc.pseudo2, doc.date], "pseudo": doc.pseudo1)
-                }
+                
             
           La fonction de Reduce se contente de renvoyer la
           liste obtenue après élimination des doublons.
@@ -1155,7 +1155,7 @@ dans une base :math:`DB_1`.
                 function reduceRencontre ([pseudo, date], listeContacts)
                 {
                     return ([pseudo, date], groupby (listeContacts))
-                }
+                
 
           Pour la base relationnelle, il faut une table des rencontres quotidiennes :
            
@@ -1246,15 +1246,15 @@ et une ébauche de classification *kMeans*.
 
    .. admonition:: Correction
 
-        - Normes: :math:`\sqrt{36}=6 ; \sqrt{14}=3,74 ; \sqrt{14}=3,74; \sqrt{18}=4,25`.
+        - Normes: :math:`\sqrt{36=6 ; \sqrt{14=3,74 ; \sqrt{14=3,74; \sqrt{18=4,25`.
         - Calculons la similarité cosinus
         
-            - :math:`cos(\rm{tat37HG, xuyh57}) =\frac{5+3+2}{6 \times 3,74} \approx 0,44`
-            - :math:`cos(\rm{tat37HG, jojoXYZ}) =\frac{5+2+3}{6 \times 3,74} \approx 0,44`
-            - :math:`cos(\rm{tat37HG, Ubbdyu}) =\frac{15+9}{6 \times 4,25} \approx  0,95`
-            - :math:`cos(\rm{xuyh57, jojoXYZ}) =\frac{1+6+6}{14} \approx 0,92`
-            - :math:`cos(\rm{xuyh57, Ubbdyu}) =\frac{3}{3,74 \times 4,25} \approx 0,18`
-            - :math:`cos(\rm{jojoXYZ, Ubbdyu}) =\frac{3}{3,74 \times 4,25} \approx 0,18`
+            - :math:`cos(\rm{tat37HG, xuyh57) =\frac{5+3+2{6 \times 3,74 \approx 0,44`
+            - :math:`cos(\rm{tat37HG, jojoXYZ) =\frac{5+2+3{6 \times 3,74 \approx 0,44`
+            - :math:`cos(\rm{tat37HG, Ubbdyu) =\frac{15+9{6 \times 4,25 \approx  0,95`
+            - :math:`cos(\rm{xuyh57, jojoXYZ) =\frac{1+6+6{14 \approx 0,92`
+            - :math:`cos(\rm{xuyh57, Ubbdyu) =\frac{3{3,74 \times 4,25 \approx 0,18`
+            - :math:`cos(\rm{jojoXYZ, Ubbdyu) =\frac{3{3,74 \times 4,25 \approx 0,18`
 
           On distingue donc bien deux groupes: ``jojoXYZ`` est très proche 
           de ``xuyh57``, et ``tat37HG`` est très proche 
@@ -1272,8 +1272,8 @@ et une ébauche de classification *kMeans*.
                   else
                         emit ("C2", vecteur)
                   end;
-                }
-            }
+                
+            
 
           La fonction de reduce calcule le centroide.
           
@@ -1282,7 +1282,7 @@ et une ébauche de classification *kMeans*.
               function reduceKmeans (key, L: liste(vecteurs))
               {
                 return (key, centroid(L));
-              }
+              
         
         - La matrice doit être dans un RDD persistant. À chaque étape il  
           faut également conserver les centroïdes en mémoire RAM.
@@ -1357,11 +1357,11 @@ ces mêmes contacts.
         - On part avec le vecteur :math:`(0, 0, 1, 0)` représentant 
           le fait que ``jojoXYZ`` est infecté. On multiplie
           par chaque vecteur de transition et on obtient la
-          probabilité :math:`\frac{1}{3}` d'infecter  ``tat37HG``,  :math:`\frac{2}{3}` 
+          probabilité :math:`\frac{1{3` d'infecter  ``tat37HG``,  :math:`\frac{2{3` 
           d'infecter ``xuyh57``
       
           Seconde étape : le vecteur est :math:`(1/3, 2/3, 0, 0)`. Si on part
-          de ``tat37HG``, ça nous laisse  une probabilité :math:`\frac{3}{15}`
+          de ``tat37HG``, ça nous laisse  une probabilité :math:`\frac{3{15`
           d'infecter ``Ubbdyu``.
 
         - C'est exactement PageRank: on multiplie le vecteur et la matrice
@@ -1425,25 +1425,25 @@ Nous disposons d'une matrice *M* de dimension :math:`N \times N`
 représentant les liens entres les :math:`N`  pages du Web, chaque lien étant
 qualifié par un facteur d'importance (ou "poids"). La matrice est représentée par une
 collection math:`C`  dans laquelle chaque document est de la forme 
-{"id": \&23, "lig": *i*, "col": *j*, "poids": :math:`m_{ij}`}, et
-représente un lien entre la page :math:`P_i` et la page :math:`P_j` de poids :math:`m_{ij}`
+{"id": \&23, "lig": *i*, "col": *j*, "poids": :math:`m_{ij`, et
+représente un lien entre la page :math:`P_i` et la page :math:`P_j` de poids :math:`m_{ij`
 
 Exemple: voici une matrice :math:`M` avec :math:`N=4`. La première cellule de le seconde ligne
 est donc représentée par
-un document {"id": \&t5x, "lig": 2, "col": 1, "poids": 7}
+un document {"id": \&t5x, "lig": 2, "col": 1, "poids": 7
 
 .. math::
 
-       M= \left[ {\begin{array}{cccc}
+       M= \left[ {\begin{array{cccc
         1 & 2  & 3 & 4 \\
         7 & 6 & 5 & 4 \\
         6 & 7  & 8 & 9 \\
          3 & 3  & 3 & 3 \\
-        \end{array} } \right] 
+        \end{array  \right] 
 
 **Questions**
 
-  - On estime qu'il y a environ :math:`N=10^{10}` pages sur le Web, avec 15 liens par
+  - On estime qu'il y a environ :math:`N=10^{10` pages sur le Web, avec 15 liens par
     page en moyenne. Quelle est la taille de la collection :math:`C`, en TO,  en supposant que chaque document
     a une taille de 16 octets?
   - Nos serveurs ont 2 disques de 1 TO chacun et chaque document est répliqué  2 fois (donc trois versions en tout).
@@ -1457,7 +1457,7 @@ un document {"id": \&t5x, "lig": 2, "col": 1, "poids": 7}
     
     .. math::
         
-        w_i = \Sigma_{j=1}^N  m_{ij} \times v_j
+        w_i = \Sigma_{j=1^N  m_{ij \times v_j
         
     On suppose pour le moment que :math:`V` tient en mémoire RAM
     et est accessible comme variable statique par toutes les fonctions de Map ou de Reduce.
@@ -1494,7 +1494,7 @@ d'archive, comme HAL en France. Posons-nous quelques questions sur le fonctionne
 d'une telle archive.
 Un modèle très sommaire du dépôt est donné dans la figure ci-dessous. 
 Les chercheurs
-publient des articles (qui peuvent avoir plusieurs co-auteurs) et sont \emph{affiliés} à des organismes
+publient des articles (qui peuvent avoir plusieurs co-auteurs) et sont \emph{affiliés à des organismes
 de recherche. Ces organismes sont hiérarchiquement structurés : un chercheur peut être
 attaché à une équipe (organisme de base), qui fait partie d'un laboratoire (organisme
 parent) qui lui-même fait partie d'un établissement (par exemple le Cnam), etc.
@@ -1566,17 +1566,17 @@ La table ``Auteur``
 				    {"id": "nt",
 				      "nom": "Travers",
 				      "affiliation": "DVRC"
-				    },
+				    ,
 				    {"id": "pr",
 				      "nom": "Rigaux",
 				      "affiliation": "Vertigo"
-				    },
+				    ,
 				    {"id": "rfs",
 				      "nom": " Fournier-S'niehotta",
 				      "affiliation": "Vertigo"
-				    },				    
+				    ,				    
 				  ]
-				}
+				
 
  - Proposez un document JSON représentant toutes les
    informations relatives à l'organisme Vertigo présentes dans 3 tables ci-dessus
@@ -1604,7 +1604,7 @@ La table ``Auteur``
 						  "titre": "Music modeling",
 				  		  "année": 2018,
 				   		]
-				    },
+				    ,
 				    {"id": "rfs",
 				      "nom": " Fournier-S'niehotta",
 				      "articles": [
@@ -1613,9 +1613,9 @@ La table ``Auteur``
 						  "titre": "Music modeling",
 				  		  "année": 2018,
 				   		]
-				    }		    
+				    		    
 				  ]
-				}
+				
 
  - Expliquez le calcul MapReduce permettant de produire les documents
    B à partir des documents A.
@@ -1640,7 +1640,7 @@ La table ``Auteur``
 					for    [$c in $doc.auteurs] do 
 						emit ($c.affiliation, $doc)
 					done 
-				 }
+				 
                      
              Remarques: on va faire autant de ``emit``  qu'il
              y a d'auteurs dans l'article. Et pour chaque
@@ -1663,7 +1663,7 @@ La table ``Auteur``
 				{
 					# On parcourt les articles et leurs auteurs 
 					# pour ne garder que ceux affiliés
-					document = {"organisme": $organisme}
+					document = {"organisme": $organisme
 					for    [$a in $articles] do 
   					  for [$c in $a.auteurs] do 
   					    if $c.affiliation == $organisme then
@@ -1672,7 +1672,7 @@ La table ``Auteur``
 					  done 
 					done
 					return $document
-				 }
+				 
 
  - Maintenant on prend en compte la table décrivant la hiérarchie des organismes,
    dont voici un échantillon.
@@ -1707,13 +1707,13 @@ La table ``Auteur``
 				  	{
 				  		"organisme": 'Vertigo',
 				  		"composantes": []
-				  	},
+				  	,
 				  	{
 				  		"organisme": 'ISID',
 				  		"composantes": []
-				  	}	
+				  		
 				  ]		 
-				}
+				
 
 
  - Les références bibliographiques sont gérées depuis des dizaines d'années dans
@@ -1723,15 +1723,15 @@ La table ``Auteur``
    .. code-block:: text
 
 		@article{frt-02435620,
-		  TITLE = {{Modeling Music as Synchronized Time Series}},
-			AUTHOR = {Fournier-S'niehotta, Raphael and Rigaux, Philippe and Travers, Nicolas},
-			URL = {https://hal-cnam.archives-ouvertes.fr/hal-02435620},
-			JOURNAL = {{Information Systems}},
-			PUBLISHER = {{Elsevier}},
-			VOLUME = {73},
-			PAGES = {35-49},
-			YEAR = {2018},
-		}
+		  TITLE = {{Modeling Music as Synchronized Time Series,
+			AUTHOR = {Fournier-S'niehotta, Raphael and Rigaux, Philippe and Travers, Nicolas,
+			URL = {https://hal-cnam.archives-ouvertes.fr/hal-02435620,
+			JOURNAL = {{Information Systems,
+			PUBLISHER = {{Elsevier,
+			VOLUME = {73,
+			PAGES = {35-49,
+			YEAR = {2018,
+		
    
    
    Comment qualifieriez-vous ce format par rapport à JSON ? Voyez-vous
@@ -1767,7 +1767,7 @@ de classification et d'analyse. Voici un extrait des résumés de 5 articles
 	- :math:`A_4` : Pourquoi un processeur quantique ne peut surmonter un processeur standard qu'en présence d'un réseau performant
 	- :math:`A_5`   Mozart est-il mieux servi par un orchestre de chambre ou un orchestre philarmonique?
 
-On va se limiter au vocabulaire (\texttt{harmonie, processeur, réseau, orchestre}).
+On va se limiter au vocabulaire (``harmonie``, ``processeur``, ``réseau``, ``orchestre``).
 (NB: on suppose
 une phase préalable de normalisation qui élimine les pluriels, majuscules, etc.)
 
@@ -1795,11 +1795,11 @@ une phase préalable de normalisation qui élimine les pluriels, majuscules, etc
 
 		.. admonition:: Correction
 
-			- :math:`||A_1|| = \sqrt{2}`; 
-			- :math:`||A_2|| = \sqrt{2}`; 
-			- :math:`||A_3|| = \sqrt{2}`;
-			- :math:`||A_4|| = \sqrt{5}` 
-			- :math:`||A_5|| = \sqrt{4}`
+			- :math:`||A_1|| = \sqrt{2`; 
+			- :math:`||A_2|| = \sqrt{2`; 
+			- :math:`||A_3|| = \sqrt{2`;
+			- :math:`||A_4|| = \sqrt{5` 
+			- :math:`||A_5|| = \sqrt{4`
 
  - Dans un espace vectoriel à deux dimensions avec "processeur" en abcisse
    et "réseau" en ordonnée, placez les vecteurs représentant nos documents.
@@ -1835,7 +1835,7 @@ et d'autres qui n'ont pas été abordés en cours
 
 La documentation nous dit :
 *When you index a document, it is stored on a single 
-primary shard determined by a simple formula* : :math:`shard = hash(id) \%\ \rm{number\_of\_primary\_shards}`
+primary shard determined by a simple formula* : :math:`shard = hash(id) \%\ \rm{number\_of\_primary\_shards`
     
 Voici la configuration initiale de votre *cluster* 
 ElasticSearch pour les questions qui suivent 
@@ -1898,7 +1898,7 @@ Un dernier point à gagner. Un de vos collègues vous affirme qu'il vaut mieux
 créer un index avec beaucoup de *shards*, pour anticiper la croissance future. Voici
 un argument contre ce choix, issu de la documentation.
 *Term statistics, used to calculate relevance, are per shard. Having a small amount of 
-data in many shards leads to poor relevance.}*
+data in many shards leads to poor relevance.*
 
 Que répondez-vous à votre collègue?
 
@@ -1931,4 +1931,383 @@ Reprenez le théorème CAP et donnez des réponses argumentées aux questions su
 
 			Non, si on a réussi à faire l'écriture aevc tous les acquittements, toute lecture ramène une valeur cohérente,
 			la disponibilité et la tolérance sont aussi maximales.
+
+
+
+**********************
+Examen du 22 juin 2024
+**********************
+
+
+Première partie : documents structurés (6 pts)
+==============================================
+
+Nous approchons des jeux olympiques de Paris 2024, événement majeur,
+mais source probable de désordres importants. Les organisateurs 
+décident de mettre en place un système de co-voiturage à destination
+des sites, afin d'éviter les encombrements.
+ 
+On pense au départ qu'une base relationnelle sera suffisante, et on
+adopte le modèle suivant (très simplifié bien sûr). Les clés
+primaires sont en **gras**, les clés étrangères en 
+*italiques*.
+
+
+  - Personne   (**id**, nom, domicile)
+  - Site (**id**, nom)
+  - Trajet (**id**, *idConducteur, *idSite*, date)
+  - Passager (**idTrajet, idPassager**)
+
+Voici également un tout petit échantillon de la base.
+
+.. csv-table:: La table Personne
+   :header:  "id",  "nom", "domicile"
+   :widths: 6, 10, 20
+   
+   1, Albert, Melun
+   2, Aline, Versailles
+   3, Ktie, Créteil
+
+
+
+.. csv-table:: La table des sites
+   :header:  "id",  "nom"
+   :widths: 6, 20
+   
+   100, Stade de France
+   101, Parc de Versailles
+   102, Grand Palais
+
+
+
+.. csv-table:: La table des trajets
+   :header:  "id",  "idConducteur", "idSite", "date"
+   :widths: 6, 15, 10, 10
+   
+   A , 1 , 100 , 30/07
+   B , 3 , 100 , 4/08
+   C , 1 , 101 , 31/07
+
+
+
+.. csv-table:: La table des passagers
+   :header:  "id",  "idPassager"
+   :widths: 6, 15
+   
+   A , 2 
+   A , 3 
+   B , 1 
+   C , 2
+
+
+
+On s'aperçoit rapidement que cette représentation impose 
+beaucoup de jointures et ne passe pas à l'échelle. 
+On décide de remplacer la base relationnelle par une base Cassandra. 
+
+  - Voici une première table Cassandra pour représenter les trajets.
+  
+    .. code-block:: sql
+
+		create table Trajet1 (idTrajet text, 
+                    date date, 
+                    site frozen<Site>, 
+                    conducteur frozen<Personne>, 
+                    passagers set< frozen<Personne>>,
+          	       primary key idTrajet );
+
+
+    Donnez l'exemple d'un  document JSON correspondant à la structure,
+    de la table  ``Trajet1``, avec les informations du trajet A de la base relationnelle ci-dessus.
+
+    .. ifconfig:: annales24 in ('public')
+
+	   .. admonition:: Correction
+    
+            Rappelons que la modélisation structurée (ici avec sérialisation
+            JSON) a pour but d'éviter autant que possible des références
+            à d'autres documents qui entraineraient la nécessité
+            de faire des jointures. On inclus donc comme objets
+            le conducteur, le site, et comme *liste* d'objets les passagers.
+            
+            .. code-block:: json
+           
+               {
+                "id": "A",
+                "conducteur": {"nom": "Albert", "ville": "Melun"},
+                "site": {"nom": "Stade de France"},
+                "date": "30/07",
+                "passagers": [
+                   {"nom": "Aline", "ville": "Versailles"},
+                   {"nom": "Ktie", "ville": "Créteil"}
+                 ]
+               }
+                
+            On a bien sûr une représentation redondante puisqu'il faudra (entre
+            autres) reproduire la représentation des passagers pour chacun de leurs trajets.
+               
+                     
+  - Voici la proposition d'une autre modélisation, avec une
+    table ``Trajet2`` et une table ``Passager`` dont la clé est
+    *composite*
+
+    .. code-block:: sql
+    
+		create table Trajet2 (idTrajet text, 
+                    date date, 
+                    site frozen<Site>, 
+                    conducteur frozen<Personne>
+                 primary key (idTrajet);
+
+		create table Passager (idTrajet text, 
+                     idPassager text,
+                    passager frozen<Personne>,
+                 primary key (idTrajet, idPassager );
+
+    Rappelons ce qu'est une clé composite en Cassandra, d'après la documentation: 
+    *A compound primary key consists of the partition key and the clustering key. 
+    The partition key determines which node stores the data. Rows 
+    for a partition key are stored in order based on the clustering key*. 
+    Quelles affirmations sont vraies?
+
+      - Les lignes de ``Trajet2`` et de ``Passager`` sont sur le même serveur
+      - Les passagers d'un même trajet sont tous sur un seul serveur 
+      - Les passagers stockés sur un serveur sont triés sur leur identifiant
+      - Les passagers d'un même trajet sont stockés contiguement
+
+    .. ifconfig:: annales24 in ('public')
+    
+        .. admonition:: Correction
+    
+         
+          - Le placement des documents de ``Trajet2`` et de ``Passager`` 
+            est déterminé par ``idTrajet``. Les trajets
+            et les passagers seront donc distribués sur tous les serveurs.          
+          - Les passagers d'un même trajet partagent la même 
+            clé de patitionnement et on les trouve donc sur le même serveur 
+          - Les passagers d'un même trajet sont  stockés contiguement et
+            dans l'ordre de leur identifiant (question 4); mais les passagers
+            apparaissent autant de fois qu'ils font de trajet, et on 
+            peut donc trouver un passager plusieurs fois sur un serveur,
+            à des emplacements qui dépendent de l'identifiant d'un trajet particulier (question 3).
+            
+  - Est-il possible de convertir la table ``Trajet1`` vers la table ``Passager`` 
+    avec un traitement Map Reduce? Expliquez comment, en indiquant ce que font 
+    les fonctions de Map et de Reduce.
+    
+    .. ifconfig:: annales24 in ('public')
+    
+        .. admonition:: Correction
+
+            Oui, c'est possible, avec une fonction de Map qui émet une
+            paire intermédiaire par passager. La clé de cette paire est 
+            celle de la table ``Passager``, et sa valeur le passager.
+            
+            .. code-block:: javascript
+            
+               function mapTrajet (trajet) {
+                 for p in trajet.passagers {
+                   emit ({"key": {"idTrajet": trajet.id, "idPassager": p.id}, "value": p})
+                 }
+               } 
+               
+            La fonction de reduce n'a rien de spécial à faire. 
+            
+            
+Deuxième partie : recherche d'information (6 pts)
+=================================================
+
+L'application enregistre des commentaires déposés par les clients sur les conducteurs, et réciproquement. 
+Voici un échantillon.
+
+   -  :math:`c_1`: Conduite dangereuse, et conducteur bavard. À éviter.
+   - :math:`c_2`: Pour la conduite ça ne va pas: le conducteur (sympa par ailleurs)
+     réussit à être à la fois lent et dangereux
+   - :math:`c_3`: Trop dangereux! Je veux bien payer pour un co-voiturage, mais
+     pas avec un conducteur dangereux.
+   - :math:`c_4`: Sympa, mais le conducteur est très bavard et lent.
+   - :math:`c_5` : Il est vraiment bavard de chez bavard. Heureusement, sympa et rien
+     de dangereux dans sa conduite. 
+             
+On va se limiter au vocabulaire (``dangereux``, ``bavard``, ``lent``, ``sympa``).
+(NB: on suppose une phase préalable de normalisation qui élimine les pluriels,
+majuscules, trouve     que  "sympa" et "sympathique", "dangereux" et "dangereuse",  
+sont les mêmes mots, etc.)
+
+  - Donnez une matrice d'incidence contenant les tf, et un tableau donnant les idf (sans le *log*), pour les  termes précédents. Placez
+    les termes en ligne, les commentaires en colonne.
+
+   .. ifconfig:: annales24 in ('public')
+
+		.. admonition:: Correction
+
+			.. csv-table:: 
+			   :header:  ,  :math:`c_1`,  :math:`c_2`,  :math:`c_3`,  :math:`c_4`,  :math:`c_5`
+			   :widths: 10, 4, 4, 4, 4, 4
+   
+			   dangereux  5/4   , 1           , 1           , 2           , 0         , 1
+			   bavard 5/3  , 1           , 0           , 0           , 1         , 2
+			   lent 5/2  , 0           , 1           , 0           , 1         , 0
+			   sympa 5/3  , 0           , 1           , 0           , 1         , 1
+
+  - Donnez les normes des vecteurs représentant ces commentaires.
+
+   .. ifconfig:: annales24 in ('public')
+
+		.. admonition:: Correction
+
+			Les normes: :math:`||c_1|| = \sqrt{1+ 1}`; :math:`||c_2|| = \sqrt{3}`; 
+			:math:`||c_3|| = \sqrt{4}`;  :math:`||c_4|| = \sqrt{3}`, 
+			:math:`||c_5|| = \sqrt{6}`
+ 
+  - Donner les résultats classés par similarité cosinus basée sur les tf 
+    (on ignore l'idf) pour les requêtes suivantes. Expliquez brièvement la raison
+    du classement pour le premier document.
+  
+      - bavard;
+      - lent et sympa;
+      - dangereux et bavard.
+
+   .. ifconfig:: annales24 in ('public')
+
+		.. admonition:: Correction
+  
+			Il n'est pas nécessaire de diviser par la norme de la requête
+			puisque cela ne change pas la classement. On obtient donc les calculs:
+
+			  - bavard: c1 : :math:`\frac{1}{\sqrt{2}}`;    c4 : :math:`\frac{1}{\sqrt{3}}`;        c5 : :math:`\frac{2}{\sqrt{6}}`; le document
+			    c5 arrive en tête car il contient 2 fois le terme, même si d'un autre côté
+			    il est pénalisé par le fait d'en contenir deux autres (dangereux et sympa)
+			  - lent et sympa:  c2 : :math:`\frac{1+1}{\sqrt{3}}`;     c4 :  :math:`\frac{1+1}{\sqrt{3}}`      c5 : :math:`\frac{1}{\sqrt{6}}`;
+			    c2 et C4 sont à égalité puisqu'ils contiennent chacun une occurrence de chaque terme,
+			    et une occurrence d'un autre. 
+			  - dangereux et bavard: c1 : :math:`\frac{1+1}{\sqrt{2}}`; c2 : :math:`\frac{1}{\sqrt{3}}`;
+			    c3 :  :math:`\frac{2}{\sqrt{4}}`, c4 :  :math:`\frac{1}{\sqrt{3}}`, c5 : :math:`\frac{1+2}{\sqrt{6}}`; 
+			    C'est évidemment c1 qui l'emporte puisqu'il correspond exactement
+			    à la requête en termes de représentation vectorielle.
+    
+ 
+  - Pour la dernière requête, ``dangereux`` et ``bavard``, on constate que deux
+    documents sont à égalité. Est-ce que cela change 
+    si on prend en compte l'idf, comment et pourquoi?
+   
+  .. ifconfig:: annales24 in ('public')
+
+		.. admonition:: Correction
+
+			``bavard`` est un peu moins présent que ``dangereux`` dans 
+			la collection, ce qui amène à classer c4 avant c2.
+
+   - Pour la requête ``lent et sympa``, et les documents c2 et c4,
+     qu'est-ce qui change si on ne met pas de restriction 
+     sur le vocabulaire (tous les mots sont indexés)?
+   
+     .. ifconfig:: annales24 in ('public')
+
+		.. admonition:: Correction
+
+			Dans ce cas le plus petit document (c4) l'emporte car sa norme est
+			plus petite. Intuititvement: il parle plus *spécifiquement* de
+			lent et de sympa que c2.
+   
+    
+Troisième partie : MapReduce (3 pts)
+====================================
+
+Nous recevons un flux de commentaires dans
+un fichier ``trajets.csv``. Il contient l'identifiant
+du conducteur, du client, et le commentaire. Voici le début.
+
+.. code-block:: text
+
+		1, 101, "Voiture bruyante"
+		1, 103, "Une vraie épave"
+		2, 101, "La voiture est propre, plus que le conducteur..."
+		..
+
+Utilisant Pig latin, on charge cette collection avec la commande suivante:
+
+.. code-block:: text
+
+		trajets = LOAD 'trajets.csv' as (idConducteur, idClient, commentaire);
+
+Et on exécute le script Pig suivant:
+
+.. code-block:: text
+
+	coll1 = filter trajets by contains(commentaire, "voiture")
+	coll2 = group coll1 by idConducteur;
+	coll3  = foreach coll2 generate group, COUNT(coll1.commentaire);
+
+Répondez aux questions suivantes
+
+  - Expliquez le résultat produit par ce script.
+  - Comment ce script peut-il être traduit en MapReduce? Donnez la fonction
+    de Map et la fonction de Reduce, sous la forme de votre choix.
+  - Quelle serait la requête SQL correspondant à ce script Pig?
+
+
+.. ifconfig:: annales24 in ('public')
+
+    .. admonition:: Correction
+
+       - On compte, par conducteur, le nombre de commentaires contenant
+         le mot "voiture"
+       - Oui, bien sûr, on peut le transcrire en MapReduce. La fonction
+         de Map filtre les trajets sur le commentaire, et émet
+         une aire intermédiaire avec pour clé l'identifiant du conducteur.
+         La fonction de Reduce compte le nombre d'élements dans le groupe reçu.
+       - C'est du SQL basique:
+       
+         .. code-block:: sql
+         
+            select idConducteur, count(*) 
+            from Trajet
+            where commantaire like '%voiture%'
+            group by idConducteur
+Quatrième partie : systèmes distribués (3 pts)
+==============================================
+
+  - Sachant que Cassandra organise la distribution des données 
+    selon la technique du hachage cohérent, expliquez l'algorithme qui
+    place un document de la table ``Passager`` sur un serveur.
+  
+  - Parmi les requêtes ci-dessous, lesquelles peuvent être 
+    routées vers un seul serveur?
+  
+     - Les trajets vers Versailles  
+     - Les passagers du trajet  ``t12`` (c'est son identifiant)
+     - Les sites visités par le passager ``p988`` (c'est son identifiant) 
+
+  - À l'instant :math:`t`, les valeurs de hachage de deux trajets
+    :math:`T_1` et :math:`T_2` sont identiques.  Peuvent-ils être placés sur deux
+    serveurs différents à un instant :math:`t+\Delta`, sachant qu'entretemps 
+    plusieurs nœuds ont été ajoutés au système Cassandra?
+
+
+.. ifconfig:: annales24 in ('public')
+
+    .. admonition:: Correction
+
+        - Le placement sur un serveur est déterminé par ``idTrajet``. La
+          valeur de cet attribut est hachée, et le serveur 
+          dont l'intervalle de responsabilité sur l'anneau 
+          contient la valeur de hachage reçoit le trajet.
+        - Réponses:
+           
+            - La recherche sur un attribut autre que l'identifiant
+              de placement implique un recherche sur tous les serveurs
+            - Une recherche sur l'identifiant de trajet peut se faire sur un seul serveur
+            - Un passager est stocké autant de fois qu'il a effectué de trajets,
+              et sur des serveurs différents.
+        - La fonction de hachage est *immuable*. Donc deux trajets
+          dont les valeurs de hachage sont identiques seront *toujours*
+          sur le même serveur. 
+  
+Cinquième partie : question de cours (2 pts)
+============================================
+
+  - Comment expliquer l'expression "index inversé" dans  
+    la terminologie des moteurs de recherche?
+  - Rappeler le principe de *data locality*
 

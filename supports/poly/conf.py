@@ -94,6 +94,7 @@ def setup(app):
     app.add_config_value('annales18', '', True)
     app.add_config_value('annales20', '', True)
     app.add_config_value('annales23', '', True)
+    app.add_config_value('annales24', '', True)
 	
 docstruct = 'public'
 mongoquery = 'public'
@@ -119,6 +120,7 @@ pigtp = 'public'
 annales18 = 'public'
 annales20 = 'public'
 annales23 = 'public'
+annales24 = 'public'
 pasfini = 'private'
 
 
