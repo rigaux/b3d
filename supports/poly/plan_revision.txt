@@ -1,0 +1,49 @@
+Partie 1: systèmes NoSQL, modélisation et accès aux données
+
+Préliminaires: Docker
+
+  - Présentation de Docker
+  - CouchDB
+  - MongoDB
+  - Cassandra
+  - ElasticSearch
+
+Modélisation NoSQL
+   JSON
+   Modélisation JSON
+   Etude de cas: modélisation Cassandra
+
+Interrogation NoSQL
+  CouchDB (REST), MongoDB, Cassandra, ElasticSearch  
+  
+TP Cassandra 
+  
+Introduction à la RI
+
+TP ElasticSearch
+    
+Traitement en masse: MapReduce
+
+  MapReduce
+  Application avec CouchDB
+  Pig
+  
+TP Pig
+
+Partie 2: systèmes distribués
+
+ Cloud
+ Réplication
+ Partitionnement
+ 
+ Quelques systèmes
+ 
+ Calcul distribué
+   MapReduce
+   Spark 
+   
+TP Spark 
+ 
+ 
+ 
+  

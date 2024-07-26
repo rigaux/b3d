@@ -1099,7 +1099,7 @@ dans une base :math:`DB_1`.
     Voici quatre documents. les deux premiers sont stockés sur le serveur :math:`S_1`, 
     le troisième sur le serveur :math:`S_2`, et le dernier sur le serveur :math:`S_3`.
     
-       - :math:`d_1`: ``{"_id", "pseudo1": "X1", "pseudo2": "X2", "date": "30/06/2020"} ``
+       - :math:`d_1`: ``{"_id", "pseudo1": "X1", "pseudo2": "X2", "date": "30/06/2020"}``
        - :math:`d_2`: : ``{"_id", "pseudo1": "X3", "pseudo2": "X2", "date": "30/06/2020"}``
        - :math:`d_3`: : ``{"_id", "pseudo1": "X2", "pseudo2": "X4", "date": "30/06/2020"}``
        - :math:`d_4`: : ``{"_id", "pseudo1": "X1", "pseudo2": "X4", "date": "30/06/2020"}``
@@ -2265,6 +2265,7 @@ Répondez aux questions suivantes
             from Trajet
             where commantaire like '%voiture%'
             group by idConducteur
+
 Quatrième partie : systèmes distribués (3 pts)
 ==============================================
 

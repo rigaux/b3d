@@ -15,8 +15,6 @@ Cours de bases de données documentaires et distribuées
   bddoc
   mapreduce
   cassandra_tp
-  mongodb_tp
-  
 
   ri-intro
   ri-ranking
@@ -28,10 +26,8 @@ Cours de bases de données documentaires et distribuées
   
   calculdistr
   spark-batch
-  flink-streaming
   pigtp
 
-  projet
   annales
 
 Indices and tables
