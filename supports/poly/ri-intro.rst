@@ -1157,6 +1157,7 @@ ramène les documents contenant les deux mots côte à côte (vous devez utilise
        }
      } 
    }
+
 Par défaut, la recherche  s'effectue toujours sur tous les champs d'un document
 indexé (ou , plus précisément, sur un champ ``_all`` dans lequel ElasticSearch
 concatène toutes les chaînes de caractères). La syntaxe complète pour associer

@@ -210,9 +210,9 @@ c'est suffisant, et le gain en temps d'installation est considérable.
 En résumé: avec Docker, on dispose d'une boîte à outils pour émuler des environnements
 complexes avec une très grande facilité.
 
-***************************
-Docker en ligne de commande
-***************************
+******************
+Docker en pratique
+******************
 
 Dans ce qui suit, je vais illustrer les commandes avec l'utilitaire de commandes en ligne
 en prenant l'exemple de ma machine Mac OS X. Ce
@@ -342,15 +342,15 @@ l'adresse IP du coneneur est particulièrement intéressante. On l'obtient avec
 
        docker inspect <container id> | grep "IPAddress"
 
-Installons un serveur Web
-=========================
+Installons des serveurs Web
+===========================
 
 Testons Docker avec un des services les plus simples qui soient: un serveur web,
 Apache. 
 La démarche générale pour une installation
 consiste à chercher l'image qui vous convient sur le site https://hub.docker.com qui donne
 accès au catalogue des images Docker fournies par la communauté des utilisateurs. 
-   
+
 
 Faites une recherche avec le mot-clé "httpd" (correspondant aux images
 du serveur web Apache). Comme on pouvait s'y attendre, de nombreuses images 
@@ -425,9 +425,6 @@ Si on veut créer un système distribué constitué de plusieurs serveurs web,
 ce renvoi par défaut n'est plus possible puisque tous les serveurs se disputeraient
 l'accès au port 80 de la machine hôte. 
 
-Installons plusieurs serveurs web
-=================================
-
 Docker fournit un mécanisme dit *de publication* pour indiquer sur quel  
 port se met en écoute un conteneur. On spécifie simplement avec l'option
 ``--publish`` (ou ``-p``) comment on associe un port du conteneur à un port du
@@ -446,10 +443,41 @@ Ou plus simplement
 L'option ``-p`` indique que le port 80 du conteneur est renvoyé sur le port 81
 de la machine hôte. 
 
+Le tableau de bord (dashboard)
+==============================
+
+Plusieurs environnements graphiques existent pour interagir avec Docker. 
+Le tableau  de bord
+(*dashboard*) est l'interface "officielle" fournie avec l'outil *Docker desktop*,
+mais vous pouvez en tester d'autre si vous le souhaitez.
+En voici deux qui semblent intéressants.
+
+   - Portainer disponible à https://www.portainer.io/
+   - DockStation disponible https://dockstation.io/
+
+Le *dashboard*  facilite la gestion des conteneurs
+et des images et fournit un tableau de bord sur le système 
+distribué virtuel
+(:numref:`dashboard`).
+
+.. _dashboard:
+.. figure:: ../figures/docker-dashboard.jpg   
+      :width: 70%
+      :align: center
+   
+      Le tableau de bord Docker
+
+En cliquant sur le nom de l'un des conteneurs disponibles, on dispose de toutes les options
+associées.
+Un paramètre important est le renvoi du port de l'image instanciée dans le conteneur
+vers un port  de la machine Docker. Ce renvoi permet 
+d'accéder avec une application de la machine-hôte à l'instance de l'image comme
+si elle s'exécutait directement dans la machine Docker. Reportez-vous à
+la section précédente pour des explications complémentaires sur l'option ``--publish``.
 
 
-Pour accéder aux serveurs, il faut un client
-============================================
+Un serveur c'est bien, mais où est le client?
+=============================================
 
 Une fois que l'on a installé des services dans des conteneurs, il faut
 disposer de programmes clients pour pouvoir dialoguer avec eux. Ces programmes
@@ -478,38 +506,481 @@ géré de manière plus conviviale avec le *dashboard* (ce qui ne dispense pas d
 ce qui se passe).
 
 
-******************************
-Le tableau de bord (dashboard)
-******************************
+******************
+Nos systèmes NoSQL
+******************
 
-Plusieurs environnements graphiques existent pour interagir avec Docker. 
-Dans ce qui suit nous présentons le tableau  de bord
-(*dashboard*), l'interface "officielle" fournie avec l'outil *Docker desktop*,
-mais vous pouvez en tester d'autre si vous le souhaitez.
-En voici deux qui semblent intéressants.
+.. admonition:: Supports complémentaires
 
-   - Portainer disponible à https://www.portainer.io/
-   - DockStation disponible https://dockstation.io/
+      * `Vidéo de démonstration de MongoDB  <https://mediaserver.lecnam.net/permalink/v125f35a35d71le2bkhv/>`_
 
-Le *dashboard*  facilite la gestion des conteneurs
-et des images et fournit un tableau de bord sur le système 
-distribué virtuel
-(:numref:`dashboard`).
 
-.. _dashboard:
-.. figure:: ../figures/docker-dashboard.jpg   
-      :width: 70%
+Dans la suite de ce cours, nous seront amenés à expérimenter quelques systèmes
+NoSQL. J'en ai sélectionné un petit nombre, sur des critères de popularité,
+de représentativité des techniques étudiés, de variété. Tout ont en commun
+de s'installer facilement avec Docker et de disposer d'une interface cliente
+gratuite et raisonnablement simple. 
+
+Dans ce qui suit nous installons successivement CouchDB, MongoDB, Cassandra
+et ElasticSearch avec Docker. Pour chaque système nous installons également
+une application cliente, et nous chargeons un (petit) jeu de données que
+je fournis sur le site  https://deptfod.cnam.fr/bd/tp/datasets/. Vous êtes
+invités à effectuer ces installations sur votre machine, de manière
+à être prêts aux expérimentations qui suivront.
+
+CouchDB
+=======
+
+
+CouchDB est un système NoSQL qui gère des collections de documents JSON. 
+Vous pouvez installer CouchDB sur votre machine avec Docker, en exposant 
+le port 5984 sur
+la machine hôte. Voici la commande d'installation.
+
+.. code-block:: bash
+
+      docker run  -d --name my-couchdb -e COUCHDB_USER=admin \
+          -e COUCHDB_PASSWORD=admin -p 5984:5984 couchdb:latest
+
+Dans ce qui suit, on suppose que le serveur est accessible 
+à l'adresse http://localhost:5984. 
+
+CouchDB
+est essentiellement un serveur Web étendu à la gestion de documents JSON. Comme tout
+serveur Web, il parle le HTTP, et on peut donc y accéder avec un navigateur
+qui fait office de client! Pour des interactions HHTP plus complexes, nous
+utilliserons également l'utilitaire cURL en ligne de commande. 
+S'il n'est pas déjà installé dans votre environnement (toutes plateformes), il est fortement conseillé
+de le faire dès maintenant: le site de référence est http://curl.haxx.se/.
+
+Une première requête HTTP
+permet de vérifier la disponibilité de ce serveur. Entrez l'adresse suivante 
+dans le navigateur: http://admin:admin@localhost:5984. Vous devriez obtenir 
+un document similaire au suivant:
+
+.. code-block:: json
+
+	{
+	"couchdb": "Welcome",
+	"version": "3.3.3",
+	"git_sha": "40afbcfc7",
+	"uuid": "0f4f4743bf65f3c4cd61caf3e789c559",
+	"vendor": {"name": "The Apache Software Foundation"}
+	}
+
+Vous pouvez obtenir le même résultat avec ``cURL``.
+
+
+.. code-block:: bash 
+
+     curl -X GET http://admin:admin@localhost:5984
+
+.. note:: Vous noterez qu'il faut indiquer dans l'URL le compte
+   d'accès (admin/admin) juste avant le nom du serveur. 
+
+Un serveur CouchDB gère un ensemble de bases de données. Créer une nouvelle base se traduit,
+par la création d'une nouvelle ressource avec une requête HTTP ``PUT``). 
+Voici  donc la commande
+avec cURL pour créer une base ``films``.
+
+.. code-block:: bash
+
+    curl -X PUT http://admin:admin@localhost:5984/films
+    {"ok":true}
+
+Maintenant que la base est créée, et on peut obtenir sa représentation 
+avec une requête ``GET`` (navigateur ou ``cURL``).
+
+.. code-block:: bash
+
+    curl -X GET http://admin:admin@localhost:5984/films
+
+Cette requête renvoie un document JSON décrivant la nouvelle base.
+
+.. code-block:: javascript
+
+    {"update_seq":"0-g1AAAADfeJz6t",
+     "db_name":"films",
+     "sizes": {"file":17028,"external":0,"active":0},
+     "purge_seq":0,
+     "other":{"data_size":0},
+     "doc_del_count":0,
+     "doc_count":0,
+     "disk_size":17028,
+     "disk_format_version":6,
+     "compact_running":false,
+     "instance_start_time":"0"
+    }
+
+Pour finir, nous allons insérer dans notre base CouchDB un ensemble
+de documents JSON représentant des films.  Récupérez sur le site 
+http://deptfod.cnam.fr/bd/tp/datasets/ le fichier ``films_couchdb.json``  
+au format spécifique d'insertion CouchDB. Il a la forme suivante
+(nous reparlerons de JSON bientôt):
+   
+   .. code-block:: javascript
+   
+      {"docs": 
+       [
+        {
+         "_id": "movie:1",
+         "title": "Vertigo",
+         ...
+        },
+        {
+         "_id": "movie:2",
+         "title": "Alien",
+         ...
+        }
+       ]
+     }
+                       
+La commande d'insertion est alors la suivante:
+
+.. code-block:: bash
+       
+       curl -X POST  http://admin:admin@localhost:5984/films/_bulk_docs \
+            -d @films_couchdb.json -H "Content-Type: application/json" 
+
+
+CouchDB fournit également une interface graphique intégrée
+disponible à l'URL relative ``_utils`` (donc à l'adresse
+complète http://localhost:5984/_utils dans notre cas). La 
+:numref:`couch-fauxton` montre l'aspect de cette interface graphique, très pratique,
+avec la base que nous venons de créer.
+
+.. _couch-fauxton:
+.. figure:: ../figures/fauxton.png
+      :width: 80%
       :align: center
    
-      Le tableau de bord Docker
+      L'interface graphique (Fauxton) de CouchDB
+      
 
-En cliquant sur le nom de l'un des conteneurs disponibles, on dispose de toutes les options
-associées.
-Un paramètre important est le renvoi du port de l'image instanciée dans le conteneur
-vers un port  de la machine Docker. Ce renvoi permet 
-d'accéder avec une application de la machine-hôte à l'instance de l'image comme
-si elle s'exécutait directement dans la machine Docker. Reportez-vous à
-la section précédente pour des explications complémentaires sur l'option ``--publish``.
+MongoDB
+=======
+
+Installons maintenant MongoDB, un des systèmes NoSQL les plus populaires.
+L'installation Docker se fait avec la commande suivante et instancie un conteneur 
+accessible  à localhost:30001.
+
+.. code-block:: bash
+
+        docker run --name mon-mongo -p 30001:27017 -d mongo  
+
+
+MongoDB fonctionne en mode classique client/serveur. 
+Le serveur ``mongod`` est en attente sur le port 27017 dans son conteneur, et
+peut être redirigé vers un port de la machine Docker, comme le port 30001
+dans la commande précédente.
+   
+En ce qui concerne les *applications* clientes, nous avons en gros deux possibilités: 
+l'interpréteur de commande ``mongo`` (qui suppose d'avoir installé MongoDB sur la machine hôte)
+ou une application graphique plus agréable à utiliser. 
+Parmi ces dernières, ``Studio3T`` (http://studio3.com)  me semble le meilleur
+client graphique du moment; il existe une version gratuite, pour des utilisations non commerciales, qui ne vous expose
+qu'à quelques courriels de relance de la part des auteurs du système (vous pouvez en profiter
+pour les remercier gentiment).
+
+Studio3T propose
+un interpréteur de commande intelligent (autocomplétion, exécution de scripts placés
+dans des fichiers), des fonctionnalités d'import et d'export. La  :numref:`studio3t`  montre l'interface en action.
+
+   .. _studio3t:
+   .. figure:: ../figures/studio3t.png
+      :width: 100%
+      :align: center
+   
+      L'interface de Studio3T
+
+Créons maintenant notre base des films, constituée de documents JSON ayant
+la forme suivante:
+
+
+.. code-block:: javascript
+
+    {
+      "_id": "movie:100",
+      "title": "The Social network", 
+      "summary": "On a fall night in 2003, Harvard undergrad and 
+         programming genius Mark Zuckerberg sits down at his  
+         computer and heatedly begins working on a new idea. (...)",
+      "year": 2010, 
+      "director": {"last_name": "Fincher",
+                    "first_name": "David"},
+      "actors": [ 
+        {"first_name": "Jesse", "last_name": "Eisenberg"}, 
+        {"first_name": "Rooney", "last_name": "Mara"}
+       ]
+    }
+
+Comme il serait fastidieux de les insérer un par un, nous allons utiliser Studio3T.
+Un fichier conforme au format attendu est disponible
+parmi les jeux de données de http://deptfod.cnam.fr/bd/tp/datasets/. 
+Vous pouvez le télécharger et l'utiliser
+pour insérer directement les films dans la base avec l'utilitaire d'import de Studio3T.
+
+Cassandra
+=========
+
+   
+Cassandra est un système de gestion de données à grande échelle conçu à l'origine (2007) par les ingénieurs de Facebook 
+pour répondre à des problématiques liées au stockage 
+et à l'utilisation de gros volumes de données. La communauté s'est 
+tellement investie dans le projet Cassandra que, au final,  ce dernier a complètement divergé 
+de sa version originale. Facebook s'est alors résolu à accepter que le projet - en l'état - 
+ne correspondait plus précisément à leurs besoins, et que reprendre le développement à leur compte 
+ne rimerait à rien tant l'architecture avait évolué. Cassandra est donc resté porté par l'Apache Incubator.
+Aujourd'hui, c'est la société Datastax qui assure la distribution et le support de Cassandra 
+qui reste un projet Open Source de la fondation Apache.
+
+L'installation d'un conteneur Cassandra avec Docker se fait avec la commande suivante:
+
+.. code-block:: bash
+
+     docker run --name mon-cassandra -p 3000:9042  -d cassandra:latest
+
+On communique avec Cassandra via un langage, CQL, dont les
+commandes doivent être transmises au port 9042 du conteneur. Dans l'instruction
+ci-dessus, ce port est renvoyé sur le  
+port 3000 du système hôte avec l'option ``-p``. 
+
+Il vous faut un client sur la machine hôte.
+Des clients graphiques existent. Datastax propose des outils, dont
+le Datastax Studio qui est assez agréable à utiliser mais dont
+l'installation est lourde. Un "petit" utilitare graphique 
+assez complet *DbVisualizer*, disponible en version
+gratuite à l'adresse https://www.dbvis.com/.  Il permet classiquement 
+de créer des connexions, d'inspecter un schéma et de transmettre des 
+requêtes. 
+
+DbVisualizer peut être utilisé avec beaucoup de bases de données. Selon le système choisi,
+il faut télécharger des connecteurs spécifiques (*drivers*). Cela se fait
+de manière assez intuitive via DbVis lui-même. Dans le cas de Cassandra,
+il faut prendre le *driver* ``Cassandra DataStax``.
+
+
+..  _dbvis:
+..  figure:: ../figures/dbvis.png
+    :width: 80%
+    :align: center
+    
+    Le client *DbVisualizer*  accédant à Cassandra
+
+La  :numref:`dbvis`  montre l'interface, après création d'un *keyspace*,
+de tables et de données. Le *keyspace* est le nom que Cassandra donne à une base de données. 
+Sous DbVisualizer, les *keyspaces* apparaissent à gauche de la 
+fenêtre principale (voir figure  :numref:`dbvis`). Un clic bouton droit 
+permet d'ouvrir un formulaire de création d'un *keyspace*.
+
+.. note:: Cassandra est fait pour fonctionner dans un environnement distribué. Pour créer 
+   un *keyspace*,  il faut donc   préciser la stratégie de réplication à adopter. Nous verrons plus en détail 
+   après comment tout ceci fonctionne. 
+
+Cassandra est assez proche en apparence d'un système relationnel, avec
+création de tables, et insertion dans ces tables. 
+Cassandra va au-delà de la norme relationnelle en permettant des données
+*dénormalisées* dans lesquelles certaines valeurs sont complexes (dictionnaires, 
+ensembles, etc.).
+Il nous faut au préalable définir le *type* ``artist`` de la manière suivante:
+
+.. code-block:: sql
+
+         create type artist (id text, 
+                             last_name text, 
+                             first_name text, 
+                             birth_date int, 
+                             role text);
+
+On crée alors une table utilisant ce type: le metteur en scène est une
+instance du type ``artist``, les acteurs un ensemble d'instance. Cela
+donne le schéma suivant
+
+.. code-block:: sql
+
+      create table movies (id text, 
+                    title text, 
+                    year int, 
+                    genre text, 
+                    country text, 
+                    director frozen<artist>, 
+                    actors set< frozen<artist>>,
+                 primary key (id) );
+
+Cela  correspond
+en JSON à la structure suivante:
+
+.. code-block:: sql
+
+	insert into movies JSON '{
+		"id": "movie:11",
+		"title": "Star Wars",
+		"year": 1977,
+		"genre": "Adventure",
+		"country": "US",
+		"director": {
+			"id": "artist:1",
+			"last_name": "Lucas",
+			"first_name": "George",
+			"birth_date": 1944
+		},
+		"actors": [
+			{
+				"last_name": "Hamill",
+				"first_name": "Mark",
+				"birth_date": 1951
+			},
+			{
+				"last_name": "Ford",
+				"first_name": "Harrison",
+				"birth_date": 1942
+			},
+			{
+				"last_name": "Fisher",
+				"first_name": "Carrie",
+				"birth_date": 1956
+			}
+		]
+	}')
+
+Je vous laisse effectuer l'insertion de l'ensemble des films tels qu'ils sont fournis par
+le site http://deptfod.cnam.fr/bd/tp/datasets/cassandra, avec tous les acteurs d'un film.
+Il suffit de récupérer le fichier contenant l'ensemble des commandes d'insertion
+et de l'exécuter comme un script dans DbVisualizer. Nous
+nous en servirons pour l'interrogation CQL ensuite.
+
+
+ElasticSearch
+=============
+
+ElasticSearch est un moteur de recherche disponible sous licence libre
+(Apache). Il repose sur Lucene (nous verrons plus bas ce que cela signifie).
+Il a été développé à partir de 2004 et est aujourd'hui adossé à une
+entreprise, `Elastic.co <https://www.elastic.co/fr/>`_. 
+
+Commençons par l'installation avec Docker. Voici une commande qui devrait fonctionner
+sous tous les systèmes et mettre ElasticSearch en attente sur le port 9200.
+
+.. code-block:: bash
+
+    docker run -d --name es1 -p 9200:9200  elasticsearch:8.13.0
+
+.. admonition:: Les versions d'ElasticSearch
+
+   ElasticSearch évolue rapidement. Pour éviter que les instructions qui suivent
+   ne deviennent rapidement obsolètes, j'indique le numéro de version dans
+   l'installation avec Docker (la 8.13.0, de mars 2024). 
+
+
+Quelques commandes supplémentaires sont nécesssaires. Un compte ``elastic`` 
+est créé, on lui attribue un mot de passe avec la commande suivante:
+
+.. code-block:: bash
+
+	docker exec -it es1 /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic
+
+Notez le mot de passe et placez-le éventuellement dans une variable
+d'environnement
+
+.. code-block:: bash
+
+	export ELASTIC_PASSWORD=<le_mot_de_passe>
+	
+Si vous voulez interagir avec ``curl``, il faut récupérer un certificat
+d'authentification SSL.
+
+.. code-block:: bash
+
+	docker cp es1:/usr/share/elasticsearch/config/certs/http_ca.crt .
+	
+
+Toutes les interactions avec un serveur ElasticSearch passent par une interface
+HTTP basée sur JSON. Vous
+pouvez directement vous adresser au serveur HTTP en écoute 
+sur https://localhost:9200. Avec ``curl`` vous pouvez donc faire:
+
+.. code-block:: bash
+
+	curl --cacert http_ca.crt  -U elastic:mot_de_passe https://localhost:9200 
+
+Vous devriez obtenir un document JSON semblable à
+celui-ci:
+
+.. code-block:: json
+
+     {
+    "name": "7a46670f6a9e",
+    "cluster_name": "docker-cluster",
+    "cluster_uuid": "89U3LpNhTh6Vr9UUOTZAjw",
+    "version": {
+        "number": "8.13.0",
+        "...": "...",
+         "lucene_version": "9.1.1",
+      },
+    "tagline": "You Know, for Search"
+    }
+
+Pour une inspection confortable du serveur et des index ElasticSearch, nous
+vous conseillons d'utiliser une interface d'administration: ``ElasticVue``,
+disponible sous toutes les plateformes. 
+Elle peut être téléchargée ici: https://elasticvue.com/.
+
+En lançant l'application, on peut se connecter au serveur https://localhost:9200
+et on obtient l'interface de la figure :numref:`es-webui`.
+La barre supérieure de l'interface propose des options ``REST`` 
+et ``SEARCH`` qui vont nous intéresser dans un premier temps.
+
+.. _es-webui:
+.. figure:: ../figures/elasticvue.png
+      :width: 90%
+      :align: center
+   
+      Le tableau de bord proposé par ElasticVue.
+
+On ne parle pas de base de données dans ElasticSearch mais *d'index*. 
+Pour créer un index ``nfe204-1`` on envoie un ``PUT`` à l'adresse
+https://localhost:9200/nfe204-1.
+C'est facile avec la fenêtre REST d'ElasticVue: voir 
+:numref:`es-create-index`.
+
+.. _es-create-index:
+.. figure:: ../figures/es-create-index.png
+      :width: 90%
+      :align: center
+   
+      Utilisation d'ElasticVue pour transmettre des commandes REST
+
+Le ``PUT`` crée un index   à l'URL indiquée. Pour créer notre base de données,
+nous allons utiliser une autre interface
+d'Elasticsearch, appelée ``bulk`` (*en grosses quantités*), qui permet comme son
+nom l'indique d'indexer de nombreux documents en une seule commande. 
+
+Récupérez notre collection de films, au format JSON adapté à l'insertion en masse
+dans ElasticSearch,  sur le site http://deptfod.cnam.fr/bd/tp/datasets/. Le fichier
+se nomme ``films_esearch.json``.
+
+Vous pouvez l'ouvrir pour voir le format.  Chaque document
+"film" (sur une seule ligne) est précédé d'un petit document JSON qui précise l'index (``movies``), 
+et l'identifiant (``1``).
+
+.. code-block:: json
+
+    {"index":{"_index": "nfe204", "_id": "movie"}}
+    
+On trouve ensuite les documents JSON proprement dits. **Attention il ne doit pas y avoir de retour à la
+ligne dans le codage JSON**, ce qui est le cas dans le document que nous fournissons.
+
+.. code-block:: json
+
+    {"title": "Mars Attacks!", "summary": "...", "...": "..."}
+ 
+Ensuite, importez les documents dans Elasticsearch en le transmettant par 
+un ``POST``  à l'URL https://localhost:9200/_bulk/
+
+Avec les paramètres spécifiés dans le fichier ``films_esearch.json``, vous
+devriez retrouver un index ``nfe204``  maintenant présent dans l'interface, contenant
+les données sur les films.
+
 
 Quiz
 ====

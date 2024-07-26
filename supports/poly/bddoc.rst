@@ -599,42 +599,6 @@ Mise en pratique
 Les propositions suivantes vous permettent de mettre en pratique 
 les connaissances précédentes.
 
-.. _MEP-S1-1:
-.. admonition:: MEP `MEP-S1-1`_: reproduisez les commandes REST avec votre serveur CouchDB
-
-   Il s'agit simplement de reproduire les commandes ci-dessus, en examinant éventuellement les
-   requêtes HTTP engendrées par cURL pour bien comprendre les échanges effectués.
-
-   Vous pouvez tenter d'importer l'ensemble des documents en une seule commande 
-   avec l'API décrite ici: http://wiki.apache.org/couchdb/HTTP_Bulk_Document_API. 
-   Récupérez sur le site http://deptfod.cnam.fr/bd/tp/datasets/ le fichier ``films_couchdb.json``  
-   au format spécifique d'insertion CouchDB. Il a la forme suivante:
-   
-   .. code-block:: javascript
-   
-      {"docs": 
-       [
-        {
-         "_id": "movie:1",
-         "title": "Vertigo",
-         ...
-        },
-        {
-         "_id": "movie:2",
-         "title": "Alien",
-         ...
-        }
-       ]
-     }
-                       
-   La commande d'insertion est alors la suivante:
-
-   .. code-block:: bash
-       
-       curl -X POST  http://admin:admin@localhost:5984/films/_bulk_docs \
-            -d @films_couchdb.json -H "Content-Type: application/json" 
-       
-
 .. _MEP-S1-2:       
 .. admonition:: MEP  `MEP-S1-2`_: Documents et services Web
 

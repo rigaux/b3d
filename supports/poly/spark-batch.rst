@@ -105,8 +105,7 @@ essentiellement 3 niveaux :
 - les APIs de haut niveau, avec les *Datasets*, *DataFrames* et SQL;
 - les autres bibliothèques (*Structured Streaming*, *Advanced Analytics*, etc.).
 
-Nous allons laisser de côté dans ce cours le dernier niveau : le streaming sera
-vu avec Flink dans le :ref:`chapitre suivant<chap-flink>` et l'exploration des
+Nous allons laisser de côté dans ce cours le dernier niveau : l'exploration des
 bibliothèques de *machine learning* relève du `cours RCP216
 <https://cedric.cnam.fr/vertigo/Cours/RCP216/>`_.
 
@@ -714,7 +713,7 @@ recherche (vues dans le chapitre :ref:`chap-ranking` pour les détails). Mais
 l'essentiel est de comprendre l'enchaînement des opérateurs.
 
 Finalement, si on souhaite conserver en mémoire le DataFrame final pour le
-soumettre à divers traitements, il suffit d'appeler la fonction ``cache()`:
+soumettre à divers traitements, il suffit d'appeler la fonction ``cache()``:
 
 .. code-block:: python
 
