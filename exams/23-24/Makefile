@@ -1,5 +1,5 @@
 
-all:	exam.pdf
+all:	nfe204-ticketscaisse.pdf
 
 %.pdf: %.tex
 	pdflatex   -shell-escape $*.tex
