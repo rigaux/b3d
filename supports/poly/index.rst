@@ -12,20 +12,18 @@ Cours de bases de données documentaires et distribuées
   intro
   docker
   docstruct
-  bddoc
-  mapreduce
-  cassandra_tp
-
-  ri-intro
-  ri-ranking
-  ri-recherches
+  rech-exacte
+  cassandra  
+  cassandra_tp  
+  rech-approchee
+  es_tp
+  traitements_lot
   
   cloud
   replication
   sharding
   
   calculdistr
-  spark-batch
   pigtp
 
   annales

@@ -1,4 +1,4 @@
-Partie 1: systèmes NoSQL, modélisation et accès aux données
+Partie 1:  modèles de représentation et de traitement
 
 Préliminaires: Docker
 
@@ -11,23 +11,29 @@ Préliminaires: Docker
 Modélisation NoSQL
    JSON
    Modélisation JSON
-   Etude de cas: modélisation Cassandra
 
-Interrogation NoSQL
-  CouchDB (REST), MongoDB, Cassandra, ElasticSearch  
-  
-TP Cassandra 
-  
-Introduction à la RI
+Recherche exacte
+   REST (CouchDB)
+   ElasticSearch
+
+Recherche approchée
+   Recherche d'information approchée
 
 TP ElasticSearch
-    
-Traitement en masse: MapReduce
+
+Etude de cas: Cassandra
+  Modélisation Cassandra
+  Organisation physique des données
+  Notre base de films
+
+TP Cassandra 
+
+Traitement par lot: 
 
   MapReduce
   Application avec CouchDB
   Pig
-  
+
 TP Pig
 
 Partie 2: systèmes distribués
@@ -35,10 +41,8 @@ Partie 2: systèmes distribués
  Cloud
  Réplication
  Partitionnement
- 
- Quelques systèmes
- 
  Calcul distribué
+   Hadoop/HDFS
    MapReduce
    Spark 
    
@@ -46,4 +50,3 @@ TP Spark
  
  
  
-  

@@ -1,8 +1,8 @@
 .. _chap-indexation:
   
-##########################################
-Opérations de recherche avec ElasticSearch
-##########################################
+###############################
+Travaux pratiques ElasticSearch
+###############################
 
 Ce chapitre est consacré l'interrogation
 d'une base Elasticsearch, en utilisant le DSL (Domain Specific Language) dédié à

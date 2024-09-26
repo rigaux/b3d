@@ -1,8 +1,8 @@
 .. _chap-calcdistr:
    
-#####################################
-Calcul distribué: Hadoop et MapReduce
-#####################################
+###################################
+Calcul distribué: de Hadoop à Spark
+###################################
 
 Nous abordons maintenant le domaine des *traitements analytiques à grande
 échelle* qui, contrairement à des fonctions de recherche qui 
@@ -499,1072 +499,439 @@ Quiz
     #) :eqt:`I` Dès que tous les  *reducers* ont acquitté la réception des paires qu'ils doivent traiter 
 
 
-***********************************
-S2: Une brève introduction à Hadoop
-***********************************
+
+************************
+S1: Introduction à Spark
+************************
 
 .. admonition:: Supports complémentaires
 
-    * Un fichier de test. `Auteurs/publis <http://b3d.bdpedia.fr/files/author-medium.txt>`_,
-    * Programme MapReduce. `Mapper <http://b3d.bdpedia.fr/files/AuthorsMapper.java>`_,
-      `Reducer <http://b3d.bdpedia.fr/files/AuthorsReducer.java>`_, et 
-      `Job <http://b3d.bdpedia.fr/files/AuthorsJob.java>`_
-
-Cette session propose une introduction à l'environnement historique de programmation 
-distribuée à grande échelle, Hadoop.
-Pour être tout à fait exact, Hadoop est une implantation en *open source* de
-l'architecture présentée par Google au début des années 2000, et comprenant
-essentiellement un système de fichiers distribué et tolérant aux pannes, GFS, et
-le modèle MapReduce qui s'appuie sur GFS pour effectuer un accès parallélisé à
-de très gros volumes de données. Un troisième composant "Google", BigTable (HBase dans
-la version Hadoop), propose une organisation plus structurée des données que de simples fichiers.
-Il n'est pas présenté ici.
-
-Notre objectif dans cette session est de comprendre HDFS, d'y charger des données, puis
-de leur
-appliquer un traitement MapReduce. 
-Les aspects architecturaux, brievement évoqués, devraient maintenant être clairs
-pour vous puisqu'ils s'appuient sur des principes standards déjà exposés.
-
-.. important:: Cette session propose du code MapReduce qui a été testé et devrait 
-   fonctionner, **mais** l'expérience montre que la mise en œuvre de Hadoop
-   est laborieuse et dépend de paramètres qui changent souvent: sauf si vous
-   êtes **très** motivés, il est préférable sans doute de ne pas perdre de temps
-   à chercher à reproduire les commandes qui suivent. Concentrez-vous sur les principes.
-
-Systèmes de fichiers distribués
-===============================
-
-HDFS est donc la version *open source* du *Google File System*, dont le but est de fournir
-un environnement de stockage distribué et tolérant aux pannes pour de très gros fichiers.
-HDFS peut être utilisé directement comme service d'accès à ces fichiers, ou 
-indirectement par des systèmes de gestion de données (HBase pas exemple) qui
-obtiennent ainsi la distribution et la résistance aux pannes sans avoir à les implanter 
-directement.
-
-Un système de fichiers comme HDFS est conçu pour la gestion de fichiers
-de grande taille (plusieurs dizaines de MOs au minimum), que l'on écrit une fois et qu'on
-lit ensuite par des parcours séquentiels. Le contre-exemple est celui d'une collection
-de très petits documents souvent modifiés: il vaut mieux dans ce cas utiliser
-un système NoSQL documentaire spécialisé.
-
-Pour comprendre cette distinction, étudions les deux scénarii illustrés par
-la :numref:`dfs-bigpic`. Sur la partie gauche, nous trouvons un système de fichiers
-distribués classique, de type NFS (*Network File System*: consultez la fiche Wikipedia pour
-en savoir - un  peu - plus). Dans ce type d'organisation, le serveur 1 dispose d'un
-système de fichiers organisé de manière hiérachique, très classiquement. La racine (/) 
-donne accès aux répertoires ``dirA`` et ``dirB``, ce dernier contenant un fichier ``fichier2``, 
-le tout étant stocké sur le dique local.
-
-.. _dfs-bigpic: 
-.. figure:: ../figures/dfs-bigpic.png
-   :width: 90%
-   :align: center
-   
-   Deux types de systèmes de fichiers distribués
-
-Imaginons que le serveur 1 souhaite pouvoir accéder au répertoire ``dirC`` et
-fichier ``fichier1`` qui se trouvent
-sur le serveur 2. Au lieu de se connecter à distance explicitement à chaque fois,
-on peut "monter" (*mount*) ``dirC`` dans le système de fichier du serveur 1, sous
-la forme d'un répertoire-fils de ``dirB``. Du point de vue de l'utilisateur,
-l'accès devient complètement transparent. On peut accéder à ``/dirA/dirB/dirC`` 
-comme s'il s'agissait d'un répertoire local. L'appel réseau
-qui maintient ``dirC`` dans l'espace de nommage du serveur 1 est complètement
-géré par la couche NFS (ou toute autre solution équivalente).
-
-Dans un contexte "Big Data", avec de très gros volumes de données, cette solution
-n'est cependant pas satisfaisante. En particulier, ni l'équilibrage (*load balancing*)
-ni le principe de localité ne sont  pris en satisfaits. Premièrement, si 10%
-des données sont stockées dans le fichier 1 et 90% dans le fichier 2, le serveur 2 devra
-subir 90% des accès (en supposant une répartition uniforme des requêtes). Ensuite, un processus s'exécutant
-sur le serveur 1 peut être amené à traiter un fichier du serveur 2 sans se rendre compte
-qu'il engendre de très gros accès réseaux. 
-
-La partie droite de la  :numref:`dfs-bigpic` montre l'approche GFS/HDFS
-qui est totalement dédiée aux très gros fichiers et aux accès distribués. 
-La grande différence est que la notion de fichier ne correspond plus
-à un stockage physique localisé, mais devient un symbole désignant
-un stockage partitionné, distribué et répliqué. Chaque fichier est divisé
-en fragments (3 fragments pour le fichier 2 par exemple), de tailles égales,
-et ces fragments sont alloués par HDFS aux serveurs du *cluster*. Chaque
-fragment est de plus répliqué.
-
-Le système de fichier de vient alors un espace de noms virtuel, partagé
-par l'ensemble des nœuds, et géré par un nœud spécial, le maître. On retrouve,
-pour la notion classique de fichier, les principes généraux déjà étudié
-dans ce cours.
-   
-Il est facile de voir que les inconvénients précédents (défaut d'équilibrage et de
-localité des données) sont évités. Il est également facile de constater que cette
-approche n'est valable que pour de très gros fichiers qu'il est possible de partitionner
-en fragments de taille significative (quelques dizaines de MOs typiquement).
-
-Architecture HDFS
-=================
-
-Voici maintenant un aperçu de l'architecture de GFS (:numref:`gfs`). Le système
-fonctionne en mode maître/esclave, le maître (*namenode*)
-jouant comme d'habitude le rôle de coordinateur
-et les esclaves (*datanode*) assurant le stockage. Le maître maintient (en mémoire RAM) l'image globale
-du système de fichiers, sous la forme d'une arborescence de répertoires et
-de fichiers. À chaque fichier est associée une table décrivant le partionnement de son
-contenu en fragment, et la répartition de ces fragments sur les différents nœuds-esclaves.
-
-
-
-.. _gfs: 
-.. figure:: ../figures/gfs.png
-   :width: 90%
-   :align: center
-   
-   Architecture HDFS
-
-
-Les applications clients doivent  se connecter
-au maître auquel elles transmettent leur requête sous la forme d'un
-chemin d'accès à un fichier, par exemple, comme illustré sur la figure,
-le chemin ``/A/B/f1``. Voici en détail le cheminement de cette requête:
-
-
- - Elle est d'abord routée par le client (qui ignore tout de l'organisation
-   du stockage) vers le maître.
- - Le maître inspecte sa hiérarchie, et trouve les adresses des fragments
-   constituant le fichier.
- - Chaque serveur stockant un fragment est alors mis directement en contact
-   avec le client qui peut récupérer tout ou partie du fichier.
-
-En d'autres termes, les échanges avec le maître sont limités
-aux méta-données décrivant le fichier et sa répartition, ce qui évite
-les inconvénients d'avoir à s'adresser systématiquement à un même nœud
-lors de l'initialisation d'une requête. Toutes les autres commandes
-de type POSIX (écriture, déplacement, droits d'acc¡es, etc.) suivent
-le même processus.
-
-Encore une fois la conception de HDFS est très orientée vers le stockage
-de fichiers de très grande taille (des GOs, voire des TOs). Ces fichiers
-sont partitionnés en fragments de 64 MOs, ce qui permet de les lire en 
-parallèle. La lecture par une seule application cliente, comme illustré sur
-la :numref:`gfs`, constituerait un goulot d'étranglement, mais cette
-architecture prend tout son sens dans le cas de traitement MapReduce,
-le contenu d'un fichier pouvant alors être lu en parallèle par tous
-les serveurs d'une grappe.
-
-Utiliser HDFS pour de très nombreux petits fichiers serait un contresens:
-la mémoire RAM du maître pourrait être insuffisante pour
-stocker l'ensemble du *namespace*, et on perdrait toute possibilité
-de parallélisation.
-
-
-HDFS fournit un mécanisme natif de tolérance aux pannes qui le rend
-avantageux pour des système de gestion de données qui veulent
-déléguer la distribution et la fiabilité du stockage. Ce mécanisme
-s'appuie tout d'abord sur la réplication d'un même fragment (3 exemplaires
-par défaut) sur différents serveurs.
-
-Le maître assure la surveillance des esclaves par des communications
-(*heartbeats*) fréquents (toutes les secondes) et réorganise la communication
-entre une application cliente et le fragment qu'elle est en train de lire en 
-cas de défaillance du serveur.  Ce remplacement est utile par exemple, comme nous l'avons vu,
-pour un traitement MapReduce afin d'effectuer à nouveau un calcul sur l'un
-des fragments.
-
-Enfin le maître lui-même est un des points sensibles du système: en
-cas de panne plus rien ne marcherait et des données seraient perdues.
-On peut mettre en place un "maître fantôme" prêt à prendre le relais,
-et une journalisation de toutes les écritures pour pouvoir effectuer
-une reprise sur panne.
-
-Mise en œuvre avec Hadoop
-=========================
-
-Voici maintenant une présentation concise de la mise en œuvre d'un 
-système HDFS L'environnement est assez lourd à mettre en place et à configurer 
-donc nous allons aller au plus simple dans ce qui suit.
-
-Des images Docker existent pour Hadoop mais elles ne me semblent pas plus
-simples à gérer qu'une installation directe, avec les options simplifiées
-proposées par Hadoop. 
-
-.. important:: Encore une fois, l'expérience montre que la lourdeur de Hadoop s'accomode mal d'un déploiement
-   virtuel sur une seule petite machine. L'importance du sujet ne justifie pas que vous y passiez
-   des jours en vous arrachant les cheveux. Il suffit sans doute de lire
-   une fois cette session pour comprendre l'essentiel.
-   
-   Si vous tentez quand même la mise en pratique, sachez que
-   les commandes qui suivent supposent un environnement de type Unix
-   (MacOS X en fait partie). Pour Windows, je ne peux que vous renvoyer au site
-   de Hadoop, en espérant pour vous que ce ne soit pas trop compliqué.
-
-   Autre avertissement: Hadoop, c'est du Java, donc il faut au minimum savoir compiler
-   et exécuter un programme java, et disposer d'une mémoire RAM volumineuse.
-
-Si l'avertissement qui précède vous effraie (c'est fait pour), 
-il vaut sans doute mieux se contenter d'une simple lecture 
-de cette partie.
- 
-Installation et configuration
------------------------------
-
-Je vous invite donc 
-à récupérer la dernière version (binaire, inutile de prendre les sources)
-sur le site http://hadoop.apache.org. C'est un fichier
-dont le nom ressemble à ``hadoop-2.7.3.tar.gz``. Décompressez-le quelque part, par
-exemple dans ``\tmp``. les commandes devraient ressembler à (en utilisant bien sûr le nom
-du fichier récupéré):
-
-.. code-block:: bash
-
-   mv hadoop-2.7.3.tar.gz /tmp
-   cd /tmp
-   tar xvfz hadoop-2.7.3.tar.gz
-
-Bien, vous devez alors définir une variable d'environnement ``HADOOP_HOME`` qui
-indique le répertoire d'installation de Hadoop.
-
-.. code-block:: bash
-
-     export HADOOP_HOME=/tmp/hadoop-2.7.3
-
-Les répertoires ``bin`` et ``sbin`` de Hadoop contiennent des exécutables. Pour les lancer sans avoir
-à se placer dans l'un de ces répertoires, ajoutez-les dans votre variable ``PATH``.
-
-.. code-block:: bash
-
-    export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
-
-Bien, vous devriez alors pouvoir exécuter un programme Hadoop. Par exemple:
-
-.. code-block:: bash
-
-   hadoop version
-   Hadoop 2.7.3
-
-Pour commencer
-il faut configurer Hadoop pour qu'il s'exécute en mode dit "pseudo-distribué",
-ce qui évite la configuration complexe d'un véritable *cluster*. Vous devez
-éditer le fichier ``$HADOOP_HOME/etc/hadoop/core-site.xml`` 
-et indiquer le contenu suivant :
-
-.. code-block:: xml
-
-   <configuration>
-     <property>
-       <name>fs.default.name</name>
-       <value>hdfs://localhost:9000</value>
-     </property>     
-    </configuration>
-
-Cela indique à Hadoop que le nœud maître  HDFS  (le "NameNode" 
-dans la terminologie Hadoop) est en écoute sur le port  9000. 
-
-Pour limiter la réplication, modifiez également le fichier ``$HADOOP_HOME/etc/hadoop/hdfs-site.xml``.
-Son contenu doit être le suivant:
-
-.. code-block:: xml
-
-    <configuration>
-        <property>
-            <name>dfs.replication</name>
-            <value>1</value>
-        </property>
-    </configuration>
-
-Premières manipulations
------------------------
-
-Ouf, la configuration minimale est faite, 
-nous sommes prêts à effectuer nos premières manipulations. Tout 
-d'abord nous allons formatter l'espace dédié au stockage des données.
-
-.. code-block:: bash
-
-     hdfs namenode -format
-
-Une fois ce répertoire formatté nous lançons le maître HDFS (le *namenode*).
-Ce maître gère la hiérarchie (virtuelle) des répertoires HDFS,
-et communique avec les *datanodes*, les "esclaves" dans la terminologie
-employée jusqu'ici, qui sont chargés de gérer les fichiers (ou fragments de fichiers)
-sur leurs serveurs respectifs. Dans notre cas, la configuration ci-dessus
-va lancer un *namenode* et deux *datanodes*, grâce à la commande suivante:
-
-.. code-block:: bash
-
-    start-dfs.sh &
-
-.. note:: Les nœuds communiquent entre eux par SSH, et il faut éviter que le mot
-   de passe soit demandé à chaque fois. Voici les commandes pour permettre
-   une connection SSH sans mot de passe.
-
-   .. code-block:: bash
-   
-       ssh-keygen -t rsa -P ""
-       cat $HOME/.ssh/id_rsa.pub >> $HOME/.ssh/authorized_keys
-
-Vous devriez obtenir les messages suivants:
-
-.. code-block:: bash
-
-     starting namenode, logging to (...)
-     localhost: starting datanode, logging to (...)
-     localhost: starting secondarynamenode, logging to (...)
-
-Le second *namenode* est un miroir du premier. À ce stade, vous disposez d'un serveur
-HDFS en ordre de marche. Vous pouvez consulter son statut et toutes sortes d'informations
-grâce au serveur web accessible à http://localhost:50070. La figure :numref:`hdfs-ui` montre
-l'interface
-
-.. _hdfs-ui:
-.. figure:: ../figures/hdfs-ui.png       
-        :width: 90%
-        :align: center
-   
-        Perspective générale sur les systèmes distribués dans un *cloud*
-
-Bien entendu, ce système de fichier est vide. Vous pouvez y charger un premier fichier,
-à récupérer sur le site à l'adresse suivante: `http://b3d.bdpedia.fr/files/author-medium.txt <http://b3d.bdpedia.fr/files/author-medium.txt>`_.
-Il s'agit d'une liste de publications sur laquelle nous allons faire tourner nos exemples.
- 
-Pour interagir avec le serveur de fichier HDFS, on utilise la commande ``hadoop fs <commande>`` 
-où commande est la commande à effectuer. La commande suivante crée un répertoire ``/dblp``
-dans HDFS.
-
-.. code-block:: bash
+    * `Diapositives: Introduction à Spark <http://b3d.bdpedia.fr/files/slspark.pdf>`_
+    * `Vidéo d'introduction à Spark <https://mediaserver.lecnam.net/permalink/v125f5947d4d8krmjech/>`_  
+
+Avec MapReduce, la spécification de l'itération reste à la charge du
+programmeur; il faut stocker le résultat d'un premier *job* dans une collection
+intermédiaire et réiterer le *job* en prenant la collection intermédiaire comme
+source. C'est laborieux pour l'implantation, et surtout très peu efficace quand
+la collection intermédiaire est grande. Le processus de
+sérialisation/désérialisation sur disque propre à la gestion de la reprise sur
+panne en MapReduce entraîne des performances médiocres.
+
+Dans Spark, la méthode est très différente. Elle consiste  à placer ces jeux de
+données en mémoire RAM et à éviter la pénalité des écritures sur le disque. Le
+défi est alors bien sûr de proposer une reprise sur panne automatique efficace.
+
+Architecture système
+====================
+
+Spark est un *framework* qui coordonne l'exécution de *tâches* sur des *données*
+en les répartissant au sein d'un *cluster* de machines. Il est voulu comme
+extrêmement modulaire et flexible. Ainsi, la gestion même du cluster de machines
+peut être déléguée soit au cluster manager de Spark, soit à Yarn ou à Mesos
+(d'autres gestionnaires pour Hadoop).
+
+Le programmeur envoie au *framework* des *Spark Applications*, pour lesquelles
+Spark affecte des ressources (RAM, CPU) du cluster en vue de leur
+exécution. Une Spark application se compose d'un processus *driver* et
+d\'*executors*. Le *driver* est essentiel pour l'application car il exécute la
+fonction `main()` et est responsable de 3 choses : 
+
+- conserver les informations relatives à l'application ;
+- répondre aux saisies utilisateur ou aux demandes de programmes externes ;
+- analyser, distribuer et ordonnancer les tâches (cf plus loin).
     
-      hadoop fs -mkdir /dblp
-      
-Puis on copie le fichier du système de fichiers local vers HDFS.
-
-.. code-block:: bash
-    
-      hadoop fs -put author-medium.txt /dblp/author-medium.txt
-
-Finalement, on peut constater qu'il est bien là.
-
-.. code-block:: bash
-    
-      hadoop fs -ls /dblp
-      
-.. note:: Vous trouverez facilement sur le web des commandes supplémentaires, par
-   exemple ici: https://dzone.com/articles/top-10-hadoop-shell-commands
-   
-   Pour inspecter le système de fichiers avec l'interface Web,
-   vous pouvez aussi accéder à http://localhost:50070/explorer.html#/
-
-Que sommes-nous en train de faire? Nous copions un fichier depuis notre machine locale
-vers un système distribué sur plusieurs serveurs. Si le fichier est assez gros, il
-est découpé en fragments et réparti sur différents serveurs. Le découpage
-et la recomposition sont transparents et entièrement gérés par Hadoop.
-
-Nous avons donc réparti nos données (si du moins elles avaient une taille respectable)
-dans le *cluster* HDFS. Nous sommes donc en mesure maintenant d'effectuer
-un calcul réparti avec MapReduce.
-
-MapReduce, le calcul distribué avec Hadoop
-==========================================
-
-
-L'exemple que nous allons maintenant étudier est un processus MapReduce
-qui accède au fichier HDFS et effectue un calcul assez trivial. Ce sera à vous d'aller 
-plus loin ensuite.
-
-Installation et configuration
------------------------------
-
-Depuis la version 2 de Hadoop, les traitements sont gérés par un gestionnaire
-de ressources distribuées nommé Yarn. Il fonctionne en mode maître/esclaves,
-le maître étant nommé ``Resourcemanager`` et les esclaves ``NodeManager``.
-
-Un peu de configuration préalable s'impose avant de lancer notre *cluster* Yarn.
-Editez tout d'abord le fichier ``$HADOOP_HOME/etc/hadoop/mapred-site.xml``
-avec le contenu suivant:
-
-.. code-block:: xml
-
-    <configuration>
-        <property>
-           <name>mapreduce.framework.name</name>
-           <value>yarn</value>
-        </property>
-    </configuration>
-
-Ainsi que le fichier ``$HADOOP_HOME/etc/hadoop/yarn-site.xml``:
-
-.. code-block:: xml
-
-    <configuration>
-        <property>
-           <name>yarn.nodemanager.aux-services</name>
-           <value>mapreduce_shuffle</value>
-        </property>
-     </configuration>
-    
-Vous pouvez alors lancer un *cluster* Yarn (en plus du *cluster* HDFS).
-
-.. code-block:: bash
-
-    start-yarn.sh
-
-Yarn propose une interface Web à l'adresse http://localhost:8088/cluster: Elle
-montre les applications en cours ou déjà exécutées.
-
-Notre programme MapReduce
--------------------------
-
-.. important:: Toutes nos compilations java font se fait par l'intermédiaire
-   du script ``hadoop``. Il suffit de définir la variable suivante au préalable:
-
-   .. code-block:: bash
-   
-       export HADOOP_CLASSPATH=${JAVA_HOME}/lib/tools.jar
-
-Le
-format du fichier que nous avons placé dans HDFS est très simple: il contient des noms d'auteur et des titres
-de publications, séparés par des tabulations. 
-Nous allons compter le nombre de publications de chaque auteur dans notre fichier. 
-
-Notre première classe Java contient le code de la fonction de Map.
-
-.. code-block:: java
-
-    /**
-     * Les imports indispensables
-     */
-
-    import java.io.IOException;
-    import java.util.Scanner;
-    import org.apache.hadoop.io.IntWritable;
-    import org.apache.hadoop.io.Text;
-    import org.apache.hadoop.mapreduce.Mapper;
-
-    /**
-     * Exemple d'une fonction de map: on prend un fichier texte contenant
-     * des auteurs et on extrait le nom
-     */
-    public class AuthorsMapper extends
-      Mapper<Object, Text, Text, IntWritable> {
-
-      private final static IntWritable one = new IntWritable(1);
-      private Text author = new Text();
-
-       /* la fonction de Map */
-        @Override
-        public void map(Object key, Text value, Context context)
-           throws IOException, InterruptedException {
-
-          /* Utilitaire java pour scanner une ligne  */
-          Scanner line = new Scanner(value.toString());
-          line.useDelimiter("\t");
-          author.set(line.next());
-          context.write(author, one);
-        }
-      }
-
-Hadoop fournit deux classes abstraites pour implanter des fonctions
-de Map et de Reduce: ``Mapper`` et ``Reducer``. Il faut étendre
-ces classes et implanter deux méthodes, respectivement ``map()`` et ``reduce()``. 
-
-L'exemple ci-dessus montre l'implantation de la fonction de map. Les paramètres
-de la classe abstraite décrivent respectivement les types des paires
-clé/valeur en entrée et en sortie. Ces types sont fournis pas Hadoop
-qui doit savoir les sérialiser pendant les calculs pour les placer sur disque.
-Finalement, la classe ``Context`` est utilise pour pouvoir interagir avec l'environnement
-d'exécution.
-
-Notre fonction de Map prend donc en entrée une paire clé/valeur
-constituée du numéro de ligne du fichier en entrée (automatiquement engendrée par le système)
-et de la ligne elle-même. Notre code se contente d'extraire la partie de la ligne
-qui précède la première tabulation, en considérant que c'est le nom de l'auteur. On
-produit dont une paire intermédiaire ``(auteur, 1)``.
-
-La fonction de Reduce est encore plus simple. On obtient en entrée
-le nom de l'auteur et une liste de 1, aussi longue qu'on a trouvé d'auteurs
-dans les fichiers traités. On fait la somme de ces 1.
-
-.. code-block:: java
-
-    import java.io.IOException;
-    import org.apache.hadoop.io.IntWritable;
-    import org.apache.hadoop.io.Text;
-    import org.apache.hadoop.mapreduce.Reducer;
-
-    /**
-     * La fonction de Reduce: obtient des paires  (auteur, <publications>)
-     * et effectue le compte des publications
-     */
-    public  class AuthorsReducer extends
-          Reducer<Text, IntWritable, Text, IntWritable> {
-       private IntWritable result = new IntWritable();
-
-       @Override
-       public void reduce(Text key, Iterable<IntWritable> values, 
-            Context context)
-        throws IOException, InterruptedException {
-      
-        int count = 0;
-        for (IntWritable val : values) {
-          count += val.get();
-        }
-        result.set(count);
-        context.write(key, result);
-      }
-    }
-
-Nous pouvons maintenant soumettre un "job" avec le code qui suit. Les
-commentaires indiquent les principales phases. Notez qu'on lui indique
-les classes implantant les fonctions de Map et de Reduce, définies auparavant.
-
-.. code-block:: java
-
-    /**
-     * Programme de soumision d'un traitement MapReduce
-     */
-
-    import org.apache.hadoop.conf.*;
-    import org.apache.hadoop.util.*;
-    import org.apache.hadoop.fs.Path;
-    import org.apache.hadoop.io.IntWritable;
-    import org.apache.hadoop.io.Text;
-    import org.apache.hadoop.mapreduce.Job;
-    import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-    import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-
-    public class AuthorsJob {
-
-    public static void main(String[] args) throws Exception {
- 
-     /* Il nous faut le chemin d'acces au fichier a traiter
-             et le chemin d'acces au resultat du reduce */
-
-      if (args.length != 2) {
-        System.err.println("Usage: AuthorsJob <in> <out>");
-        System.exit(2);
-      }
-
-     /* Definition du job */
-     Job job = Job.getInstance(new Configuration());
-
-     /* Definition du Mapper et du Reducer */
-     job.setMapperClass(AuthorsMapper.class);
-     job.setReducerClass(AuthorsReducer.class);
-
-     /* Definition du type du resultat  */
-     job.setOutputKeyClass(Text.class);
-     job.setOutputValueClass(IntWritable.class);
-
-     /* On indique l'entree et la sortie */
-     FileInputFormat.addInputPath(job, new Path(args[0]));
-     FileOutputFormat.setOutputPath(job, new Path(args[1]));
-
-     /* Soumission */
-     job.setJarByClass(AuthorsJob.class);
-     job.submit();
-    }
-  }
-
-Un des rôles importants du Job est de définir la source en entrée pour les
-données (ici un fichier HDFS) et le répertoire HDFS en sortie, dans lequel les
-*reducers* vont écrire le résultat. 
-
-Compilation, exécution
-----------------------
-
-Il reste à compiler et à exécuter ce traitement. La commande de compilation
-est la suivante.
-
-.. code-block:: bash
-
-     hadoop com.sun.tools.javac.Main AuthorsMapper.java AuthorsReducer.java AuthorsJob.java
-
-Les fichiers compilés doivent ensuite être placés dans une archive java (jar)
-qui sera transmise à tous les serveurs avant l'exécution distribuée. Ici, on 
-crée une archive ``authors.jar``.
-
-.. code-block:: bash
-
-     jar cf authors.jar AuthorsMapper.class AuthorsReducer.class AuthorsJob.class
-
-Et maintenant, on soumet le traitement au *cluster* Yarn avec la commande suivante:
-
-.. code-block:: bash
-      
-     hadoop jar authors.jar AuthorsJob /dblp/author-medium.txt /output
-      
-On indique donc sur la ligne de commande le ``Job`` à exécuter, le fichier en entrée et le répertoire
-des fichiers de résultat. Dans notre cas, il y aura un seul *reducer*, et donc un seul
-fichier nommé ``part-r-00000`` qui sera donc placé dans ``/output`` dans HDFS.
-
-.. important:: Le répertoire de sortie ne doit pas exister avant l'exécution. Pensez
-   à le supprimer si vous exécutez le même job plusieurs fois de suite.
-   
-   .. code-block:: bash
-    
-        hadoop fs -rm -R /output
-   
-Une fois le job exécuté, on peut copier ce fichier de HDFS vers la machine locale
-avec la commande:
-
-.. code-block:: bash
-
-     hadoop fs -copyToLocal /output/part-r-00000 resultat
-
-Et voilà! Vous avez une idée complète de l'exécution d'un traitement MapReduce. Le
-résultat devrait ressembler à:
-
-.. code-block:: text
-
-    (...)
-    Dominique Decouchant    1                                                                    
-    E. C. Chow      1                                                                            
-    E. Harold Williams      1                                                                    
-    Edward Omiecinski       1                                                                    
-    Eric N. Hanson  1                                                                            
-    Eugene J. Shekita       1                                                                    
-    Gail E. Kaiser  1                                                                            
-    Guido Moerkotte 1                                                                            
-    Hanan Samet     2                                                                            
-    Hector Garcia-Molina    2                                                                    
-    Injun Choi      1 
-    (...)
-
-Notez que les auteurs sont triés par ordre alphanumérique, ce qui est un effet
-indirect de la phase de *shuffle* qui réorganise toutes les paires intermédiaires.
-
-En inspectant l'interface http://localhost:8088/cluster vous verrez les statistiques sur
-les *jobs* exécutés.
-
-Quiz
-====
-
-.. eqt:: gfs-1
-
-    Quelle affirmation parmi les suivantes est vraie pour GFS?
-
-    A) :eqt:`I` L'arborescence des répertoires et des fichiers correspond à
-       la répartition dans le système distribué
-    #) :eqt:`I` Chaque fichier est découpé en *n* fragments, où *n* est le nombre de serveurs
-    #) :eqt:`C` Chaque fichier est découpé en fragments de taille fixe, et chacun
-       est répliqué sur 3 serveurs
-    #) :eqt:`I` Un fichier est stocké sur le serveur qui correspond à son répertoire dans
-       l'arborescence
-
-
-.. eqt:: gfs-2
-
-    Commment est constituée l'arborescence des fichiers?
-
-    A) :eqt:`I` La racine est au niveau du maitre, et chaque fils de la racine 
-       est la racine du serveur de fichier local d'un des serveurs participants
-    #) :eqt:`C` L'arboresence est totalement virtuelle et gérée par le maître
-    #) :eqt:`I` L'arborescence des répertoires est gérée par le maître, les fichiers
-       sont ceux des serveurs et sont liés à un répertoire.
-
-.. eqt:: gfs-3
-
-    Pour quelle utilisation le système GFS est-il le plus adapté
-
-    A) :eqt:`I` Pour une application client qui peut lire tous les fragments en parallèle,
-       comme expliqué précédemment
-    #) :eqt:`C` Pour un traitement distribué de type MapReduce
-    #) :eqt:`I` Pour une application temps-réel qui va pouvoir chercher un document dans un
-       seul fragment.
-
-*******************************
-S3: langages de traitement: Pig
-*******************************
-
-.. admonition:: Supports complémentaires
-
-    * `Diapositives: Le langage Pig latin <http://b3d.bdpedia.fr/files/slpig.pdf>`_
-    * `Vidéo de la session Pig latin <https://mediaserver.lecnam.net/permalink/v125f35a4214383v9nvp/>`_  
-
-MapReduce est  un système orienté vers les développeurs qui doivent concevoir et
-implanter la composition de plusieurs *jobs* pour des algorithmes
-complexes qui ne peuvent s'exécuter en une seule phase. Cette caractéristique
-rend également les systèmes MapReduce difficilement accessibles
-à des non-programmeurs.
-
-La définition de langages de plus haut niveau permettant de spécifier
-des opérations complexes sur les données est donc apparue comme une nécessité dès
-les premières versions de systèmes comme Hadoop. L'initiative est souvent
-venue de communautés familières des bases de données et désirant retrouver
-la simplicité et la "déclarativité" du langage SQL, transposées dans
-le domaine des chaînes de traitements pour données massives.
-
-Cette section présente le langage Pig latin, une des premières tentatives
-du genre, une des plus simples, et surtout l'une des plus représentatives
-des opérateurs de manipulation de données qu'il est possible d'exécuter
-sous forme de *jobs* MapReduce en conservant la scalabilité et la
-gestion des pannes.
-
-Pig latin (initialement développé par un laboratoire Yahoo!) est
-un projet Apache disponible à http://pig.apache.org. Vous avez (au moins) deux possibilités
-pour l'installation.
-
-  - Utilisez la machine Docker https://hub.docker.com/r/hakanserce/apache-pig/
-  - Ou récupérez la dernière version sous la forme d'une archive compressée et 
-    décompressez-la quelque part, dans un répertoire que nous appellerons ``pigdir``.
-
-
-Nous utiliserons directement l'interpréteur de scripts (nommé ``grunt``) qui se lance avec:
-
-.. code-block:: bash
-
-    <pigdir>/bin/pig -x local
-    
-
-L'option ``local`` indique que l'on teste les scripts en local, ce qui permet 
-de les mettre au point sur de petits jeux de données avant de passer à une exécution distribuée à grande échelle 
-dans un *framework* MapReduce. 
-
-Cet interpréteur affiche beaucoup de messages, ce qui devient rapidement désagréable. Pour s'en débarasser, 
-créer un fichier ``nolog.conf`` avec la ligne::
-
-  log4j.rootLogger=fatal
+Un *executor* n'est responsable que de 2 choses : exécuter le code qui lui
+est assigné par le *driver* et lui rapporter l'état d'avancement de la tâche.
+
+Le *driver* est accessible programmatiquement par un point d'entrée appelé
+*SparkSession*, que l'on trouve derrière une variable :code:`spark`.
+
+La figure :numref:`sparkarchi` illustre l'architecture système de Spark. Dans cet exemple 
+il y a un *driver*
+et 4 *executors*. La notion de nœud dans le cluster est absente : les utilisateurs
+peuvent configurer combien d'exécutors reposent sur chaque nœud.
+
+.. _sparkarchi:
+.. figure:: ../figures/spark-archi-systeme.png
+     :width: 85%
+     :align: center
   
-Et lancez Pig en indiquant que la configuration des *log* est dans ce fichier:
+     L'architecture système de Spark
+
+Spark est un *framework* multilingue : les programmes Spark peuvent être écrits en
+Scala, Java, Python, SQL et R. Cependant, il d'abord écrit en Scala, il s'agit
+de son langage par défaut. C'est celui dans lequel nous travaillerons. Il est
+concis et offre l'intégralité de l'API. Attention, l'API est complète en Scala
+et Java, pas nécessairement dans les autres langages. 
+
+.. note:: Spark peut aussi fonctionner en mode *local*, dans lequel *driver* et
+   *executors* ne sont que des processus de la machine. La puissance de Spark est
+   de proposer une transparence (pour les programmes) entre une exécution locale
+   ou sur un cluster.
 
 
-.. code-block:: bash
-
-    <pigdir>/bin/pig -x local -4 nolog.conf
- 
-Une session illustrative
+Architecture applicative
 ========================
 
-Pig applique des *opérateurs* à des *flots de données semi-structurées*. Le flot
-initial (en entrée) est constituée par lecture d'une source de données
-quelconque contenant des documents qu'il faut structurer selon le modèle
-de Pig, à peu de choses près comparable à ce que proposent XML ou JSON.
+L'écosystème des API de Spark est hiérarchisé et comporte
+essentiellement 3 niveaux :
 
-Dans un contexte réel, il faut implanter un chargeur de données depuis
-la source. Nous allons nous contenter de prendre un des formats par
-défaut, soit un fichier texte dont chaque ligne représente un document, et
-dont les champs sont séparés par des tabulations. Nos documents
-sont des entrées bibliographiques d'articles scientifiques
-que vous pouvez récupérer à http://b3d.bdpedia.fr/files/journal-small.txt.
-En voici un échantillon.
+- les APIs bas-niveau, avec les RDDs (*Resilient Distributed Dataset*);
+- les APIs de haut niveau, avec les *Datasets*, *DataFrames* et SQL;
+- les autres bibliothèques (*Structured Streaming*, *Advanced Analytics*, etc.).
 
-.. code-block::  javascript
+Nous allons laisser de côté dans ce cours le dernier niveau : l'exploration des
+bibliothèques de *machine learning* relève du `cours RCP216
+<https://cedric.cnam.fr/vertigo/Cours/RCP216/>`_.
 
-    2005    VLDB J. Model-based approximate querying in sensor networks.
-    1997    VLDB J. Dictionary-Based Order-Preserving String Compression.
-    2003	SIGMOD Record	Time management for new faculty.
-    2001    VLDB J. E-Services - Guest editorial.
-    2003	SIGMOD Record	Exposing undergraduate students to system internals.
-    1998    VLDB J. Integrating Reliable Memory in Databases.
-    1996    VLDB J. Query Processing and Optimization in Oracle Rdb
-    1996    VLDB J. A Complete Temporal Relational Algebra.
-    1994	SIGMOD Record	Data Modelling in the Large.
-    2002	SIGMOD Record	Data Mining: Concepts and Techniques - Book Review.
-    ...
+Initialement, les RDDs ont été au centre de la programmation avec Spark (ce qui
+a pour conséquence que de nombreuses ressources que vous trouverez sur Spark
+reposeront dessus). Aujourd'hui, on leur préfère des APIs de plus haut niveau,
+que nous allons explorer en détail, les Datasets et DataFrames. Celles-ci
+présentent l'avantage d'être proches de structures de données connues (avec une
+vision tabulaire), donc de faciliter le passage à Spark. En outre, elles sont
+optimisées *très efficacement* par le *framework*, d'où des gains de performance.
 
-Voici à titre d'exemple introductif un programme Pig complet qui
-calcule le nombre moyen de publications par an dans la revue SIGMOD Record.
+L'innovation des RDDs
+---------------------
 
-.. code-block:: pig
+La principale innovation apportée par  Spark est le concept de *Resilient
+Distributed Dataset* (RDD). Un RDD est une collection (pour en rester à notre
+vocabulaire) calculée à partir d'une source de données (par exemple une base de
+données Cassandra, un flux de données, un autre RDD) et placée en mémoire RAM.
+Spark conserve l'historique des opérations qui a permis de constituer un RDD, et
+la reprise sur panne s'appuie essentiellement sur la préservation de cet
+historique afin de reconstituer  le RDD en cas de panne. Pour le dire
+brièvement: Spark n'assure pas la préservation des données en *extension* mais
+en *intention*. La préservation d'un programme qui tient en quelques lignes de
+spécification (cf. les programmes Pig) est beaucoup plus facile et efficace que
+la préservation du jeu de données issu de cette chaîne. C'est l'idée principale
+pour la *résilience* des RDDs.
 
-    -- Chargement des documents de journal-small.txt
-    articles = load 'journal-small.txt' 
-        as (year: chararray, journal:chararray, title: chararray) ;
-    sr_articles = filter articles BY journal=='SIGMOD Record';
-    year_groups = group sr_articles by year;
-    count_by_year = foreach year_groups generate group, COUNT(sr_articles.title);
-    dump count_by_year;
-    
+Par ailleurs, les RDDs représentent des collections partitionnées et
+distribuées. Chaque RDD est donc constitué de ce que nous avons appelé
+*fragments*. Une panne affectant un fragment individuel peut donc être réparée
+(par reconstitution de l'historique) indépendamment des autres fragments,
+évitant d'avoir à *tout* recalculer. 
 
-Quand on l'exécute sur notre fichier-exemple, on obtient le résultat suivant::
+Les DataFrames et Datasets que nous utiliserons plus loin reposent sur les RDDs,
+c'est-à-dire que Spark transforme les opérations sur les DataFrames/Datasets en
+opérations sur les RDDs. En pratique, vous n'aurez que rarement besoin de RDDs
+(sauf si vous maintenez du code ancien, ou que votre expertise vous amène à
+aller plus loin que les *Structured APIs*).
 
-  (1977,1)
-  (1981,7)
-  (1982,3)
-  (1983,1)
-  (1986,1)
-  ...
+Actions et transformations : la chaîne de traitement Spark
+----------------------------------------------------------
 
-Un programme Pig est essentiellement une séquence d'opérations, chacune prenant
-en entrée une collection de documents (les collections sont nommées *bag*
-dans Pig latin, et les documents sont nommés *tuple*) et produisant en sortie une autre collection. La séquence définit
-une chaîne de traitements transformant progressivement les documents.
+Un élément fondamental de la pratique de Spark réside dans **l'immutabilité**
+des collections, elles ne peuvent être modifiées après leur création. C'est un
+peu inhabituel et cela induit des manières nouvelles de travailler. 
 
-
-.. _pig-workflow:
-.. figure:: ../figures/pig-workflow.png
-      :width: 80%
-      :align: center
-   
-      Un exemple de  *workflow* (chaîne de traitements) avec Pig
-      
-Il est intéressant de décomposer, étape par étape, cette chaîne de traitement pour inspecter
-les collections intermédiaires produites par chaque opérateur.
-
-**Chargement**. L'opérateur ``load`` crée une collection initiale
-``articles`` par chargement du fichier.  On indique le *schéma*
-de cette collection pour interpréter le contenu de chaque ligne.
-Les deux commandes suivantes permettent d'inspecter respectivement le
-schéma d'une collection et un échantillon de son contenu.
-
-.. code-block:: javascript
-
-    grunt> describe articles;
-    articles: {year: chararray,journal: chararray,title: chararray}
-
-    grunt> illustrate articles;
-    ---------------------------------------------------------------------------
-    | articles | year: chararray | journal: chararray | title: chararray      | 
-    ---------------------------------------------------------------------------
-    |          | 2003            | SIGMOD Record      | Call for Book Reviews.| 
-    ---------------------------------------------------------------------------
-
-Pour l'instant, nous sommes dans un contexte simple où une collection
-peut être vue comme une table relationnelle. Chaque ligne/document 
-ne contient que des données élémentaires.
-
-
-
-**Filtrage**. 
-L'opération de filtrage avec ``filter`` opère comme une clause ``where`` en SQL. On peut exprimer
-avec Pig des combinaisons Booléennes de critères sur les attributs des documents. Dans
-notre exemple le critère porte sur le titre du journal.
-
-**Regroupement**. On regroupe maintenant les tuples/documents par année
-avec la commande ``group by``. À chaque année on associe donc
-l'ensemble des articles parus cette année-là, sous la forme d'un
-ensemble imbriqué.  Examinons la représentation de Pig:
-
-.. code-block:: javascript
-
-    grunt> year_groups = GROUP sr_articles BY year;
-
-    grunt> describe year_groups;
-      year_groups: {group: chararray,
-        sr_articles: {year: chararray,journal: chararray,title:chararray}}
-
-    grunt> illustrate year_groups;
-     group: 1990
-     sr_articles:  
-      { 
-       (1990, SIGMOD Record, An SQL-Based Query Language For Networks of Relations.), 
-       (1990, SIGMOD Record, New Hope on Data Models and Types.) 
-      } 
-
-Le schéma de la collection ``year_group``, obtenu avec ``describe``,  comprend donc un attribut nommé ``group`` 
-correspondant à la valeur de la clé de regroupement (ici, l'année) et une collection
-imbriquée nommée d'après la collection-source du regroupement (ici, ``sr_articles``) 
-et contenant tous les documents partageant la même valeur pour la clé de regroupement.
-
-L'extrait de la collection obtenu avec ``illustrate`` montre le cas de l'année 1990.
-
-À la syntaxe près, nous sommes dans le domaine familier des documents semi-structurés.
-Si on compare avec JSON par exemple, les objets sont notés par des parenthèses et
-pas par des accolades, et les ensembles par des accolades et pas par des crochets. 
-Une différence plus essentielle avec une approche semi-structurée de type JSON ou XML
-est que le schéma est *distinct* de la représentation des 
-documents: à partir d'une collection dont le schéma est connu, l'interpréteur de Pig 
-infère le schéma des collections calculées par les opérateurs. Il n'est donc pas nécessaire
-d'inclure le schéma avec le contenu de chaque document.
-
-Le modèle de données de Pig comprend trois types de valeurs:
-
- - Les *valeurs atomiques* (chaînes de caractères, entiers, etc.).
- - Les *collections* (*bags* pour Pig) dont les valeurs peuvent être hétérogènes.
- - Les  *documents* (*tuples* pour Pig), équivalent des objets en JSON: des ensembles de paires (clé, valeur).
-
-On peut construire des structures arbitrairement complexes par imbrication de ces différents types.
-Comme dans tout modèle semi-structuré, il existe très peu de contraintes
-sur le contenu et la structure. Dans une même collection peuvent ainsi
-cohabiter des documents de structure très différente.
-
-
-**Application de fonctions**. Un des besoins récurrents dans les chaînes de traitement est
-d'appliquer des fonctions pour annoter, restructurer ou enrichir le contenu des documents passant
-dans le flux. Ici, la collection finale ``avg_nb`` est obtenue en appliquant une fonction standard ``count()``. 
-Dans le cas général, on applique des fonctions applicatives intégrées au contexte d'exécution Pig:
-*ces fonctions utilisateurs (User Defined Functions ou UDF) sont le moyen privilégié de combiner
-les opérateurs d'un langage comme Pig avec une application effectuant des traitements sur les documents*.
-L'opérateur ``foreach/generate`` permet cette combinaison.
-
-Les opérateurs
-==============
-
-La table ci-dessous donne la liste des principaux
-opérateurs du langage Pig. Tous s'appliquent à une ou deux collections
-en entrée et produisent une collection en sortie. 
+En effet, pour passer des données d'entrée à la sortie du programme, on devra
+penser une chaîne de collections qui constitueront les étapes du traitement. La
+(ou les) première(s) collection(s) contien(nen)t les données d'entrée. Ensuite,
+chaque collection est le résultat de **transformations** sur les précédentes
+structures, l'équivalent de ce que nous avons appelé *opérateur* dans Pig. Comme
+dans Pig, une transformation sélectionne, enrichit, restructure une collection,
+ou combine deux collections. On retrouve dans Spark, à peu de choses près, les
+mêmes opérateurs/transformations que dans Pig, comme le montre la table
+ci-dessous (qui n'est bien sûr pas exhaustive: reportez-vous à la documentation
+pour des compléments).
 
 .. csv-table:: 
    :header:  Opérateur, Description
    :widths: 10, 20
 	         
-   ``foreach``, Applique une expression à chaque document de la collection
+   ``map``, Prend un document en entrée et produit un document en sortie
    ``filter``, Filtre les documents de la collection 
-   ``order``, Ordonne la collection
-   ``distinct``, Elimine lse doublons
-   ``cogroup``, Associe deux groupes partageant une clé
-   ``cross``, Produit cartésien de deux collections
+   ``flatMap``, "Prend un document en entrée, produit un ou plusieurs document(s) en sortie"
+   ``groupByKey``, Regroupement de documents par une valeur de clé commune
+   ``reduceByKey``,  "Réduction d'une paire *(k, [v])* par une agrégation du tableau *[v]*"
+   ``crossProduct``, Produit cartésien de deux collections
    ``join``, Jointure de deux collections
    ``union``, Union de deux collections
+   ``cogroup``, Cf. la description de l'opérateur dans la section sur Pig
+   ``sort``, Tri d'une collection
+
+Les collections obtenues au cours des différentes étapes d'une chaîne de
+traitement sont stockées dans des RDDs, des DataFrames, etc., selon l'API
+employée. C'est exactement la notion que nous avons déjà étudiée avec Pig. La
+différence essentielle est que dans Spark, les RDD ou DataFrames peuvent être
+marquées comme étant *persistants* car ils  peuvent être réutilisés dans
+d'autres chaînes. Spark fait son possible pour stocker les structures
+persistantes en mémoire RAM, pour un maximum d'efficacité.
+
+.. _spark-rdd:
+
+.. figure:: ../figures/spark-rdd.png
+   :width: 85%
+   :align: center
+  
+   RDD persistants et transitoires dans Spark.
+
+Les collections forment un graphe construit par application de transformations à
+partir de collections stockées (:numref:`spark-rdd`). S'il n'est pas marqué
+comme persistant, le RDD/DataFrame sera transitoire et ne sera pas conservé en
+mémoire après calcul (c'est le cas des RDD 1 et 3 sur la figure). Sinon, il est
+stocké en RAM, et disponible comme source de données pour d'autres
+transformations.
+
+Par opposition aux transformations qui produisent d'autres RDD ou DataFrames, les **actions**
+produisent des *valeurs* (pour l'utilisateur). L'évaluation des opérations en
+Spark est dite "paresseuse", c'est-à-dire que Spark attend le plus possible pour
+exécuter le graphe des instructions de traitement. Plus précisément, une action
+déclenche l'exécution des transformations qui la précèdent.
+
+L'évaluation paresseuse (*lazy evaluation*) permet à Spark de compiler de
+simples transformations de DataFrames en un plan d'exécution physique
+efficacement réparti dans le cluster. Un exemple de cette efficacité est
+illustrée par le concept de *predicate pushdown* : si un :code:`filter()` à la
+fin d'une séquence amène à ne travailler que sur 1 ligne des données d'entrée,
+les autres opérations en tiendront compte, optimisant d'autant la performance en
+temps et en espace.
+
+RDDs, *Dataset* et *DataFrame*
+------------------------------
+
+Un RDD, venant de l'API bas-niveau, est une "boîte" destinée à contenir
+n'importe quel document, sans aucun préjugé sur la structure (ou l'absence de
+structure) de ce dernier. Cela rend le système très généraliste, mais empêche
+une manipulation fine des constituants des documents, comme par exemple le
+filtrage en fonction de la valeur d'un champ. C'est le programmeur de
+l'application qui doit fournir la fonction effectuant le filtre.
+
+On l'a dit, Spark implémente une API de plus haut niveau avec des structures
+assimilables à des tables relationnelles : les *Dataset* et *DataFrame*. Ils
+comportent un *schéma*, avec les définitions des colonnes. La connaissance de ce
+schéma -- et éventuellement de leur type -- permet à Spark de proposer des
+opérations plus fines, et des optimisations inspirées des techniques
+d'évaluation de requêtes dans les systèmes relationnels. En fait, on se ramène à
+une implantation distribuée du langage SQL.  En interne, un avantage important
+de la connaissance du schéma est d'éviter de recourir à la sérialisation des
+objets Java (opération effectuée dans le cas des RDD pour écrire sur disque et
+échanger des données en réseau). 
+
+.. note:: Saluons au passage le mouvement progressif de ces systèmes vers une
+   ré-assimilation des principes du relationnel (schéma, structuration des
+   données, interrogation à la SQL, etc.), et la reconnaissance des avantages,
+   internes et externes,  d'une modélisation des données. Du *NoSQL* à *BackToSQL*!
    
-Voici quelques exemples pour illustrer les aspects essentiels du langage,
-basés sur le fichier http://b3d.bdpedia.fr/files/webdam-books.txt. Chaque
-ligne contient l'année de parution d'un livre, le titre et un auteur.
+
+On distingue les *Dataset*,  dont le type des colonnes est connu, et les *DataFrames*.
+Un *DataFrame* n'est rien d'autre qu'un *Dataset* (:code:`DataFrame =
+Dataset[Row])` contenant des lignes de type *Row* dont le schéma précis n'est
+pas connu. Ce typage des structures de données est lié au langage de
+programmation : Python et R étant dynamiquement typés, ils n'accèdent qu'aux
+DataFrames. En Scala et Java en revanche, on utilise les Datasets, des objets
+JVM fortement typés.
+
+Tout cela est un peu abstrait? Voici un exemple simple qui permet d'illustrer
+les principaux avantages des *Dataset/DataFrame*. Nous voulons appliquer un
+opérateur qui filtre les films dont le genre est "Drame". On va exprimer le
+filtre (en simplifiant un peu) comme suit:
+
+.. code-block:: text
+
+    films.filter(film.getGenre() == 'Drame');
+
+Si ``films`` est un RDD, Spark n'a aucune idée sur la structure des documents
+qu'il contient. Spark va donc instancier un objet Java (éventuellement en
+dé-sérialisant une chaîne d'octets reçue par réseau ou lue sur disque) et
+appeler la méthode ``getGenre()``. Cela peut être long, et impose surtout de
+créer un objet pour un simple test.
+
+Avec un *Dataset* ou *DataFrame*, le schéma est connu et Spark utilise son
+propre système d'encodage/décodage à la place de la sérialisation Java. De plus,
+dans le cas des *Dataset*, la valeur du champ ``genre`` peut être testée
+directement sans même effectuer de décodage depuis la représentation binaire.
+
+Il est, en résumé, tout à fait préférable d'utiliser les *Dataset* dès que l'on
+a affaire à des données structurées. 
+
+Exemple: analyse de fichiers *log*
+==================================
+
+Prenons un exemple concret: dans un serveur d'application, on constate qu'un module *M* produit
+des résultats incorrects de temps en temps. On veut analyser le fichier journal (*log*) de l'application
+qui contient les messages produits par le module suspect, et par beaucoup d'autres modules.
+
+On construit donc un programme qui charge le  *log* sous forme de collection, ne conserve
+que les messsages produits par le module *M* et analyse ensuite ces messages. Plusieurs analyses sont
+possibles en fonction des causes suspectées: la première par exemple regarde le *log* de *M* pour un produit particulier, 
+la seconde pour un utilisateur particulier, la troisième pour une tranche horaire particulière, etc.
+
+Avec Spark, on va créer un DataFrame ``logM`` persistant, contenant les messages produits par *M*. 
+On construira ensuite,
+à partir de ``logM`` de nouveaux DataFrames dérivés pour les analyses spécifiques (:numref:`spark-log`). 
+
+
+.. _spark-log:
+
+.. figure:: ../figures/spark-log.png
+   :width: 85%
+   :align: center
+  
+   Scénario d'une analyse de *log* avec Spark
+   
+On combine deux transformations pour construire ``logM``, comme le montre le programme suivant (qui n'est pas la syntaxe
+exacte de Spark, que nous présenterons plus loin).
 
 .. code-block:: javascript
-
-    1995	Foundations of Databases Abiteboul
-    1995	Foundations of Databases Hull
-    1995	Foundations of Databases Vianu
-    2012	Web Data Management Abiteboul
-    2012    Web Data Management Manolescu
-    2012	Web Data Management Rigaux 
-    2012	Web Data Management Rousset 
-    2012	Web Data Management Senellart
-
-Le premier exemple ci-dessous montre une combinaison de ``group``
-et de ``foreach`` permettant d'obtenir une collection avec un document
-par livre et un ensemble imbriqué contenant la liste des auteurs.
-
-
-.. code-block:: pig
-
-    -- Chargement de la collection
-    books = load 'webdam-books.txt' 
-        as (year: int, title: chararray, author: chararray) ;
-    group_auth = group books by title;
-    authors = foreach group_auth generate group, books.author;
-    dump authors;
+          
+    // Chargement de la collection
+    log = load ("app.log") as (...)
+    // Filtrage des messages du module M
+    logM = filter log with log.message.contains ("M")    
+    // On rend logM persistant !
+    logM.persist();
     
-L'opérateur ``foreach``  applique une expression aux attributs de chaque
-document. Encore une fois, *Pig est conçu pour que ces expressions puissent contenir
-des fonctions externes*, ou UDF (*User Defined Functions*), ce qui permet d'appliquer n'importe quel type
-d'extraction ou d'annotation.  
-
-L'ensemble résultat est le suivant:
+On peut alors construire une analyse basée sur le code produit directement à partir de ``logM``.
 
 .. code-block:: javascript
+          
+    // Filtrage par produit
+    logProduit = filter logM with log.message.contains ("product P")   
+    // .. analyse du contenu de logProduit     
 
-    (Foundations of Databases,
-       {(Abiteboul),(Hull),(Vianu)})
-    (Web Data Management,
-       {(Abiteboul),(Manolescu),(Rigaux),(Rousset),(Senellart)})
-
-L'opérateur ``flatten`` sert à "aplatir" un ensemble imbriqué.
-
-.. code-block:: pig
-
-    -- On prend la collection group_auth et on l'aplatit
-    flattened = foreach group_auth generate group ,flatten(books.author);
-
-On obtient:
+Et utiliser également ``logM`` pour une autre analyse, basée sur l'utilisateur.
 
 .. code-block:: javascript
+          
+    // Filtrage par utilisateur
+    logUtilisateur = filter logM with log.message.contains ("utilisateur U")   
+    // .. analyse du contenu de logProduit     
 
-    (Foundations of Databases,Abiteboul)
-    (Foundations of Databases,Hull)
-    (Foundations of Databases,Vianu)
-    (Web Data Management,Abiteboul)
-    (Web Data Management,Manolescu)
-    (Web Data Management,Rigaux)
-    (Web Data Management,Rousset)
-    (Web Data Management,Senellart)
+Ou encore par tranche horaire.
 
-L'opérateur ``cogroup`` prend deux collections en entrée, crée pour chacune
-des groupes partageant une même valeur de clé, et associe les groupes
-des deux collections qui partagent la même clé. C'est un peu compliqué en apparence;
-regardons la  :numref:`pig-cogroup`. Nous avons une collection A avec 
-des documents *d* dont la clé de regroupement vaut a ou b, et une collection
-B avec des documents *d'*. Le ``cogroup`` commence par rassembler, 
-séparément dans A et B, les documents partageant la même valeur de clé. 
-Puis, dans une seconde phase, les groupes de documents provenant des deux
-collections sont assemblés, toujours sur la valeur partagée de la clé.
+.. code-block:: javascript
+          
+    // Filtrage par utilisateur
+    logPeriode = filter logM with log.date.between d1 and d2
+    // .. analyse du contenu de logPeriode     
 
+``logM``  est une sorte de "vue"  sur la collection initiale, dont la persistance
+évite de refaire le calcul complet à chaque analyse.
 
-.. _pig-cogroup:
-.. figure:: ../figures/pig-cogroup.png
-      :width: 100%
-      :align: center
+Reprise sur panne
+=================
+
+Pour comprendre la reprise sur panne, il faut se pencher sur le second aspect
+des RDD: la *distribution*. Un RDD est une collection *partitionnée* (cf.
+chapitre :ref:`chap-sharding`), les DataFrames le sont aussi. La
+:numref:`spark-failover` montre le traitement précédent dans une perspective de
+distribution. Chaque DataFrame, persistant ou non, est composé de fragments
+répartis dans la grappe de serveurs. 
+
+.. _spark-failover:
+
+.. figure:: ../figures/spark-failover.png
+   :width: 85%
+   :align: center
+  
+   Partitionnement et reprise sur panne dans Spark.
    
-      L'opérateur ``cogroup`` de Pig.
-        
-Prenons une seconde
-collection, contenant des éditeurs (fichier http://b3d.bdpedia.fr/files/webdam-publishers.txt):
+Si une panne affecte un calcul s'appuyant sur un fragment *F* de DataFrame
+persistant (par exemple la transformation notée ``T`` et marquée par une
+croix rouge sur la figure), il suffit de le relancer à partir de *F*. Le gain
+en temps est considérable! 
 
-.. code-block:: javascript
+La panne la plus sévère affecte un fragment de DataFrame *non* persistant (par
+exemple celui marqué par une croix violette). Dans ce cas, Spark a mémorisé la
+chaîne de traitement ayant constitué le DataFrame, et il suffit de ré-appliquer
+cette chaîne en remontant jusqu'aux fragments qui précèdent dans le graphe des
+calculs.
 
-    Fundations of Databases	Addison-Wesley	USA
-    Fundations of Databases	Vuibert	France
-    Web Data Management   	Cambridge University Press	USA
+Dans notre cas, il faut parcourir à nouveau le fichier ``log``  pour créer le
+fragment ``logn``. Si les collections stockées à l'origine du calcul sont
+elles-mêmes partitionnées (ce qui n'est sans doute pas le cas pour un fichier
+*log*), il suffira d'accéder à la partie de la collection à l'origine des
+calculs menant au DataFrame défaillant.
 
-On peut associer les auteurs et les éditeurs de chaque livre 
-de la manière suivante.
+En résumé, Spark exploite la capacité à reconstruire des fragments de
+RDD/DataFrame par application de la chaîne de traitement, et ce en se limitant
+si possible à une partie seulement des données d'origine. La reprise peut
+prendre du temps, mais elle évite un recalcul complet. Si tout se passe bien
+(pas de panne) la présence des résultats intermédiaires en mémoire RAM assure de
+très bonnes performances.
 
-.. code-block:: pig
+Quiz
+====
 
-    --- Chargement de la collection
-    publishers = load 'webdam-publishers.txt' 
-      as (title: chararray, publisher: chararray) ;
-    cogrouped = cogroup flattened by group, publishers by title;
+.. eqt:: spark-1
 
-Le résultat (restreint au premier livre) est le suivant.
+    Quel est le principal apport du concept de RDD?
 
-.. code-block:: javascript
+    A) :eqt:`I` Un RDD est un fichier journal *partitionné* de telle sorte
+       qu'une panne peut être réparé avec seulement un fragment du journal.
+    #) :eqt:`C` Un RDD est une collection partitionnée en mémoire RAM dont chaque
+       fragment peut être reconstruit grâce à l'historique des opérations
+    #) :eqt:`I` Un RDD est une collection partitionnée et répliquée selon les mêmes principes
+       que MongoDB ou ElasticSearch: la reprise sur panne est assurée par la réplication
 
-    (Foundations of Databases,
-      { (Foundations of Databases,Abiteboul),
-        (Foundations of Databases,Hull),
-        (Foundations of Databases,Vianu)
-      },
-      {(Foundations of Databases,Addison-Wesley),
-       (Foundations of Databases,Vuibert)
-      }
-    )
+.. eqt:: spark-2
 
-Je vous laisse exécuter la commande par vous-même pour prendre connaissance du document complet.
-Il contient un document pour chaque livre avec trois attributs.
-Le premier est la valeur de la clé de regroupement (le titre du livre). Le
-second est l'ensemble des documents de la première collection
-correspondant à la clé, le troisième l'ensemble des documents de la
-seconde collection correspondant à la clé.
+    Quel est la différence entre RDD persistant et non persistant?
 
-Il s'agit d'une forme de jointure qui regroupe, en un seul document, tous
-les documents des deux collections en entrée qui peuvent être appariés. On peut 
-aussi exprimer la jointure ainsi:
+    A) :eqt:`I` Un RDD non persistant disparaît dès que la chaîne de traitement qui l'a produit
+       se termine
+    #) :eqt:`C` Un RDD non persistant disparaît dès que la transformation dont il est la
+       source se termine 
+    #) :eqt:`I` Les RDD persistants sont sur disque, les RDD non persistants en mémoire RAM
 
-.. code-block:: pig
+.. eqt:: spark-3
 
-    -- Jointure entre la collection 'flattened' et  'publishers'
-    joined = join flattened by group, publishers by title;
+    Quelle est la différence entre une transformation et une action?
 
-On obtient cependant une structure différente de celle du ``cogroup``, tout
-à fait semblable à celle d'une jointure avec SQL, dans laquelle les informations
-ont été "aplaties".
+    A) :eqt:`I` Une transformation change le format des données, une action renvoie le résultat
+       d'un calcul à l'utilisateur 
+    #) :eqt:`I` Une transformation est l'équivalent d'une procédure en programmation classique,
+       alors qu'une action est l'équivalent d'une fonction. 
+    #) :eqt:`C` Une transformation est une *spécification* intégrable à une chaîne de traitement;
+       une action déclenche *l'exécution* d'une chaîne de traitement.  
 
-.. code-block:: javascript
+.. eqt:: spark-4
 
-  (Foundations of Databases,Abiteboul,Fundations of Databases,Addison-Wesley)
-  (Foundations of Databases,Abiteboul,Fundations of Databases,Vuibert)
-  (Foundations of Databases,Hull,Fundations of Databases,Addison-Wesley)
-  (Foundations of Databases,Hull,Fundations of Databases,Vuibert)
-  (Foundations of Databases,Vianu,Fundations of Databases,Addison-Wesley)
-  (Foundations of Databases,Vianu,Fundations of Databases,Vuibert)
+    Comment expliqueriez-vous la notion d'exécution "paresseuse" dans Spark?
 
-La comparaison entre ``cogroup`` et ``join`` montre 
-la flexibilité apportée par un modèle semi-structuré 
-et sa capacité à représenter des ensembles imbriqués. Une jointure
-relationnelle doit produire des tuples "plats", sans imbrication, alors
-que le ``cogroup`` autorise la production d'un état intermédiaire
-où toutes les données liées sont associées dans un même document,
-ce qui peut être très utile dans un contexte analytique. 
+    A) :eqt:`C` Une chaîne de traitement est constituée par spécification et ne se déclenche
+       que quand c'est nécessaire
+    #) :eqt:`I` C'est un autre nom du principe de localité des données: chaque transformation
+       s'applique aux données les plus proches 
+    #) :eqt:`I`  Le système accumule un certain volume de données avant de déclencher le traitement
+       afin d'assurer son efficacité. 
 
-Voici un dernier exemple montrant comment associer à chaque
-livre le nombre de ses auteurs.
+.. eqt:: spark-5
 
-.. code-block:: pig
+    Que signifie pour un RDD la propriété d'immutabilité?
 
-    books = load 'webdam-books.txt' 
-        as (year: int, title: chararray, author: chararray) ;
-    group_auth = group books by title;
-    authors = foreach group_auth generate group, COUNT(books.author);
-    dump authors;
+    A) :eqt:`I` Un RDD est construit sur un cliché de la collection initiale, qui reste figé
+       sur la durée de l'exécution du traitement.
+    #) :eqt:`C` Le contenu d'un RDD ne peut pas être modifié une fois qu'il est constitué.
+    #) :eqt:`I` La chaîne des RDD est solidaire, et toute modification de l'un entraîne le 
+       recalcul de tous les autres.
+
+.. eqt:: spark-6
+
+    En quoi le concept de *sérialisation* implique-t-il une différence entre 
+    les *RDD* et les structures plus récentes
+
+    A) :eqt:`I` Aucun, dans tous les cas il faut mettre les données sur disque.
+    #) :eqt:`C` Les RDD contiennent des objets java dont la sérialisation est très coûteuse,
+       alors que les *Datasets* disposent de leur propre système d'écriture sur disque.
+    #) :eqt:`I` Les *Datasets* sont plus puissants car ils s'appuient sur 
+       les objets Java, leurs méthodes,  et le mécanisme natif de sérialisation.
+
+
+.. eqt:: spark7
+
+    Quel est l'avantage d'un DataSet sur un RDD ?
+
+    A) :eqt:`I` Les DataSet sont toujours persistants et la reprise sur panne est donc toujours 
+       plus efficace.
+    #) :eqt:`C` Les DataSets connaissent la structure de leurs données et peuvent donc
+       optimiser les traitements qui s'y appliquent.
+    #) :eqt:`I` Seuls les DataSets peuvent prendre une base relationnelle comme source de données
+
 
 *********
 Exercices

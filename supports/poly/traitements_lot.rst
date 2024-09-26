@@ -1,8 +1,8 @@
 .. _chap-mapreduce:
    
-#######################
-MapReduce, premiers pas
-#######################
+###################
+Traitements par lot
+###################
 
 
 .. admonition:: Pour aller plus après ce chapitre
@@ -780,578 +780,858 @@ Mise en pratique
         pour chaque année la liste des titres de ces films.
       - Donnez, pour chaque metteur en scène, la liste des films qu'il a réalisés.
 
-
-***********************************
-S3: *Frameworks* MapReduce: MongoDB
-***********************************
-
-.. admonition:: Supports complémentaires:
-
-     * `Présentation: MapReduce et MongoDB  <http://b3d.bdpedia.fr/files/slmongomr.pdf>`_
-     * `Vidéo présentant la programmation MapReduce avec MongoDB <https://mediaserver.lecnam.net/permalink/v125f35a35fc7ddbt3to/>`_
-    
-.. important:: Depuis la version 5.0, MongoDB a remplacé ses fonctions MapReduce
-   par un système plus général de *workflow*. Ce qui suit ne vaut donc
-   que pour les versions antérieures à la V5. Je n'ai pas encore décidé
-   si j'intégrais une présentation des *workflows* de MongoDB alors qu'il
-   est sans doute plus intéressant de se concentrer sur Spark. En résumé:
-   
-     - si vous y tenez vous pouvez installer une version 4 de MongoDB et tester
-       les fonctions ci-dessous
-     - si vous n'avez pas de temps à perdre vous pouvez vous contenter
-       d'une lecture rapide, et garder vos forces pour des environnements
-       de calcul distribué plus généraux comme Spark.
-       
-Passons à la pratique, en restant dans un contexte centralisé, avec MongoDB.
-MongoDB est un des exemples de *framework* MapReduce. Commençons par une petite
-discussion sur cette notion de *framework* avant de passer à la pratique.
-MongoDB dispose d'un
-moteur de calcul MapReduce qui est relativement facile à expérimenter. Les fonctions
-de Map et de Reduce sont codées en javascript, et il est possible de les tester
-localement sans recourir un une grappe de serveurs et à du *Big Data*. Nous donnons
-ci-dessus les fonctions complètes et le mode d'emploi: avec un peu d'agilité
-vous pouvez copier/coller les exemples et les modifier pour vos tests.
-
-*Frameworks* MapReduce
-======================
-
-La programmation d'un traitement MapReduce requiert l'utilisation d'un 
-environnement de programmation spécialisé (ou *framework*). 
-
-Regardez une nouvelle fois la  :numref:`jusfruits+`. Elle comprend
-beaucoup de composants, de mécanismes appliqués successivement aux données
-transformées, regroupées, distribuées dans un flux complexe. S'il fallait
-implanter tout cela pour chaque traitement, ce serait extrêmement lourd et 
-peu productif. Dans un *framework* MapReduce, tout ce qui est générique est
-pris en charge, et notamment  toute l'organisation et la gestion de la répartition
-des traitements, quand on est dans un contexte distribué. De fait, avec
-un tel environnement, le programmeur se contente de définir la partie
-purement *fonctionnelle* du traitement: la fonction de Map, :math:`F_{map}`,
-et la fonction de Reduce, :math:`F_{red}`. 
-
-.. note:: Pour votre culture: la caractérisation d'un *framework* (du moins
-   quand on est attaché à utiliser un vocabulaire précis) est justement celle d'un environnement
-   basé sur un modèle d'exécution pré-défini. Ce modèle applique des fonctions fournies
-   par le développeur qui n'est donc pas en charge du *contrôle* (pris en charge par
-   le framework) mais de la *spécification*. On parle *d'inversion de contrôle*,
-   et un exemple typique est fourni par les *frameworks* MVC. Fin de la parenthèse.
-
-Pour reprendre une dernière
-fois notre métaphore culinaire, c'est comme si vous décidiez de confier
-à un sous-traitant l'organisation de vos ateliers. Votre seul rôle
-est de former les cuisiniers qui travaillent dans cet atelier aux 
-tâches "métier", celles qui constituent vraiment le cœur de vos compétences.
+    }
 
 
-Un traitement MapReduce repose sur la notion de *fonction de second ordre*.
-Pas de panique: cela signifie simplement que l'environnement
-(*framework*) fournit deux fonctions, *map()* et *reduce()*, qui prennent
-chacune en entrée, respectivement, les fonctions  :math:`F_{map}`
-et :math:`F_{red}` mentionnées ci-dessus. Ce sont des fonctions qui 
-prennent en argument d'autres fonctions et les appliquent aux données,
-d'où la notion de "second-ordre".
+*******************************
+S3: langages de traitement: Pig
+*******************************
 
-Quittons la cuisine avec un exemple très simple de calcul:  on veut 
-compter le nombre de fruits sains (on rejette les fruits pourris)
-par type de fruit.
+.. admonition:: Supports complémentaires
 
-Durant la phase de *Map*, notre opérateur va examiner les fruits un
-par un, et placer un jeton dans la corbeille à sa droite pour chaque
-fruit sain: c'est la valeur. Il faut aussi dire pour quel type
-de fruit on produit cette valeur: c'est la clé. 
+    * `Diapositives: Le langage Pig latin <http://b3d.bdpedia.fr/files/slpig.pdf>`_
+    * `Vidéo de la session Pig latin <https://mediaserver.lecnam.net/permalink/v125f35a4214383v9nvp/>`_  
 
-Il faut fournir ces deux fonctions au *framework*, qui se charge du reste.
-En MapReduce, la fonction de Map est
+MapReduce est  un système orienté vers les développeurs qui doivent concevoir et
+implanter la composition de plusieurs *jobs* pour des algorithmes
+complexes qui ne peuvent s'exécuter en une seule phase. Cette caractéristique
+rend également les systèmes MapReduce difficilement accessibles
+à des non-programmeurs.
 
-.. code-block:: javascript
+La définition de langages de plus haut niveau permettant de spécifier
+des opérations complexes sur les données est donc apparue comme une nécessité dès
+les premières versions de systèmes comme Hadoop. L'initiative est souvent
+venue de communautés familières des bases de données et désirant retrouver
+la simplicité et la "déclarativité" du langage SQL, transposées dans
+le domaine des chaînes de traitements pour données massives.
 
-   function controleFruit (fruit)
-   {
-      if (fruit.statut != pourri) {
-        emit (fruit.type, 1)
-      }
-   }
+Cette section présente le langage Pig latin, une des premières tentatives
+du genre, une des plus simples, et surtout l'une des plus représentatives
+des opérateurs de manipulation de données qu'il est possible d'exécuter
+sous forme de *jobs* MapReduce en conservant la scalabilité et la
+gestion des pannes.
 
-et la fonction de Reduce:
+Pig latin (initialement développé par un laboratoire Yahoo!) est
+un projet Apache disponible à http://pig.apache.org. Vous avez (au moins) deux possibilités
+pour l'installation.
 
-.. code-block:: javascript
-
-   function compterPomme (typeFruit, groupe)
-   {
-     return <typeFruit, sum(groupe)>
-   }
+  - Utilisez la machine Docker https://hub.docker.com/r/hakanserce/apache-pig/
+  - Ou récupérez la dernière version sous la forme d'une archive compressée et 
+    décompressez-la quelque part, dans un répertoire que nous appellerons ``pigdir``.
 
 
-On a l'équivalent de la requête SQL suivante.
-
-.. code-block:: sql
-
-   select count(*) from Fruits group by type 
-
-MapReduce  s'apparente au *group by* dans le mécanisme de calcul, mais
-la possibilité d'appliquer des fonctions quelconques, et 
-celle de restructurer complètement les données pendant la phase de *map*,
-le rendent beaucoup plus puissant. En contrepartie, *ce n'est pas
-un langage de requête*, mais une méthode de spécification de traitements
-distribués qui évite au programmeur de prendre en charge les aspects
-"parallélisme" et "distribution". 
-
-.. note:: Une fonction de Map "émet" des paires intermédiaires. Cette notion "d'émission"
-   (au lieu du traditionnel ``return``) suggère le fonctionnement distribué du système:
-   la paire intermédiaire est transmise au *framework* qui se charge de la router
-   vers le destinataire adéquat.
-     
-Mon premier traitement MapReduce/MongoDB
-========================================
-
-Nous allons produire un document par réalisateur, avec la liste
-des films qu'il/elle a réalisé. Conceptuellement, nous créons
-un groupe par réalisateur, plaçons dans ce groupe les films
-pendant la phase de *map* et construisons le document final dans la phase
-de *reduce*. 
-
-La spécification consiste à définir les deux fonctions
-à appliquer (:math:`F_{map}` et :math:`F_{red}`).
-Voici la fonction de *map*.
-
-.. code-block:: javascript
-
-    var mapRealisateur = function() {
-                  emit(this.director._id, this.title);
-          };
-          
-En javascript, les fonctions peuvent se stocker dans des variables. 
-L'instruction ``emit`` produit une paire (clé, valeur), constituée
-ici de l'identifiant du réalisateur, et du titre du film. Notez
-que la fonction ne prend aucun argument: implictement, elle
-dispose comme contexte du document auquel elle s'applique,
-désigné par ``this``. Et c'est tout.
-
-Voici la fonction de *reduce*.
-
-.. code-block:: javascript
-          
-   var reduceRealisateur = function(directorId, titres) {
-      var res = new Object();
-      res.director = directorId;
-      res.films = titres;
-      return res;
-    };
-
-Une fonction de *reduce* prend deux arguments: l'identifiant du groupe auquel elle
-s'applique (ici, ``directorId``) et la liste (un tableau en javascript)
-des valeurs produites par le *map*.
-
-Dans notre exemple, nous construisons la valeur de résultat comme
-un objet ``res`` auquel on affecte deux propriétés: ``director`` 
-et ``titres``.
-
-.. note:: Le code donné ici correspond à une mise en œuvre des principes standards
-   de MapReduce, ceux qu'ils faut comprendre et connaître. C'est celui rencontré en pratique 
-   dans les systèmes comme Hadoop, Spark ou Flink.
-   
-   MongoDB présente quelques spécificités qu'il est inutile de mémoriser tant que vous n'avez 
-   pas à utiliser ce système au-delà d'une formation. En particulier, 
-   
-     - les fonctions Map et Reduce devraient
-       retourner le même type de données pour fonctionner en toutes circonstances. 
-     - la fonction de Reduce n'est pas appelée pour les valeurs de clés qui ne sont 
-       pas associées à plusieurs valeurs. Lire
-       https://docs.mongodb.com/manual/reference/command/mapReduce/#mapreduce-reduce-cmd
-
-À l'échelle à laquelle nous travaillons, 
-vous pouvez ignorer ces spécificités et vous concentrer sur le principe du fonctionnement.
-   
-
-Il ne reste plus qu'à lancer un traitement, avec la fonction ``mapReduce``
-sur la collection ``movies``. Voici la syntaxe.
-
-.. code-block:: javascript
-          
-    db.movies.mapReduce(mapRealisateur,  reduceRealisateur, {out: {"inline": 1}} )
-
-Le premier paramètre est la fonction de *map*, le second la fonction de *reduce*,
-et le troisième indique la sortie, ici l'écran.
-
-À ce stade vous brûlez sans doute d'envie de tester cette exécution. Allez-y: vous
-devriez obtenir, pour chaque groupe, un résultat de la forme suivante.
-
-.. code-block:: javascript
-
-		{
-			"_id" : "artist:3",
-			"value" : {
-				"director" : "artist:3",
-				"films" : [
-					"Vertigo",
-					"Psychose",
-					"Les oiseaux",
-					"Pas de printemps pour Marnie",
-					"Fenêtre sur cour",
-					"La mort aux trousses"
-				]
-			}
-		}
-    
-Devinez de quel réalisateur il s'agit? Ici, ça se devine (?), mais en général on
-aimerait bien disposer au moins du nom. Reportez-vous aux exercices.
-
-MongoDB propose plusieurs options pour l'exécution d'un traitement
-MapReduce. La plus utile (et la plus générale, présente dans tous
-les systèmes) consiste à prendre en entrée non pas une collection
-entière, mais le résultat d'une requête. On passe pour cela un objet
-``query`` dans le document-paramètre en troisième position. Voici
-un exemple. 
-
-.. code-block:: javascript
-
-    db.movies.mapReduce(mapRealisateur,  reduceRealisateur, 
-             {out: {"inline": 1}, query: {"country": "USA"}} )
-
-Une autre possibilité intéressante est le calcul *incrémental*
-d'un traitement MapReduce. En bref, on peut stocker le
-résultat dans une nouvelle collection, et mettre à jour
-cette collection, sans avoir à tout recalculer, quand de nouveaux
-documents apparaissent dans la collection en entrée. Il
-s'agit d'une spécificité MongoDB, donc nous n'allons
-pas insister dessus: reportez-vous à la documentation.
-
-Jointures avec MapReduce
-========================
-
-MapReduce est un mécanisme de base qui peut être utilisé pour implanter
-des opérateurs de plus haut niveau. La méthode utilisée pour transposer
-une opération comme la jointure en MapReduce n'est pas forcément
-très élégante, mais elle a le mérite de bénéficier de la *scalabilité*
-du calcul (par parallélisation/distribution) dans des systèmes conçus
-pour gérer de grands vollumes de données. Elle est aussi représentative
-de la transposition en MapReduce de traitements plus sophistiqués,
-même si elle passe par des contournements peu satisfaisants.
-
-Nous montrons donc cette méthode. Notre
-base est celle contenant les films *avec références*, et nous avons déjà
-vu que la technique consistant à implanter côté client, bien
-qu'effective, ne passe pas à l'échelle.
-Le but est  d'obtenir pour chaque artiste la liste des films qu'il/elle a réalisé.
-
-Comment faire? Le principe de la jointure avec MapReduce est d'exploiter
-le mécanisme de regroupement pour associer, dans un même groupe, un réalisateur
-et les films dont il est metteur en scène. Regardons la figure :ref:`jointure-mr`. Nous
-avons au départ deux collections distinctes: les films et les artistes. Les artistes
-ont un identifiant, et pour chaque film on connaît l'identifiant de son
-artiste-réalisateur. 
-
-.. _jointure-mr:
-
-.. figure:: ../figures/jointure-mr.png
-      :width: 70%
-      :align: center
-   
-      MapReduce (en centralisé)
-      
-On va créer autant de groupes que d'artiste. Dans chaque groupe on place:
-
-  - l'artiste dont l'identifiant correspond à l'identifiant du groupe;
-  - les films (0, 1 ou plusieurs) dont l'identifiant *du metteur en scène*
-    correspond à l'identifiant du groupe.
-
-Les documents issus de collections différentes (représentés
-par des couleurs distinctes dans la figure) sont
-alors associés dans un même groupe.
-La fonction de Reduce recevra chaque groupe, avec un artiste et 
-0, 1 ou plusieurs films. Elle devra construire le document final.
-
-*Tous les secrets (il y en a peu) de la conception d'un traitement MapReduce          
-sont exposés dans cet exemple.* Le mot-clé est *regroupement* des 
-documents qui doivent être traités ensemble, puis implantation de ce traitement dans
-la fonction de Reduce. Imprégnez-vous bien du principe ci-dessus, qui résume
-vraiment l'essentiel de ce qu'il faut comprendre.
-
-Passons à la pratique, avec comme toujours des détails d'implantation qui vont du compliqué
-au peu glorieux.
-Première étape: nous devons accéder  dans un même traitement MapReduce
-aux films (dans *movies*) et aux artistes (dans *artists*). Malheureusement,
-le MapReduce de MongoDB semble ne pouvoir prendre qu'une seule collection
-en entrée (les autres systèmes n'ont pas cette limitation). Nous 
-allons donc commencer par copier les données dans une collection commune,
-nommée *jointure*:
+Nous utiliserons directement l'interpréteur de scripts (nommé ``grunt``) qui se lance avec:
 
 .. code-block:: bash
 
-     mongoimport -d moviesref -c jointure --file movies-refs.json --jsonArray
-     mongoimport -d moviesref -c jointure --file artists.json --jsonArray
+    <pigdir>/bin/pig -x local
+    
+
+L'option ``local`` indique que l'on teste les scripts en local, ce qui permet 
+de les mettre au point sur de petits jeux de données avant de passer à une exécution distribuée à grande échelle 
+dans un *framework* MapReduce. 
+
+Cet interpréteur affiche beaucoup de messages, ce qui devient rapidement désagréable. Pour s'en débarasser, 
+créer un fichier ``nolog.conf`` avec la ligne::
+
+  log4j.rootLogger=fatal
   
-Voici maintenant le code des deux fonctions de *map* et de *reduce*. La fonction de
-*map* est donnée ci-dessous: essayez de la comprendre, en vous aidant
-des commentaires internes donnés par la suite.
+Et lancez Pig en indiquant que la configuration des *log* est dans ce fichier:
 
-.. code-block:: javascript
+
+.. code-block:: bash
+
+    <pigdir>/bin/pig -x local -4 nolog.conf
  
-    var mapJoin = function() {
-      // Est-ce que la clé du document contient le mot "artist"?
-      if (this._id.indexOf("artist") != -1) {
-        // Oui ! C'est un artiste. Ajoutons-lui son type.
-        this.type="artist";        
-        // On produit une paire avec pour clé celle de l'artiste
-        emit(this._id, this);
-      }
-      else {
-        // Non: c'est un film. Ajoutons-lui son type.
-       this.type="film";
-       // Simplifions un peu le document pour l'affichage
-       delete this.summary;
-       delete this.actors;
-        // On produit une paire avec pour clé celle du metteur en scène
-       emit(this.director._id, this);
-     }
-    };
+Une session illustrative
+========================
 
-Donc, la fonction s'appliquera en entrée à notre collection *jointure* qui contient
-maintenant des documents *artistes* et des documents *films*. La fonction
-doit d'abord savoir à quel type de document elle  a affaire. Dans notre cas, c'est
-simple, les clés des artistes sont de la forme ``artist:xx`` et les
-clés des films de la forme ``movie:yy``. C'est ce que teste la fonction
-Javascript *indexOf*.
+Pig applique des *opérateurs* à des *flots de données semi-structurées*. Le flot
+initial (en entrée) est constituée par lecture d'une source de données
+quelconque contenant des documents qu'il faut structurer selon le modèle
+de Pig, à peu de choses près comparable à ce que proposent XML ou JSON.
 
-La fonction produit donc, à l'attention du *reduce*, soit un document 
-*artist*, soit un document *film* (notez que nous les "annotons"
-avec leur type pour rendre les choses plus faciles ensuite). Nous voulons regrouper les
-metteurs en scène avec les films qu'ils/elles ont réalisés: *on
-y arrive en émettant les documents à  regrouper avec la même valeur
-de clé*.
+Dans un contexte réel, il faut implanter un chargeur de données depuis
+la source. Nous allons nous contenter de prendre un des formats par
+défaut, soit un fichier texte dont chaque ligne représente un document, et
+dont les champs sont séparés par des tabulations. Nos documents
+sont des entrées bibliographiques d'articles scientifiques
+que vous pouvez récupérer à http://b3d.bdpedia.fr/files/journal-small.txt.
+En voici un échantillon.
 
-Ici, on émet les artistes avec leur identifiant, et les films avec l'identifiant
-de leur metteur en scène. Le résultat est donc bien celui souhaité. Si cela
-vous semble obscur, réfléchissez soigneusement et prenez un exemple.
+.. code-block::  javascript
 
-.. note:: Et pour les artistes qui n'ont jamais réalisé de film? Et bien ils
-   seront solitaires dans leur groupe. On n'a pas vraiment moyen de les éliminer
-   à ce stade, car on ne sait pas décider si un artiste, considéré isolément, est
-   ou non un réalisateur.
+    2005    VLDB J. Model-based approximate querying in sensor networks.
+    1997    VLDB J. Dictionary-Based Order-Preserving String Compression.
+    2003	SIGMOD Record	Time management for new faculty.
+    2001    VLDB J. E-Services - Guest editorial.
+    2003	SIGMOD Record	Exposing undergraduate students to system internals.
+    1998    VLDB J. Integrating Reliable Memory in Databases.
+    1996    VLDB J. Query Processing and Optimization in Oracle Rdb
+    1996    VLDB J. A Complete Temporal Relational Algebra.
+    1994	SIGMOD Record	Data Modelling in the Large.
+    2002	SIGMOD Record	Data Mining: Concepts and Techniques - Book Review.
+    ...
+
+Voici à titre d'exemple introductif un programme Pig complet qui
+calcule le nombre moyen de publications par an dans la revue SIGMOD Record.
+
+.. code-block:: pig
+
+    -- Chargement des documents de journal-small.txt
+    articles = load 'journal-small.txt' 
+        as (year: chararray, journal:chararray, title: chararray) ;
+    sr_articles = filter articles BY journal=='SIGMOD Record';
+    year_groups = group sr_articles by year;
+    count_by_year = foreach year_groups generate group, COUNT(sr_articles.title);
+    dump count_by_year;
+    
+
+Quand on l'exécute sur notre fichier-exemple, on obtient le résultat suivant::
+
+  (1977,1)
+  (1981,7)
+  (1982,3)
+  (1983,1)
+  (1986,1)
+  ...
+
+Un programme Pig est essentiellement une séquence d'opérations, chacune prenant
+en entrée une collection de documents (les collections sont nommées *bag*
+dans Pig latin, et les documents sont nommés *tuple*) et produisant en sortie une autre collection. La séquence définit
+une chaîne de traitements transformant progressivement les documents.
+
+
+.. _pig-workflow:
+.. figure:: ../figures/pig-workflow.png
+      :width: 80%
+      :align: center
    
-*Il s'agit du mécanisme de base d'une implantation à base de MapReduce*. Le préalable
-à toute manipulation conjointe de documents distincts est de le regrouper
-avec le *map* pour les traiter ensemble avec le *reduce*.   
-
-Voici maintenant la fonction de *reduce*.
-
-.. code-block:: javascript
-          
-   var reduceJoin = function(id, items) {
-   
-     var director = null, films={result: []}
+      Un exemple de  *workflow* (chaîne de traitements) avec Pig
       
-     // Commençons par chercher l'artiste dans cette liste    
-     for (var idx = 0; idx < items.length; idx++) {
-       if (items[idx].type=="artist") {
-            director = items[idx];
-        }
-     }             
-           
-     // Maintenant, 'director' contient l'artiste : on l'affecte aux films   
-     for (var idx = 0; idx < items.length; idx++) {
-        if (items[idx].type=="film"  && director != null) {
-            items[idx].director = director;
-            films.result.push (items[idx]);
-         }             
-      }
-      return films; 
-    };
+Il est intéressant de décomposer, étape par étape, cette chaîne de traitement pour inspecter
+les collections intermédiaires produites par chaque opérateur.
 
-On dispose en entrée d'une liste "d'items", dont on sait qu'elle contient
-un artiste (au plus) et des films (peut-être aucun, peut-être plusieurs).
-On effectue donc la jointure *localement*. On identifie d'abord le metteur
-en scène, et on le place dans la variable ``director``. Puis on affecte
-ce document à l'attribut ``director`` de chaque film. 
-
-On retourne finalement un objet ``films`` contenant le résultat de la jointure
-locale. Pour des raisons liées à des limitations du MapReduce sous MongoDB, nous
-ne pouvons pas (i) émettre plusieurs documents dans une exécution de
-la fonction ou même (ii) émettre un tableau de documents. Nous avons
-donc dû "encapsuler" ce tableau dans la valeur retournée. Vous étiez
-prévenu: ce n'est pas très élégant.
-
-Il reste à exécuter ce traitement MapReduce, avec l'instruction suivante.
+**Chargement**. L'opérateur ``load`` crée une collection initiale
+``articles`` par chargement du fichier.  On indique le *schéma*
+de cette collection pour interpréter le contenu de chaque ligne.
+Les deux commandes suivantes permettent d'inspecter respectivement le
+schéma d'une collection et un échantillon de son contenu.
 
 .. code-block:: javascript
+
+    grunt> describe articles;
+    articles: {year: chararray,journal: chararray,title: chararray}
+
+    grunt> illustrate articles;
+    ---------------------------------------------------------------------------
+    | articles | year: chararray | journal: chararray | title: chararray      | 
+    ---------------------------------------------------------------------------
+    |          | 2003            | SIGMOD Record      | Call for Book Reviews.| 
+    ---------------------------------------------------------------------------
+
+Pour l'instant, nous sommes dans un contexte simple où une collection
+peut être vue comme une table relationnelle. Chaque ligne/document 
+ne contient que des données élémentaires.
+
+
+
+**Filtrage**. 
+L'opération de filtrage avec ``filter`` opère comme une clause ``where`` en SQL. On peut exprimer
+avec Pig des combinaisons Booléennes de critères sur les attributs des documents. Dans
+notre exemple le critère porte sur le titre du journal.
+
+**Regroupement**. On regroupe maintenant les tuples/documents par année
+avec la commande ``group by``. À chaque année on associe donc
+l'ensemble des articles parus cette année-là, sous la forme d'un
+ensemble imbriqué.  Examinons la représentation de Pig:
+
+.. code-block:: javascript
+
+    grunt> year_groups = GROUP sr_articles BY year;
+
+    grunt> describe year_groups;
+      year_groups: {group: chararray,
+        sr_articles: {year: chararray,journal: chararray,title:chararray}}
+
+    grunt> illustrate year_groups;
+     group: 1990
+     sr_articles:  
+      { 
+       (1990, SIGMOD Record, An SQL-Based Query Language For Networks of Relations.), 
+       (1990, SIGMOD Record, New Hope on Data Models and Types.) 
+      } 
+
+Le schéma de la collection ``year_group``, obtenu avec ``describe``,  comprend donc un attribut nommé ``group`` 
+correspondant à la valeur de la clé de regroupement (ici, l'année) et une collection
+imbriquée nommée d'après la collection-source du regroupement (ici, ``sr_articles``) 
+et contenant tous les documents partageant la même valeur pour la clé de regroupement.
+
+L'extrait de la collection obtenu avec ``illustrate`` montre le cas de l'année 1990.
+
+À la syntaxe près, nous sommes dans le domaine familier des documents semi-structurés.
+Si on compare avec JSON par exemple, les objets sont notés par des parenthèses et
+pas par des accolades, et les ensembles par des accolades et pas par des crochets. 
+Une différence plus essentielle avec une approche semi-structurée de type JSON ou XML
+est que le schéma est *distinct* de la représentation des 
+documents: à partir d'une collection dont le schéma est connu, l'interpréteur de Pig 
+infère le schéma des collections calculées par les opérateurs. Il n'est donc pas nécessaire
+d'inclure le schéma avec le contenu de chaque document.
+
+Le modèle de données de Pig comprend trois types de valeurs:
+
+ - Les *valeurs atomiques* (chaînes de caractères, entiers, etc.).
+ - Les *collections* (*bags* pour Pig) dont les valeurs peuvent être hétérogènes.
+ - Les  *documents* (*tuples* pour Pig), équivalent des objets en JSON: des ensembles de paires (clé, valeur).
+
+On peut construire des structures arbitrairement complexes par imbrication de ces différents types.
+Comme dans tout modèle semi-structuré, il existe très peu de contraintes
+sur le contenu et la structure. Dans une même collection peuvent ainsi
+cohabiter des documents de structure très différente.
+
+
+**Application de fonctions**. Un des besoins récurrents dans les chaînes de traitement est
+d'appliquer des fonctions pour annoter, restructurer ou enrichir le contenu des documents passant
+dans le flux. Ici, la collection finale ``avg_nb`` est obtenue en appliquant une fonction standard ``count()``. 
+Dans le cas général, on applique des fonctions applicatives intégrées au contexte d'exécution Pig:
+*ces fonctions utilisateurs (User Defined Functions ou UDF) sont le moyen privilégié de combiner
+les opérateurs d'un langage comme Pig avec une application effectuant des traitements sur les documents*.
+L'opérateur ``foreach/generate`` permet cette combinaison.
+
+Les opérateurs
+==============
+
+La table ci-dessous donne la liste des principaux
+opérateurs du langage Pig. Tous s'appliquent à une ou deux collections
+en entrée et produisent une collection en sortie. 
+
+.. csv-table:: 
+   :header:  Opérateur, Description
+   :widths: 10, 20
+	         
+   ``foreach``, Applique une expression à chaque document de la collection
+   ``filter``, Filtre les documents de la collection 
+   ``order``, Ordonne la collection
+   ``distinct``, Elimine lse doublons
+   ``cogroup``, Associe deux groupes partageant une clé
+   ``cross``, Produit cartésien de deux collections
+   ``join``, Jointure de deux collections
+   ``union``, Union de deux collections
+   
+Voici quelques exemples pour illustrer les aspects essentiels du langage,
+basés sur le fichier http://b3d.bdpedia.fr/files/webdam-books.txt. Chaque
+ligne contient l'année de parution d'un livre, le titre et un auteur.
+
+.. code-block:: javascript
+
+    1995	Foundations of Databases Abiteboul
+    1995	Foundations of Databases Hull
+    1995	Foundations of Databases Vianu
+    2012	Web Data Management Abiteboul
+    2012    Web Data Management Manolescu
+    2012	Web Data Management Rigaux 
+    2012	Web Data Management Rousset 
+    2012	Web Data Management Senellart
+
+Le premier exemple ci-dessous montre une combinaison de ``group``
+et de ``foreach`` permettant d'obtenir une collection avec un document
+par livre et un ensemble imbriqué contenant la liste des auteurs.
+
+
+.. code-block:: pig
+
+    -- Chargement de la collection
+    books = load 'webdam-books.txt' 
+        as (year: int, title: chararray, author: chararray) ;
+    group_auth = group books by title;
+    authors = foreach group_auth generate group, books.author;
+    dump authors;
+    
+L'opérateur ``foreach``  applique une expression aux attributs de chaque
+document. Encore une fois, *Pig est conçu pour que ces expressions puissent contenir
+des fonctions externes*, ou UDF (*User Defined Functions*), ce qui permet d'appliquer n'importe quel type
+d'extraction ou d'annotation.  
+
+L'ensemble résultat est le suivant:
+
+.. code-block:: javascript
+
+    (Foundations of Databases,
+       {(Abiteboul),(Hull),(Vianu)})
+    (Web Data Management,
+       {(Abiteboul),(Manolescu),(Rigaux),(Rousset),(Senellart)})
+
+L'opérateur ``flatten`` sert à "aplatir" un ensemble imbriqué.
+
+.. code-block:: pig
+
+    -- On prend la collection group_auth et on l'aplatit
+    flattened = foreach group_auth generate group ,flatten(books.author);
+
+On obtient:
+
+.. code-block:: javascript
+
+    (Foundations of Databases,Abiteboul)
+    (Foundations of Databases,Hull)
+    (Foundations of Databases,Vianu)
+    (Web Data Management,Abiteboul)
+    (Web Data Management,Manolescu)
+    (Web Data Management,Rigaux)
+    (Web Data Management,Rousset)
+    (Web Data Management,Senellart)
+
+L'opérateur ``cogroup`` prend deux collections en entrée, crée pour chacune
+des groupes partageant une même valeur de clé, et associe les groupes
+des deux collections qui partagent la même clé. C'est un peu compliqué en apparence;
+regardons la  :numref:`pig-cogroup`. Nous avons une collection A avec 
+des documents *d* dont la clé de regroupement vaut a ou b, et une collection
+B avec des documents *d'*. Le ``cogroup`` commence par rassembler, 
+séparément dans A et B, les documents partageant la même valeur de clé. 
+Puis, dans une seconde phase, les groupes de documents provenant des deux
+collections sont assemblés, toujours sur la valeur partagée de la clé.
+
+
+.. _pig-cogroup:
+.. figure:: ../figures/pig-cogroup.png
+      :width: 100%
+      :align: center
+   
+      L'opérateur ``cogroup`` de Pig.
+        
+Prenons une seconde
+collection, contenant des éditeurs (fichier http://b3d.bdpedia.fr/files/webdam-publishers.txt):
+
+.. code-block:: javascript
+
+    Fundations of Databases	Addison-Wesley	USA
+    Fundations of Databases	Vuibert	France
+    Web Data Management   	Cambridge University Press	USA
+
+On peut associer les auteurs et les éditeurs de chaque livre 
+de la manière suivante.
+
+.. code-block:: pig
+
+    --- Chargement de la collection
+    publishers = load 'webdam-publishers.txt' 
+      as (title: chararray, publisher: chararray) ;
+    cogrouped = cogroup flattened by group, publishers by title;
+
+Le résultat (restreint au premier livre) est le suivant.
+
+.. code-block:: javascript
+
+    (Foundations of Databases,
+      { (Foundations of Databases,Abiteboul),
+        (Foundations of Databases,Hull),
+        (Foundations of Databases,Vianu)
+      },
+      {(Foundations of Databases,Addison-Wesley),
+       (Foundations of Databases,Vuibert)
+      }
+    )
+
+Je vous laisse exécuter la commande par vous-même pour prendre connaissance du document complet.
+Il contient un document pour chaque livre avec trois attributs.
+Le premier est la valeur de la clé de regroupement (le titre du livre). Le
+second est l'ensemble des documents de la première collection
+correspondant à la clé, le troisième l'ensemble des documents de la
+seconde collection correspondant à la clé.
+
+Il s'agit d'une forme de jointure qui regroupe, en un seul document, tous
+les documents des deux collections en entrée qui peuvent être appariés. On peut 
+aussi exprimer la jointure ainsi:
+
+.. code-block:: pig
+
+    -- Jointure entre la collection 'flattened' et  'publishers'
+    joined = join flattened by group, publishers by title;
+
+On obtient cependant une structure différente de celle du ``cogroup``, tout
+à fait semblable à celle d'une jointure avec SQL, dans laquelle les informations
+ont été "aplaties".
+
+.. code-block:: javascript
+
+  (Foundations of Databases,Abiteboul,Fundations of Databases,Addison-Wesley)
+  (Foundations of Databases,Abiteboul,Fundations of Databases,Vuibert)
+  (Foundations of Databases,Hull,Fundations of Databases,Addison-Wesley)
+  (Foundations of Databases,Hull,Fundations of Databases,Vuibert)
+  (Foundations of Databases,Vianu,Fundations of Databases,Addison-Wesley)
+  (Foundations of Databases,Vianu,Fundations of Databases,Vuibert)
+
+La comparaison entre ``cogroup`` et ``join`` montre 
+la flexibilité apportée par un modèle semi-structuré 
+et sa capacité à représenter des ensembles imbriqués. Une jointure
+relationnelle doit produire des tuples "plats", sans imbrication, alors
+que le ``cogroup`` autorise la production d'un état intermédiaire
+où toutes les données liées sont associées dans un même document,
+ce qui peut être très utile dans un contexte analytique. 
+
+Voici un dernier exemple montrant comment associer à chaque
+livre le nombre de ses auteurs.
+
+.. code-block:: pig
+
+    books = load 'webdam-books.txt' 
+        as (year: int, title: chararray, author: chararray) ;
+    group_auth = group books by title;
+    authors = foreach group_auth generate group, COUNT(books.author);
+    dump authors;
+
+
+*********
+S4: Spark
+*********
+
+.. admonition:: Supports complémentaires
+
+    * `Vidéo  Spark en pratique: *DataFrames* <https://mediaserver.lecnam.net/permalink/v125f5947d50aigwjp4q/>`_  
+
+
+Il est temps de passer à l'action. Nous allons commencer par montrer  comment effectuer
+des transformations sur des données non-structurées avec des DataFrames standard.
+Les exemples qui suivent sont proposés en Python, mais d'autres
+interfaces existent, notamment en Scala et en R. Scala est un 
+langage fonctionnel, doté
+d'un système d'inférence de types puissant, ce qui le rend
+particulièrement approprié pour exprimer des chaînes de traitements sous
+la forme d'une séquence d'appels de fonctions. Je fais l'hypothèse 
+que la plupart de mes lecteurs seront plus familiers avec Python.
+
+Le plus simple pour reproduire ces commandes est  
+de télécharger dans un répertoire ``spark`` la dernière
+version de Spark depuis le site http://spark.apache.org. 
+L'installation comprend
+un sous-répertoire ``bin`` dans lequel se trouvent les commandes 
+qui nous intéressent (et notamment l'interpréteur ``pyspark``). 
+Vous pouvez  placer le chemin vers ``spark/bin``  dans votre
+variable ``PATH``, selon des spécificités qui dépendent de votre environnement:
+à ce stade du cours vous devriez être rôdés à ce type de manœuvre.
+
+.. code-block:: bash
+
+    pyspark
+  
+Aux numéros de version près, vous devriez obtenir l'affichage suivant:
+
+.. code-block:: text
+
+		Welcome to
+		      ____              __
+		     / __/__  ___ _____/ /__
+		    _\ \/ _ \/ _ `/ __/  '_/
+		   /__ / .__/\_,_/_/ /_/\_\   version 3.4.3
+		      /_/
+
+		Using Python version 3.10.0 (v3.10.0:b494f5935c, Oct  4 2021 14:59:20)
+		Spark context Web UI available at http://163.173.78.98:4040
+		Spark context available as 'sc' (master = local[*], app id = local-1718116101741).
+		SparkSession available as 'spark'.
+		>>> 
+
+C'est parti !
+
+Transformations et actions
+==========================
+
+Vous pouvez récupérer le fichier http://b3d.bdpedia.fr/files/loups.txt pour
+faire un essai (il est temps de savoir à quoi s'en tenir à propos de ces loups
+et de ces moutons!), sinon n'importe quel fichier texte fait l'affaire.
+Copiez-collez les commandes ci-dessous. 
+
+.. code-block:: python
+
+     loupsEtMoutons = spark.read.text("loups.txt")
+
+Nous avons créé un premier DataFrame nommé ``loupsEtMoutons``
+contenant autant de documents que de lignes dans le fichier en entrée,
+avec une unique colonne ``value``. 
+Spark propose des *actions* directement
+applicables à un DataFrame et produisant des résultats scalaires.
+(Un DataFrame est interfacé comme un objet auquel nous pouvons appliquer 
+des méthodes.) Voici des exemples des méthodes ``count()`` et ``first()``.
+
+
+.. code-block:: python
+
+    loupsEtMoutons.count() # Nombre de documents dans ce RDD
+      res0: Long = 4
+
+    loupsEtMoutons.first() // Premier document du RDD
+      res1: String = Le loup est dans la bergerie.
+
+La fonction ``show()`` est particulière: elle affiche le contenu 
+du Dataframe sous forme de table.
+
+
+.. code-block:: python
+
+	loupsEtMoutons.show() // Récupération du dataframe complet
+     
+
+	+--------------------+
+	|               value|
+	+--------------------+
+	|Le loup est dans ...|
+	|Les moutons sont ...|
+	|Un loup a mangé u...|
+	|Il y a trois mout...|
+	+--------------------+
+
+.. note:: Petite astuce: en entrant le nom de l'objet (``loupsEtMoutons.``) suivi de la touche TAB,
+   l'interpréteur vous affiche la liste des méthodes disponibles.
+
+Passons aux *transformations*. Elles prennent un (ou deux) DataFrame en entrée,
+produisent un DataFrame en sortie. On peut sélectionner (filtrer) les documents
+(lignes) qui contiennent "bergerie".
+
+.. code-block:: python
+
+    bergerie = loupsEtMoutons.filter(loupsEtMoutons.value.contains("bergerie"))
+
+Notez l'accès à l'attribut ``value`` qui est simplement le contenu
+textuel de chaque document du Dataframe. 
+La fonction :code:`filter()`  reçoit un booléen (ici, application
+de la fonction Python standard ``contains()``) et ne conserve dans la
+collection résultante que les lignes pour lesquelles ``True`` était retourné.
+
+Nous avons créé un second DataFrame nommé ``bergerie``. 
+Nous sommes en train de définir une chaîne
+de traitement qui part ici d'un fichier texte et applique des transformations
+successives. 
+
+À ce stade, rien n'est calculé, on s'est contenté de déclarer les étapes. Dès
+que l'on déclenche une *action*, comme par exemple l'affichage du contenu d'un
+DataFrame (avec ``show()``), Spark va déclencher l'exécution.
+
+.. code-block:: python
+
+	bergerie.show()
+    
+    +--------------------+
+    |               value|
+    +--------------------+
+    |Le loup est dans ...|
+    |Les moutons sont ...|
+    |Un loup a mangé u...|
+    +--------------------+
  
-    db.jointure.mapReduce(mapJoin, reduceJoin, {out: {"inline": 1}});
+On peut combiner une transformation et une action. En fait, comme
+avec pig, on peut chaîner
+les opérations et ainsi définir très concisément le *workflow*. Combien 
+de documents contiennent le mot "loup" ?
 
-Regardez bien le résultat. La fonction de *reduce* produit des paires clé-valeur,
-la clé étant l'identifiant de l'artiste, et la valeur est celle produite par
-notre fonction *reduce()*. Dans le cas des artistes qui ne sont pas réalisateurs,
-l'artiste est émis tel quel: MongoDB n'appelle pas la fonction *reduce()*
-pour des groupes contenant un seul document.
+.. code-block:: python
 
-*Ce qu'il faut retenir avant tout*, c'est le mécanisme qui permet d'associer
-des documents initialement distincts. MapReduce n'étant pas conçu (au départ) pour
-ce genre de manipulation, il faut accepter quelques inconvénients, et bricoler quelque
-peu. Ici, l'application client devrait "nettoyer" le résultat obtenu, mais pour
-l'essentiel l'objectif visé est atteint.
+    loupsEtMoutons.filter(loupsEtMoutons.value.contains("loup")).count()
+    3
+    
+Et pour conclure cette petite session introductive, voici comment on implante en
+le compteur de termes dans une collection.
+
+Compteur de termes, en DataFrames
+---------------------------------
+
+Nous allons avoir besoin de la librairie des fonctions Spark/Python. On l'importe
+comme suit:
+
+.. code-block:: python
+
+		from pyspark.sql import functions as sf
+		
+On crée un premier DataFrame constitué de tous les termes obtenus
+en appliquant la fonction (standard) Python ``split()`` aux documents:
+   
+.. code-block:: python
+
+    termes = loupsEtMoutons.select(sf.split(loupsEtMoutons.value, "\s+").name("mots"))
+
+
+La méthode ``split`` décompose une chaîne de caractères (ici, en prenant comme séparateur un espace)
+en une liste de mots.
+On donne un nom à la colonne
+avec ``name()``(sinon la colonne est nommée par défaut `split(value, \s+, -1)split(value, \s+, -1)``, 
+pas très pratique.
+
+.. code-block:: python
+
+	+--------------------+
+	|                mots|
+	+--------------------+
+	|[Le, loup, est, d...|
+	|[Les, moutons, so...|
+	|[Un, loup, a, man...|
+	|[Il, y, a, trois,...|
+	+--------------------+
+
+Nous allons maintenant "applatir" chaque tableau pour, à partir d'une
+ligne de la colonne ``mots``, obtenir autant de lignes qu'il y a de mots.
+C'est l'équivalent de la fonction ``flatten`` dans Pig. Concrètement: 
+
+.. code-block:: python
+
+		listeMots = termes.select(sf.explode(termes.mots).alias("mot"))
+		
+Ce qui donne un nouveau Dataframe ``listeMots``:
+
+.. code-block:: python
+
+	+---------+
+	|      mot|
+	+---------+
+	|       Le|
+	|     loup|
+	|      est|
+	|     dans|
+	|       la|
+	|bergerie.|
+	|      ...|
+
+Groupons maintenant les mots: 
+
+.. code-block:: python
+
+    compteurTermes = listeMots.groupBy("mot")
+
+On obtient une structure intermédiaire de type ``GroupedData`` sur
+laquelle on eut appliquer des opérations d'agrégation, la plus
+simple étant ``count``.
+
+.. code-block:: python
+
+		compteurTermes.count().show()
+	
+		+---------+-----+
+		|      mot|count|
+		+---------+-----+
+		|bergerie.|    3|
+		|       du|    1|
+		|     pré,|    1|
+		|    mangé|    1|
+		|       Le|    1|
+		|   autres|    1|
+		|     sont|    2|
+
+Et voilà! On a décomposé chaque étapé, mai on aurait pu 
+exprimertoute la chaîne de traitement  en une seule fois.
+
+.. code-block:: python
+
+    compteurTermes = loupsEtMoutons.select(sf.split(loupsEtMoutons.value, "\s+"
+                      ).name("mots")
+                      ).select(sf.explode(sf.col("mots")
+                      ).name("mot")
+                      ).groupBy("mot"
+                      ).count(
+                      ).show()
+
+
+.. note:: Attention aux indentations en Python... Si vous voulez
+   reproduire la commande, le plus simple est de tout mettre sur une seule ligne.
+
+Le résultat pourra vous sembler un peu étrange (``pré,``) : il manque les
+diverses étapes de simplification du texte qui sont de mise pour un moteur de
+recherche (vues dans le chapitre :ref:`chap-ranking` pour les détails). Mais
+l'essentiel est de comprendre l'enchaînement des opérateurs.
+
+Finalement, si on souhaite conserver en mémoire le DataFrame final pour le
+soumettre à divers traitements, il suffit d'appeler la fonction ``cache()``:
+
+.. code-block:: python
+
+    compteurTermes.cache()
+
+L'interface de contrôle Spark
+=============================
+
+Spark dispose d'une interface Web qui permet de consulter les entrailles du système et de mieux comprendre
+ce qui est fait. Elle est accessible sur le port 4040, donc à l'URL http://localhost:4040 pour 
+une exécution du *shell*. 
+Pour explorer les informations fournies par cette interface, nous allons exécuter 
+notre
+*workflow*, assemblé en une seule chaîne d'instructions .
+Lancez  *pyspark* est exécutez ce *workflow*.
+
+Maintenant, vous devriez pouvoir accéder à l'interface et obtenir un affichage semblable 
+à celui de la :numref:`sparkUI`. En particulier, le *job* que vous venez d'exécuter devrait
+apparaître, avec sa durée d'exécution et quelques autres informations.
+
+.. _sparkUI:
+.. figure:: ../figures/sparkUI.png
+     :width: 85%
+     :align: center
+  
+     L'interface Web de Spark
+
+L'onglet *jobs*
+---------------
+
+Cliquez sur le nom du *job* pour obtenir des détails sur les étapes du calcul
+(:numref:`sparkQueryPlan`). Spark nous
+dit que l'exécution s'est faite en deux étapes. Ce n'est pas forcément
+très clair, mais la première comprend les 
+transformations textuelle, et la seconde les opérations d'agrégation.
+Les deux étapes sont séparées par une phase de *shuffle*.
+
+
+.. _sparkQueryPlan:
+
+.. figure:: ../figures/sparkQueryPlan.png
+     :width: 85%
+     :align: center
+  
+     Plan d'exécution d'un *job* Spark: les étapes.
+
+À quoi correspondent ces *étapes*? En fait, si vous avez bien suivi ce qui précède dans le cours,
+vous avez les éléments pour répondre: une *étape* dans Spark regroupe un ensemble d'opérations
+qu'il est possible d'exécuter *localement*, sur une seule machine, sans avoir à efectuer des
+échanges réseau. C'est une généralisation de la phase de *Map* dans un environnement MapReduce.
+Les étapes sont logiquement séparées par des phases de *shuffle* qui consistent à redistribuer
+les données afin de les regrouper selon certains critères. Relisez le chapitre :ref:`chap-calcdistr`
+pour revoir vos bases du calcul distribué si ce n'est pas clair.
+
+Quand le traitement s'effectue sur des données partitionnées, une *étape* est effectuée en parallèle
+sur les  fragments, et Spark appelle *tâche* l'exécution de l'étape sur un fragment
+particulier, pour une machine particulière. Résumons:
+
+  - Un *job* est l'exécution d'une chaîne de traitements (*workflow*) dans un environnement distribué. 
+  - Un *job* est découpé en *étapes*, chaque étape étant un segment du *workflow* qui peut s'exécuter localement.
+  - L'exécution d'une étape se fait par un ensemble de tâches, une par machine hébergeant un fragment
+    du RDD servant de point d'entrée à l'étape.
+    
+Et voilà ! Si c'est clair passez à la suite, sinon relisez. 
+
+
+L'onglet *Stages*
+-----------------
+
+Vous pouvez obtenir des informations complémentaires sur chaque étape avec
+l'onglet *Stages* (qui veut dire *étapes*, en anglais). En particulier,
+l'interface montre de nombreuses statistiques sur le temps d'exécution, le
+volume des données échangées, etc. Tout cela est très précieux quand on veut
+vérifier que tout va bien pour  des traitements qui durent des heures ou des
+jours.
+
+
+L'onglet *Storage*
+------------------
+
+Maintenant, consultez l'onglet *Storage*. Il devrait être vide et c'est normal: 
+aucun *job* n'est en cours d'exécution.
+Notre fichier de départ est trop petit pour que la durée 
+d'exécution soit significative. Mais introduisez l'opération de persistance
+``cache()`` dans le *workflow*:  
+
+
+.. code-block:: python
+
+       compteurTermes = loupsEtMoutons.select(sf.split(loupsEtMoutons.value, "\s+"
+                      ).name("mots")
+                      ).select(sf.explode(sf.col("mots")
+                      ).name("mot")
+                      ).groupBy("mot"
+                      ).count(
+                      ).cache(
+                      )
+       
+Et exécutez à nouveau l'action ``compteurTermes.show()``. Cette fois un RDD devrait apparaître dans l'onglet *Storage*,
+et de plus vous devriez comprendre pourquoi!
+
+Exécutez une nouvelle fois l'action ``show()`` et consultez les statistiques des temps d'exécution. 
+La dernière exécution devrait être significativement plus rapide que les précédentes. Comprenez-vous
+pourquoi? Regardez les étapes, et clarifiez tout cela dans votre esprit.
+
+Il ne s'agit que d'un fichier de 4 lignes en entrée. On peut extrapoler à de très grandes collections
+et réaliser le gain potentiel avec cette méthode (qui n'est pas magique: on a échangé du temps
+contre de l'espace, comme toujours). 
 
 
 Mise en pratique
 ================
 
-Voici quelques fonctions MapReduce à réaliser avec MongoDB.
 
-.. _Ex-S3-1:
-.. admonition:: Exercice `Ex-S3-1`_: implanter le *sum()*.
+.. _MEP-SPark-1: 
+.. admonition:: Exercice `MEP-SPark-1`_: à vous de jouer
 
-    Implantez en MapReduce le calcul équivalent à
+   Vous vous doutez de ce qu'il faut faire à ce stade: reproduire les commandes 
+   qui précèdent, et explorer l'interface de Spark jusqu'à ce que tout soit clair. Vous y passerez
+   peut-être un peu de temps mais à cette mise en pratique vous mettra très concrètement au cœur
+   d'un système très utilisé, et qui repose sur une bonne partie des concepts vus en cours.
+
+.. _MEP-Spark-2:
+.. admonition:: Exercice `MEP-SPark-2`_: Passons à PageRank
+
+  
+   .. note:: cet exercice est donnée en Scala, la version Python viendra
+      prochainement, mais en attendant considérez qu'il s'agit d'une proposition
+      optionnelle.
+
+   Essayons d'implanter notre PageRank avec Spark. On va supposer que notre graphe est
+   stocké dans un fichier texte ``graphe.txt`` avec une ligne par arête, 
+   
+   .. code-block:: text
+   
+        url1 url2
+        url1 url3
+        url2 url3
+        url3 url2
+   
+   Commençons par créer la matrice (ou plus exactement les vecteurs représentant les liens sortants
+   pour chaque URL).
+   
+   .. code-block:: scala
+   
+      val graphe = spark.read.textFile("graphe.txt")
+      val matrix = graphe.map{ s =>
+                        val parts = s.split("\\s+")
+                        (parts(0), parts(1))
+                    }.distinct().groupByKey()
+                    
+   Initialisons le vecteur initial des rangs
     
-    .. code-block:: sql
-    
-          select count(*) from movies group by genre
-          
-    .. ifconfig:: mongomapreduce in ('public')
-
-        .. admonition:: Correction
-           
-           .. code-block:: javascript
-
-                var mapFilmsGenre = function() {
-                    emit(this.genre,this._id);
-                };
-        
-                var reduceFilmsGenre = function(genre,id) {
-                   return id.length;
-                 };
-
-            db.movies.mapReduce(mapFilmsGenre,  
-                            reduceFilmsGenre, {out: {"inline": 1}} );
-
-
-.. _Ex-S3-2:
-.. admonition:: Exercice `Ex-S3-2`_:  afficher le nom du réalisateur
-
-    Reprenez l'exemple (mapRealisateur, joinRealisateur), et effectuez
-    les modifications suivantes:
-    
-      * modifiez les fonctions pour afficher le *nom* du réalisateur avec la liste de ses films.
-        (Astuce: la clé émise par la fonction de *map* peut être un *objet* avec plusieurs valeurs).
-      * appliquez le traitement aux films français parus avant 2000 (attention, les années
-        sont codées comme des chaînes de caractères).
+   .. code-block:: scala
      
-.. _Ex-S3-3:
-.. admonition:: Exercice `Ex-S3-3`_:  compter les termes d'un texte
-
-   Objectif: construire un groupe pour chaque terme (mot) apparaissant
-   dans le titre d'un film, et lui associer des informations. Voici une version
-   de base. La fonction de *map*:
-   
-    .. code-block:: javascript
-   
-       var mapTermes = function() {
-         var tokens = this.title.match(/\S+/g)
-         for (var i = 0; i < tokens.length; i++) { 
-                  emit(tokens[i], this.title);
-          }
+       var ranks = matrix.mapValues(v => 1.0)
+    
+   Appliquons 20 itérations.
+    
+   .. code-block:: scala
+    
+       for (i <- 1 to 20) {
+         val contribs = 
+             matrix.join(ranks)
+                   .values
+                   .flatMap{ case (urls, rank) =>
+                               val size = urls.size
+                               urls.map(url => (url, rank / size))
+                           }
+             ranks = contribs.reduceByKey(_ + _)
        }
 
-
-   La fonction de *reduce*:
-             
-    .. code-block:: javascript
-  
-       var reduceTermes = function(terme, titres) {
-          var res = new Object();
-          res.terme = terme;
-          res.titres = titres;
-          return res;
-       };
+   Finalement exécutons le tout
    
-   Commencez par vérifier que cela fonctionne, regardez les mots qui apparaissent dans
-   plusieurs titres. Ensuite, traitez le *résumé* de chaque film, et faites les calculs
-   suivants:
+   .. code-block:: scala
    
-     * Pour chaque terme, affichez le titre du film et le nombre d'occurrences dans le résumé
-       du film.
-     * Pour chaque terme, affichez de plus le nombre total d'occurences du terme dans la collection.
-     * Enfin, identifiez les termes qui apparaissent très souvent et sont peu significatifs
-       ("de", "un", "le", etc.). Faitez-en une liste et éliminez-les du résultat.
-      
-    Quand vous serez arrivés au bout, vous aurez fait un bon pas vers un algorithme
-    de construction d'un index plein texte sur votre base documentaire.
- 
-.. _Ex-S3-4:
-.. admonition:: Exercice `Ex-S3-4`_:  classification de documents (basique)
+       ranks.show()
 
-   Nous voulons grouper les films. Ecrivez le traitement MapReduce pour
+   Une fois que cela fonctionne, vous pouvez effectuer quelques améliorations
    
-     * un classement par genre,
-     * un classement par décennie (les années 70, les années 80, etc.)
-     
-   Si vous vous sentez en forme, réflechissez au problème suivant: comment
-   appliquer un algorithme de classification kMeans sur les films (pour
-   les grouper par période par exemple) ou les artistes (les grouper
-   par génération par exemple). Bon *brainstorming*, mais pas d'inquiétude,
-   nous y reviendrons.  
- 
-.. _Ex-S3-5:
-.. admonition:: Exercice `Ex-S3-5`_:  encore une jointure
- 
-   Reprenez l'implantation de la jointure décrite précédemment, et
-   transformez-la pour calculer celle des films et des *acteurs*.
-   
-   .. code-block:: sql
+     #. Ajoutez des opérateurs ``persist()``  ou  ``cache()`` où cela vous semble pertinent.
+     #. Raffinez PageRank en introduisant une probabilité (10 % par exemple) de faire un "saut"
+        vers une page quelconque au lieu de suivre les liens sortants.
 
-       select * from Film, Role, Artiste 
-       where film.id=role.id_film 
-       and role.id_acteur=artiste.id
 
-   C'est plus difficile que de faire la jointure entre le film et le metteur en scène...
+   .. ifconfig:: spark1 in ('public')
 
-   .. ifconfig:: mongomapreduce in ('public')
+       .. admonition:: Correction
 
-        .. admonition:: Correction
-           
-           .. code-block:: javascript
+          .. code-block:: scala
+          
+               matrix.cache()
+               ranks = contribs.reduceByKey(_ + _).mapValues(0.15 + 0.85 * _)
 
-                var mapJoin2 = function() {
-                // Est-ce que la clé du document contient le mot "artist"?
-                if (this._id.indexOf("artist") != -1) {
-                    // Oui ! C'est un artiste. Ajoutons-lui son type.
-                    this.type="artist";
-                    // On produit une paire avec pour clé celle de l'artiste
-                    emit(this._id, this);
-                 }
-                else {
-                    // Non: c'est un film. Ajoutons-lui son type.
-                    this.type="film";
-                    // Simplifions un peu le document pour l'affichage
-                    delete this.summary;
-                    delete this.director;
-                    // On produit une paire avec pour clé celle de l'artiste
-                    for (var i = 0; i < this.actors.length; i++) {
-                        emit(this.actors[i]._id, this);
-                  }
-                }
-            };
-
-            var reduceJoin2 = function(id, items) {
-                var ARTIST = null, films={result: []}
-                var trouve=false;
-                // Commençons par chercher l'artiste dans cette liste
-                for (var idx = 0; idx < items.length; idx++) {
-                  if (items[idx].type=="artist") {
-                    artiste = items[idx].last_name;
-                   }
-                 }
-                 
-                 if (artiste != null) {
-                    res= new Object();
-                    res.artiste = artiste ;
-                    res.films = new Array()
-                   // Maintenant constituons le tableau des films
-                   for (var idx2 = 0; idx2 < items.length; idx2++) {
-                     if (items[idx2].type=="film") {
-                            res.fils.push(items[idx2].title);
-                        }
-                    }
-                  } 
-                  return res
-             }
 
 *********
 Exercices
@@ -1424,7 +1704,7 @@ Commençons par un exercice-type commenté.
     sert à quelque chose). Ce qui donne
     
     .. code-block:: javascript
-    
+   
         function fMap(doc) {
             if (fS(doc.contenu) == True) {
                 emit(doc.idPlanète, doc.contenu)

@@ -4,9 +4,9 @@
 
 .. _chap-bddoc:
 
-############################
-Interrogation de bases NoSQL
-############################
+################
+Recherche exacte
+################
 
 Dans ce chapitre nous commençons à étudier la gestion de grands ensembles de documents
 organisés en bases de données.  Nous commençons par le Web: ce n'est pas vraiment
@@ -1306,3 +1306,408 @@ concrètement à l'interrogation MongoDB.
             * ``db.movies.find({}, {"title": 1, "actors.first_name": 1, "actors.last_name": 1})``
             * ``db.movies.find({"actors.last_name": "Eastwood", "director.last_name": {$ne: "Eastwood"}}, {"title": 1})``
     
+
+********************************
+S3: Introduction à ElasticSearch
+********************************
+
+.. admonition:: Supports complémentaires
+
+   * `Diaporama sur le couplage BD documentaire / moteur de recherche <http://b3d.bdpedia.fr/files/slri-intro-debuterES.pdf>`_
+   * `Vidéo de la session Bases documentaires et moteur de recherche <https://mediaserver.lecnam.net/permalink/v125f5947d4bf7inn4n4/>`_  
+   * `Présentation: Requêtes booléennes <http://b3d.bdpedia.fr/files/slri-intro-lucene-query.pdf>`_
+   * `Vidéo de la session requêtes booléennes <https://mediaserver.lecnam.net/permalink/v125f5947d4bf62u4nbc/>`_  
+
+Dans cette section, nous allons passer au concret en introduisant les moteurs de
+recherche. Nous allons utiliser ici `Elastic Search <http://elastic.co>`_, un
+moteur de recherche qui s'installe et s'initialise très facilement. Nous
+indexerons nos premiers documents, et commencerons à faire nos premières
+requêtes.
+
+.. admonition:: ElasticSearch ou Solr
+
+  ElasticSearch est un moteur de recherche disponible sous licence libre
+  (Apache). Il repose sur Lucene (nous verrons plus bas ce que cela signifie).
+  Il a été développé à partir de 2004 et est aujourd'hui adossé à une
+  entreprise, `Elastic.co <https://www.elastic.co/fr/>`_. Un autre moteur de
+  recherche libre existe: `Solr <http://lucene.apache.org/solr/>`_ (prononcé
+  "Solar"), lui aussi reposant sur Lucene. Bien que leurs configurations soient
+  différentes, les fonctionnalités de ces deux moteurs sont comparables
+  (cela n'a pas toujours été le cas). Nous choisissons ElasticSearch pour ce
+  cours, mais vous ne devriez pas avoir beaucoup de difficultés à passer à Solr.
+
+Nous allons nous appuyer entièrement sur les choix par défaut d'ElasticSearch
+pour nous concentrer sur son utilisation. La construction d'un moteur de
+recherche en production demande un peu plus de soin, nous en verrons au chapitre
+suivant les étapes nécessaires.
+
+Architecture du système d'information avec un moteur de recherche
+=================================================================
+
+Un moteur de recherche comme ElasticSearch est une application spécialisée dans
+la recherche, qui s'appuie sur un index *open source* écrit en Java, Lucene.
+C'est-à-dire que l'implémentation des structures de données et les algorithmes
+de parcours vus dans la section précédente sont déléguées à Lucene (qui profite
+régulièrement des avancées des techniques de Recherche d'Information issues du
+monde académique).
+
+Une question qui vient naturellement à l'esprit est alors: *mais pourquoi ne pas
+utiliser directement le moteur de recherche comme gestionnaire des documents ?*
+En effet, pourquoi s'embarrasser de MongoDB alors qu'ElasticSearch permet des
+recherches puissantes, efficaces, ainsi que le stockage et l'accès aux
+documents.
+
+La réponse est qu'un système comme ElasticSearch est entièrement consacré à la
+recherche (donc à la *lecture*) la plus efficace possible de documents. Il
+s'appuie pour cela sur des structures compactes, compressées, optimisées (les
+index inversés) dont nous avons donné un aperçu. En revanche, ce n'est pas 
+nécessairement un
+très bon outil pour les autres fonctionnalités d'une base de données. Le
+stockage par exemple n'est ni aussi robuste ni aussi stable, et il faut parfois
+*reconstruire* l'index à partir de la base originale (on parlera de *réindexer
+les documents*).
+
+Un système comme ElasticSearch (ou Solr, ou un autre s'appuyant sur des index
+inversés) n'est pas non plus très bon pour des données souvent modifiées. Pour
+des raisons qui tiennent à la structure de ces index, les mises à jour sont
+coûteuses et s'effectuent difficilement en temps réel. La notion de mise à jour
+vaut ici aussi bien pour le *contenu* des documents (modification de la valeur
+d'un champ) que pour leur *structure* (ajout ou suppression d'un champ par exemple).
+
+La pratique la plus courante consiste donc à utiliser un système de recherche
+comme un *complément* d'un serveur de base de données (relationnelle ou
+documentaire) et à lui confier les tâches de recherche que le serveur BD ne sait
+pas accomplir (soit, en gros, les recherches non structurées). Dans le cas des
+bases NoSQL, l'absence fréquente de tout langage de requête fait du moteur de
+recherche associé un outil indispensable. 
+
+Même en cas de présence d'un langage d'interrogation  fourni par le système
+NoSQL, le moteur de recherche est un candidat tout à fait valide pour satisfaire
+les recherches plein texte *et* les recherches structurées. En résumé, à part
+les deux inconvénients (reconstruction depuis une source extérieure, support
+faible des mises à jour), les moteurs de recherche sont des composants puissants
+aptes à satisfaire efficacement les besoins d'un système documentaire.
+
+.. note:: Les paragraphes ci-dessus sont à prendre avec réserve, car l'évolution
+   d'un système comme Elastic Search montre qu'il tend à devenir également
+   un gestionnaire robuste pour le stockage de documents.
+   Il n'est pas exclu qu'Elastic Search devienne à terme une option tout à fait 
+   valable pour l'indexation *et* le stockage ce qui simplifierait l'architecture.
+
+.. _archi-ri:
+.. figure:: ../figures/archi-ri.png
+      :width: 100%
+      :align: center
+   
+      Architecture d'une application avec moteur de recherche.
+
+La  :numref:`archi-ri` montre une architecture typique, en prenant pour
+exemple une base de données MongoDB. Les *documents (applicatifs)* sont donc
+dans la base MongoDB qui fournit des fonctionnalités de recherche structurées.
+On peut indexer la collection des documents applicatifs en extrayant des
+"champs" formant des *documents (au sens d'ElasticSearch, Solr)* fournis à l'index qui
+se charge de les organiser pour satisfaire efficacement des requêtes.
+L'application peut alors soit s'adresser au serveur MongoDB, soit au moteur de
+recherche.
+
+Un scénario typique est celui d'une recherche par mot-clé dans un site. Les
+données du site sont périodiquement extraites de la base et indexées dans
+Elasticsearch. Ce dernier se charge alors de répondre à la fonctionnalité
+``Search`` que l'on trouve couramment sur tous les types de site. 
+
+.. note:: On pourrait se demander s'il n'est pas inefficace de *dupliquer* les
+  documents de la base de données vers le moteur de recherche. En fait, c'est un
+  inconvénient, mais assez mineur car on *filtre* généralement les documents de
+  la base pour n'indexer que les champs soumis à des recherches plein texte
+  comme le résumé du film. De plus, les données fournies ne sont pas stockées
+  telles-quelles mais compressées et réorganisées dans des listes inversées.
+  Le contenu de la base de données n'est donc pas 
+  un miroir de l'index géré par le moteur de recherche.
+
+
+Interrogation
+=============
+
+Nous reverrons plus longuement les méthodes d'interrogation après 
+avoir expliqué, dans le prochain chapitre, les techniques
+de classement. En attendant voici un premier aperçu qui vous
+permettra de vérifier que vos données sont bien là. 
+
+Une première méthode pour transmettre des recherches est de passer une
+expression en paramètre à l'URL à laquelle répond votre serveur ElasticSearch.
+La forme la plus simple d'expression est une liste de mots-clés.
+Voici quelques exemples d'URLs de recherche:
+
+
+.. code-block:: html
+
+     https://localhost:9200/nfe204/_search?q=alien
+     https://localhost:9200/nfe204/_search?q=alien,coppola
+     https://localhost:9200/nfe204/_search?q=alien,coppola,1994
+
+Les dernières versions (à partir de la 8)
+d'ElasticSearch ont introduit des mesures de sécurité qui compliquent 
+fortement l'accès direct au serveur en HTTPS. Mieux vaut donc utiliser
+ElasticVue avec la fenêtre ``SEARCH``  qui se charge se constituer l'URL 
+de requête.
+
+Une seconde méthode est de transmettre un document JSON décrivant la recherche. L'envoi
+d'un document suppose que l'on utilise la méthode ``POST``. Voici
+par exemple un document avec une recherche sur trois mots-clé.
+
+.. code-block:: json
+
+   {
+    "query": {
+       "query_string" : {
+          "query" : "alien,coppola,1994"
+       }
+     }
+   }
+   
+La 
+:numref:`es-search` montre l'exécution avec l'interface ElasticVue.
+
+.. _es-search:
+.. figure:: ../figures/es-search.png
+      :width: 100%
+      :align: center
+   
+      L'interface ElasticVue avec recherches structurées
+      
+On voit clairement (mais partiellement) le résultat, produit sous la forme d'un
+document JSON énumérant les documents trouvés dans un tableau ``hits``. Notez
+que le  document indexé lui-même est présent, dans le champ ``_source``,
+correspondant à un comportement par défaut d'ElasticSearch: *la totalité des documents sont dupliqués dans ElasticSearch*:  la
+question de l'utilisation de *deux* systèmes qui semblent partiellement
+redondants se pose. Nous revenons sur cette question plus loin. 
+
+Exprimer une recherche revient donc à envoyer à ElasticSearch 
+(utiliser la méthode ``POST``) un document encodant la requête.
+Le langage de recherche proposé par ElasticSearch, dit "DSL" pour *Domain
+Specific Language*,  est très riche.  Pour vous donner juste un exemple,
+voici comme on prend les 5 premiers documents d'une requête, en excluant la
+source du résultat.
+
+.. code-block:: json
+
+   { 
+    "from": 0,
+    "size": 5,
+    "_source": false,
+    "query": {
+       "query_string" : {
+           "query" : "matrix,2000,jamais"
+       }
+     } 
+   }
+
+
+Nous allons pour l'instant nous contenter d'une variante du language, 
+dite *Query String*, qui
+correspond, essentiellement, au langage de base de Lucene.  Toutes les
+expressions données ci-dessous peuvent être entrées comme valeur du champ
+``query`` dans le document-recherche passé à l'interface ``REST``.
+
+Termes
+------
+
+La notion de base est celle de *terme*. Un terme est soit un mot, soit une
+séquence de mots (une *phrase*) placée entre apostrophes. La recherche:
+
+.. code-block:: sql
+
+   Princess Leia
+
+retourne tous les documents contenant soit "Princess", soit "Leia". La recherche
+
+.. code-block:: sql
+
+  "Princess Leia"
+  
+ramène les documents contenant les deux mots côte à côte (vous devez utiliser
+\\" pour intégrer un guillemet double dans une requête). 
+
+.. code-block:: json
+
+   { 
+    "query": {
+       "query_string" : {
+           "query" : "\"Princess Leia\""
+       }
+     } 
+   }
+
+Par défaut, la recherche  s'effectue toujours sur tous les champs d'un document
+indexé (ou , plus précisément, sur un champ ``_all`` dans lequel ElasticSearch
+concatène toutes les chaînes de caractères). La syntaxe complète pour associer
+le champ et le terme est:
+
+.. code-block:: sql
+
+  champ:terme
+
+Par exemple, pour ne chercher le mot-clé ``Alien`` que dans les titres des films, on peut
+utiliser la syntaxe suivante :
+
+.. code-block:: json
+
+   { 
+    "query": {
+       "query_string" : {
+           "query" : "title:alien"
+       }
+     } 
+   }
+
+Revenez au fichier JSON  et à la structure de ses documents pour
+voir que les données de chaque film sont imbriquées sous un champ ``fields``.
+Nous l'omettons dans la suite, pensez à l'ajouter.
+
+Si on ne précise pas le champ, c'est celui par défaut qui est pris en compte. 
+Les requêtes précédentes sont donc équivalentes à:
+
+.. code-block:: sql
+
+   _all:"Princess Leia"
+  
+Les valeurs des termes (dans la requête) et le texte indexé sont tous deux
+soumis à des transformations que nous étudierons dans le chapitre suivant. Une
+transformation simple est de tout transcrire en minuscules. La requête:
+
+.. code-block:: sql
+
+   _all:"PRINCESS LEIA"
+
+devrait donc donner le même résultat, les majuscules étant converties en
+minuscules. La conception d'un index doit soigneusement indiquer les
+transformations à appliquer, car elles déterminent le résultat des recherches.
+   
+.. important: Les transformations appliquées à la requête ET au texte indexé doivent être 
+   cohérentes. Si les termes sont transformés en majuscules, et le texte indexé en minuscules,
+   on n'aura jamais de résultat!
+
+On peut spécifier un terme simple (pas une phrase) de manière incomplète
+
+  * le '?' indique un caractère inconnue: ``opti?al`` désigne ``optimal``, ``optical``, etc.
+  * le '\*' indique n'importe quelle séquence de caractères (``opti*`` pour toute chaîne commençant par ``opti``). 
+      
+La valeur d'un terme peut-être indiquée de manière approximative en ajoutant le suffixe '-', si l'on n'est pas sûr de l'orthographe par
+exemple.  Essayez de rechercher ``optimal``, puis ``optimal-``. La proximité des termes est établie par
+une distance dite "distance d'édition" (nombre d'opérations d'éditions permettant de passer d'une valeur - optimal -
+à une autre - optical).
+
+Des recherches *par intervalle* sont possibles. Les crochets [] expriment des
+intervalles *bornes comprises*, les accolades {} des intervalles bornes non
+comprises. Voici comment on recherche tous les documents pour une année comprise
+entre 1990 et 2005:
+
+.. code-block:: sql
+
+    year:[1990 TO 2005]
+   
+Connecteurs booléens
+--------------------
+
+Les critères de recherche peuvent être combinés avec les connecteurs Booléens 
+``AND``, ``OR`` et ``NOT``. Quelques exemples.
+
+.. code-block:: sql
+
+   year:[1990 TO 2005] OR title:M*
+   year:[1990 TO 2005] AND NOT title:M*
+   
+.. important:: Attention à bien utiliser des majuscules pour les connecteurs Booléens.
+
+Par défaut, un ``OR`` est appliqué, de sorte qu'une recherche sur plusieurs critères ramène l'union
+des résultats sur chaque critère pris individuellement. 
+
+Venons-en maintenant à l'opérateur "+". Utilisé comme préfixe d'un nom
+de champ, il indique que la valeur du champ *doit* être égale au terme.
+La recherche suivante:
+
+.. code-block:: sql
+
+    +year:2000  title:matrix
+
+recherche les documents dont l'année est 2000 (obligatoire) **ou** dont le titre
+est ``matrix`` ou n'importe quel titre. 
+
+Quelle est alors la différence avec ``+year:2000``?  La réponse tient
+dans le *classement* effectué par le moteur de recherche: les documents dont
+le titre est ``matrix`` seront mieux classés que les autres. C'est une illustration,
+parmi d'autres, de la différence entre "recherche d'information" et "interrogation
+de bases de données". Dans le premier cas, on cherche les documents les plus "proches",
+les plus "pertinents", et on classe par pertinence.
+
+
+
+Mise en pratique
+================
+
+.. _MEP-S2-1:
+.. admonition:: Exercice  `MEP-S2-1`_: mise en route ElasticSearch
+
+   Installez ElasticSearch sur votre machine selon les instruction précédentes. 
+   Insérez le fichier des films. Vous pouvez alors en 
+   profiter pour explorer les options de l'interface ElasticVue, ce qui vous facilitera les choses
+   par la suite.
+
+Quiz
+====
+
+.. eqt:: ri-se-1
+
+    Parmi les arguments ci-dessous, lequel vous semble faux pour
+    distinguer un moteur de stockage NoSQL d'un moteur de recherche comme Elastic Search?
+   
+    A) :eqt:`I`  Les mises à jour du contenu ou du schéma
+       sont plus difficiles avec un moteur de recherche à cause 
+       de la compression des  listes inversées
+    #) :eqt:`C`  On ne peut pas faire de recherche structurée avec un moteur de recherche
+    #) :eqt:`I` Un moteur de recherche étant conçu comme une structure secondaire, il n'offre pas la même sécurité de stockage.
+
+.. eqt:: ri-se-2
+
+    Quelles sont les conséquences techniques d'une architecture comme celle de la :numref:`archi-ri`
+   
+    A) :eqt:`I`  Il faut reconstruire l'index du moteur de recherche tous les soirs
+    #) :eqt:`C`  Il faut synchroniser toute mise à jour du moteur de stockage vers l'index
+    #) :eqt:`I` Il faut synchroniser toute mise à jour de l'index vers le  moteur de stockage
+
+.. eqt:: ri-se-3
+
+    Quel est le protocole d'échange avec Elastic Search
+   
+    A) :eqt:`C`  HTTP
+    #) :eqt:`I`  Swift
+    #) :eqt:`I` Un protocole propriétaire
+
+
+.. eqt:: ri-bool-1
+
+    Avec une requête de type "Query string", Elastic Search effectue la recherche
+   
+    A) :eqt:`I`  Dans le premier champ de type texte des documents indexés
+    #) :eqt:`I`  Dans un champ de type texte défini par défaut
+    #) :eqt:`C` Dans un champ constitué de la concaténation de tous les textes d'un document
+
+
+.. eqt:: ri-bool-2
+
+    La recherche booléenne  dans cette session est-elle identique
+    à celle présentée en début de chapitre et basée sur les vecteurs d'incidence?
+   
+    A) :eqt:`I`  Oui, car l'exécution repose sur les OR et AND binaires 
+    #) :eqt:`C`  Non, car Elastic Search peut ramener des documents même si une partie seulement 
+       des termes recherchés est présente.
+
+
+.. eqt:: ri-bool-3
+
+    Est-il possible de demander les documents dans lesquels un mot ne figure pas (par exemple
+    les textes avec "loup", "cochon" mais pas "bergerie")?
+   
+    A) :eqt:`C`  Oui
+    #) :eqt:`I`  Non
+

@@ -2,7 +2,8 @@
 
 Tout le matériel proposé ici sert de support au cours "Bases de données documentaires et distribuées" 
 proposé par le département d'informatique du Cnam. Le code du cours est 
-NFE204 (voir le site http://deptinfo.cnam.fr/new/spip.php?rubrique146 pour des informations pratiques). Il est donné en
+NFE204 (voir le site http://deptinfo.cnam.fr/new/spip.php?rubrique146 
+pour des informations pratiques). Il est donné en
 
   -  Cours présentiel (premier semestre, mardi soir)
   -  Cours à distance (second semestre, avec supports audiovisuels)
@@ -27,12 +28,13 @@ Introduction
 .. admonition::  Supports complémentaires:
 
     * `Diapositives: Présentation du cours <http://b3d.bdpedia.fr/files/slprescours.pdf>`_
-    * `Vidéo de présentation du cours <https://mediaserver.lecnam.net/permalink/v1263e2af2a06w21nl9t/>`_
-    
+   
 Les bases relationnelles sont adaptées à des informations bien structurées, 
 décomposables en unités simples (chaînes de caractères, numériques), et représentables sous 
-forme de tableaux. Beaucoup de données ne satisfont pas ces critères: leur structure est complexe, variable, 
-et elles ne se décomposent par aisément en attributs élémentaires. Comment représenter le contenu d'un 
+forme de tableaux. Beaucoup de données ne satisfont pas ces critères: leur 
+structure est complexe, variable, 
+et elles ne se décomposent par aisément en attributs élémentaires. Comment 
+représenter le contenu d'un 
 livre par exemple? d'une image ou d'une vidéo? d'une partition musicale?
 
 Les bases relationnelles répondent à cette question en multipliant le nombre de tables,
@@ -54,13 +56,19 @@ indépendamment les unes des autres.
       
    
 Cette approche, qui a fait ses preuves, ne convient cependant pas dans certains cas. Les
-données de nature essentiellement textuelle par exemple (livre, documentation) se représentent mal en relationnel;
-c'est vrai aussi de certains objets dont la stucture est très flexible; enfin, *l'échange de données*
-dans un environnement distribué se prête mal à une représentation éclatée en plusieurs constituants
+données de nature essentiellement textuelle par exemple (livre, documentation) 
+se représentent mal en relationnel;
+c'est vrai aussi de certains objets dont la stucture est très flexible; 
+enfin, *l'échange de données*
+dans un environnement distribué se prête mal à une représentation 
+éclatée en plusieurs constituants
 élémentaires  qu'il
-faut ré-assembler pour qu'ils prennent sens. Toutes ces raisons mènent à des modes de représentation
-plus riches permettant la réunion, en une seule structure, de toutes les informations relatives 
-à un même objet conceptuel. C'est ce que nous appellerons *document*, dans une acception
+faut ré-assembler pour qu'ils prennent sens. Toutes ces raisons mènent 
+à des modes de représentation
+plus riches permettant la réunion, en une seule structure, de toutes 
+les informations relatives 
+à un même objet conceptuel. C'est ce que nous appellerons *document*, 
+dans une acception
 élargie un peu abusive mais bien pratique.
 
 **************
@@ -73,18 +81,22 @@ une *valeur structurée*  contenant les informations caractérisant le document.
 reviendrons plus précisément sur ces notions dans le cours.
 
 La gestion d'ensembles de documents selon les principes des bases de données, 
-avec notamment des outils de recherche avancés, relève des *bases documentaires*. Le volume important 
+avec notamment des outils de recherche avancés, relève des *bases documentaires*. 
+Le volume important 
 de ces bases amène souvent à les gérer dans un système distribué constitué de 
-fermes de serveurs allouées à la demande dans une infrastructure de type "cloud". L'usage
-est maintenant établi d'appeler ces systèmes "NoSQL" pour souligner leurs différences avec
+fermes de serveurs allouées à la demande dans une infrastructure de type "cloud". 
+L'usage
+est maintenant établi d'appeler ces systèmes "NoSQL" pour souligner leurs 
+différences avec
 les systèmes relationnels. Le fait qu'ils ne suivent pas le modèle relationnel 
-est d'ailleurs à peu près leur seul point commun. De manière générale, et avec de grandes
+est d'ailleurs à peu près leur seul point commun. De manière générale, 
+et avec de grandes
 variantes quand on se penche sur les détails, ils partagent également:
 
   - la représentation des données sous forme d'unités d'information indépendantes les unes des unes, 
     (ce que nous appelons justement *document*) organisées en *collections*;
-  - des méthodes d'accès aux collections basées soit sur des primitives assez
-    simplistes, soit sur des recherches par similarité qui relèvent de la *recherche d'information*;
+  - des méthodes d'accès aux collections basées soit sur des langages non standardisés, 
+    soit sur des recherches par similarité qui relèvent de la *recherche d'information*;
   - la capacité à *passer à l'échelle* (expression énigmatique que nous essaierons de clarifier)
     par ajout de ressources matérielles, donnant ces fameux environnements distribués et extensibles,
   - et enfin des techniques de distribution de calculs permettant de traiter des collections
@@ -92,32 +104,49 @@ variantes quand on se penche sur les détails, ils partagent également:
     
     
 Tous ces aspects, centrés sur les 
-documents de nature textuelle (ce qui exclut les documents multimédia comme les images ou vidéos),
+documents de nature textuelle (ce qui exclut les documents multimédia 
+comme les images ou vidéos),
 constituent le cœur de notre sujet.   Il couvre en particulier:
 
-  -  les modèles de données pour documents structurés (XML et JSON), conception, 
-     bases de documents structurés (MongoDb, CouchDb, Cassandra, etc.).
-  -  l'ndexation et la recherche: extraction de descripteurs, moteurs de recherche, techniques de classement.
-  -  la gestion de grandes collections dans des environnements distribués: les systèmes NoSQL (MongoDB, Cassandra, CouchBase, ...)
-  -  les traitements à grande échelle: Hadoop, MapReduce, Spark, Flink.
+  -  les modèles de données pour documents structurés (et, concrètemet, la syntaxe 
+     JSON), conception, 
+     bases de documents structurés (MongoDb, CouchDB, Cassandra, etc.).
+  -  les techniques de recherche et d'interrogation, exacte ou approchée
+  -  les traitements par lot de données massives
+  -  la gestion de grandes collections dans des environnements distribués
+  -  les traitements à grande échelle: Hadoop, MapReduce et Spark.
 
-La *représentation* des données s'appuie sur un *modèle*. Dans le cas du relationnel, ce sont des tables
-(pour le dire simplement), et nous supposerons que vous connaissez l'essentiel. Dans le cas des documents,
-les structures sont plus complexes: tableaux, ensembles, agrégats, imbrication, références. Nous étudions essentiellement
-la notion de *document structuré* et son  format de représentation le plus courant, JSON.
+La *représentation* des données s'appuie sur un *modèle*. Dans 
+le cas du relationnel, ce sont des tables
+(pour le dire simplement), et nous supposerons que vous connaissez 
+l'essentiel. Dans le cas des documents,
+les structures sont plus complexes: tableaux, ensembles, agrégats, 
+imbrication, références. Nous étudions essentiellement
+la notion de *document structuré* et son  format de représentation 
+le plus courant, JSON.
 
-Disposer de données, mêmes correctement représentées, sans pouvoir rien en faire n'a que peu d'intérêt. Les 
-*opérations* sur les données sont les créations, mises à jour, destruction, et surtout *recherche*, selon
-des critères plus ou moins complexes. Les bases relationnelles ont SQL, nous verrons que la recherche dans
-des grandes bases documentaires obéit souvent à des principes assez différents, illustrés par exemple
-par les moteurs de recherche.
+Disposer de données, mêmes correctement représentées, sans pouvoir 
+rien en faire n'a que peu d'intérêt. Les 
+*opérations* sur les données sont les créations, mises à jour, 
+destruction, et surtout *recherche*, selon
+des critères plus ou moins complexes. Les bases relationnelles 
+ont SQL, nous verrons que la recherche dans
+des grandes bases documentaires se fait soit par des recherches exactes
+(avec des langages propriétaires) soit par des recherches approchées
+(mis en œuvre par des moteurs de recherche).
 
-Enfin, à tort ou à raison, les nouveaux systèmes de gestion de données, orientés vers ce que nous appelons,
-au sens large, des "documents", sont maintenant considérés comme des outils de choix pour passer à l'échelle
-de très grandes masses de données (le "Big data"). Ces nouveaux systèmes, collectivement (et vaguement)
-désignés par le mot-valise "NoSQL" ont essentiellement en commun de pouvoir constituer à peu de frais
-des systèmes distribués, scalables, aptes à stocker et traiter des collections à très grande échelle. 
-Une partie significative du cours est consacrée à ces systèmes,  à leurs principes, et à l'inspection
+Enfin, à tort ou à raison, les nouveaux systèmes de gestion de données, orientés 
+vers ce que nous appelons,
+au sens large, des "documents", sont maintenant considérés comme des 
+outils de choix pour passer à l'échelle
+de très grandes masses de données (le "Big data"). Ces nouveaux systèmes, 
+collectivement (et vaguement)
+désignés par le mot-valise "NoSQL" ont essentiellement en commun de 
+pouvoir constituer à peu de frais
+des systèmes distribués, scalables, aptes à stocker et 
+traiter des collections à très grande échelle. 
+Une partie significative du cours est consacrée à ces systèmes,  
+à leurs principes, et à l'inspection
 en détail de quelques exemples représentatifs.
 
 *****************************
@@ -128,21 +157,22 @@ Le cours vise à vous transmettre, *dans un contexte pratique*, deux types
 de connaissances.
 
  - Connaissances fondamentales:  
-    #. *Modélisation de documents structurés*: structures, sérialisation, formats (JSON, XML); 
+    #. *Modélisation de documents structurés*: structures, sérialisation, formats (JSON); 
        les schémas de bases documentaires; les
-       échanges de documents sur le Web et notamment *l'Open Data*.
-    #. *Moteurs de recherche pour bases documentaires*: principes, techniques, moteurs de recherche, index, algorithmes.
+       échanges de documents sur le Web et notamment *l'Open Data*
+    #. *Techniques d'interrogation et de recherche*: recherche exacte et recherche approchée
     #. *Stockage, gestion, et passage à l'échelle par distribution*. L'essentiel sur les systèmes distribués, le
        partitionnement, la réplication, la reprise sur panne; le cas
        des systèmes NoSQL. 
-    #. *Traitement de données massives*: Hadoop et MapReduce, et les systèmes modernes, Spark et Flink.
+    #. *Traitement de données massives*: Hadoop et MapReduce, et une introduction à Spark
 
  - Connaissances pratiques:
     #. Des systèmes "NoSQL" orientés "documents"; (MongoDB, CouchDB, Cassandra) 
-    #. Des moteurs de recherche (ElasticSearch) basés sur un index inversé (Lucene).
-    #. L'étude, en pratique, de quelques systèmes NoSQL distribués: MongoDB (temps réel), 
-       ElasticSearch (indexation),  Cassandra encore.
-    #. La combinaison des moteurs de stockage et des moteurs de traitement distribué: Hadoop, Spark et Flink.
+    #. Des moteurs de recherche (ElasticSearch)
+    #. L'étude, en pratique, de deux systèmes distribués: 
+       ElasticSearch,  Cassandra.
+    #. La combinaison des moteurs de stockage et des moteurs de traitement 
+       distribué: Hadoop, Spark et Flink.
 
 Les connaissances  préalables  pour bien suivre ce cours sont essentiellement une bonne
 compréhension des bases relationnelles, soit au moins la conception d'un schéma, 
@@ -158,13 +188,13 @@ pour une bonne compréhension.
 Le cours vise à vous transmettre des connaissances génériques, indépendantes
 d'un système particulier. Il s'appuie cependant sur la mise en pratique. Vous avez donc besoin d'un ordinateur pour travailler. 
 Si vous êtes au Cnam tout est fourni, sinon un ordinateur portable raisonnablement récent et puissant
-(8 GOs en mémoire RAM au minimum) suffit. Tous les logiciels utilisés sont libres de droits, et leur
-installation est brièvement décrite quand c'est nécessaire.
+(8 GOs en mémoire RAM au minimum) suffit. Tous les logiciels utilisés sont libres 
+de droits, et leur
+installation est décrite avec le système Docker.
 
 ************
 Organisation
 ************
-
 
 Le cours est découpé en *chapitres*, couvrant un sujet bien déterminé, et en *sessions*.
 J'essaie  de structurer les sessions pour qu'elles
@@ -199,5 +229,3 @@ et il est plus profitable d'approfondir en relisant à nouveau que de simplement
 
 Enfin, vous êtes totalement encouragés à explorer par vous-mêmes de nouvelles pistes. Certaines
 sont proposées dans les exercices.
-
-

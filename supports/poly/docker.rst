@@ -1008,9 +1008,9 @@ Quiz
    #) Il faut installer au moins un programme client sur la machine hôte
 
 
-
+*********
 Exercices
-=========
+*********
 
 Dans ces exercices vous devez mettre en action les principes de Docker vus ci-dessus, et vous
 êtes également invités à découvrir l'outil ``docker compose`` qui nous permet de configurer

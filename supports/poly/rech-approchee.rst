@@ -1,8 +1,8 @@
 .. _chap-introri:
    
-#########################################
-Introduction à la recherche d'information
-#########################################
+###################
+Recherche approchée
+###################
 
 .. admonition:: Supports complémentaires:
 
@@ -10,9 +10,9 @@ Introduction à la recherche d'information
        référence : http://www-nlp.stanford.edu/IR-book/. *Certaines parties du
        cours empruntent des exemples à ce livre*.
   
-*****************
-S1: les principes
-*****************
+*********************************************
+S1: introduction à la recherche d'information
+*********************************************
 
 .. admonition:: Supports complémentaires:
 
@@ -744,593 +744,725 @@ Quiz
     #) :eqt:`I`  Supprimer toutes les formes plurielles
     #) :eqt:`I`  Ramener tous les verbes à la forme infinitive
     
-
-********************************
-S3: Introduction à ElasticSearch
-********************************
-
-.. admonition:: Supports complémentaires
-
-   * `Diaporama sur le couplage BD documentaire / moteur de recherche <http://b3d.bdpedia.fr/files/slri-intro-debuterES.pdf>`_
-   * `Vidéo de la session Bases documentaires et moteur de recherche <https://mediaserver.lecnam.net/permalink/v125f5947d4bf7inn4n4/>`_  
-   * `Présentation: Requêtes booléennes <http://b3d.bdpedia.fr/files/slri-intro-lucene-query.pdf>`_
-   * `Vidéo de la session requêtes booléennes <https://mediaserver.lecnam.net/permalink/v125f5947d4bf62u4nbc/>`_  
-
-Dans cette section, nous allons passer au concret en introduisant les moteurs de
-recherche. Nous allons utiliser ici `Elastic Search <http://elastic.co>`_, un
-moteur de recherche qui s'installe et s'initialise très facilement. Nous
-indexerons nos premiers documents, et commencerons à faire nos premières
-requêtes.
-
-.. admonition:: ElasticSearch ou Solr
-
-  ElasticSearch est un moteur de recherche disponible sous licence libre
-  (Apache). Il repose sur Lucene (nous verrons plus bas ce que cela signifie).
-  Il a été développé à partir de 2004 et est aujourd'hui adossé à une
-  entreprise, `Elastic.co <https://www.elastic.co/fr/>`_. Un autre moteur de
-  recherche libre existe: `Solr <http://lucene.apache.org/solr/>`_ (prononcé
-  "Solar"), lui aussi reposant sur Lucene. Bien que leurs configurations soient
-  différentes, les fonctionnalités de ces deux moteurs sont comparables
-  (cela n'a pas toujours été le cas). Nous choisissons ElasticSearch pour ce
-  cours, mais vous ne devriez pas avoir beaucoup de difficultés à passer à Solr.
-
-Nous allons nous appuyer entièrement sur les choix par défaut d'ElasticSearch
-pour nous concentrer sur son utilisation. La construction d'un moteur de
-recherche en production demande un peu plus de soin, nous en verrons au chapitre
-suivant les étapes nécessaires.
-
-Architecture du système d'information avec un moteur de recherche
-=================================================================
-
-Un moteur de recherche comme ElasticSearch est une application spécialisée dans
-la recherche, qui s'appuie sur un index *open source* écrit en Java, Lucene.
-C'est-à-dire que l'implémentation des structures de données et les algorithmes
-de parcours vus dans la section précédente sont déléguées à Lucene (qui profite
-régulièrement des avancées des techniques de Recherche d'Information issues du
-monde académique).
-
-Une question qui vient naturellement à l'esprit est alors: *mais pourquoi ne pas
-utiliser directement le moteur de recherche comme gestionnaire des documents ?*
-En effet, pourquoi s'embarrasser de MongoDB alors qu'ElasticSearch permet des
-recherches puissantes, efficaces, ainsi que le stockage et l'accès aux
-documents.
-
-La réponse est qu'un système comme ElasticSearch est entièrement consacré à la
-recherche (donc à la *lecture*) la plus efficace possible de documents. Il
-s'appuie pour cela sur des structures compactes, compressées, optimisées (les
-index inversés) dont nous avons donné un aperçu. En revanche, ce n'est pas 
-nécessairement un
-très bon outil pour les autres fonctionnalités d'une base de données. Le
-stockage par exemple n'est ni aussi robuste ni aussi stable, et il faut parfois
-*reconstruire* l'index à partir de la base originale (on parlera de *réindexer
-les documents*).
-
-Un système comme ElasticSearch (ou Solr, ou un autre s'appuyant sur des index
-inversés) n'est pas non plus très bon pour des données souvent modifiées. Pour
-des raisons qui tiennent à la structure de ces index, les mises à jour sont
-coûteuses et s'effectuent difficilement en temps réel. La notion de mise à jour
-vaut ici aussi bien pour le *contenu* des documents (modification de la valeur
-d'un champ) que pour leur *structure* (ajout ou suppression d'un champ par exemple).
-
-La pratique la plus courante consiste donc à utiliser un système de recherche
-comme un *complément* d'un serveur de base de données (relationnelle ou
-documentaire) et à lui confier les tâches de recherche que le serveur BD ne sait
-pas accomplir (soit, en gros, les recherches non structurées). Dans le cas des
-bases NoSQL, l'absence fréquente de tout langage de requête fait du moteur de
-recherche associé un outil indispensable. 
-
-Même en cas de présence d'un langage d'interrogation  fourni par le système
-NoSQL, le moteur de recherche est un candidat tout à fait valide pour satisfaire
-les recherches plein texte *et* les recherches structurées. En résumé, à part
-les deux inconvénients (reconstruction depuis une source extérieure, support
-faible des mises à jour), les moteurs de recherche sont des composants puissants
-aptes à satisfaire efficacement les besoins d'un système documentaire.
-
-.. note:: Les paragraphes ci-dessus sont à prendre avec réserve, car l'évolution
-   d'un système comme Elastic Search montre qu'il tend à devenir également
-   un gestionnaire robuste pour le stockage de documents.
-   Il n'est pas exclu qu'Elastic Search devienne à terme une option tout à fait 
-   valable pour l'indexation *et* le stockage ce qui simplifierait l'architecture.
-
-.. _archi-ri:
-.. figure:: ../figures/archi-ri.png
-      :width: 100%
-      :align: center
-   
-      Architecture d'une application avec moteur de recherche.
-
-La  :numref:`archi-ri` montre une architecture typique, en prenant pour
-exemple une base de données MongoDB. Les *documents (applicatifs)* sont donc
-dans la base MongoDB qui fournit des fonctionnalités de recherche structurées.
-On peut indexer la collection des documents applicatifs en extrayant des
-"champs" formant des *documents (au sens d'ElasticSearch, Solr)* fournis à l'index qui
-se charge de les organiser pour satisfaire efficacement des requêtes.
-L'application peut alors soit s'adresser au serveur MongoDB, soit au moteur de
-recherche.
-
-Un scénario typique est celui d'une recherche par mot-clé dans un site. Les
-données du site sont périodiquement extraites de la base et indexées dans
-Elasticsearch. Ce dernier se charge alors de répondre à la fonctionnalité
-``Search`` que l'on trouve couramment sur tous les types de site. 
-
-.. note:: On pourrait se demander s'il n'est pas inefficace de *dupliquer* les
-  documents de la base de données vers le moteur de recherche. En fait, c'est un
-  inconvénient, mais assez mineur car on *filtre* généralement les documents de
-  la base pour n'indexer que les champs soumis à des recherches plein texte
-  comme le résumé du film. De plus, les données fournies ne sont pas stockées
-  telles-quelles mais compressées et réorganisées dans des listes inversées.
-  Le contenu de la base de données n'est donc pas 
-  un miroir de l'index géré par le moteur de recherche.
-
-
-Mise en place d'ElasticSearch
-=============================
-
-Commençons par l'installation avec Docker. Voici une commande qui devrait fonctionner
-sous tous les systèmes et mettre ElasticSearch en attente sur le port 9200.
-
-.. code-block:: bash
-
-    docker run -d --name es1 -p 9200:9200  elasticsearch:8.13.0
-
-.. admonition:: Les versions d'ElasticSearch
-
-   ElasticSearch évolue rapidement. Pour éviter que les instructions qui suivent
-   ne deviennent rapidement obsolètes, j'indique le numéro de version dans
-   l'installation avec Docker (la 8.13.0, de mars 2024). 
-
-
-Quelques commandes supplémentaires sont nécesssaires. Un compte ``elastic`` 
-est créé, on lui attribue un mot de passe avec la commande suivante:
-
-.. code-block:: bash
-
-	docker exec -it es1 /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic
-
-Notez le mot de passe et placez-le éventuellement dans une variable
-d'environnement
-
-.. code-block:: bash
-
-	export ELASTIC_PASSWORD=<le_mot_de_passe>
-	
-Si vous voulez interagir avec ``curl``, il faut récupérer un certificat
-d'authentification SSL.
-
-.. code-block:: bash
-
-	docker cp es1:/usr/share/elasticsearch/config/certs/http_ca.crt .
-	
-
-Toutes les interactions avec un serveur ElasticSearch passent par une interface
-REST basée sur JSON (revoyez au besoin le chapitre :ref:`chap-bddoc`). Vous
-pouvez directement vous adresser au serveur REST en écoute 
-sur https://localhost:9200. Avec ``curl`` vous pouvez donc faire:
-
-.. code-block:: bash
-
-	curl --cacert http_ca.crt  -U elastic:mot_de_passe https://localhost:9200 
-
-Vous devriez obtenir un document JSON semblable à
-celui-ci:
-
-.. code-block:: json
-
-     {
-    "name": "7a46670f6a9e",
-    "cluster_name": "docker-cluster",
-    "cluster_uuid": "89U3LpNhTh6Vr9UUOTZAjw",
-    "version": {
-        "number": "8.13.0",
-        "...": "...",
-         "lucene_version": "9.1.1",
-      },
-    "tagline": "You Know, for Search"
-    }
-
-Pour une inspection confortable du serveur et des index ElasticSearch, nous
-vous conseillons d'utiliser une interface d'administration: ``ElasticVue``,
-disponible sous toutes les plateformes. 
-Elle peut être téléchargée ici: https://elasticvue.com/.
-
-En lançant l'application, on peut se connecter au serveur https://localhost:9200
-et on obtient l'interface de la figure :numref:`es-webui`.
-La barre supérieure de l'interface propose des options ``REST`` 
-et ``SEARCH`` qui vont nous intéresser dans un premier temps.
-
-.. _es-webui:
-.. figure:: ../figures/elasticvue.png
-      :width: 90%
-      :align: center
-   
-      Le tableau de bord proposé par ElasticVue.
-
-Première indexation
--------------------
-
-L'indexation dans un moteur de recherche, c'est l'opération qui consiste à
-stocker un document, à l'aide des *index*. Nous allons dans ce qui suit indexer
-un de nos films dans l'index ``nfe204-1``. Elasticsearch
-est par défaut assez souple et se charge d'inférer la nature des champs du
-document que nous lui transmettons. Nous verrons dans le chapitre
-:ref:`chap-indexation` que l'on peut paramétrer précisément cette étape, pour
-optimiser les performances d'ElasticSearch et améliorer l'expérience des
-utilisateurs de notre application.
-
-Téléchargez le document `movie_1.json <http://b3d.bdpedia.fr/files/movie_1.json>`_.
-
-Pour créer l'index on envoie un ``PUT`` à l'adresse
-https://localhost:9200/nfe204-1 pour créer la ressource.
-C'est facile avec la fenêtre REST d'ElasticVue: voir 
-:numref:`es-create-index`.
-
-.. _es-create-index:
-.. figure:: ../figures/es-create-index.png
-      :width: 90%
-      :align: center
-   
-      Utilisation d'ElasticVue pour transmettre des commandes REST
-
-Le ``PUT`` crée une "ressource" (au sens Web/REST du terme, cf. chapitre
-:ref:`chap-bddoc`) à l'URL indiquée.
-
-Nous pouvons maintenant insérer un document en transmettant 
-un ``POST`` à l'index https://localhost:9200/nfe204-1/_doc, 
-ou un ``PUT`` à l'adresse https://localhost:9200/nfe204-1/doc-id 
-où ``doc-id`` désigne l'identifiant du document. 
-
-Dans le cas du ``POST`` cet identifiant est pris dans le document lui-même
-(champ ``_id``) ou généré par ElasticSearch. Vous pouvez utiliser ``curl`` ou,
-beaucoup plus facile, ElasticVue comme montré dans la :numref:`es-index-doc`.
-
-.. _es-index-doc:
-.. figure:: ../figures/es-index-doc.png
-      :width: 90%
-      :align: center
-   
-      Utilisation d'ElasticVue pour insérer un document
-
-La ressource étant créée, un ``GET`` permet de la ramener.  C'est le moment
-de tester la fenêtre ``SEARCH`` d'ElasticVue qui devrait vous ramener
-votre premier document.
-
-Indexer davantage de documents
-------------------------------
-
-Il serait très fastidieux d'indexer un à un tous les documents d'une collection,
-d'autant plus que c'est une opération à répéter régulièrement pour mettre les
-documents du moteur de recherche à jour avec le contenu de la base. 
-
-Sinon, on risque d'avoir les deux situations suivantes, peu souhaitable pour les
-utilisateurs du système : 
-
-- un document présent dans la source mais pas dans l'index, et donc non
-  trouvé lors d'une recherche;
-
-- un document présent dans l'index mais détruit dans la source, trouvé donc 
-  par une recherche alors qu'il n'existe pas.
-
-Nous verrons en
-Travaux Pratiques comment automatiser tout de même cette synchronisation. Pour
-le moment, nous allons nous contenter d'utiliser une autre interface
-d'Elasticsearch, appelée ``bulk`` (*en grosses quantités*), qui permet comme son
-nom l'indique d'indexer de nombreux documents en une seule commande. 
-
-Récupérez notre collection de films, au format JSON adapté à l'insertion en masse
-dans ElasticSearch,  sur le site http://deptfod.cnam.fr/bd/tp/datasets/. Le fichier
-se nomme ``films_esearch.json``.
-
-Vous pouvez l'ouvrir pour voir le format.  Chaque document
-"film" (sur une seule ligne) est précédé d'un petit document JSON qui précise l'index (``movies``), 
-et l'identifiant (``1``).
-
-.. code-block:: json
-
-    {"index":{"_index": "nfe204", "_id": "movie"}}
-    
-On trouve ensuite les documents JSON proprement dits. **Attention il ne doit pas y avoir de retour à la
-ligne dans le codage JSON**, ce qui est le cas dans le document que nous fournissons.
-
-.. code-block:: json
-
-    {"title": "Mars Attacks!", "summary": "...", "...": "..."}
+  
+*****************************
+S1: recherche avec classement
+*****************************
+
+Supports complémentaires:
+
+  * `Présentation: Recherche avec classement <http://b3d.bdpedia.fr/files/slri-ranking-rankedsearch.pdf>`_
+  * `Vidéo de la session "Principes de la recherche avec classement" <https://mediaserver.lecnam.net/permalink/v125f35a3b0b7my7jokt/>`_  
+
+Le mode d'interrogation classique en base de données consiste à
+exprimer des critères de recherche et à produire en sortie les
+données qui satisfont *exactement* ces critères. En d'autres termes,
+dans le cas d'une base documentaire, on peut déterminer qu'un document
+est ou n'est pas dans le résultat. Cette décision univoque correspond
+au modèle de requêtes Booléennes présenté précécemment.
  
-Ensuite, importez les documents dans Elasticsearch en le transmettant par 
-un ``POST``  à l'URL https://localhost:9200/_bulk/
+Notions de base: espace métrique, distance et similarité
+========================================================
 
-Avec les paramètres spécifiés dans le fichier ``films_esearch.json``, vous
-devriez retrouver un index ``nfe204``  maintenant présent dans l'interface, contenant
-les données sur les films.
+Dans le cas typique
+d'un document textuel, il est illusoire de vouloir effectuer une recherche
+exacte en tentant de produire comme critère  la chaîne de caractères
+complète du document, voire même une sous-chaîne. 
+La même remarque s'applique
+à des objets complexes ou multimédia (images, vidéos, etc.). La logique est alors
+plutôt d'interpréter la requête comme un *besoin*, et d'identifier les
+documents les plus "proches" du besoin.
+En recherche d'information (*RI*), on raisonne donc plutôt en terme
+de *pertinence* pour décider si un document fait ou non partie du résultat d'une recherche.  
+La formalisation de ces notions
+de besoin et de pertinence est au centre des méthodes de RI.
 
-Nous sommes prêts à interroger notre moteur de recherche 
-en entrant des requêtes dans la fenêtre ``SEARCH``. 
+En particulier, la formalisation de la pertinence consiste à en donner une
+expression *quantitative*. Pour cela, l'approche classique consiste
 
-Interrogation
-=============
+  * à définir un espace métrique *E* doté d'une fonction de *distance* :math:`m_E`, 
+  * à définir une fonction :math:`f` de l'espace des documents vers *E*; cette fonction s'applique également
+    à la requête *q*, vue comme un document;
+  * enfin, on mesure la pertinence (ou *similarité*) entre
+    deux documents :math:`d_1` et :math:`d_2` comme l'inverse de la distance entre :math:`f(d_1)`
+    et :math:`f(d_2)`.
+    
+    .. math:: 
+        
+          sim(d, q) = \frac{1}{m_E(f(d_1), f(d_2))} 
 
-Nous reverrons plus longuement les méthodes d'interrogation après 
-avoir expliqué, dans le prochain chapitre, les techniques
-de classement. En attendant voici un premier aperçu qui vous
-permettra de vérifier que vos données sont bien là. 
+On obtient une mesure de la similarité, ou *score*, mesurant la proximité de deux documents
+(ou, plus précisément, des vecteurs représentant ces documents). Il reste à interpréter
+la requête :math:`q` comme un document et à évaluer :math:`sim(f(d), f(q))` pour chaque document *d*
+afin d'évaluer la pertinence d'un document vis-à-vis du besoin
+exprimé par la requête.
 
-Une première méthode pour transmettre des recherches est de passer une
-expression en paramètre à l'URL à laquelle répond votre serveur ElasticSearch.
-La forme la plus simple d'expression est une liste de mots-clés.
-Voici quelques exemples d'URLs de recherche:
+Avec cette approche, contrairement aux requêtes Booléennes, on ne peut souvent plus dire 
+de manière stricte qu'un document *d* n'appartient 
+pas au résultat d'une recherche. Il est plus correct de dire que *d* est plus ou
+moins *pertinent*. Cela rend les résultats beaucoup plus riches, et offre à l'utilisateur 
+la possibilité d'éviter le "tout ou rien" de l'approche Booléenne.
 
-
-.. code-block:: html
-
-     https://localhost:9200/nfe204/_search?q=alien
-     https://localhost:9200/nfe204/_search?q=alien,coppola
-     https://localhost:9200/nfe204/_search?q=alien,coppola,1994
-
-Les dernières versions (à partir de la 8)
-d'ElasticSearch ont introduit des mesures de sécurité qui compliquent 
-fortement l'accès direct au serveur en HTTPS. Mieux vaut donc utiliser
-ElasticVue avec la fenêtre ``SEARCH``  qui se charge se constituer l'URL 
-de requête.
-
-Une seconde méthode est de transmettre un document JSON décrivant la recherche. L'envoi
-d'un document suppose que l'on utilise la méthode ``POST``. Voici
-par exemple un document avec une recherche sur trois mots-clé.
-
-.. code-block:: json
-
-   {
-    "query": {
-       "query_string" : {
-          "query" : "alien,coppola,1994"
-       }
-     }
-   }
+.. note:: Reportez-vous au chapitre :ref:`chap-introri` pour une discussion
+   introductive sur les notions de faux et vrais positifs, de rappel et de précision.
    
-La 
-:numref:`es-search` montre l'exécution avec l'interface ElasticVue.
 
-.. _es-search:
-.. figure:: ../figures/es-search.png
-      :width: 100%
-      :align: center
+La contrepartie de cette flexibilité est l'abondance des candidats potentiels
+et la nécessité de les *classer* en fonction de leur pertinence/score. Le rôle d'un
+moteur de recherche consiste donc (conceptuellement), pour chaque requête *q*, 
+à calculer le score :math:`s_i = sim(q, d_i)` pour chaque document :math:`d_i` 
+de la collection, à trier tous les documents par ordre décroissant des scores
+et à présenter ce classement à l'utilisateur. 
+
+.. important:: Il faut ajouter une contrainte de temps: le résultat doit être 
+   disponible en quelques dizièmes de secondes, même dans le cas de collections
+   comprenant des millions, des centaines de millions ou des milliards de documents (cas du Web).
+   La performance de la recherche s'appuie sur les structures d'index inversés
+   et des optimisations fines qui dépassent le cadre de ce cours: 
+   reportez-vous, par exemple, au livre en ligne mentionné en début de chapitre.
    
-      L'interface ElasticVue avec recherches structurées
-      
-On voit clairement (mais partiellement) le résultat, produit sous la forme d'un
-document JSON énumérant les documents trouvés dans un tableau ``hits``. Notez
-que le  document indexé lui-même est présent, dans le champ ``_source``,
-correspondant à un comportement par défaut d'ElasticSearch: *la totalité des documents sont dupliqués dans ElasticSearch*:  la
-question de l'utilisation de *deux* systèmes qui semblent partiellement
-redondants se pose. Nous revenons sur cette question plus loin. 
+En pratique, le calcul du score pour *tous* les documents n'est bien sûr pas
+faisable (ni souhaitable d'ailleurs), et le moteur de recherche dispose de structures
+de données qui vont lui permettre de déterminer rapidement les 
+documents ayant le meilleur score. Ces documents (disons les 10 ou 20 premiers, typiquement)
+sont présentés à l'utilisateur, et le reste de la liste est calculé à la demande 
+si besoin est. Dans le cas d'une interface interactive (et si le classement
+est réellement pertinent vis-à-vis du besoin), il est rare qu'un utilisateur aille au-delà de la seconde,
+voire même de la première page.
 
-Exprimer une recherche revient donc à envoyer à ElasticSearch 
-(utiliser la méthode ``POST``) un document encodant la requête.
-Le langage de recherche proposé par ElasticSearch, dit "DSL" pour *Domain
-Specific Language*,  est très riche.  Pour vous donner juste un exemple,
-voici comme on prend les 5 premiers documents d'une requête, en excluant la
-source du résultat.
+**Vocabulaire**. En résumé, voici les points à retenir.
 
-.. code-block:: json
+  #. on effectue des calculs dans un espace métrique, le plus souvent un espace vectoriel;
+  #. pour chaque document, on produit un objet de l'espace métrique, appelé *descripteur*,
+     qui a le plus souvent la forme d'un *vecteur* (*features vector*);
+  #. on applique le même traitement à la requête *q* pour obtenir un descripteur :math:`v_q`;
+  #. le *score* est une mesure de la pertinence d'un document :math:`d_i` par rapport au
+     *besoin* exprimé par la requête *q*; 
+  #. le calcul du score s'appuie sur la mesure de la *distance* entre le descripteur de :math:`d_i` 
+     et celui de *q*.
 
-   { 
-    "from": 0,
-    "size": 5,
-    "_source": false,
-    "query": {
-       "query_string" : {
-           "query" : "matrix,2000,jamais"
-       }
-     } 
-   }
+Ces principes étant posés, voyons une application concrète (quoique simplifiée
+pour l'instant, et peu satisfaisante en pratique) au cas de la recherche plein texte.
+
+Application à la recherche plein texte
+======================================
+
+.. important:: La méthode présentée ci-dessous n'est qu'une première approche, 
+   à la fois très simplifiée et présentant de sévères défauts
+   par rapport à la méthode générale que nous présenterons ensuite. 
+
+Pour commencer, on suppose
+connu l'ensemble :math:`V=\{t_1, t_2, \cdots, t_n\}` de tous les termes utilisables pour la rédaction d'un
+document et on définit *E* comme l'espace de tous les vecteurs
+constitués de *n* coordonnées valant soit 0, soit 1 (soit,
+en notation mathématique, :math:`E = \{0, 1\}^{n}`). Ce sont nos descripteurs.
+
+Par exemple, on considère que le vocabulaire est {"papa", "maman", "gateau", "chocolat", "haut", "bas"}. 
+Nos vecteurs sont donc constitués de 6 coordonnées valant soit 0, soit 1. Il faut alors
+définir la fonction :math:`f` qui associe un document *d* à son descripteur (vecteur) :math:`v = f(d)`.
+Voici cette définition: 
+
+.. math::
+
+      v[i] = \left\{
+                \begin{array}{ll}
+                  1 \text{ si $d$ contient le terme $t_i$}\\
+                  0 \text{ sinon}
+                \end{array}
+              \right.
 
 
-Nous allons pour l'instant nous contenter d'une variante du language, 
-dite *Query String*, qui
-correspond, essentiellement, au langage de base de Lucene.  Toutes les
-expressions données ci-dessous peuvent être entrées comme valeur du champ
-``query`` dans le document-recherche passé à l'interface ``REST``.
+C'est exactement la représentation que nous avons adoptée jusqu'à présent. À chaque
+document on associe une séquence (un vecteur) de 1 ou de 0 selon que le terme :math:`t_i`
+est présent ou non dans le document. 
 
-Termes
-------
+Prenons un premier exemple. Le document :math:`d_{maman}`::
 
-La notion de base est celle de *terme*. Un terme est soit un mot, soit une
-séquence de mots (une *phrase*) placée entre apostrophes. La recherche:
-
-.. code-block:: sql
-
-   Princess Leia
-
-retourne tous les documents contenant soit "Princess", soit "Leia". La recherche
-
-.. code-block:: sql
-
-  "Princess Leia"
-  
-ramène les documents contenant les deux mots côte à côte (vous devez utiliser
-\\" pour intégrer un guillemet double dans une requête). 
-
-.. code-block:: json
-
-   { 
-    "query": {
-       "query_string" : {
-           "query" : "\"Princess Leia\""
-       }
-     } 
-   }
-
-Par défaut, la recherche  s'effectue toujours sur tous les champs d'un document
-indexé (ou , plus précisément, sur un champ ``_all`` dans lequel ElasticSearch
-concatène toutes les chaînes de caractères). La syntaxe complète pour associer
-le champ et le terme est:
-
-.. code-block:: sql
-
-  champ:terme
-
-Par exemple, pour ne chercher le mot-clé ``Alien`` que dans les titres des films, on peut
-utiliser la syntaxe suivante :
-
-.. code-block:: json
-
-   { 
-    "query": {
-       "query_string" : {
-           "query" : "title:alien"
-       }
-     } 
-   }
-
-Revenez au fichier JSON  et à la structure de ses documents pour
-voir que les données de chaque film sont imbriquées sous un champ ``fields``.
-Nous l'omettons dans la suite, pensez à l'ajouter.
-
-Si on ne précise pas le champ, c'est celui par défaut qui est pris en compte. 
-Les requêtes précédentes sont donc équivalentes à:
-
-.. code-block:: sql
-
-   _all:"Princess Leia"
-  
-Les valeurs des termes (dans la requête) et le texte indexé sont tous deux
-soumis à des transformations que nous étudierons dans le chapitre suivant. Une
-transformation simple est de tout transcrire en minuscules. La requête:
-
-.. code-block:: sql
-
-   _all:"PRINCESS LEIA"
-
-devrait donc donner le même résultat, les majuscules étant converties en
-minuscules. La conception d'un index doit soigneusement indiquer les
-transformations à appliquer, car elles déterminent le résultat des recherches.
+   "maman est en haut, qui fait du gateau"
    
-.. important: Les transformations appliquées à la requête ET au texte indexé doivent être 
-   cohérentes. Si les termes sont transformés en majuscules, et le texte indexé en minuscules,
-   on n'aura jamais de résultat!
+sera représenté par le descripteur/vecteur :math:`[0, 1, 1, 0, 1, 0]`. Je vous laisse
+calculer le vecteur de ce second document :math:`d_{papa}`::
 
-On peut spécifier un terme simple (pas une phrase) de manière incomplète
+  "papa est en bas, qui fait du chocolat"
+ 
+.. note:: Remarquez que l'on choisit délibérément d'ignorer certains mots considérés
+   comme peu représentatifs du contenu du document. Ce sont les *stop words* (mots
+   inutiles) comme "est", "en", "qui", "fait", etc. 
 
-  * le '?' indique un caractère inconnue: ``opti?al`` désigne ``optimal``, ``optical``, etc.
-  * le '\*' indique n'importe quelle séquence de caractères (``opti*`` pour toute chaîne commençant par ``opti``). 
-      
-La valeur d'un terme peut-être indiquée de manière approximative en ajoutant le suffixe '-', si l'on n'est pas sûr de l'orthographe par
-exemple.  Essayez de rechercher ``optimal``, puis ``optimal-``. La proximité des termes est établie par
-une distance dite "distance d'édition" (nombre d'opérations d'éditions permettant de passer d'une valeur - optimal -
-à une autre - optical).
-
-Des recherches *par intervalle* sont possibles. Les crochets [] expriment des
-intervalles *bornes comprises*, les accolades {} des intervalles bornes non
-comprises. Voici comment on recherche tous les documents pour une année comprise
-entre 1990 et 2005:
-
-.. code-block:: sql
-
-    year:[1990 TO 2005]
+.. note:: Remarquez également que *l'ordre des mots* dans le document est ignoré
+  par cette représentation qui considère un texte comme un "sac de mots" (*bag of words*).
+  Si on prend un document contenant les deux phrases ci-dessus, on ne sait
+  plus distinguer si papa est en haut ou en bas, ou si maman
+  fait du gateau ou du chocolat.
    
-Connecteurs booléens
---------------------
+Maintenant, contrairement à la recherche Booléenne
+dans laquelle on vérifiait que, pour chaque terme requis, la position correspondante dans le vecteur
+d'un document était à 1, on va appliquer une fonction de distance sur les vecteurs
+afin d'obtenir une valeur entre 0 et 1 mesurant la pertinence.
+Un candidat naturel est la distance Euclidienne dont nous rappelons la définition,
+pour deux vecteurs :math:`v_1` et :math:`v_2`.
 
-Les critères de recherche peuvent être combinés avec les connecteurs Booléens 
-``AND``, ``OR`` et ``NOT``. Quelques exemples.
+.. math:: 
 
-.. code-block:: sql
+    E(v_1, v_2) = \sqrt{(v_1^1 - v^1_2)^2 + (v^2_1 - v^2_2)^2 + \cdots + (v_1^n - v^n_2)^2}
 
-   year:[1990 TO 2005] OR title:M*
-   year:[1990 TO 2005] AND NOT title:M*
-   
-.. important:: Attention à bien utiliser des majuscules pour les connecteurs Booléens.
+Et la similarité est l'inverse de la distance.
 
-Par défaut, un ``OR`` est appliqué, de sorte qu'une recherche sur plusieurs critères ramène l'union
-des résultats sur chaque critère pris individuellement. 
+.. math::
 
-Venons-en maintenant à l'opérateur "+". Utilisé comme préfixe d'un nom
-de champ, il indique que la valeur du champ *doit* être égale au terme.
-La recherche suivante:
+      sim(v_1, v_2) = \left\{
+                \begin{array}{ll}
+                  \infty \text{ si $v^i_1=v^i_2$ pour tout $i$ }\\
+                  \frac{1}{E(v_1, v_2)}  \text{ sinon}
+                \end{array}
+              \right.
 
-.. code-block:: sql
+On obtient une mesure de la similarité, ou *score*, mesurant la proximité de deux documents
+(ou, plus précisément, des vecteurs représentant ces documents). 
 
-    +year:2000  title:matrix
+Il reste à interpréter
+la requête comme un document et à évaluer :math:`sim(f(d), f(q))` pour chaque document *d*
+et la requête *q* pour évaluer la pertinence d'un document vis-à-vis du besoin
+exprimé par la requête. La requête *q* par exemple::
 
-recherche les documents dont l'année est 2000 (obligatoire) **ou** dont le titre
-est ``matrix`` ou n'importe quel titre. 
+   "maman haut chocolat"
 
-Quelle est alors la différence avec ``+year:2000``?  La réponse tient
-dans le *classement* effectué par le moteur de recherche: les documents dont
-le titre est ``matrix`` seront mieux classés que les autres. C'est une illustration,
-parmi d'autres, de la différence entre "recherche d'information" et "interrogation
-de bases de données". Dans le premier cas, on cherche les documents les plus "proches",
-les plus "pertinents", et on classe par pertinence.
+est donc transformée en un vecteur :math:`v_q = [0, 1, 0, 1, 1, 0]`. Pour le document
+:math:`d_{maman}`, on obtient un score
+de :math:`sim (v_q, d_{maman}) = \frac{1}{\sqrt{2}}`.  À vous de calculer
+:math:`sim (v_q, d_{papa})` et de vérifier que ce score est moins elevé, ce qui correspond
+à notre intuition. Notez quand même:
 
+  - que "chocolat", un des mots-clés de *q*, n'apparaît pas dans le document :math:`d_{maman}`, malgré tout classé en tête;
+  - qu'un seul terme est commun entre :math:`d_{papa}` et *q*, et que le document est quand même (bien) classé;
+  - qu'un document comme "``bébé mange sa soupe``" obtiendrait un score non nul (lequel?) et serait donc lui aussi
+    classé (si on ne met pas de borne à la valeur du score).
 
+Une différence concrète très sensible (illustrée ci-dessus) avec les requêtes Booléennes
+est qu'il n'est pas nécessaire
+qu'un document contienne *tous* les termes de la requête pour que son score soit
+différent de 0. 
 
-Mise en pratique
-================
-
-.. _MEP-S2-1:
-.. admonition:: Exercice  `MEP-S2-1`_: mise en route ElasticSearch
-
-   Installez ElasticSearch sur votre machine selon les instruction précédentes. 
-   Insérez le fichier des films. Vous pouvez alors en 
-   profiter pour explorer les options de l'interface ElasticVue, ce qui vous facilitera les choses
-   par la suite.
+Les limites de l'approche présentée jusqu'ici sont explorées dans des
+exercices. La méthode beaucoup plus robuste détaillée dans la prochaine section
+montrera aussi, par contraste, coment des facteurs comme la taille des documents,
+la taille du vocabulaire, le nombre d'occurrences d'un terme dans un document
+et la rareté de ce terme influent sur la précision du classement.
 
 Quiz
 ====
 
-.. eqt:: ri-se-1
+.. eqt:: ri-rank1-1
 
-    Parmi les arguments ci-dessous, lequel vous semble faux pour
-    distinguer un moteur de stockage NoSQL d'un moteur de recherche comme Elastic Search?
+    Quelle est la différence entre un espace métrique (EM) et un espace vectoriel (EV)?
    
-    A) :eqt:`I`  Les mises à jour du contenu ou du schéma
-       sont plus difficiles avec un moteur de recherche à cause 
-       de la compression des  listes inversées
-    #) :eqt:`C`  On ne peut pas faire de recherche structurée avec un moteur de recherche
-    #) :eqt:`I` Un moteur de recherche étant conçu comme une structure secondaire, il n'offre pas la même sécurité de stockage.
+    A) :eqt:`I` Les données d'un EM sont ordonnées, contraitrement aux vecteurs
+    #) :eqt:`I` Il existe une fonction de distance dans un EM, et pas dans un EV
+    #) :eqt:`C` Un EV est un type particulier d'espace métrique
 
-.. eqt:: ri-se-2
+.. eqt:: ri-rank1-12
 
-    Quelles sont les conséquences techniques d'une architecture comme celle de la :numref:`archi-ri`
+    Laquelle de ces propriétés n'est pas nécessaire pour une distance
    
-    A) :eqt:`I`  Il faut reconstruire l'index du moteur de recherche tous les soirs
-    #) :eqt:`C`  Il faut synchroniser toute mise à jour du moteur de stockage vers l'index
-    #) :eqt:`I` Il faut synchroniser toute mise à jour de l'index vers le  moteur de stockage
+    A) :eqt:`I` La symétrie
+    #) :eqt:`I` L'inégalité triangulaire
+    #) :eqt:`C` La valeur est comprise entre 0 et 1
+    #) :eqt:`I` La distance est nulle ssi les deux objets sont les mêmes
 
-.. eqt:: ri-se-3
 
-    Quel est le protocole d'échange avec Elastic Search
+.. eqt:: ri-rank1-2
+
+    Quelle explication de la notion de "bag of words" vous semble la bonne.
    
-    A) :eqt:`C`  HTTP
-    #) :eqt:`I`  Swift
-    #) :eqt:`I` Un protocole propriétaire
+    A) :eqt:`I` Chaque texte est représenté par un sous-ensemble de ses mots, c'est le "sac"
+    #) :eqt:`C` Le texte est considéré comme un ensemble de mots sans ordre, comme
+       s'ils étaient dans un "sac"
+    #) :eqt:`I` Les textes sont projetés dans un espace vectoriel appelé "sac de mots".
 
+.. eqt:: ri-rank1-3
 
-.. eqt:: ri-bool-1
-
-    Avec une requête de type "Query string", Elastic Search effectue la recherche
+    Pourquoi est-il plus correct de parler de distance entre les représentations des documents
+    que de distance entre les documents eux-mêmes?
    
-    A) :eqt:`I`  Dans le premier champ de type texte des documents indexés
-    #) :eqt:`I`  Dans un champ de type texte défini par défaut
-    #) :eqt:`C` Dans un champ constitué de la concaténation de tous les textes d'un document
+    A) :eqt:`C` Parce qu'il peut y avoir plusieurs représentations possibles d'un même
+       document, ce qui peut influer sur la distance
+    #) :eqt:`I` Parce que la distance naturelle entre deux documents textuels est trop coûteuse
+       à calculer
+    #) :eqt:`I` Parce que cela permet d'appliquer une même distance à des documents multimédia
+       quelconques: images, vidéos, etc.
 
 
-.. eqt:: ri-bool-2
+.. eqt:: ri-rank1-4
 
-    La recherche booléenne  dans cette session est-elle identique
-    à celle présentée en début de chapitre et basée sur les vecteurs d'incidence?
+    Comment est interprétée une requête *q* ?
    
-    A) :eqt:`I`  Oui, car l'exécution repose sur les OR et AND binaires 
-    #) :eqt:`C`  Non, car Elastic Search peut ramener des documents même si une partie seulement 
-       des termes recherchés est présente.
-
-
-.. eqt:: ri-bool-3
-
-    Est-il possible de demander les documents dans lesquels un mot ne figure pas (par exemple
-    les textes avec "loup", "cochon" mais pas "bergerie")?
+    A) :eqt:`I` C'est une séquence d'opérations à appliquer à la collection
+    #) :eqt:`I` C'est une spécification de critères de recherche filtrant la collection
+    #) :eqt:`C` C'est un document de même type que ceux de la collection
+    #) :eqt:`I` C'est une sous-chaîne des documents textuels de la collection
    
-    A) :eqt:`C`  Oui
-    #) :eqt:`I`  Non
 
+.. eqt:: ri-rank1-5
+
+    Qu'est-ce qui détermine le classement du résultat?
+   
+    A) :eqt:`I` On calcule toutes les distances entre chaque paire de documents, et on trie.
+    #) :eqt:`C` On calcule la distance par rapport à un document de référence: la requête
+    #) :eqt:`I` Les documents qui contiennent le plus de termes sont classés en premier
+
+.. eqt:: ri-rank1-6
+
+    Qu'est-ce qu'un *stop word*
+   
+    A) :eqt:`I` On exclut les documents qui contiennent ce mot
+    #) :eqt:`C` C'est un mot courant qui n'informe pas sur le document
+    #) :eqt:`I` C'est un mot qui déclenche l'arrêt de la recherche quand il est rencontré
+
+.. eqt:: ri-rank1-7
+
+    Un document doit contenir tous les mots de la requête pour être pertinent
+   
+    A) :eqt:`I` Vrai
+    #) :eqt:`C` Faux
+
+.. eqt:: ri-rank1-8
+
+    Quelle propriété de la distance euclidienne est vraie?
+   
+    A) :eqt:`I` On ne prend en compte que les 1
+    #) :eqt:`I` On ne prend en compte que les 0
+    #) :eqt:`C` On prend en compte toutes les coordonnées des vecteurs
+    #) :eqt:`I` On prend en compte les coordonnées du vecteur décrivant la requête
+
+
+**************************
+S2: recherche plein  texte
+**************************
+
+Supports complémentaires:
+
+  * `Présentation: Recherche plein texte <http://b3d.bdpedia.fr/files/slri-ranking-fulltextsearch.pdf>`_
+  * `Vidéo de la session classement dans la recherche plein texte <https://mediaserver.lecnam.net/permalink/v125f35a3b0588uwz8x9/>`_  
+
+
+Nous reprenons maintenant un approche plus solide pour la recherche plein texte,
+qui pour l'essentiel s'appuie sur les principes précédents, mais corrige les
+gros inconvénients que vous avez dû découvrir en complétant les exercices.
+
+La méthode présentée dans ce qui suit est maintenant bien établie et utilisée, 
+à quelques raffinements près, comme approche de base par tous les moteurs de recherche.
+Résumons (une nouvelle fois):
+
+  * les documents (textuels) sont vus comme des *sacs de mots*, l'ordre entre les mots étant
+    ignoré; on ne fera pas de différence entre un document qui dit que le mouton est
+    dans la gueule du loup et un autre qui prétend  que le loup est dans la gueule du mouton (?);
+  * quand on parle de "mots", il faut bien comprendre: les termes obtenus par application
+    d'un processus de simplification / normalisation lexicale déjà étudié;
+  * un descripteur est associé à chaque document, dans un espace doté d'une fonction
+    de distance qui permet d'estimer la similarité entre deux documents;
+  * enfin, la *requête* elle-même est vue comme un document, et placée donc dans le même espace;
+    on considère donc ici les requêtes exprimées comme une liste de mots, sans aucune construction 
+    syntaxique complémentaire.
+    
+Ceci posé, nous nous concentrons sur la fonction de similarité. 
+
+.. note:: "mot" et "terme" sont utilisés comme des synonymes à partir de maintenant. 
+
+Le poids des mots
+=================
+
+Dans l'approche très simplifiée présentée ci-dessus, nous avons traité les mots uniformément,
+selon une approche Booléenne: 1 si le mot est présent dans le document, 0 sinon.
+
+Pour obtenir des résultats de meilleure qualité, on va prendre en compte
+les degrés de pertinence et d'information portés par un terme, selon deux principes:
+
+  #. plus un terme est présent dans un document, plus il est représentatif du contenu du document;
+  #. moins un terme est présent dans une collection, et plus une occurrence de terme est significative.
+  
+De plus, on va tenter d'éliminer le biais lié à la longueur variable
+des documents. Il est clair que plus un document est long, et plus il contiendra
+de mots et de répétitions d'un même mot. Si on n'introduit pas un élément correctif, 
+la longueur des documents a donc un impact fort sur le résultat d'une recherche et
+d'un classement, ce qui n'est pas forcément souhaitable.
+
+En tenant compte de ces facteurs, on aboutit à affecter un *poids* 
+à chaque mot dans un document, et à représenter ce dernier comme un vecteur
+de paires *(mot, poids)*, ce qui peut être considéré comme une représentation compacte 
+du contenu du document.  La méthode devenue classique pour déterminer le poids est 
+de combiner la *fréquence des termes* et la *fréquence inverse (des termes) dans
+les documents*, ce que l'on abrège par *tf* (*term frequency*)
+et *idf* (*inverse document frequency*).
+
+La fréquence des termes
+-----------------------
+
+La *fréquence d'un terme t* dans un document *d* est le nombre d'occurrences de
+*t* dans *d*.
+
+.. math::
+
+    \mathrm{tf}(t,d)= n_{t,d}
+
+où :math:`n_{t,d}` est le nombre d'occurrences de *t'* dans *d*. On
+représente donc un document par la liste des termes associés à leur fréquence. Si
+on prend une collection de documents, dans laquelle certains termes apparaissent
+dans plusieurs documents (ce qui est le cas normal), on peut représenter
+les *tf* par une matrice semblable à la matrice d'incidence déjà vue
+dans la cas Booléen. Celle ci-dessous correspond à une collection de trois documents,
+avec un vocabulaire constitué de 4 termes.
+
+.. csv-table:: 
+   :header: terme, d1, d2, d3
+   :widths: 10, 10, 10, 10
+             
+   "voiture", 27, 15, 24
+   "marais", 3, 20, 0
+   "serpent", 0, 25, 29
+   "baleine", 14, 0, 17
+   "`total`", `44`, `60`, `70`
+
+Normalisation des *tf*
+----------------------
+
+Il y a donc 44 termes dans le document *d1*, 60 dans le *d2* et 70 dans le *d3*. Il est clair qu'il est difficile
+de comparer dans l'absolu des fréquences de terme pour des documents de longueur très différentes, car
+la probabilité qu'un terme apparaisse souvent augment avec la taille du document.
+
+Pour s'affranchir de l'effet induit par la taille (qui amènerait à classer systématiquement en tête les
+documents longs), on *normalise* donc les valeurs des *tf*. Une méthode simple est, par exemple,
+de diviser chaque *tf* par le nombre total de termes dans le document, ce qui donnerait la
+matrice suivante:
+
+.. csv-table:: 
+   :header: terme, d1, d2, d3
+   :widths: 10, 10, 10, 10
+             
+   "voiture", 27/44, 15/60, 24/70
+   "marais", 3/44, 20/60, 0
+   "serpent", 0, 25/60, 29/70
+   "baleine", 14/44, 0, 17/70
+
+Un calcul un peu plus sophistiqué consiste à considérer l'ensemble une colonne de la matrice
+d'incidence comme un vecteur dans un espace multidimensionel. Dans notre exemple l'espace
+est de dimension 4, chaque axe correspondant à l'un des termes. Le vecteur de *d1*
+est (27, 3, 0, 14), celui de *d2* (15,20, 25,0), etc.
+Pour normaliser ces vecteurs, on va diviser leurs coordonnées par leur norme euclidienne.
+Rappel: la norme d'un vecteur :math:`v = (x_1, x_2, \cdots, x_n)` est
+
+.. math::
+         
+            ||v|| = \sqrt{x_1^2 + x_2^2 + \cdots + x_n^2} 
+
+La norme du vecteur *d1* est donc:
+
+.. math::
+         
+            \sqrt{27^2 + 3^2 + 14^2} =  30,56
+
+Celle de *d2*:
+
+.. math::
+         
+            \sqrt{15^2 + 20^2 + 25^2} =  35,35
+
+
+Celle de *d3*:
+
+.. math::
+         
+            \sqrt{24^2 + 29^2 + 17^2} =  41,3
+
+On voit que le résultat est assez différent de la simple somme des *tf*. L'interprétation 
+des descripteurs de documents comme des vecteurs est à la base d'un calcul de similarité
+basé sur les cosinus, que nous détaillons ci-dessous.
+
+
+La fréquence inverse dans les documents
+---------------------------------------
+
+La fréquence inverse d'un terme dans les documents (*inverse document
+frequency*, ou *idf*) mesure l'importance d'un terme par rapport à une
+collection *D* de documents. Un terme qui apparaît rarement peut être considéré
+comme plus caractéristique d'un document qu'un autre, très commun. On retrouve
+l'idée des mots inutiles, avec un raffinement consistant à mesurer le degré
+d'utilité. 
+
+L'idf d'un terme *t*  est obtenu en divisant le nombre total de documents par
+le nombre de documents contenant au moins une occurrence de *t*. De plus, on prend
+le logarithme de cette fraction pour conserver cette valeur dans un intervalle
+comparable à celui du *tf*. 
+
+
+.. math::
+
+    \mathrm{idf}(t)=\log\frac{|D|}{\left|\left\{d' \in D\,|\,n_{t,d'}>0\right\}\right|}
+ 
+Notez que si on ne prenait pas le logarithme, la valeur de l'idf pourrait
+devenir très grande, et rendrait négligeable l'autre composante du poids d'un
+terme. La base du logarithme est 10 en général, mais quelle que soit la base,
+vous noterez que l'idf est nul dans le cas d'un terme apparaissant dans *tous*
+les documents (c'est clair? sinon réfléchissez!).
+
+Reprenons notre matrice ci-dessus en supposant que la collection se limite
+aux trois documents. Alors
+
+  - l'idf de "voiture" est 0, car il apparaît dans tous les documents. Intuitivement, "voiture"
+    est (pour la collection étudiée) tellement courant qu'il n'apporte rien comme critère de recherche.
+  - l'idf de "marais", "serpent" et "baleine"   est :math:`log(3/2)`
+
+Dans un cas plus réaliste, un terme qui apparaît 100 fois dans une collection d'un million de documents aura
+un idf de :math:`log_{10}(1000000/100) = log_{10}(10000) = 4` (en base 10). Un terme qui n'apparaît
+que 10 fois aura un idf de :math:`log_{10}(1000000/10) = log_{10}(100000) = 5`. Une valeur d'idf plus élevée
+indique le terme est relativement plus important car plus rare.
+  
+ 
+Le poids tf.idf
+---------------
+
+On peut combiner le tf (normalisé ou non) et l'idf pour obtenir le poids tf.idf d'un terme *t* dans un document.
+C'est simplement le produit des deux valeurs précédentes:
+
+.. math::
+
+    \mathop{\mathrm{tf{.}idf}}(t,d)= n_{t,d}\cdot \log\frac{|D|}{\left|\left\{d'\in D\,|\,n_{t,d'}>0\right\}\right|}
+    
+À chaque document *d* nous associons un vecteur :math:`v_d` dont chaque composante :math:`v_d[i]`
+contient le tf.idf du terme :math:`t_i` pour *d*. 
+
+Si le tf n'est pas normalisé,  les valeurs des tf.idf 
+seront d'autant plus élevées que le document est long. En terme de stockage (et pour anticiper un peu sur la
+structure des index inversés), il est préférable de stocker 
+
+  - l'idf à part, dans une structure indexée par le terme, 
+  - la norme des vecteurs à part, dans une structure indexéee par les documents
+  - et enfin de placer dans chaque cellule la valeur du tf.
+  
+On peut alors effectuer le produit tf.idf et la division par la norme au moment du calcul de la distance. 
+
+La similarité cosinus
+=====================
+
+Nous avons donc des vecteurs représentant les documents. La requête
+est elle aussi représentée par un vecteur  dans lequel les coefficients 
+des mots sont à 1.  Comment calculer la distance entre ces vecteurs?
+Si on prend comme mesure la norme de la différence entre deux vecteurs comme nous l'avons fait 
+initialement, des anomalies sévères apparaissent car deux documents peuvent avoir des 
+contenus semblables mais des tailles très différentes. La distance Euclidienne n'est donc
+pas un bon candidat. 
+
+On pourrait mesure la distance euclidienne entre les vecteurs normalisés. 
+Une mesure plus adaptée en pratique  est la *similarité cosinus*. Commençons par quelques rappels,
+en commençant par la formule du *produit scalaire* de deux vecteurs.
+
+.. math::
+
+    v_1 . v_2  = ||v_1|| \times ||v_2|| \times cos \theta = \sum_{i=1}^n v_1[i] \times v_2[i]
+    
+où :math:`\theta` désigne l'angle entre les deux vecteurs et :math:`||v||` la norme d'un vecteur 
+*v* (sa longueur Euclidienne). 
+
+On en déduit donc que le cosinus de l'angle entre deux vecteurs satisfait:
+
+.. math::
+
+    cos { } \theta  = \frac{\sum_{i=1}^n v_1[i] \times v_2[i]}{||v_1|| \times ||v_2||}
+
+Quel est l'intérêt de prendre ce cosinus comme mesure de similarité? L'idée est que l'on compare
+la *direction* de deux vecteurs, indépendamment de leurs longueurs. La  :numref:`CosineSim`
+montre la représentation des vecteurs pour nos documents de l'exercice `Ex-S1-1`_. Les
+vecteurs en ligne pleine sont les vecteurs unitaires, normalisés, les lignes pointillées
+montrant les vecteurs complets. Pour des raisons d'illustration,
+l'espace est réduit à deux dimensions correspondant  aux deux termes, "loup" et "bergerie".
+Il faut imaginer un espace vectoriel de dimension *n*, *n* étant le nombre
+de termes dans la collection, et donc potentiellement très grand.
+
+
+.. _CosineSim:
+.. figure:: ../figures/CosineSim.png
+      :width: 60%
+      :align: center
+   
+      Illustration de la similarité cosinus
+     
+
+Les documents (B) et (D) contiennent respectivement une occurrence de "bergerie" et une de "loup":
+ils sont alignés avec les axes respectifs. 
+
+Le  document (A) contient une occurrence de "loup" 
+et une de "bergerie" et fait donc un angle de 45 degrés avec l'abcisse: le cosinus de cet angle,
+égal à :math:`\sqrt{2}/2`, représente la similarité entre A et B. 
+
+En ce qui concerne C, 
+"loup" est mentionné deux fois et "bergerie" une, d'où un angle plus important avec l'abcisse. 
+      
+Le fait d'avoir comme dénominateur
+dans la formule le produit des normes revient à normaliser le calcul en ne considérant que des
+vecteurs de longueur unitaire.  La mesure satisfait aussi des conditions satisfaisantes
+intuitivement:
+
+  - l'angle entre deux vecteurs de même direction est 0, le cosinus vaut 1;
+  - l'angle entre deux vecteurs orthogonaux, donc "indépendants" (aucun terme en commun),
+    est 90 degrés, le cosinus vaut 0;
+  - toutes les autres valeurs possibles (dans la mesure où les coefficients de nos vecteurs sont
+    positifs) varient continuement entre 0 et 1 avec la variation de l'angle entre 0 et 90 degrés.
+
+Dernier atout: la similarité cosinus est très simple à calculer, et très rapide pour des vecteurs
+comprenant de nombreuses composantes à 0, ce qui est le cas pour la représentation des documents.
+    
+.. note:: 
+
+          La similarité cosinus n'est pas une distance au sens strict du terme (l'inégalité triangulaire
+          n'est pas respectée), mais ses propriétés en font un excellent candidat.
+
+Passons à la pratique sur notre exemple de trois documents représentés par la matrice
+donnée précédemment. On va ignorer l'idf pour faire simple, et se contenter de prendre en compte
+le tf.
+
+Commençons par une requête simplissime: "voiture". Cette requête est représentée dans l'espace
+de dimension 4 de notre vocabulaire par le vecteur (1, 0, 0, 0), dont la norme est 1.
+On pourrait croire qu'il suffit de prendre le classement des *tf*
+du terme concerné, sans se lancer dans des calculs compliqués, auquel cas
+*d1* arriverait en tête juste devant *d3*. *Erreur!* Ce qui compte ce n'est pas
+la fréquence d'un terme, mais sa proportion par rapport aux autres. Il faut appliquer le
+calcul cosinus rigoureusement.
+
+Calculons donc les cosinus. Pour d1, le cosinus vaut est le produit scalaire des
+vecteurs (27, 3, 0, 14) et (1, 0, 0, 0), divisé par le produit de la norme de ces deux vecteurs: 
+
+.. math::
+   
+     \frac{27 \times 1 + 3 \times 0 + 0 \times 0 + 14 \times 0}{1  \times 30,56} = 0,88
+ 
+Pour les autres documents:
+
+     * Pour d2, le cosinus vaut : :math:`\frac{15 + 0 + 0 + 0}{1 \times 35,35} = 0,424`
+     * Pour d3, le cosinus vaut : :math:`\frac{24 + 0 +0 +0}{1,41 \times 41,3} = 0,58`
+
+Le classement est d1, d3, d2, et on voit que *d1* l'emporte assez nettement sur *d3* alors que
+le nombre d'occurrences du terme "voiture" est à peu près le même dans les deux cas. Explication:
+*d1* parle *essentiellement* de voiture, le second terme le plus important, "baleine", ayant moins
+d'occurrences. Dans *d3* au contraire, "serpent" est le terme principal, "voiture" arrivant en second.
+Le document *d1* est donc plus pertinent pour la requête et doit être classé en premier.
+
+Prenons un second exemple, "voiture" et "baleine". Remarquons d'abord que les coefficients de la requête sont (1, 0, 0, 1) et
+sa norme :math:`\sqrt{1+1} = 1,41`. Voici les calculs cosinus:
+    
+             * Pour d1, le cosinus vaut : :math:`\frac{27 + 14}{1,41 \times 30,56} = 0,95`
+             * Pour d2, le cosinus vaut : :math:`\frac{15 + 0}{1,41 \times 35,35} = 0,30`
+             * Pour d3, le cosinus vaut : :math:`\frac{24 + 17}{1,41 \times 41,3} = 0,70`
+
+L'ordre est donc d1, d3, d2. Le document d3 présente un meilleur équilibre 
+entre les composantes ``voiture`` et  ``baleine``, mais, contrairement
+à d1, il a une autre composante forte pour ``serpent``
+ce qui diminue sa similarité.
+
+Quiz
+====
+
+.. eqt:: ri-tfidf-1
+
+    Pourquoi un terme est-il considéré comme important pour un document?
+   
+    A) :eqt:`I` Parce qu'il est rare dans le document
+    #) :eqt:`C` Parce qu'il est rare dans la collection
+    #) :eqt:`I` Parce qu'il est fréquent dans la collection et rare dans le document
+    #) :eqt:`I` Parce qu'il est rare dans la collection et fréquent dans le document
+
+
+.. eqt:: ri-tfidf-1a
+
+    Je soumets une requête :math:`t_1 t_2 \cdots t_n`. Quel est le tf de chaque terme
+    dans le vecteur représentant cette requête?
+   
+    A) :eqt:`I`  :math:`\frac{1}{n}`
+    #) :eqt:`C`  1
+    #) :eqt:`I`  :math:`\frac{1}{\sqrt{n}}`
+
+.. eqt:: ri-tfidf-1b
+
+    La normalisation de ce vecteur-requête est elle
+    importante pour le classement ?
+   
+    A) :eqt:`C` Non puisque cela revient à multiplier tous les rangs par une constante positive, et
+       ne change donc pas l'ordre.
+    #) :eqt:`I` Oui car c'est la condition pour permettre le calcul du cosinus
+    #) :eqt:`I` Non car la normalisation n'a de sens que pour les documents, pas pour la requête
+
+.. eqt:: ri-tfidf-1c
+
+    Dans la figure :numref:`euclidiandistance`, qu'obtient-on en projetant un vecteur sur l'axe d'un terme *t* ?
+   
+    A) :eqt:`I` La norme du vecteur multipliée par le cosinus
+    #) :eqt:`I` L'idf du terme *t*
+    #) :eqt:`I` Le tf du terme *t*
+    #) :eqt:`C` Le tf.idf du terme *t*
+
+    .. _euclidiandistance:
+    .. figure:: ../figures/euclidiandistance.png
+       :width: 50%
+       :align: center
+
+       Vecteurs dans un espace Euclidien
+
+.. eqt:: ri-tfidf-2
+
+    On exprime une requête avec un seul terme. Est-ce que l'idf du terme a une importance pour
+    le classement?
+   
+    A) :eqt:`C` Non puisque cela ne change pas la direction du vecteur
+    #) :eqt:`I` Oui car cela change sa norme
+    #) :eqt:`I` Non car son idf est forcément égal à 1 dans ce cas
+
+
+.. eqt:: ri-tfidf-3
+
+    Quel est le but de la normalisation ?
+   
+    A) :eqt:`C` Unifier la taille des vecteurs décrivant les documents
+    #) :eqt:`I` Effacer les écarts entre les fréquences de termes dans un document
+    #) :eqt:`I` Utiliser une même représentation pour tous les documents
+
+
+.. eqt:: ri-tfidf-4
+
+    Comment caractériser un mot qui n'a aucun intérêt pour une recherche?
+   
+    A) :eqt:`I` C'est un mot dont l'idf vaut 1
+    #) :eqt:`C` C'est un mot dont l'idf vaut 0
+    #) :eqt:`I` C'est un mot qui n'apparaît que dans un seul document
+
+
+.. eqt:: ri-tfidf-41
+
+    Quelle propriété est vraie pour le calcul de la similarité cosinus entre deux documents
+   
+    A) :eqt:`I` On doit prendre en compte toutes les coordonnées des vecteurs
+    #) :eqt:`I` On ne prend en compte que les paires de coordonnées (1,1) 
+    #) :eqt:`C` On ne prend en compte que les paires dont une coordonnée est non nulle
+    #) :eqt:`I`  On ne prend en compte que les paires de coordonnées (0,0) 
+
+.. eqt:: ri-tfidf-5
+
+    Deux documents de même longueur contiennent tous les deux le même nombre
+    d'occurrences d'un terme *t*. Que peut-on en déduire sur le classement
+    de ces documents si je fais une recherche avec l'unique terme *t*?
+
+    A) :eqt:`I` Ils seront tous les deux classés en tête avec une valeur cosinus de 1
+    #) :eqt:`I` Leur classement sera le même, mais pas forcément en tête
+    #) :eqt:`C` Leur classement dépend, pour chacun, des co-occurrences avec d'autres termes
+       différents de *t*
+
+
+.. eqt:: ri-tfidf-6
+
+    Je soumets une requête composée de deux termes: :math:`t_1`  et :math:`t_2`, qui ont le même idf. Chaque document
+    contient soit :math:`t_1`, soit :math:`t_2`, une seule fois,  et jamais les deux ensemble. Quel
+    sera le résultat?
+
+    A) :eqt:`I` Ils seront tous les deux classés en tête avec une valeur cosinus de 1
+    #) :eqt:`I` Leur classement sera le même, mais pas forcément en tête
+    #) :eqt:`C` Les documents sont classés selon leur taille
 
 *********
 Exercices

@@ -12,19 +12,20 @@ pour la gestion de \alert{collections} à très grande échelle dans des environ
 
 \vfill
 
-\alert{Quatre}  thèmes traités successivement\,:
+Les thèmes traités\,:
 
 \begin{redbullet}
-  \item \alert{modélisation} sous forme  de \alert{document}, structuré, semi-structuré, non structuré; 
-  \item \alert{recherche d'information}  dans de très grandes collections;
-  \item \alert{distribution du stockage} pour maintenir de très grands volumes de données;
-  \item \alert{distribution des calculs}, notamment pour les méthodes analytiques.
+  \item \alert{modélisation} sous forme  de \alert{document}, structuré, semi-structuré, non structuré
+  \item \alert{recherche exacte} et  \alert{recherche approchée} dans de très grandes collections
+  \item \alert{traitements par lot} (MapReduce et +)
+  \item \alert{distribution du stockage} (réplication, partitionnement).
+  \item \alert{distribution des calculs}
 \end{redbullet}
 
 \vfill
 \begin{blocgauche}
 Des mots-clés à comprendre (et à critiquer): données structurées/non structurées, bases NoSQL, Cloud, BigData,
-moteurs de recherche, etc.
+moteurs de recherche.
 \end{blocgauche}
 \end{frame}
 
@@ -33,7 +34,8 @@ moteurs de recherche, etc.
 \frametitle{Point de départ\,: bases relationnelles}
 
 Les \alert{bases relationnelles} = applications
-gérant des informations \alert{structurées} et \alert{régulières}\,: applications de ``gestion'',
+gérant des informations \alert{structurées} et \alert{régulières}\,: 
+applications de ``gestion'',
  Web,  mobiles.
 
 \vfill
@@ -194,33 +196,32 @@ Des environnements de développement et d'exécution
 
 
 \begin{frame}
-\frametitle{Plan du cours}
+\frametitle{Plan du cours\,: deux parties, $\approx$ 6 semaines chacune}
 
-\alert{Quatre parties}, $\approx$ 3 semaines chacune, 1 jalon à la fin de chaque partie
+\alert{Partie 1}\,: modèles de représentation et de traitement
 
 \begin{redbullet}
-  \item \alert{Représentation de documents textuels}\,: les formats XML et JSON; la modélisation
+  \item \alert{Représentation de documents textuels}\,: JSON; la modélisation
     de documents, les langages 
      de manipulation
 
-  \item \alert{Recherche d'information dans les bases documentaires}\,:  moteurs 
-    de recherche, index, algorithmes
-    
-   \item \alert{Stockage distribué}. Systèmes 
-    distribués; NoSQL
+  \item \alert{Recherche exacte et approchée}\,:  langages d'interogation,
+      principes de la recherche d'information
+
+  \item \alert{Les traitements par lot de données massives}\,:  MapReduce et autres
+          opérateurs de traitement distribués
+ \end{redbullet}
+
+\alert{Partie 2}\,: systèmes distribués
+ 
+\begin{redbullet}    
+   \item \alert{Stockage distribué}. Partition, réplication, reprise sur panne
    
-   \item \alert{Calcul distribué}. MapReduce, et au-delà avec Spark et Flink
+   \item \alert{Calcul distribué}. Les chaînes de traitement distribué
 \end{redbullet}
 
 \vfill
-\alert{Connaissances pratiques (en cours, en TP, chez vous)}
-
-\begin{redbullet}
-  \item Des systèmes ``NoSQL'' ; illustré avec MongoDB, CouchDB et Cassandra
-  \item Des moteurs de recherche\,. avec ElasticSearch
-   \item  Systèmes distribués\,; avec MongoDB,  ElasticSearch et Cassandra.
-    \item Calculs distribués\,; avec Hadoop, Spark, Flink
-\end{redbullet}
+Mise en pratique: des TPs avec Cassandra, ElasticSearch et Spark
 
 \end{frame}
 
@@ -238,7 +239,7 @@ Des environnements de développement et d'exécution
    \item \alert{Une aisance minimale dans un environnement de développement}. Editer un fichier, lancer une commande, 
       ne pas paniquer devant un nouvel outil, savoir résoudre un problème avec un minimum de tenacité, etc.      
 
-    $\Rightarrow$   il est utile (ais pas \alert{obligatoire}) reproduire les exemples donnés.
+    $\Rightarrow$   il est utile (mais pas \alert{obligatoire}) reproduire les exemples donnés.
       
 \end{redbullet}
 
@@ -266,8 +267,8 @@ des principes via la pratique (limitée)
 \begin{redbullet}
    \item  \href{http://elasticsearch.org}{ElasticSearch} 
       pour l'indexation de documents.
-   \item \href{http://mongodb.com}{MongoDB} et Cassandra
-   \item \href{http://spark.apache.org}{Spark} et (un peu) \href{http://flink.apache.org}{Flink}
+   \item \href{http://cassandra.apache.org}{Cassandra} 
+   \item \href{http://spark.apache.org}{Spark}
    \end{redbullet}
 
 \vfill
@@ -343,118 +344,4 @@ Reproduisez les exemples de code, \alert{sans y passer trop de temps}
 \end{blocgauche}
 
 \end{frame}
-
-
-\begin{comment}
-
-\begin{frame}
-\frametitle{Evaluation\,: option 1, le projet}
-
-\alert{Objectif}: un sujet qui vous intéresse, en liaison avec les
-techniques avancées de gestion de données, et vous préparez un
-rapport (app. 20 pages). 
-Travail \alert{personnel}, plagiat \alert{éliminatoire}
-
-\vfill
-
-Exemple: vous étudiez le dernier système NoSQL à la mode (pas celui vu en cours!)
-
-\vfill
-\begin{redbullet}
-  \item Une partie \alert{pratique}\,: choix d'un jeu de données, insertion, manipulations
-  \item Une partie \alert{étude} d'un aspect technique (interrogation, distribution, tolérance aux pannes, ...)
-\end{redbullet}
-
-\vfill
-\begin{blocgauche}
-C'est vous qui proposez le sujet\,! Site de soumission ouvert 
-\url{http://deptfod.cnam.fr/soumissions}
-
-\end{blocgauche}
-
-\end{frame}
-
-
-\begin{frame}
-\frametitle{Evaluation\,: option 2, le  hackathon}
-
-\alert{Objectif}: travailler \alert{en groupe} pour mettre en place un \alert{vrai}
-système distribué à la fin du cours, en une séance.
-
-\vfill
-Thèmes proposés (\url{http://b3d.bdpedia.fr/hackathon.html})
-
-\vfill
-\begin{redbullet}
-  \item Traitement massif de flux Twitter avec Kafka et Spark
-  \item Une \textit{blockchain} basée sur un système NoSQL
-  \item Autre idée\,?
-\end{redbullet}
-
-\vfill
-
-Travail collaboratif
-
-\begin{redbullet}
-  \item Réunion du groupe au moins toutes les deux semaines
-  \item Outils comme Slack, Git, environnements virtuels
-\end{redbullet}
-
-
-\vfill
-\begin{blocgauche}
-Il faut constituer les groupes rapidement, travailler en continu. Rush final à
-la fin de l'année, présentation en janvier.
-\end{blocgauche}
-
-\end{frame}
-
-
-\begin{frame}{Evaluation}
-
-Pour les auditeurs du Cnam, l'évaluation de l'UE combine\,:
-
-\begin{redbullet}
-  \item Pour 1/3: 
-      \begin{itemize}
-         \item Soit une note portant sur le \alert{rapport écrit} du projet (coeff. 1/3).
-         \item Soit une note sur la participation au hackathon (avec présentation orale et rapport)
-         \end{itemize}
-  \item  La note d'un examen de contrôle (coeff. 2/3).
-\end{redbullet}
-
-\vfill
-
-Projet / hackathon sont  suivis et évalués par les enseignants du Cnam.
-
-\vfill
-
-Voir support en ligne pour les annales, et les instructions détaillées.
-
-\vfill
-
-\alert{Bon travail!}
-\end{frame}
-
-
-\section{Les ressources}
-
-\begin{frame}{Ressources}
-
-Contact avec les enseignants: Raphaël Fournier-S'niehotta et Philippe Rigaux (prénom.nom@cnam.fr).
-
-\begin{redbullet}
-  \item Support de cours en HTML: \url{http://b3d.bdpedia.fr/}
-    \item Support de cours en PDF: \url{http://b3d.bdpedia.fr/files/b3d.pdf}
-    \item Support de cours en ePub: \url{http://b3d.bdpedia.fr/files/b3d.epub}
-\end{redbullet}
-
-\vfill
-
-Pour ceux/celles qui suivent le cours au Cnam: \url{http://lecnam.net}.
-
-\end{frame}
-
-
-\end{comment}
 
