@@ -403,8 +403,8 @@ la commande suivante qui donne la liste des conteneurs en cours d'exécution.
 
     docker ps
     
-Vous devriez obtenir le résultat suivant. Notez le port via lequel on 
-peut accéder au serveur, et le nom
+Vous devriez obtenir le résultat suivant. Notez le port sur lequel
+opn peut communiquer avec le service *sur le conteneur*, et le nom
 du conteneur.
 
 .. code-block:: text
@@ -413,18 +413,10 @@ du conteneur.
     d02a690e0253  httpd:latest "httpd-foreground" 3 minutes ago  Up 3 minutes  80/tcp  serveur-web1
 
 
-Notez que le serveur web est accessible sur le port 80 de la machine sur laquelle 
-le *Docker Desktop*
-a été lancée, soit ``localhost``. Comment est-ce possible alors que nous avons dit 
-que chaque conteneur était une petite machine indépendante et disposait donc 
-de sa propre adresse IP? La réponse est que le Docker Desktop se charge 
-automatiquement de *renvoyer* le port du conteneur
-vers ``localhost``.
-
-Si on veut créer un système distribué constitué de plusieurs serveurs web,
-ce renvoi par défaut n'est plus possible puisque tous les serveurs se disputeraient
-l'accès au port 80 de la machine hôte. 
-
+Le serveur web est donc accessible sur le port 80 du conteneur. Pour y accéder 
+il faut donc connaître l'adresse IP de ce dernier (c'est possile: voir ci-dessous).
+Il existe une possibilité plus pratique:  *renvoyer* le port du conteneur
+vers  la machine-hôte.
 Docker fournit un mécanisme dit *de publication* pour indiquer sur quel  
 port se met en écoute un conteneur. On spécifie simplement avec l'option
 ``--publish`` (ou ``-p``) comment on associe un port du conteneur à un port du
@@ -510,11 +502,6 @@ ce qui se passe).
 Nos systèmes NoSQL
 ******************
 
-.. admonition:: Supports complémentaires
-
-      * `Vidéo de démonstration de MongoDB  <https://mediaserver.lecnam.net/permalink/v125f35a35d71le2bkhv/>`_
-
-
 Dans la suite de ce cours, nous seront amenés à expérimenter quelques systèmes
 NoSQL. J'en ai sélectionné un petit nombre, sur des critères de popularité,
 de représentativité des techniques étudiés, de variété. Tout ont en commun
@@ -548,7 +535,7 @@ Dans ce qui suit, on suppose que le serveur est accessible
 CouchDB
 est essentiellement un serveur Web étendu à la gestion de documents JSON. Comme tout
 serveur Web, il parle le HTTP, et on peut donc y accéder avec un navigateur
-qui fait office de client! Pour des interactions HHTP plus complexes, nous
+qui fait office de client! Pour des interactions HTTP plus complexes, nous
 utilliserons également l'utilitaire cURL en ligne de commande. 
 S'il n'est pas déjà installé dans votre environnement (toutes plateformes), il est fortement conseillé
 de le faire dès maintenant: le site de référence est http://curl.haxx.se/.
@@ -656,70 +643,6 @@ avec la base que nous venons de créer.
    
       L'interface graphique (Fauxton) de CouchDB
       
-
-MongoDB
-=======
-
-Installons maintenant MongoDB, un des systèmes NoSQL les plus populaires.
-L'installation Docker se fait avec la commande suivante et instancie un conteneur 
-accessible  à localhost:30001.
-
-.. code-block:: bash
-
-        docker run --name mon-mongo -p 30001:27017 -d mongo  
-
-
-MongoDB fonctionne en mode classique client/serveur. 
-Le serveur ``mongod`` est en attente sur le port 27017 dans son conteneur, et
-peut être redirigé vers un port de la machine Docker, comme le port 30001
-dans la commande précédente.
-   
-En ce qui concerne les *applications* clientes, nous avons en gros deux possibilités: 
-l'interpréteur de commande ``mongo`` (qui suppose d'avoir installé MongoDB sur la machine hôte)
-ou une application graphique plus agréable à utiliser. 
-Parmi ces dernières, ``Studio3T`` (http://studio3.com)  me semble le meilleur
-client graphique du moment; il existe une version gratuite, pour des utilisations non commerciales, qui ne vous expose
-qu'à quelques courriels de relance de la part des auteurs du système (vous pouvez en profiter
-pour les remercier gentiment).
-
-Studio3T propose
-un interpréteur de commande intelligent (autocomplétion, exécution de scripts placés
-dans des fichiers), des fonctionnalités d'import et d'export. La  :numref:`studio3t`  montre l'interface en action.
-
-   .. _studio3t:
-   .. figure:: ../figures/studio3t.png
-      :width: 100%
-      :align: center
-   
-      L'interface de Studio3T
-
-Créons maintenant notre base des films, constituée de documents JSON ayant
-la forme suivante:
-
-
-.. code-block:: javascript
-
-    {
-      "_id": "movie:100",
-      "title": "The Social network", 
-      "summary": "On a fall night in 2003, Harvard undergrad and 
-         programming genius Mark Zuckerberg sits down at his  
-         computer and heatedly begins working on a new idea. (...)",
-      "year": 2010, 
-      "director": {"last_name": "Fincher",
-                    "first_name": "David"},
-      "actors": [ 
-        {"first_name": "Jesse", "last_name": "Eisenberg"}, 
-        {"first_name": "Rooney", "last_name": "Mara"}
-       ]
-    }
-
-Comme il serait fastidieux de les insérer un par un, nous allons utiliser Studio3T.
-Un fichier conforme au format attendu est disponible
-parmi les jeux de données de http://deptfod.cnam.fr/bd/tp/datasets/. 
-Vous pouvez le télécharger et l'utiliser
-pour insérer directement les films dans la base avec l'utilitaire d'import de Studio3T.
-
 Cassandra
 =========
 
@@ -980,6 +903,72 @@ un ``POST``  à l'URL https://localhost:9200/_bulk/
 Avec les paramètres spécifiés dans le fichier ``films_esearch.json``, vous
 devriez retrouver un index ``nfe204``  maintenant présent dans l'interface, contenant
 les données sur les films.
+
+
+
+
+MongoDB
+=======
+
+Installons maintenant MongoDB, un des systèmes NoSQL les plus populaires.
+L'installation Docker se fait avec la commande suivante et instancie un conteneur 
+accessible  à localhost:30001.
+
+.. code-block:: bash
+
+        docker run --name mon-mongo -p 30001:27017 -d mongo  
+
+
+MongoDB fonctionne en mode classique client/serveur. 
+Le serveur ``mongod`` est en attente sur le port 27017 dans son conteneur, et
+peut être redirigé vers un port de la machine Docker, comme le port 30001
+dans la commande précédente.
+   
+En ce qui concerne les *applications* clientes, nous avons en gros deux possibilités: 
+l'interpréteur de commande ``mongo`` (qui suppose d'avoir installé MongoDB sur la machine hôte)
+ou une application graphique plus agréable à utiliser. 
+Parmi ces dernières, ``Studio3T`` (http://studio3.com)  me semble le meilleur
+client graphique du moment; il existe une version gratuite, pour des utilisations non commerciales, qui ne vous expose
+qu'à quelques courriels de relance de la part des auteurs du système (vous pouvez en profiter
+pour les remercier gentiment).
+
+Studio3T propose
+un interpréteur de commande intelligent (autocomplétion, exécution de scripts placés
+dans des fichiers), des fonctionnalités d'import et d'export. La  :numref:`studio3t`  montre l'interface en action.
+
+   .. _studio3t:
+   .. figure:: ../figures/studio3t.png
+      :width: 100%
+      :align: center
+   
+      L'interface de Studio3T
+
+Créons maintenant notre base des films, constituée de documents JSON ayant
+la forme suivante:
+
+
+.. code-block:: javascript
+
+    {
+      "_id": "movie:100",
+      "title": "The Social network", 
+      "summary": "On a fall night in 2003, Harvard undergrad and 
+         programming genius Mark Zuckerberg sits down at his  
+         computer and heatedly begins working on a new idea. (...)",
+      "year": 2010, 
+      "director": {"last_name": "Fincher",
+                    "first_name": "David"},
+      "actors": [ 
+        {"first_name": "Jesse", "last_name": "Eisenberg"}, 
+        {"first_name": "Rooney", "last_name": "Mara"}
+       ]
+    }
+
+Comme il serait fastidieux de les insérer un par un, nous allons utiliser Studio3T.
+Un fichier conforme au format attendu est disponible
+parmi les jeux de données de http://deptfod.cnam.fr/bd/tp/datasets/. 
+Vous pouvez le télécharger et l'utiliser
+pour insérer directement les films dans la base avec l'utilitaire d'import de Studio3T.
 
 
 Quiz

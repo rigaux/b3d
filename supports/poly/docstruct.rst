@@ -556,7 +556,7 @@ Voici quelques propositions d'explorations pratiques des environnements de  docu
     par rapport à une spécification (un schéma).  Voir les exercices sur les schémas JSON ci-dessous.
     
 .. _MEP-S1-2:
-.. admonition:: MEP `MEP-S1-2`_: récupérer des jeux de donnéest
+.. admonition:: MEP `MEP-S1-2`_: récupérer des jeux de données
 
    Nous allons récupérer aux formats JSON le contenu d'une base de données
    relationnelle pour disposer de documents à structure forte. Pour cela, rendez-vous
@@ -570,8 +570,7 @@ Voici quelques propositions d'explorations pratiques des environnements de  docu
   leur diffusion et la construction d'applications. Les données sont fournies au format JSON ! Regardez les sites suivants,
   récupérez quelques documents, commencez à imaginer quel applications vous pourriez construire.
 
-    - https://www.data.gouv.fr/fr/.
-    - http://data.iledefrance.fr/page/accueil/
+    - https://www.data.gouv.fr/fr/
     - http://data.enseignementsup-recherche.gouv.fr/
 
 .. _MEP-S1-4:
@@ -1693,7 +1692,7 @@ Exercices
     - Proposez une autre représentation  des mêmes données, centrée cette fois, 
       non plus sur les étudiants, mais sur les UEs. 
 
-      Avec les documents semi-structurés, on choisit de privilégier certaines entités,
+      Avec les documents structurés, on choisit de privilégier certaines entités,
       celles qui sont proches de la racine de l'arbre. En centrant sur les UEs,
       on obtient le même contenu, mais avec une représentation très différente.
 

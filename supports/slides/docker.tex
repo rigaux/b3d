@@ -5,18 +5,19 @@ Nous allons travailler sur des systèmes de gestion de données \alert{distribu�
 
 \vfill
 
-Un système distribué fonctionne, de manière coordonnée, sur plusieurs machines, ou \alert{serveurs}.
+Un système distribué fonctionne, de manière coordonnée, 
+sur plusieurs machines, ou \alert{serveurs}.
 
 \vfill
 
 Dans ce préliminaire au cours, nous allons étudier Docker, un outil qui permet de simuler un
-système distribué, avec très peu de ressources, sur un seule ordinateur (par exemple votre portable).
+système distribué, avec très peu de ressources, sur un seul ordinateur (par exemple votre portable).
 
 \vfill
 
 \begin{beamerboxesrounded}{Votre objectif: maîtriser l'installation d'un système avec Docker}
-Vous devez pouvoir installer en quelques clics un système avec Docker, et comprendre
-son architecture.
+Vous devez pouvoir installer en quelques clics CouchDB, MongoDB, Cassandra,
+ElasticSearch et bien d'autres. 
 \end{beamerboxesrounded}
 
 \end{frame}
@@ -59,11 +60,14 @@ Voici un exemple de système distribué.
 
 \begin{frame}{Docker}
 
-Docker permet de créer des \alert{conteneurs} Linux, des machines virtuelles extrêmement légères.
+Docker permet de créer des \alert{conteneurs}, des machines virtuelles extrêmement légères.
 \vfill
 
 \figSlideWithSize{schema-docker}{9cm}
 
+\vfill
+
+Existe sous Linux, ainsi que MacOS et Windows.
 \end{frame}
 
 
@@ -76,12 +80,10 @@ Docker permet de créer des \alert{conteneurs} Linux, des machines virtuelles ex
     dans la machine Docker.
   \item Un \alert{conteneur} est une partie autonome de la \alert{Docker VM}, se comportant comme une
     machine indépendante.
-  \item Le \alert{client Docker} est l'utilitaire  grâce auquel on transmet au moteur 
-    les commandes de gestion de ces conteneurs. 
+  \item On gère les conteneurs soit avec la ligne de commande (\alert{Docker CLI}), soit
+ une interface comme le \alert{Docker desktop} (plus facile)
  \end{redbullet}
 
- Le client Docker peut être soit la ligne de commande (\alert{Docker CLI}), soit
- une interface comme \alert{Kitematic}.
 
 \end{frame}
 
@@ -96,7 +98,8 @@ MySQL, ou MongoDB).
 \figSlideWithSize{images-docker}{8cm}
 
 \vfill
-Une image s'installe très facilement, et se place dans un conteneur.
+Une image s'installe très facilement. C'est une sorte de moule pour créer
+(``instancier'')  des conteneurs.
 
 \end{frame}
 
@@ -111,14 +114,15 @@ J'ai lancé un conteneur MySQL. Mon serveur tourne, sur le port 3306, \alert{dan
 
 \vfill
 
-\alert{Réponse: il faut associer un port de la machine Docker avec le port 3306 du conteneur} (\textit{port forwarding}).
+\alert{Réponse}: \emph{il faut associer un port de la machine Docker avec le port 
+3306 du conteneur} (\textit{port forwarding}).
 
 \vfill
 
 Par exemple, 
 \begin{redbullet}
- \item je vais associer  le port 6603 de la machine Docker avec le port 3306 de \texttt{serveur-mysql}
- \item je vais associer le port 6604 de la machine Docker avec le port 3306 de \texttt{autre-serveur}
+ \item je vais associer  le port 6603 de la machine Docker avec le port 3306 du conteneur \texttt{serveur-mysql}
+ \item je vais associer le port 6604 de la machine Docker avec le port 3306 du conteneur \texttt{autre-serveur}
 \end{redbullet}
 
 
@@ -130,7 +134,14 @@ Et voilà pour les principes.
 
 \vfill
 
-Pour la suite : démonstration de l'installation d'un système.
+Pour la suite : mise en pratique avec installation de systèmes NoSQL.
+
+\begin{redbullet}
+  \item CouchDB
+  \item MongoDB
+  \item Cassandra
+  \item ElasticSearch
+\end{redbullet}
 
 \vfill
 

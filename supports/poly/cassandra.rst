@@ -568,6 +568,272 @@ Mise en pratique
    Profitez-en pour vous familiariser avec l'interface graphique.
    
 
+**********************
+S2: requêtes Cassandra
+**********************
+
+Cassandra propose un langage, nommé CQL, inspiré de SQL, mais fortement restreint par l'absence de jointure. 
+De plus, d'autres types de restrictions s'appliquent, motivées par l'hypothèse qu'une
+base Cassandra est nécessairement une base à très grande échelle, et que les
+seules requêtes raisonnables sont celles pour lequelles la structuration des données
+permet des temps de réponse acceptables. 
+
+.. note:: Cette session est une démonstration pratique ces capacités d'interrogation
+   de Cassandra. Si vous souhaitewz reproduire les manipulations, il vous
+   faut un environnement constitué d'un serveur Cassandra,
+   d'un client et de la base de données des films. Les instructions pour installer
+   tout cela ont été données
+   dans le chapitre :ref:`chap-docstruct`. En résumé, vous devriez avoir:
+   
+     - une table ``artists`` avec la liste des artistes;
+     - une table ``movies`` où chaque film contient des données imbriquées représentant
+       le réalisateur du film et les acteurs.
+
+CQL, un sous-ensemble de SQL
+============================
+
+CQL ne permet d'interroger qu'une seule table. Cette (*très* forte) restriction  
+mise à part (!), le
+langage est délibérement conçu comme un sous-ensemble de SQL et de sa construction 
+``select from where``. 
+
+.. note:: Toute requête CQL doit se terminer par un ';'
+
+Commençons par quelques exemples.
+
+
+Sélectionnons tous les artistes.
+
+.. code-block:: sql
+
+      select  * from artists;
+
+Selon l'utilitaire que vous utilisez, vous devriez obtenir l'affichage des premiers artistes
+sous une forme ou sous une autre. Cassandra étant supposé gérer de très grandes bases de données, 
+ces utilitaires vont souvent ajouter automatiquement une clause limitant le nombre
+de lignes retournées. Vous pouvez ajouter cette clause explicitement.
+
+.. code-block:: sql
+
+      select  * from artists limit 20;
+
+On peut obtenir le résultat encodé en JSON en ajoutant simplement le mot-clé ``JSON``.
+
+.. code-block:: sql
+
+      select JSON * from artists;
+
+Bien entendu, le ``*`` peut être remplacé par la liste des attributs à conserver (projeter).
+
+.. code-block:: sql
+
+      select title from movies;
+
+Si une valeur *v* est un dictionnaire (objet en JSON), on peut accéder à l'un 
+de ses composants *c* avec  la notation *v.c*. Exemple pour le réalisateur du film.
+
+.. code-block:: sql
+
+       select title, director.last_name from movies;
+
+
+En revanche, quand la valeur est un ensemble ou une liste, on ne sait pas avec CQL accéder
+à son contenu. La tentative d'exécuter la requête:
+
+.. code-block:: sql
+
+      select title, actors.last_name from movies;
+
+devrait retourner une erreur. Il est vrai que l'on ne sait pas très bien à quoi devrait ressembler 
+le résultat. D'autres langages (notamment XQuery, mais également le langage de script Pig que nous
+étudierons en fin de cours) proposent des solutions au problème
+d'interrogation de collections imbriquées. Il se peut que CQL évolue
+un jour pour proposer quelque chose de semblable.
+
+On peut, dans la clause ``select``, appliquer des fonctions. Cassandra permet la définition de fonctions
+utilisateur, et leur application aux données grâce à CQL. Quelques fonctions prédéfinies sont
+également disponibles. Voici un exemple (sans intérêt autre qu'illustratif) 
+de conversion de l'année du film
+en texte (c'est un entier à l'origine).
+
+.. code-block:: sql
+
+      select cast(year as text) as yearText from movies ; 
+      
+Notez le renommage de la colonne avec le mot-clé ``as``. Tout cela est directement
+emprunté à SQL. On peut également compter le nombre de lignes dans la table.
+
+.. code-block:: sql
+
+     select count(*) from movies ; 
+     
+On peut effectuer des filtrages avec la clause ``where``. Par exemple:
+
+.. code-block:: sql
+
+       select  *  from movies where id='movie:33';
+
+
+Remarque importante: le critère de sélection porte ici sur la *clé*. On peut 
+généraliser à plusieurs valeurs avec la clause ``in``.
+
+.. code-block:: sql
+
+ 	select  * from movies 
+    where id in ('movie:33', 'movie:44214', 'movie:29845');
+      
+Tentons maintenant une recherche sur un attribut non-clé.
+
+.. code-block:: sql
+
+     select  * from movies 
+     where title='Elle' ;
+     
+*Vous devriez obtenir un rejet de cette requête avec le message suivant*:
+
+.. code-block:: text
+
+     Unable to execute CQL script. Cannot execute this query as it might involve data
+     filtering and thus may have unpredictable performance. If you want
+     to execute this query despite the performance unpredictability,
+     use ALLOW FILTERING.
+
+En revanche, en ajoutant l'option ALLOW FILTERING, on obtient 
+le résultat.
+
+.. code-block:: sql
+
+     select  * from movies 
+     where title='Elle' 
+     ALLOW FILTERING;
+
+Nous avons atteint les limites de CQL en tant que clône de SQL. 
+
+Pourquoi CQL n'est pas SQL
+==========================
+
+Pourquoi un ``where`` sur un attribut non-clé est-il rejeté? Pour une raison qui tient
+à l'organisation des données:
+
+  - Cassandra organise une table selon une structure (que nous étudierons ultérieurement)
+    qui permet très rapidement de trouver un document par sa clé. La recherche par clé
+    est donc autorisée.
+  - Cette structure n'existe que pour la clé. *Toute recherche sur un autre attribut n'a d'autre
+    solution que de parcourir séquentiellement toute la table en effectuant le test sur
+    le critère de recherche à chaque fois*.
+    
+Comme déjà indiqué, Cassandra est conçu pour de très grandes bases de données, et le rejet 
+de ces requêtes est une précaution. Le message indique clairement à l'utilisateur que
+sa requête est susceptible de prendre beaucoup de temps à s'exécuter. 
+
+À l'usage on décrouvre tout un ensemble de restrictions (par rapport à SQL) qui s'expliquent
+par cette volonté d'éviter l'exécution d'une requête qui impliquerait un parcours de tout
+ou partie de la table. Voyons quelques exemples, avec explications.
+
+.. note:: Certaines des explications qui suivent sont volontairement brèves car elles
+   impliquent une compréhension de la structure interne des données dans Cassandra ainsi que
+   de la méthode de répartition dans un environnement distribué.
+   Nous présenterons tout cela plus tard. 
+  
+Tentons une requête sur la clé primaire, mais avec un critère *d'inégalité*.
+
+.. code-block:: sql
+
+     select  * from movies 
+     where id > '000000';
+     
+On obtient un rejet avec un message indiquant que seule l'égalité est autorisée sur la clé
+(et d'autres détails à éclaircir ultérieurement).
+
+Peut-on trier les données avec la clause ``order by``? Essayons.
+
+.. code-block:: sql
+
+    select  * from movies order by title;
+
+Les deux requêtes sont rejetées. Le message nous dit (à peu près)
+que le tri est autorisé seulement quand on est assuré que les données à 
+trier proviennent
+d'une seule partition. En (un peu plus) clair: Cassandra ne veut pas avoir à trier des données
+provenant de plusieurs serveurs, dans un environnement distribué avec répartition d'une table
+sur plusieurs nœuds. 
+
+Et voilà. Cassandra interdit tout usage de CQL qui amènerait à parcourir toute la base ou
+une partie non prédictible de la base pour constituer le résultat. Cette interdiction
+n'est cependant pas totale. Dans le cas de la clause ``where``, l'utilisateur 
+peut prendre explicitement ses responsabilités en ajoutant la clause ``allow filtering``,
+comme nous l'avons montré ci-dessus.
+
+Si la table contient des milliards de ligne (bon, c'est peu probable ici), il faudra certainement
+attendre longtemps et exploiter intensivement les ressources du système pour un résultat
+limité. À utiliser
+à bon escient donc.
+
+Il faut penser que le coût d'évaluation de cette requête est proportionnel à la taille 
+de la base. Cassandra
+tente de limiter les requêtes à celles dont le coût est proportionnel à la 
+taille du résultat.
+
+.. note:: Cette remarque explique pourquoi la requête ``select * from movies;``, qui
+   parcourt toute la base, est autorisée.
+
+À partir du moment où on autorise explicitement le filtrage, on peut combiner plusieurs
+critères de recherche, comme en SQL.
+
+.. code-block:: sql
+
+     select  * from movies 
+     where country='US' and year=2020 allow filtering;
+
+*Mais*, si c'est pour faire du SQL, autant choisir une base relationnelle. Les restrictions
+de Cassandra doivent s'interpréter dans un contexte *Big Data* où l'accès aux données
+doit prendre en compte leur volumétrie (et notamment le fait que cette volumétrie
+impose une répartition des données dans un système distribué).
+
+Une autre possibilité est de créer un index secondaire sur les attributs auxquels on souhaite
+appliquer des critères de recherche.
+
+.. code-block:: sql
+
+      create index on movies(year);
+ 
+Cassandra autorise alors de requêtes avec la clause ``where`` portant sur les attributs indexés.
+
+.. code-block:: sql
+     
+    select * from movies where year = 2020;
+
+En présence d'un index, il n'est plus nécessaire de parcourir toute la collection. Cette option
+est cependant à utiliser avec prudence. En premier lieu, un index peut être coûteux à maintenir.
+Mais surtout sa sélectivité n'est pas toujours assurée. Ici, par exemple, un index sur l'année est
+probablement une très mauvaise idée. On peut estimer qu'un film sur 100 a été tourné en 1992, et
+à l'échelle du *Big Data*, ça laisse beaucoup de films à trouver, même avec l'index, et une requête
+qui peut ne pas être performante du tout.
+
+Mise en pratique
+================
+
+Voici quelques manipulations et suggestions de recherches complémentaires.
+
+.. _MEP-S2-1:
+.. admonition:: Exercice `MEP-S2-1`_: expérimentez CQL
+
+   À vous de jouer: reproduisez les requêtes ci-dessus sur votre base Cassandra. 
+
+.. _MEP-S2-2:
+.. admonition:: Exercice `MEP-S2-2`_: données imbriquées
+
+   Peut-on exprimer des critères sur les données imbriquées? Peut-on
+   par exemple trouver tous les films mis en scène par Tarantino? À vous de chercher
+   la solution (si elle existe) dans la documentation Cassandra.
+
+.. _MEP-S2-3:
+.. admonition:: Exercice `MEP-S2-3`_: sujet d'étude, les vues matérialisées
+
+   Depuis la version 3, Cassandra propose un mécanisme de *vue matérialisé*. Etudiez
+   la documentation à ce sujet, et montrez comment ce mécanisme peut permettre
+   de répondre à des requêtes comme celle de l'exercice précédent.
+
 
 *********
 Exercices

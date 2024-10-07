@@ -151,9 +151,11 @@ et valeurs booléennes (\texttt{true} ou \texttt{false}).
 "oscar": false
 \end{minted}
 
-\framebreak
 
-Valeurs complexes\,: les \alert{objets}.
+\end{frame}
+
+\begin{frame}[containsverbatim,fragile]{Les bases de JSON\,: objects}
+
 Un \textit{objet} est un ensemble de paires clef-valeur.
 
 \vfill
@@ -177,23 +179,28 @@ Un objet peut être utilisé comme valeur (dite \textit{complexe}) dans une pair
 }
 \end{minted}
 
-\framebreak
 
-Valeurs complexes\,: les \alert{tableaux}.
+\end{frame}
 
-\bigskip
+\begin{frame}[containsverbatim,fragile]{Les bases de JSON\,: tableaux}
+
 
 Un \textit{tableau} (\textit{array}) est une liste 
  de valeurs (dont le type n'est pas forcément le même).
 
 \begin{minted}{javascript}
-"actors": ["Eisenberg", "Mara", "Garfield", "Timberlake"]
+{"actors": ["Eisenberg", "Mara", "Garfield", "Timberlake"]}
 \end{minted}
 
-\bigskip
+\vfill
 
 Imbrication sans limite\,: tableaux de tableaux, tableaux d'objets contenant eux-mêmes des tableaux, etc.
-\framebreak
+
+
+\end{frame}
+
+\begin{frame}[containsverbatim,fragile]{Notre notion de document, en JSON}
+
 
 Un \textit{document} est un objet. Il peut être défini par des objets et tableaux imbriqu\' es autant de fois que nécessaire.
 
@@ -215,6 +222,9 @@ Un \textit{document} est un objet. Il peut être défini par des objets et table
 }
 \end{minted}
 
+\vfill
+
+Rappel\,: il s'agit d'une \alert{représentaion} d'une structure abstraite
 \end{frame}
 
 
@@ -255,7 +265,7 @@ Un \textit{document} est un objet. Il peut être défini par des objets et table
 \begin{frame}[fragile]
 \frametitle{Ce qu'il faut retenir}
 
-Les documents semi-structurés se caractérisent par les aspects suivants.
+Les documents structurés se caractérisent par les aspects suivants.
 
 \begin{redbullet}
   \item Une structure \alert{flexible} (présence/absence, variations), \alert{complexe} (imbrication),
