@@ -1,90 +1,83 @@
-%\begin{frame}{Recherche de documents}
-  %\begin{itemize}
-      %\setlength{\itemsep}{10pt}
-    %\item Possibilités très sophistiquées de Solr
-    %\item La manière d'effectuer une recherche varie en fonction de :
-      %\begin{itemize}
-        %\item la syntaxe de la requête (de très structurée avec booléen sur des
-          %champs) à liste de mots-clefs
-        %\item le {\bf classement} du résultat 
-          %\begin{itemize}
-            %\item Solr renvoie les documents ``pertinents'' (pas seulement ceux
-              %qui correspondent exactement aux critères)
-            %\item différence avec BDD (relationnelle)
-          %\end{itemize}
-      %\end{itemize}
-  %\end{itemize}
-%\end{frame} % ending frame Recherche de documents
-  
-%\begin{frame}{Consulter l'index}
 
-  %\begin{itemize}
-    %\item le paramètre qu'on utilise ici, c'est ``q'' ({\bf query})
-    %\item proposé par défaut dans l'interface comme ``*.*'' ({\bf tous} les documents de l'index)
-      %\smallskip
-    %\item \variable{fq}: pour {\bf filter query}, pour interroger non pas l'index entier 
-      %mais un résultat pré-calculé et stocké en {\bf cache}
-    %\item \variable{sort}, pour trier le résultat
-    %\item \variable{start} et \variable{row}, les paramètres classiques de pagination du résultat
-    %\item \variable{fl}  pour {\bf field list}, la liste des champs (stockés) à inclure dans le résultat
-    %\item \variable{df}, le champ à interroger si non spécifié dans la requête\\ (la valeur par défaut est indiqué
-      %dans la configuration et vaut en principe \variable{text}, le champ dans lequel nous avons placé
-      %toutes nos chaînes de caractères);
-    %\item enfin, on trouve la liste des {\bf query parsers} disponibles; \\
-      %un {\bf query parser} correspond à une syntaxe d'interrogation particulière.
-  %\end{itemize}
-%\end{frame}  
+\section{Intégration de moteurs dans le SI}
 
-%\begin{frame}{Exemple d'utilisation des paramètres}
-  %\begin{itemize}
-%\item avec \variable{sort=title asc}: tri du résultat sur le titre, en ordre ascendant;
-%\item avec \variable{fl=title, year}, restriction des champs dans les documents du résultat;
-%\item avec \variable{start=10, rows=9}, récupération des documents classés entre les positions 10 à 19;
-%\item avec \variable{q=Alien}, vous devriez retrouver le document Solr correspondant au film \variable{Alien};
-%\item avec \variable{q=Alien} mais \variable{df=summary}, vous ne devriez rien trouver;
-%\item avec \variable{q=Vertigo}, \variable{df=text}, vous devriez retrouver le film Vertigo;
+\begin{frame}{Moteurs de recherche}
+  Moteurs libres
+  \begin{redbullet}
+    \item Apache Solr (Lucene)
+    \item {\color{red}ElasticSearch (Lucene)}
+    \item Sphinx
+    \item Xapian
+  \end{redbullet}
+  \medskip
+  Moteurs commerciaux
+  \begin{redbullet}
+    \item Google Search Appliance
+    \item Exalead, Qwant
+    \item Amazon CloudSearch
+    \item Microsoft Azure Search, Bing
+  \end{redbullet}
+\end{frame} % ending frame Moteurs de recherche
 
-%%\item mais avec  ``q=vertigo'' (en minuscules), on ne trouve rien. 
-%%\item Solr serait-il sensible à la casse?
-%%\item ... non car en cherchant ``scottie'', on retrouve bien Vertigo, alors que Scottie apparaît
-  %%avec une majuscule dans le résumé du film; si vous ne comprenez pas pourquoi relisez-attentivement
-  %%le début du chapitre, et notamment la partie sur le schéma. 
-  %\end{itemize}
-%\end{frame} % ending frame Exemple d'utilisation des paramètres
+\begin{frame}{Bases documentaires et moteur de recherche}
+  \begin{center}
+    \includegraphics[width=13cm]{../figures/archi-ri2.png}
+  \end{center}
+\end{frame}
 
-%\begin{frame}{Paramètres}
-%\begin{itemize}
-  %\item le document résultat ne montre que ceux qui ont été définis dans le
-    %schéma comme ``stockés''
-  %\item les autres champs sont utiles pour la recherche, mais on ne peut pas
-    %récupérer leur valeur
-  %\item En revanche, il est possible d'obtenir des informations {\bf calculées} par
-    %Solr, sous forme de (pseudo-)champ :
-    %\begin{itemize}
-      %\item  ex. : le {\bf score}, qui évalue la pertinence d'un document pour une
-        %recherche
-      %\item essayer avec \variable{title, year, score} dans \variable{fl} (et une recherche
-        %par mot-clef (ex. : \variable{fin}))
-      %\item on vérifie que l'on a un classement par score
-      %\item essayer en rajoutant \variable{[explain style=nl]}
-    %\end{itemize}
-  
-%\end{itemize}
-%\end{frame}
-  
-%\begin{frame}[fragile]{Les requêtes}
-  %\begin{itemize}
-      %\setlength{\itemsep}{10pt}
-    %\item Solr fournit plusieurs interpréteurs de requêtes
-    %\item  chacun reconnaît des syntaxes légèrement différentes
-    %\item l'interpréteur par défaut, ``DisMax'', est le plus intuitif
-    %\item mais pas toujours le plus précis 
-  %\end{itemize}
+\begin{frame}{Bases documentaires et moteur de recherche}
+Un scénario typique :
+\begin{redbullet}
+  \item une recherche par mot-clé dans un site
+  \item Les données du site sont gérées classiquement par une base documentaire
+    (MySQL, Postgres, MongoDB)
+  \item On extrait de la base tous les textes à \alert{indexer} et on en fait
+    des documents ES/Solr, à qui on les confie
+  \item Ce dernier se charge alors de répondre quand un utilisateur emploie un champ de recherche.
+\end{redbullet}
+\end{frame} % ending frame 
 
-%\end{frame}
+
+\begin{frame}{Bases documentaires et moteur de recherche}
+
+Un système comme ElasticSearch est consacré à la \alert{recherche},
+    c'est-à-dire la lecture la plus efficace possible de documents.
+
+\vfill
+
+Il s'appuie pour cela sur des structures compactes, compressées,
+    optimisées (les \alert{index inversés}) 
+
+\vfill
+
+Ce n'est pas (pas forcément) un très bon outil pour les autres fonctionnalités
+    d'une base de données :
+    \begin{redbullet}
+      \item Le stockage par exemple n'est ni aussi robuste ni aussi stable.
+      \item Mises à jour coûteuses et asynchrones
+    \end{redbullet}
+
+\end{frame} % ending frame 
+
+\begin{frame}{Présentation d'Elasticsearch}
+  Elasticsearch est un moteur de recherche basé sur Lucene
+  \begin{redbullet}
+    \item grande communauté d'utilisateurs
+    \item open source, profite de la recherche dans le domaine sur Lucene
+    \item utilisé par de grands opérateurs du Web sur des collections immenses
+  \end{redbullet}
+  \medskip
+  En fait, plusieurs composants dont :
+  \begin{redbullet}
+    \item Logstash, l'ETL, pour extraire, transformer et charger les données
+    \item ElasticSearch, le moteur lui-même
+    \item Kibana, pour produire des tableaux de bords de surveillance
+  \end{redbullet}
+\end{frame}
+
 
 \begin{frame}[fragile]{Interrogation}
-  \begin{itemize}
+  \begin{redbullet}
     \item ElasticSearch s’appuie sur le système d’indexation \textbf{Lucene},
       dont le rôle est essentiellement de créer les index inversés, et
       d’implanter les algorithmes de parcours brièvement introduits dans la
@@ -104,7 +97,7 @@ http://localhost:9200/nfe204/movies/_search?q=alien,coppola,1994
 # utilisable dans l'interface Kopf, onglet Rest
 \end{minted}
 
-\end{itemize}
+\end{redbullet}
 \end{frame}
 
 \begin{frame}[fragile]{la réponse d'ES}
@@ -166,11 +159,11 @@ Un premier pas vers une interrogation plus structurée.
 
 \begin{frame}[fragile]{Termes}
 
-  \begin{itemize}
+  \begin{redbullet}
     \item Notion de base : le {\bf terme}
     \item c'est un mot au sens usuel
     \item ou une séquence de mots entre apostrophes
-  \end{itemize}
+  \end{redbullet}
 \smallskip
 On peut interroger un index avec :
 \begin{minted}[frame=lines, baselinestretch=.9, fontsize=\footnotesize, framesep=2mm]{sql}
@@ -188,7 +181,7 @@ Puis :
 \end{frame}
 
 \begin{frame}[fragile]{Termes (suite)}
-  \begin{itemize}
+  \begin{redbullet}
     \item la recherche d'un terme s'effectue toujours sur un champ. 
 \item La syntaxe complète pour associer le champ et le terme est:
 \begin{minted}[frame=lines,
@@ -213,12 +206,12 @@ Puis :
                framesep=2mm]{sql}
                _all:"Neo apprend"
 \end{minted}
-  \end{itemize}
+  \end{redbullet}
 \end{frame}
 
 \begin{frame}[fragile]{Termes (suite)}
 
-  \begin{itemize}
+  \begin{redbullet}
     \item Les valeurs des termes (dans la requête) et le texte indexé sont tous deux
 soumis à des transformations spécifiées dans le schéma. 
 \item Une transformation simple est de tout transcrire en minuscules. 
@@ -231,12 +224,12 @@ soumis à des transformations spécifiées dans le schéma.
 \item  Les transformations appliquées à la requête ET au texte indexé doivent être 
    cohérentes : si les termes sont transformés en majuscules, et le texte indexé en minuscules,
    on n'aura jamais de résultat!
-  \end{itemize}
+  \end{redbullet}
 \end{frame}
 
 \begin{frame}[fragile]{Termes (suite)}
   On peut spécifier des termes (pas des séquences) incomplets
-  \begin{itemize}
+  \begin{redbullet}
       \setlength{\itemsep}{8pt}
     \item le '?' indique un caractère inconnu;  ``opti?al'' désigne ``optimal'', ``optical'', etc.
       
@@ -248,7 +241,7 @@ soumis à des transformations spécifiées dans le schéma.
       (nb opérations pour passer de ``optimal'' à ``optical'')
   
     \item Les intervalles sont exprimés avec  $[ ]$ (bornes comprises) ou  \{ \} bornes exclues
-  \end{itemize}
+  \end{redbullet}
 \begin{minted}[frame=lines,
                baselinestretch=.9,
                fontsize=\footnotesize,
@@ -259,12 +252,12 @@ soumis à des transformations spécifiées dans le schéma.
 
 \begin{frame}[fragile]{Requêtes Booléennes}
 
-  \begin{itemize}
+  \begin{redbullet}
     \item Les critères peuvent être combinés avec des \alert{opérateurs
       Booléens} :\\
       \variable{AND}, \variable{OR} et \variable{NOT}
     \item Attention : majuscules
-  \end{itemize}
+  \end{redbullet}
 \begin{minted}[frame=lines,
                baselinestretch=.9,
                fontsize=\footnotesize,
@@ -273,7 +266,7 @@ year:[1990 TO 2005] OR title:M*
 year:[1990 TO 2005] AND NOT title:M*
 \end{minted}
    
-\begin{itemize}
+\begin{redbullet}
   \item Par défaut, c'est un \variable{OR} qui est appliqué
   \item Recherche sur plusieurs critères ramène l'union des résultats sur chaque
     critère pris individuellement
@@ -285,11 +278,11 @@ year:[1990 TO 2005] AND NOT title:M*
                %framesep=2mm]{sql}
     %%popularity:6  manu:Dell
 %\end{minted}
-\end{itemize}
+\end{redbullet}
 \end{frame}
 
 %\begin{frame}[fragile]{Opérateur $+$, classement}
-  %\begin{itemize}
+  %\begin{redbullet}
     %\item préfixe d'un nom de champ, il indique que la valeur du champ {\bf doit}
       %être égale au terme
     %\item il existe également un opérateur $-$, équivalent au \variable{NOT}
@@ -304,7 +297,7 @@ year:[1990 TO 2005] AND NOT title:M*
 %\item différence avec ce qui précède : le {\bf classement} du moteur
 %\item illustre la différence entre recherche d'information et interrogation
   %de bases de données
-  %\end{itemize}
+  %\end{redbullet}
   %\bigskip
   %Interpréter un classement est parfois délicat :\\
 %\begin{minted}[frame=lines,
@@ -325,23 +318,24 @@ year:[1990 TO 2005] AND NOT title:M*
 Ce qui précère constitue l'essentiel des opérations d'interrogation avec un moteur
 de recherche.
 
-  \begin{itemize}
+  \begin{redbullet}
     \item On est loin de la finesse d'interrogation d'un langage comme SQL.
     
     \item On fait peu mais on fait bien: systèmes extrêmement efficaces, même pour
         de très grands volumes. 
-  \end{itemize}
+  \end{redbullet}
 
 \vfill
 
 \alert{Surtout}, deux différences essentielles:
 
- \begin{itemize}
+ \begin{redbullet}
     \item Ce sont des recherches \alert{approchées}: on trouve tous les documents "proches de" la requête
     \item Le résultat est \alert{ordonné} par pertinence décroissante.
-  \end{itemize}
+  \end{redbullet}
 
 \vfill
 
 Comme ça marche? Voir la suite...
 \end{frame}
+

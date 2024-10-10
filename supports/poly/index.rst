@@ -13,6 +13,7 @@ Cours de bases de données documentaires et distribuées
   docker
   docstruct
   rech-exacte
+  cassandra
 
 Indices and tables
 ==================

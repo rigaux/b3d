@@ -16,15 +16,14 @@ Recherche exacte
    REST (CouchDB)
    ElasticSearch
 
-Recherche approchée
-   Recherche d'information approchée
-
-TP ElasticSearch
 
 Etude de cas: Cassandra
   Modélisation Cassandra
   Organisation physique des données
   Notre base de films
+
+Recherche approchée
+   Recherche d'information approchée
 
 TP Cassandra 
 

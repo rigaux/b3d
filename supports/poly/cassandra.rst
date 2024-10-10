@@ -13,7 +13,7 @@ Etude de cas: Cassandra
 S1: Cassandra, une base relationnelle étendue
 *********************************************
 
-   
+
 .. admonition:: Supports complémentaires
 
     * `Diapositives: le modèle de données Cassandra <http://b3d.bdpedia.fr/files/slcass-model.pdf>`_
@@ -37,86 +37,9 @@ qui reste un projet Open Source de la fondation Apache.
 
 Cassandra a *beaucoup* évolué depuis l'origine, ce qui explique une terminologie assez erratique
 qui peut prêter à confusion. L'inspiration initiale est le système BigTable de Google, et l'évolution
-a ensuite plutôt porté Cassandra vers un modèle proche du relationnel, avec quelques différences
+a ensuite plutôt porté Cassandra vers un modèle tendant vers le relationnel, avec quelques différences
 significatives, notamment sur les aspects internes. C'est un système NoSQL très utilisé, et sans doute
 un bon point de départ pour passer du relationnel à un système distribué.
-
-Installation
-============
-
-Avec Docker, il vous sera possible d'utiliser Cassandra dans un environnement virtuel. C'est de loin 
-le mode d'installation le plus simple, il est rapide et ne pollue pas la machine avec 
-des services qui tournent en tâche de fond et dont on ne se sert pas. 
-
-Le serveur
-----------
-
-Reportez-vous au chapitre :ref:`chap-docker`  pour l'introduction à Docker. Vous
-pouvez utiliser le desktop, ou la ligne de commande. C'est cette dernière
-que je vous montre pour plus de clarté et de simplicité. Entrez: 
-
-.. code-block:: bash
-
-     docker run --name mon-cassandra -p 3000:9042  -d cassandra:latest
-
-On communique avec Cassandra via un langage, CQL, dont les
-commandes doivent être transmises au port 9042 du conteneur. Dans l'instruction
-ci-dessus, ce port est renvoyé sur le  
-port 3000 du système hôte avec l'option ``-p``. 
-Normalement, tout cela est clair, sinon relisez encore
-et encore le chapitre sur Docker. 
-
-L'image Docker de cassandra  est alors téléchargée et instanciée. Vérifiez-le en listant
-vos conteneurs:
-
-.. code-block:: bash
-
-    $ docker ps
-
-Vous pouvez obtenir l'adresse IP (champ ``IPAddress``) de la machine Docker.
-
-.. code-block:: bash
-
-    $ docker inspect <id-conteneur>
-
-Il est donc possible de se connecter à Casandra soit sur le port
-3000 de la machine hôte (donc, ``localhost`` si vous travaillez 
-sur votre ordinateur personnel),
-soit sur le port 9042 du conteneur.
-
-Nous sommes prêts à nous connecter au serveur Cassandra et  à interagir avec 
-la base de données.
-
-Le client
----------
-
-Il vous faut un client sur la machine hôte. L'application cliente de base est l'interpréteur de commandes
-``cqlsh``, ce qui nécessite une installation des binaires Cassandra.
-
-Des clients graphiques existent. Datastax propose des outils, dont
-le Datastax Studio qui est assez agréable à utiliser mais
-l'installation est un peu lourde. Un "petit" utilitare graphique 
-assez complet *DbVisualizer*, disponible en version
-gratuite à l'adresse https://www.dbvis.com/.  Il permet classiquement 
-de créer des connexions, d'inspecter un schéma et de transmettre des 
-requêtes. 
-
-DbVisualizer peut être utilisé avec beaucoup de bases de données (dont MongoDB
-et ElasticSearch que nous découvrirons plus loin). Selon le système choisi,
-il faut télécharger des connecteurs spécifiques (*drivers*). Cela se fait
-de manière assez intuitive via DbVis lui-même. Dans le cas de Cassandra,
-il faut prendre le *driver* ``Cassandra DataStax``.
-
-
-..  _dbvis:
-..  figure:: ../figures/dbvis.png
-    :width: 80%
-    :align: center
-    
-    Le client *DevCenter* fourni par la société *Datastax*.
-
-La  :numref:`dbvis`  montre l'interface, après création d'un *keyspace*,
-de tables et de données. Commençons par expliquer tout cela.
 
 Le modèle de données
 ====================
@@ -130,7 +53,7 @@ et permettait d'insérer à peu près n'importe quoi.
    due en partie aux évolutions du système, et en partie au fait que certains se contentent
    de répéter ce qu'ils ont lu quelque part sans se donner la peine de vérifier ou même de comprendre.
    
-Comme dans un système relationnel, une base de données Cassandra est constituée de tables. 
+Comme dans un système relationnel, une base de données Cassandra est constituée de *tables*. 
 Chaque table a un nom et 
 est constituée de colonnes. Toute ligne (*row*) de la table doit respecter le 
 schéma de cette dernière. Si une table a 5 colonnes, alors à l'insertion d'une entrée, 
@@ -255,34 +178,6 @@ Bases (*Keyspaces*)
 Enfin le troisième niveau d'organisation dans Cassandra est le *keyspace*, qui contient un ensemble de tables
 (*column families*).  C'est l'équivalent de la notion de base de données, ensemble de tables dans
 le modèle relationnel, ou ensemble de collections dans des systèmes comme MongoDB.
-
-Conception d'un schéma
-======================
-
-Le modèle de données sur Cassandra est très influencé à l'origine par le système BigTable dont le
-plus proche héritier à ce jour est HBase. Cassandra en hérite principalement une terminologie assez dérourante
-et peu représentative d'une organisation assez classique structurée selon les niveaux base, table et document.
-Une fois dépassée ce petit obstacle, on constate une adoption des principes fondamentaux des systèmes
-documentaires distribués: des documents à la structure flexible construits sur la cellule (clé, valeur),
-entités d'information autonomes conçus pour le partitionnement dans un système distribué. 
-
-
-De nombreux conseils sont disponibles pour la conception d'un schéma Cassandra. Cette conception est 
-nécessairement 
-différente de celle d'un schéma relationnel à cause de l'absence du système de clé étrangère et de l'opération
-de jointure. C'est la raison pour laquelle de nombreux *design patterns* sont proposés pour guider 
-la mise en place d'une architecture de données dans Cassandra qui soit cohérente avec les besoins 
-métiers, et la performance que peut offrir la base de données. 
-
-Cassandra oblige à réfléchir en priorité à la façon dont le 
-modèle de données va être utilisé. Quelles  requêtes vont être exécutées? Dans quel *sens* 
-mes données seront-elles traitées? C'est à partir de ces questions que pourra s'élaborer un modèle 
-optimisé, *dénormalisé* et donc  performant.  
-L'inconvénient d'une démarche basée sur les besoins est que si ces derniers évoluent (ou si une application
-différente veut accéder à une base existante), l'organisation
-de la base devient inadaptée. Avec un système relationnel comme MySQL, le raisonnement est opposé:
-la disponibilité des jointures permet de se fixer comme  but la *normalisation* du modèle de données 
-afin de répondre à tous les cas d'usage possibles, éventuellement de manière non optimale. 
 
 En résumé:
 
@@ -536,7 +431,7 @@ en JSON à la structure suivante:
 		]
 	}')
 
-Je vous laisse effectuer l'insertion de l'ensemble des films tels qu'ils sont fournis par
+Je vous laisse effectuer (si ce n'est déjà fait) l'insertion de l'ensemble des films tels qu'ils sont fournis par
 le site http://deptfod.cnam.fr/bd/tp/datasets/cassandra, avec tous les acteurs d'un film.
 Il suffit de récupérer le fichier contenant l'ensemble des commandes d'insertion
 et de l'exécuter comme un script. Nous
@@ -552,21 +447,6 @@ En résumé:
    - L'imbrication des constructeurs de type, notamment les *dictionnaires* (nuplets) et
      les *ensembles* (set) rend le modèle comparable aux documents structurés JSON ou XML.
 
-La suite du cours complètera progressivement la présentation de Cassandra.
-
-Mise en pratique
-================
-
-
-.. _MEP-S3-1:
-.. admonition:: MEP `MEP-S3-1`_:  mise en route de Cassandra
-
-   Votre tâche est simple: installer Cassandra, un client de votre choix
-   (DbVisualizer recommandé), 
-   reproduire les commandes ci-dessus et créer une base ``movies`` avec nos films
-   récupérés sur http://deptfod.cnam.fr/bd/tp/datasets/.
-   Profitez-en pour vous familiariser avec l'interface graphique.
-   
 
 **********************
 S2: requêtes Cassandra
@@ -579,11 +459,9 @@ seules requêtes raisonnables sont celles pour lequelles la structuration des do
 permet des temps de réponse acceptables. 
 
 .. note:: Cette session est une démonstration pratique ces capacités d'interrogation
-   de Cassandra. Si vous souhaitewz reproduire les manipulations, il vous
+   de Cassandra. Si vous souhaitez reproduire les manipulations, il vous
    faut un environnement constitué d'un serveur Cassandra,
-   d'un client et de la base de données des films. Les instructions pour installer
-   tout cela ont été données
-   dans le chapitre :ref:`chap-docstruct`. En résumé, vous devriez avoir:
+   d'un client et de la base de données des films. En résumé, vous devriez avoir:
    
      - une table ``artists`` avec la liste des artistes;
      - une table ``movies`` où chaque film contient des données imbriquées représentant
@@ -835,342 +713,41 @@ Voici quelques manipulations et suggestions de recherches complémentaires.
    de répondre à des requêtes comme celle de l'exercice précédent.
 
 
+***************************
+S3:  Conception d'un schéma
+***************************
+
+Le modèle de données sur Cassandra est très influencé à l'origine par le système BigTable dont le
+plus proche héritier à ce jour est HBase. Cassandra en hérite principalement une terminologie assez dérourante
+et peu représentative d'une organisation assez classique structurée selon les niveaux base, table et document.
+Une fois dépassée ce petit obstacle, on constate une adoption des principes fondamentaux des systèmes
+documentaires distribués: des documents à la structure flexible construits sur la cellule (clé, valeur),
+entités d'information autonomes conçus pour le partitionnement dans un système distribué. 
+
+
+De nombreux conseils sont disponibles pour la conception d'un schéma Cassandra. Cette conception est 
+nécessairement 
+différente de celle d'un schéma relationnel à cause de l'absence du système de clé étrangère et de l'opération
+de jointure. C'est la raison pour laquelle de nombreux *design patterns* sont proposés pour guider 
+la mise en place d'une architecture de données dans Cassandra qui soit cohérente avec les besoins 
+métiers, et la performance que peut offrir la base de données. 
+
+Cassandra oblige à réfléchir en priorité à la façon dont le 
+modèle de données va être utilisé. Quelles  requêtes vont être exécutées? Dans quel *sens* 
+mes données seront-elles traitées? C'est à partir de ces questions que pourra s'élaborer un modèle 
+optimisé, *dénormalisé* et donc  performant.  
+L'inconvénient d'une démarche basée sur les besoins est que si ces derniers évoluent (ou si une application
+différente veut accéder à une base existante), l'organisation
+de la base devient inadaptée. Avec un système relationnel comme MySQL, le raisonnement est opposé:
+la disponibilité des jointures permet de se fixer comme  but la *normalisation* du modèle de données 
+afin de répondre à tous les cas d'usage possibles, éventuellement de manière non optimale. 
+
+
 *********
 Exercices
 *********
 
 
-     
-.. _Ex-S2-1:
-.. admonition:: Exercice `Ex-S2-1`_: document = graphe
-     
-   Représenter sous forme de graphe le film complet "Pulp Fiction" donné précédemment.
-    
-   .. ifconfig:: docstruct in ('public')
-
-       .. admonition:: Correction
-  
-          La :numref:`pulpfiction-graph` montre la forme arborescente dans la variante où
-          les étiquettes sont sur les arêtes. Les sous-graphes pour Bruce
-          Willis et Quentin Tarantino (en tant qu'acteur) ne sont pas développés.
-      
-          .. _pulpfiction-graph:
-          .. figure:: ../figures/pulpfiction-graph.png    
-              :width: 100%
-              :align: center
-   
-              Représentation arborescente du film Pulp Fiction
-              
-          La représentation avec les étiquettes  sur les arêtes correspond à l'encodage JSON.
-          XML s'appuie sur une représentation plus compliquée dans laquelle
-          les étiquettes sont des nœuds intermédiaires. Cette différence explique en grande partie
-          l'abandon de XML comme langage de modélisation de données. Les sous-graphes pour Bruce
-          Willis et Quentin Tarantino (en tant qu'acteur) ne sont pas développés.
-
-    
-.. _Ex-S2-2:
-.. admonition:: Exercice `Ex-S2-2`_: Privilégions les artistes
-     
-   Reprendre la petite base des films (les 3 tables données ci-dessus) et
-   donner un document structuré donnant toutes les informations disponibles
-   sur Quentin Tarantino. On veut donc
-   représenter un document centré sur les artistes et pas sur les films.
-    
-   .. ifconfig:: docstruct in ('public')
-   
-       .. admonition:: Correction
-
-          Voici une représentation possible. Cette fois c'est la représentation
-          des films qui est redondante.
-      
-          .. code-block:: javascript
-
-              {    
-                "_id": "37", 
-                 "first_name": "Quentin", 
-                "last_name": "Tarantino",
-                "films_dirigés" : [
-                  {
-                   "title": "Pulp fiction",
-                   "year": "1994",
-                   "actors": [
-                       {"artist:11", "role": "Vincent Vega" },
-                       {"artist:27", "role": "Butch Coolidge"}
-                     ]
-                   },
-                  {
-                   "title": "Jacky Brown",
-                   ... 
-                  },
-                   ...               
-                 ],  
-                "films_joués": [
-                  {
-                   "title": "Pulp fiction",
-                   ...
-                  },
-                  {
-                   "title": "Reservoir Dogs",
-                   ... 
-                   },
-                   ...              
-                ]
-              }
-
-          Cette représentation convient pour des tâches d'analyse, en considérant qu'un
-          document est créé une fois pour toutes et jamais modifié. Mais elle est inexploitable
-          pour une base dans laquelle on effectue des mises à jour fréquentes (bases dites "transactionnelles")
-          à cause de la difficulté à préserver la cohérence des données.
-
-.. _Ex-S2-3:
-.. admonition:: Exercice `Ex-S2-3`_: Comprendre la notion de document structuré
- 
-   Vous gérez un site de commerce électronique et vous attendez des 
-   dizaines de millions d'utilisateurs (ou plus). Vous vous demandez
-   quelle base de données utiliser: relationnel ou NoSQL?
-   
-   Les deux tables suivantes représentent la modélisation relationnelle
-   pour les utilisateurs et les visites de pages (que vous enregistrez bien sûr
-   pour analyser le comportement de vos utilisateurs).
-   
-   .. list-table:: Table des utilisateurs
-      :header-rows: 1
-
-      * - id
-        - email
-        - nom
-      * - 1
-        - s@cnam.fr
-        - Serge
-      * - 2
-        - b@cnam.fr
-        - Benoît
- 
-   .. list-table:: Table des visites
-      :header-rows: 1
-
-      * - idUtil
-        - page
-        - nbVisites
-      * - 1
-        - http://cnam.fr/A
-        - 2
-      * - 2
-        - http://cnam.fr/A
-        - 1
-      * - 1
-        - http://cnam.fr/B
-        - 1
- 
-   Proposez une représentation de ces informations sous forme de document structuré  
-   
-     * en privilégiant l'accès par les utilisateurs;
-     * en privilégiant l'accès par les pages visitées.
-     
-   
-   .. ifconfig:: docstruct in ('public')
-   
-      .. admonition:: Correction
-
-         Voici une représentation possible, centrée utilisateurs.
-      
-         .. code-block:: json
-
-             [
-             {    
-               "_id": "1", 
-               "email": "s@cnam.fr", 
-               "nom": "Serge",
-               "visites" : [
-                 {
-                   "page": "http://cnam.fr/A",
-                   "nbVisites": 2
-                 },
-                 {
-                   "page": "http://cnam.fr/B",
-                   "nbVisites": 1
-                 } 
-                ]   
-              },
-              {    
-               "_id": "2", 
-               "email": "b@cnam.fr", 
-               "nom": "Benoît",
-               "visites" : [
-                 {
-                   "page": "http://cnam.fr/A",
-                   "nbVisites": 2
-                 }
-                ]  
-               }
-              ]
-
-         La représentation centrée sur les pages s'en déduit aisément.
-         
-
-.. _Ex-S2-4:
-.. admonition:: Exercice `Ex-S2-4`_: extrait de l'examen du 16 juin 2016
-
-   Le service informatique du Cnam a décidé de représenter ses données sous forme de documents
-   structurés pour faciliter les processus analytiques. Voici un exemple de documents
-   centrés sur les étudiants et incluant les Unités d'Enseignement (UE) suivies
-   par chacuns.
-
-    .. code-block:: javascript
-
-        {
-          "_id": 978,
-          "nom": "Jean Dujardin",
-          "UE": [{"id": "ue:11", "titre": "Java", "note": 12},
-                {"id": "ue:27", "titre": "Bases de données", "note": 17},
-                {"id": "ue:37",  "titre": "Réseaux", "note": 14} 
-                ]
-        }
-        {
-          "_id": 476,
-           "nom": "Vanessa Paradis",
-           "UE": [{"id":  "ue:13",  "titre": "Méthodologie", "note": 17,
-                  {"id": "ue:27",  "titre": "Bases de données", "note": 10},
-                  {"id":  "ue:76",   "titre": "Conduite projet", "note": 11} 
-                 ]
-        }
-    
-    - Sachant que ces documents sont produits à partir d'une base relationnelle, 
-      reconstituez le schéma de cette base et indiquez le contenu des tables correspondant
-      aux documents ci-dessus.
-  
-    .. ifconfig:: docstruct in ('public')
-   
-        .. admonition:: Correction
-  
-           Il s'agit d'une sorte de rétro-ingéniere à partir de documents structurés
-           dont la forme aparaît extrêmement régulière. On trouve, dans chaque document,
-           une description de personnes (étudiants) au premier niveau, avec un ensemble 
-           imbriqué (le tableau de UEs). 
-
-           Ces documents devraient vous rappeler quelque chose: les films et les acteurs, avec
-           les rôles joués par les acteurs.  Ici, on a des étudiants (premier type d'entité),
-           des UEs (deuxième type d'entité) et une association entre les deux: les étudiants
-           sont inscrits à des UEs, et obtiennent une note. Le petit exemple donné montre bien
-           qu'un étudiant peut suivre plusieurs UEs, et inversement, on remarque qu'une
-           même UE (la 27) est suivie par plusieurs étudiants.
- 
-           Conclusion: il s'agit d'une classique assocation plusieurs-à-plusieurs,
-           qui se représente en relationnel avec 3 tables: ``Etudiant``, ``UE`` 
-           et ``Inscription``. Remarquez bien que la note ne peut être placée ni dans la table
-           ``Etudiant`` ni dans la table ``UE``, mais seulement dans la table ``Inscription``. 
-
-
-           .. list-table:: Table des étudiants
-              :header-rows: 1
- 
-              * - id
-                - nom
-              * - 978
-                - Jean Dujardin
-              * - 476
-                - Vanessa Paradis
-
-           .. list-table:: Table des UEs
-              :header-rows: 1
-
-              * - id
-                - titre
-              * - 11
-                - Java
-              * - 13
-                - Méthodologie
-              * - 27
-                - Bases de données
-              * - 37
-                - Réseaux
-              * - 76
-                - Conduite de projets
-
-           Il nous faut finalement une table des inscriptions.
-
-           .. list-table:: Table des inscriptions
-              :header-rows: 1
-
-              * - idEtudiant
-                - idUE
-                - note
-              * - 978
-                - 11
-                - 12
-              * - 978
-                - 27
-                - 17
-              * - 978
-                - 37
-                - 14
-              * - 476
-                - 13
-                - 17
-              * - 476
-                - 27
-                - 10
-              * - 476
-                - 76
-                - 11
-
-           Et voilà. La représentation relationnelle est entièrement à plat, ce qui a l'avantage
-           de donner une vision parfaitement symétrique, non centrée sur une entité particulière.
-           L'inconvénient est la distribution des données dans plusieurs tables: il faut faire
-           des jointures.
-              
-    
-    - Proposez une autre représentation  des mêmes données, centrée cette fois, 
-      non plus sur les étudiants, mais sur les UEs. 
-
-      Avec les documents semi-structurés, on choisit de privilégier certaines entités,
-      celles qui sont proches de la racine de l'arbre. En centrant sur les UEs,
-      on obtient le même contenu, mais avec une représentation très différente.
-
-    .. ifconfig:: docstruct in ('public')
-   
-        .. admonition:: Correction
-
-          .. code-block:: javascript
-
-              {
-                "_id": "ue:11",
-                "titre": "Java",
-                "etudiants": [
-                              {"id": 978, "nom": "Jean Dujardin", "note": 12}
-                             ]
-              }
-              {
-                "_id": "ue:13",
-                "titre": "Méthodologie",
-                "etudiants": [  
-                        {"id": 476, "nom": "Vanessa Paradis", "note": 17}
-                       ]
-              }
-              {
-                "_id": "ue:27",
-                "titre": "Java",
-                "etudiants": [
-                       {"id": 978, "nom": "Jean Dujardin", "note": 17},
-                       {"id": 476, "nom": "Vanessa Paradis", "note": 10}
-                   ]
-              }
-              {
-                "_id": "ue:37",
-                "titre": "Réseaux",
-                "etudiants": [
-                       {"id": 978, "nom": "Jean Dujardin", "note": 14}
-                     ]
-              }
-              {
-                 "_id": "ue:76",
-                 "titre": "Conduite projet",
-                 "etudiants": [  
-                        {"id": 476, "nom": "Vanessa Paradis", "note": 11}
-                      ]
-              }
-
- 
 .. _Ex-S5-5:
 .. admonition:: Exercice `Ex-S5-5`_: passer du relationnel aux documents complexes
 
@@ -1244,10 +821,6 @@ Exercices
                     }
                 }
                 
-
-
-Pour aller plus loin (optionnel)
-================================
 
 .. _Ex-S5-1:
 .. admonition:: Exercice `Ex-S5-1`_: des schémas pour valider les documents JSON

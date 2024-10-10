@@ -88,7 +88,6 @@ def setup(app):
     app.add_config_value('sharding', '', True)
     app.add_config_value('mapreduce', '', True)
     app.add_config_value('spark1', '', True)
-    app.add_config_value('flink2', '', True)
     app.add_config_value('pigtp', '', True)
     app.add_config_value('pasfini', '', True)
     app.add_config_value('annales18', '', True)
@@ -97,6 +96,7 @@ def setup(app):
     app.add_config_value('annales24', '', True)
 	
 docstruct = 'private'
+rielastic = 'private'
 mongoquery = 'private'
 mongomapreduce = 'private'
 mrbasic = 'private'
@@ -104,11 +104,9 @@ cassandratp = 'private'
 mongodbtp = 'private'
 mongodbtp2 = 'private'
 introri = 'private'
-introrisolr = 'private'
 rankingS1 = 'private'
 rankingS2 = 'private'
 rankingS3 = 'private'
-rielastic = 'private'
 ritp = 'private'
 cloud1 = 'private'
 replication1 = 'private'

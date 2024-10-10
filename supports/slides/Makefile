@@ -18,6 +18,13 @@ modelisation :
 	mv genslides.pdf ../ressources-web/slmodelisation.pdf
 	make clean
 
+
+introduction-ES:
+	pdflatex   -shell-escape "\newcommand\titreDiapos{BD documentaires et moteurs de recherche: ElasticSearch}\newcommand\inputFile{introduction-ES}\input{genslides}"
+	mv genslides.pdf ../ressources-web/slintroduction-ES.pdf
+	make clean
+
+
 cassandra-swh : 
 	pdflatex  -shell-escape "\newcommand\titreDiapos{Jeudi 28 mars 2024}\newcommand\inputFile{cassandra-swh}\input{swhslides}"
 	mv swhslides.pdf ../ressources-web/slcassandra-swh.pdf
@@ -67,25 +74,7 @@ boolsearch:
 	pdflatex  -shell-escape -interaction=nostopmode  "\newcommand\titreDiapos{Requêtes booléennes}\newcommand\inputFile{lucene-query}\input{generic-slides}"
 	mv generic-slides.pdf ../ressources-web/slboolsearch.pdf
 	make clean
-	
-installsolr : 
-	pdflatex -shell-escape -interaction=nostopmode "\newcommand\titreDiapos{Installation de Solr}\newcommand\inputFile{solr-install}\input{generic-slides}"
-	pdflatex -shell-escape  -interaction=nostopmode "\newcommand\titreDiapos{Installation de Solr}\newcommand\inputFile{solr-install}\input{generic-slides}"
-	mv generic-slides.pdf ../ressources-web/slinstallsolr.pdf
-	make clean
 
-indexsolr : 
-	pdflatex -shell-escape -interaction=nonstopmode "\newcommand\titreDiapos{Cr\'eation d'un index Solr}\newcommand\inputFile{solr-schema}\input{generic-slides}"
-	pdflatex -shell-escape  -interaction=nonstopmode "\newcommand\titreDiapos{Cr\'eation d'un index  Solr}\newcommand\inputFile{solr-schema}\input{generic-slides}"
-	mv generic-slides.pdf ../ressources-web/slindexsolr.pdf
-	make clean
-
-analysesolr : 
-	pdflatex -shell-escape -interaction=nonstopmode "\newcommand\titreDiapos{Analyse des textes avec Solr}\newcommand\inputFile{solr-analyse}\input{generic-slides}"
-	pdflatex -shell-escape  -interaction=nonstopmode "\newcommand\titreDiapos{Analyse des textes avec Solr}\newcommand\inputFile{solr-analyse}\input{generic-slides}"
-	mv generic-slides.pdf ../ressources-web/slanalysesolr.pdf
-	make clean
-		
 rankedsearch: 
 	pdflatex   -shell-escape -interaction=nostopmode "\newcommand\titreDiapos{Recherche avec classement}\newcommand\inputFile{rankedsearch}\input{generic-slides}"
 	pdflatex   -shell-escape -interaction=nostopmode "\newcommand\titreDiapos{Recherche avec classement}\newcommand\inputFile{rankedsearch}\input{generic-slides}"
@@ -173,24 +162,9 @@ spark:
 	mv genslides.pdf ../ressources-web/slspark.pdf
 	make clean
 
-flinkstream : 
-	pdflatex   -shell-escape "\newcommand\titreDiapos{Streaming avec Flink}\newcommand\inputFile{flinkstream}\input{genslides}"
-	mv genslides.pdf ../ressources-web/slflinkstream.pdf
-	make clean
-
-flinkwindows: 
-	pdflatex   -shell-escape "\newcommand\titreDiapos{Fenetrage avec Flink}\newcommand\inputFile{flinkwindows}\input{genslides}"
-	mv genslides.pdf ../ressources-web/slflinkwindows.pdf
-	make clean
-
 ri-intro-principes: 
 	pdflatex   -shell-escape "\newcommand\titreDiapos{Principes de la Recherche d'Information}\newcommand\inputFile{ri-intro-principesRI}\input{genslides}"
 	mv genslides.pdf ../ressources-web/slri-intro-principes.pdf
-	make clean
-
-ri-intro-debuterES:
-	pdflatex   -shell-escape "\newcommand\titreDiapos{BD documentaires et moteurs de recherche: ElasticSearch}\newcommand\inputFile{ri-intro-debuterES}\input{genslides}"
-	mv genslides.pdf ../ressources-web/slri-intro-debuterES.pdf
 	make clean
 
 ri-intro-lucene-query:
