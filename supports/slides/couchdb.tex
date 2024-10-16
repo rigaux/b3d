@@ -3,7 +3,6 @@
 \section{Parlons du Web et du REST}
 
 
-
 \begin{frame}{Ce qu'il faut savoir (pour nous)}
 
 
@@ -28,7 +27,7 @@ essentielles.
    
    Très utile (indispensable?): l'outil cURL pour parler le HTTP
 
-   \item Un "message" est une enveloppe dont le contenu est un \alert{document}.
+   \item Un ``message'' est une enveloppe dont le contenu est un \alert{document}.
    
    Souvent le document est en HTML,  mais cela peut être un \alert{document structuré}.
 
@@ -44,7 +43,7 @@ REST = une définition de services Web basée sur les standards du Web.
 
 \begin{redbullet}
   \item on s'adresse à des ressources qui fournissent des services;
-  \item les messages se font en HTTP, et sont (le plus souvent) \alert{structurés} en XML ou JSON;
+  \item les messages sont échangés avec HTTP, et sont (le plus souvent) \alert{structurés} en XML ou JSON;
   \item les documents structurés fournis par une ressource sont (le plus souvent)
      produits \alert{à la volée} (par \alert{calcul}: distinction entre service et ressource statique).
 \end{redbullet}
@@ -151,6 +150,9 @@ Souvenez-vous: on s'adresse à des \alert{ressources}
 
 \figSlideWithSize{CouchDB}{10cm}
 
+\vfill
+
+Dans ce qui suit, on suppose que le compte est \texttt{admin/admin}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -167,7 +169,7 @@ $ curl -X GET http://localhost:5984
 Création d'une base de données = \texttt{PUT} d'une nouvelle ressource. 
 
 \begin{minted}{text}
-$ curl -X PUT http://localhost:5984/films
+$ curl -X PUT http://admin:admin@localhost:5984/films
 \end{minted}
 
 \vfill 
@@ -177,7 +179,7 @@ Récupérons la nouvelle ressource (sa représentation) avec \texttt{GET}.
 Création d'une base de données = \texttt{PUT} d'une nouvelle ressource. 
 
 \begin{minted}{text}
-$ curl -X GET http://localhost:5984/films
+$ curl -X GET http://admin:admin@localhost:5984/films
 \end{minted}
 
 \vfill
@@ -185,7 +187,7 @@ $ curl -X GET http://localhost:5984/films
 Création d'un document = \texttt{PUT} d'une nouvelle ressource dans la base de données. 
 
 \begin{minted}{text}
-$ curl -X PUT http://localhost:5984/films/doc1 
+$ curl -X PUT http://admin:admin@localhost:5984/films/doc1 
       -d '{"clef": "valeur"}'
 {"ok":true,"id":"doc1","rev":"1-25eca"}
 \end{minted}
@@ -194,7 +196,7 @@ $ curl -X PUT http://localhost:5984/films/doc1
 Notez le champ \texttt{rev}. Et bien sûr on peut lire la nouvelle ressource.
 
 \begin{minted}{text}
-$ curl -X GET http://localhost:5984/films/doc1
+$ curl -X GET http://admin:admin@localhost:5984/films/doc1
 \end{minted}
 
 \end{frame}
@@ -212,7 +214,7 @@ On adresse un \texttt{PUT} à une \alert{nouvelle} ressource
 (il faut donc produire l'URL).
 
 \begin{minted}{bash}
-curl -X PUT http://localhost:5984/films/us 
+curl -X PUT http://admin:admin@localhost:5984/films/us 
          -d @movie_52.json -H "Content-Type: application/json" 
 \end{minted}
 
@@ -223,7 +225,7 @@ curl -X PUT http://localhost:5984/films/us
 On adresse un \texttt{POST} à la base de données.
 
 \begin{minted}{bash}
-$ curl -X POST  http://localhost:5984/films/ -d @movie_52.json \
+$ curl -X POST  http://admin:admin@localhost:5984/films/ -d @movie_52.json \
       -H "Content-Type: application/json"
 \end{minted}
 
@@ -252,7 +254,7 @@ Mettre à jour un document = ajouter une version à une version existante;
 
 
 \begin{minted}{bash}
-$ curl -X PUT http://localhost:5984/films/us -d @newDoc.json 
+$ curl -X PUT http://admin:admin@localhost:5984/films/us -d @newDoc.json 
         -H "Content-Type: image/jpg" 
 {"ok":true,"id":"tsn","rev":"2-26863"}
 \end{minted}
@@ -261,7 +263,7 @@ $ curl -X PUT http://localhost:5984/films/us -d @newDoc.json
 Détruire avec \texttt{DELETE} = ajouter une version marquée "détruite".
 
 \begin{minted}{bash}
-$ curl -X DELETE http://localhost:5984/films/us?rev=2-26863
+$ curl -X DELETE http://admin:admin@localhost:5984/films/us?rev=2-26863
 {"ok":true,"id":"tsn","rev":"3-48e92b"}
 \end{minted}
 

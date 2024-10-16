@@ -32,7 +32,7 @@ Un scénario typique :
   \item Les données du site sont gérées classiquement par une base documentaire
     (MySQL, Postgres, MongoDB)
   \item On extrait de la base tous les textes à \alert{indexer} et on en fait
-    des documents ES/Solr, à qui on les confie
+    des documents JSON, transmis au moteur de recherche
   \item Ce dernier se charge alors de répondre quand un utilisateur emploie un champ de recherche.
 \end{redbullet}
 \end{frame} % ending frame 
@@ -94,7 +94,7 @@ Ce n'est pas (pas forcément) un très bon outil pour les autres fonctionnalité
 http://localhost:9200//nfe204/movies/_search?q=alien
 http://localhost:9200/nfe204/movies/_search?q=alien,coppola
 http://localhost:9200/nfe204/movies/_search?q=alien,coppola,1994
-# utilisable dans l'interface Kopf, onglet Rest
+# utilisable dans l'interface ElasticVue, onglet Rest
 \end{minted}
 
 \end{redbullet}
@@ -130,31 +130,6 @@ http://localhost:9200/nfe204/movies/_search?q=alien,coppola,1994
 
 \end{minted} 
 \end{frame} 
-
-
-\begin{frame}[fragile]{Autre méthode: en \textit{postant} un document-requête}
-
-On fournit un document décrivant la requête (méthode \texttt{POST}):
-
-\vfill
-
-\begin{minted}[ baselinestretch=0.9]{bash}
-{
- "query": {
-    "query_string" : {
-       "query" : "alien,coppola,1994"
-    }
-  }
-}
-\end{minted}
-
-\vfill
-
-Un premier pas vers une interrogation plus structurée.
-
-
-\end{frame}
-
 
 
 \begin{frame}[fragile]{Termes}
@@ -281,6 +256,88 @@ year:[1990 TO 2005] AND NOT title:M*
 \end{redbullet}
 \end{frame}
 
+\begin{frame}[fragile]{Requêtes structurées}
+
+On fournit un document décrivant la requête en la \textit{postant}  
+(méthode \texttt{POST}):
+
+\vfill
+
+\begin{minted}[ baselinestretch=0.9]{bash}
+	{
+    	"query": {
+      		"match": {
+        		"title": "Star Wars"
+      		}
+  		}
+   	}
+\end{minted}
+
+\vfill
+
+Un premier pas vers une interrogation plus structurée.
+
+\end{frame}
+
+\begin{frame}[fragile]{Choix des champs et du résultat}
+
+On peut ajouter des spécifications dans la requête.
+
+\vfill
+
+\begin{minted}[ baselinestretch=0.9]{bash}
+	{
+    	"query": {
+      		"match": {
+        		"title": "Star Wars"
+      		}
+  		},
+  		"fields": ["title"],
+  		"_source": false
+   	}
+\end{minted}
+
+\end{frame}
+
+\begin{frame}[fragile]{Effectuer des recherches approchées}
+
+\begin{minted}[ baselinestretch=0.9]{bash}
+	{
+	  "query": {
+	     "fuzzy": {
+      		"title": {
+        		"value": "matrice"
+    	  	}
+    	  }
+  		},
+  	 "fields": ["title"],
+	 "_source": false
+	}
+\end{minted}
+
+\end{frame}
+
+
+\begin{frame}[fragile]{Recherches par intervalle}
+
+\begin{minted}[ baselinestretch=0.9]{bash}
+	{
+  		"query": {
+		    "range": {
+		      "year": {"gte": 2010, "lte": 2020}
+    		}
+  		},
+  		"fields": ["title", "year"],
+  		"_source": false
+	}
+\end{minted}
+
+\end{frame}
+
+
+
+
+
 %\begin{frame}[fragile]{Opérateur $+$, classement}
   %\begin{redbullet}
     %\item préfixe d'un nom de champ, il indique que la valeur du champ {\bf doit}
@@ -330,8 +387,8 @@ de recherche.
 \alert{Surtout}, deux différences essentielles:
 
  \begin{redbullet}
-    \item Ce sont des recherches \alert{approchées}: on trouve tous les documents "proches de" la requête
-    \item Le résultat est \alert{ordonné} par pertinence décroissante.
+    \item Le système permet des recherches \alert{approchées}: on trouve tous les documents "proches de" la requête
+    \item Le résultat peut être \alert{ordonné} par pertinence décroissante.
   \end{redbullet}
 
 \vfill

@@ -62,7 +62,7 @@ La structure de base est la paire (clé, valeur)
 
 \begin{redbullet}
  \item Clé\,: un identifiant
- \item Valeu,:  atomique (entier, chaîne de caractères), ou complexe (dictionnaire, ensemble, liste)
+ \item Valeur\,:  atomique (entier, chaîne de caractères), ou complexe (dictionnaire, ensemble, liste)
 \end{redbullet}
 
 \vfill
@@ -91,6 +91,10 @@ au schéma de la table.
 
 \vfill
 
+Les tables sont \alert{dénormalisées}\,: on peut avoir des attributs dont
+la valeur est un type construit (objet ou ensemble).
+\vfill
+
 Des notions de colonnes et super-colonnes sont (semble-t-il) en voie de disparition.
 
 \vfill
@@ -112,18 +116,21 @@ Il est donc préférable de \alert{regrouper} les données le plus possible dans
 
 \vfill
 
-La conception devrait se baser sur les requêtes les plus fréquentes de l'application (cf. 
-la session consacrée à la modélisation de données NoSQL).
 
-\vfill
-
-Au pire, on représente les mêmes données sous plusieurs formes (redondance).
+Au pire, on peut représenter les mêmes données sous plusieurs formes.
 
 \begin{redbullet}
   \item Tous les films, avec leurs réalisateurs et acteurs.
   \item Tous les artistes, avec les films qu'ils ont tournés ou dans lesquels ils ont joué.
 \end{redbullet}
 
+
+\vfill
+
+Le regroupement a aussi des inconvénients (redondance, difficulté d'accès aux
+données ``profondes''). 
+La conception Cassandra s'appuie sur des heuristiques
+spécifiques\,: une autre session lui est consacrée.
 \end{frame}
 
 \section{Session découverte\,!}
@@ -196,7 +203,7 @@ create type artist (id text,
 
 \vfill
 
-Table des films, avec imbrication.
+Table des films, avec imbrication d'un object conforme au type \texttt{artist}.
 
 \begin{minted}{sql}
 create table movies (id text,
@@ -233,12 +240,14 @@ insert into movies JSON '{
 
 \end{frame}
 
-\vfill
 
 \begin{frame}[fragile]
 \frametitle{Table des films, complète}
 
+On peut avoir des valeurs instances d'un type, en \alert{ensemble} d'instance
+d'un type (mot-clé \texttt{set}). Exemple\,: 
 
+\vfill
 
 \begin{minted}{sql}
 create table movies (id text,
@@ -251,9 +260,19 @@ create table movies (id text,
            primary key (id) );
 \end{minted}
 
-\vfill
-
-Données à récupérer sur http://webscope.bdpedia.fr
-
 \end{frame}
 
+
+
+\begin{frame}[fragile]
+\frametitle{À retenir}
+
+\begin{redbullet}
+   \item Cassandra propose un modèle relationnel étendu, basé sur la capacité à imbriquer
+     des types complexes dans la définition d'un schéma
+   \item  Cassandra a choisi d'imposer un typage fort: toute insertion doit être conforme au schéma;
+   \item L'imbrication des constructeurs de type
+   rend le modèle comparable aux documents structurés JSON ou XML.
+\end{redbullet}
+
+\end{frame}

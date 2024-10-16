@@ -161,7 +161,7 @@ appelées des *column families* pour des raisons historiques.
 
 .. note:: Il existe aussi des *super columns*, ainsi que des *super column families*. Ces structures apportent 
    un réel niveau de complexité dans le modèle de données, et il n'est pas vraiment nécessaire d'en parler ici.
-   Il se peut d'ailleurs ques ces notions peu utiles disparaissent à l'avenir.
+   Il se peut d'ailleurs que ces notions peu utiles disparaissent à l'avenir.
 
 La :numref:`cass-column-family` illustre une table et 3 documents avec leur identifiant.
 
@@ -199,7 +199,6 @@ Créons notre base
 À vous de vous retrousser les manches pour créer votre base Cassandra et y insérer nos films
 (ou toute autre jeu de données de votre choix). Les commandes de base sont données ci-dessous;
 elles peuvent toutes être entrées directement dans client graphique comme DbVisualizer.
-
 Le *keyspace*
 -------------
 
@@ -208,9 +207,8 @@ Cassandra est fait pour fonctionner dans un environnement distribué. Pour crée
 un *keyspace*, 
 il faut donc  
 préciser la stratégie de réplication à adopter. Nous verrons plus en détail 
-après comment 
-tout ceci fonctionne. Voici 
-la commande:
+après comment  tout ceci fonctionne. Voici 
+la commande en ligne:
 
 .. code-block:: text
 
@@ -218,8 +216,17 @@ la commande:
            WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor': 3 };
 
 Sous DbVisualizer, les *keyspaces* apparaissent à gauche de la 
-fenêtre principale (voir figure  :numref:`dbvis`). Un clic bouton droit 
-permet d'ouvrir un formulaire de création d'un *keyspace*.
+fenêtre principale. Un clic bouton droit 
+permet d'ouvrir un formulaire de création d'un *keyspace* (voir :numref:`cass-create-keyspace`).
+
+
+.. _cass-create-keyspace:
+.. figure:: ../figures/cass-createkeyspace.png
+      :width: 100%
+      :align: center
+
+      Utilisation de DbVisualizer -- Création d'un *keyspace*
+
 
 Une fois le *keyspace* créé, essayez les commandes suivantes 
 (sous ``cqlsh`` uniquement).
@@ -229,7 +236,11 @@ Une fois le *keyspace* créé, essayez les commandes suivantes
     cqlsh > DESCRIBE keyspaces;
     cqlsh > DESCRIBE KEYSPACE Movies;
 
-Avec un client graphique, il est facile d'explorer un *keyspace*.
+Avec un client graphique, il est facile d'explorer un *keyspace*. Sous DbVisualizer,
+vous pouvez entrer les commandes dans une fenêtre "SQL commander".
+
+.. important:: Il peut être nécessaire de se reconnecter à Cassandra pour que le
+   *keyspace* devienne visible.
 
 Données relationnelles (à plat)
 -------------------------------
@@ -270,10 +281,6 @@ On peut vérifier que l'insertion a bien fonctionné en sélectionnant les donn�
       'artist1' | Depardieu   | Gérard         | 1948
       'artist2' | Baye        | Nathalie       | 1948
       'artist3' | Marceau     | Sophie         | null
-
-Sous DbVusualizer, lancer un "SQL commander" et entrer la
-requête.
-On se retrouve avec l'affichage de la figure  :numref:`dbvis`
 
 À la dernière insertion, nous avons délibérément omis de renseigner la colonne ``birth_date``, et 
 Cassandra accepte la commande sans retourner d'erreur. Cette flexibilité est l'un des aspects
@@ -325,7 +332,18 @@ avec un nom, un prénom, etc., il faudrait associer (en relationnel) chaque lign
 
 Cassandra permet l'imbrication de la représentation d'un artiste dans la représentation d'un film;
 une seule table suffit donc.
-Il nous faut au préalable définir le *type* ``artist`` de la manière suivante:
+C'est le principe de dénormalisation: on regroupe 
+les données le plus possible dans des lignes pour éviter les jointures.
+Une valeur d'attribut  peut correspondre:
+
+	- à un ensemble de valeurs (non ordonnées): ``SET`` 
+	- à une liste de valeurs: ``LIST``
+	- à un dictionnaire: ``MAP`` 
+	-  à un nuplet: `TUPLE`` 
+	- à une instance d'un type 
+
+
+Définissons le *type* ``artist`` de la manière suivante:
 
 .. code-block:: sql
 
@@ -429,7 +447,7 @@ en JSON à la structure suivante:
 				"birth_date": 1956
 			}
 		]
-	}')
+	}';
 
 Je vous laisse effectuer (si ce n'est déjà fait) l'insertion de l'ensemble des films tels qu'ils sont fournis par
 le site http://deptfod.cnam.fr/bd/tp/datasets/cassandra, avec tous les acteurs d'un film.
@@ -447,10 +465,20 @@ En résumé:
    - L'imbrication des constructeurs de type, notamment les *dictionnaires* (nuplets) et
      les *ensembles* (set) rend le modèle comparable aux documents structurés JSON ou XML.
 
+Il faut noter que les ensembles doivent rester de taille raisonnable sous peine de
+dégrader les performances. La conception d'un schéma Cassandra repose sur
+des principes très spécifiques sur lesquels nous revenons plus loin.
 
 **********************
 S2: requêtes Cassandra
 **********************
+
+
+
+.. admonition:: Supports complémentaires
+
+    * `Diapositives: CQL et ses limitations (et pourquoi...) <http://b3d.bdpedia.fr/files/slcass-cql.pdf>`_
+   
 
 Cassandra propose un langage, nommé CQL, inspiré de SQL, mais fortement restreint par l'absence de jointure. 
 De plus, d'autres types de restrictions s'appliquent, motivées par l'hypothèse qu'une
@@ -461,11 +489,9 @@ permet des temps de réponse acceptables.
 .. note:: Cette session est une démonstration pratique ces capacités d'interrogation
    de Cassandra. Si vous souhaitez reproduire les manipulations, il vous
    faut un environnement constitué d'un serveur Cassandra,
-   d'un client et de la base de données des films. En résumé, vous devriez avoir:
-   
-     - une table ``artists`` avec la liste des artistes;
-     - une table ``movies`` où chaque film contient des données imbriquées représentant
-       le réalisateur du film et les acteurs.
+   d'un client et de la base de données des films. En résumé, vous devriez avoir
+   une table ``movies`` où chaque film contient des données imbriquées représentant
+   le réalisateur du film et les acteurs.
 
 CQL, un sous-ensemble de SQL
 ============================
@@ -480,26 +506,26 @@ langage est délibérement conçu comme un sous-ensemble de SQL et de sa constru
 Commençons par quelques exemples.
 
 
-Sélectionnons tous les artistes.
+Sélectionnons tous les films.
 
 .. code-block:: sql
 
-      select  * from artists;
+      select  * from movies;
 
-Selon l'utilitaire que vous utilisez, vous devriez obtenir l'affichage des premiers artistes
+Selon l'utilitaire que vous utilisez, vous devriez obtenir l'affichage des premiers films
 sous une forme ou sous une autre. Cassandra étant supposé gérer de très grandes bases de données, 
 ces utilitaires vont souvent ajouter automatiquement une clause limitant le nombre
 de lignes retournées. Vous pouvez ajouter cette clause explicitement.
 
 .. code-block:: sql
 
-      select  * from artists limit 20;
+      select  * from movies limit 20;
 
 On peut obtenir le résultat encodé en JSON en ajoutant simplement le mot-clé ``JSON``.
 
 .. code-block:: sql
 
-      select JSON * from artists;
+      select JSON * from movies;
 
 Bien entendu, le ``*`` peut être remplacé par la liste des attributs à conserver (projeter).
 
@@ -523,12 +549,15 @@ En revanche, quand la valeur est un ensemble ou une liste, on ne sait pas avec C
       select title, actors.last_name from movies;
 
 devrait retourner une erreur. Il est vrai que l'on ne sait pas très bien à quoi devrait ressembler 
-le résultat. D'autres langages (notamment XQuery, mais également le langage de script Pig que nous
+le résultat. Ou plus exactement on le sait, mais
+cela supposeait que Cassandra soit capable de créer des types à la volée.
+D'autres langages (notamment XQuery, mais également le langage de script Pig que nous
 étudierons en fin de cours) proposent des solutions au problème
 d'interrogation de collections imbriquées. Il se peut que CQL évolue
 un jour pour proposer quelque chose de semblable.
 
-On peut, dans la clause ``select``, appliquer des fonctions. Cassandra permet la définition de fonctions
+On peut, dans la clause ``select``, appliquer des fonctions. Cassandra 
+permet la définition de fonctions
 utilisateur, et leur application aux données grâce à CQL. Quelques fonctions prédéfinies sont
 également disponibles. Voici un exemple (sans intérêt autre qu'illustratif) 
 de conversion de l'année du film
@@ -551,13 +580,12 @@ On peut effectuer des filtrages avec la clause ``where``. Par exemple:
 
        select  *  from movies where id='movie:33';
 
-
 Remarque importante: le critère de sélection porte ici sur la *clé*. On peut 
 généraliser à plusieurs valeurs avec la clause ``in``.
 
 .. code-block:: sql
 
- 	select  * from movies 
+    select  * from movies 
     where id in ('movie:33', 'movie:44214', 'movie:29845');
       
 Tentons maintenant une recherche sur un attribut non-clé.
@@ -591,28 +619,112 @@ Pourquoi CQL n'est pas SQL
 ==========================
 
 Pourquoi un ``where`` sur un attribut non-clé est-il rejeté? Pour une raison qui tient
-à l'organisation des données:
+à l'organisation des données: Cassandra organise une table selon une structure
+qui permet très rapidement de trouver un document par sa clé. La recherche par clé
+est donc autorisée. Pour aller plus loin, il faut regarder plus en détail 
+le schéma d'une table. La syntaxe complète est ci-dessous:
 
-  - Cassandra organise une table selon une structure (que nous étudierons ultérieurement)
-    qui permet très rapidement de trouver un document par sa clé. La recherche par clé
-    est donc autorisée.
-  - Cette structure n'existe que pour la clé. *Toute recherche sur un autre attribut n'a d'autre
-    solution que de parcourir séquentiellement toute la table en effectuant le test sur
-    le critère de recherche à chaque fois*.
+.. code-block:: sql
+
+	 create table Tname (
+   		part_key_1 type,
+   		part_key_2 type,
+   		... type,
+   		clust_key_1 type,
+   		... type,
+   		att_1 type,
+   		att_2 type,
+   		... type,
+   		primary key ( 
+            (part_key_1, part_key2, ...), 
+            (clust_key_1, clust_key_2, ...) 
+        )
+      )
+
+
+.. _cass-schema-table:
+.. figure:: ../figures/cassandra_chebotko.png
+      :width: 60%
+      :align: center
+
+      Le schéma d'une table, avec la structure d'une clé
+
+Les attributs d'un schéma peuvent être divisés en deux parties: les
+*attributs de la clé* et les attributs non-clés. Mais les attributs
+de la clé eux-mêmes se divisent en deux (:numref:`cassandra_chebotko`): 
+
+ - les attributs de *partitionnement*: ils déterminent le placement de la ligne
+   sur un serveur
+ - les attributs de *regroupement*: ils servent à trier les lignes 
+   sur un même serveur.
+   
+Il faut ici anticiper un peu sur l'étude de Cassandra comme système distribué. 
+Sans entrer dans les détails, une table Cassandra est censée être très volumineuse.
+Cassandra la découpe en *fragments* et place chaque fragment sur un
+des serveurs du système distribué (:numref:`cass-anneau`). Ce système
+a la forme d'un anneau mais nous allons laisser de côté cette caractéristique
+pour l'instannt.
+ 
+.. _cass-anneau:
+.. figure:: ../figures/cassandra_anneau.png
+      :width: 50%
+      :align: center
+
+      Cassandra est un système distribué: la *clé de partitionnement* détermine le serveur
+
+Le contenu d'un fragment est déterminé par la *clé de partitionnement*. 
+Pour chaque ligne on applique en effet une fonction (de hachage) aux valeurs de la clé de 
+*partitionnement*. La valeur retournée par cette fonction détermine le placement dans le système distribué.
+Conséquence: **une requête incluant comme critère une clé de partitionnement
+ne concerne qu'un seul serveur**.
+
+De plus,d ans un fragment (sur un serveur) les lignes sont triées sur la clé primaire.
+Pour une même valeur de partitionnement,  les lignes sont 
+donc *consécutives* et ordonnées sur la clé de regroupement.
+Une requête sur une préfixe de la clé   primaire (part. + regroupement)
+correspond à un parcours *séquentiel* sur un seul nœud, beaucoup
+plus efficace qu'une recherche aléatoire.
+
+Prenons un exemple concret: nous considérons que l'ensemble imbriqué
+des acteurs d'un film est potentiellement trop grand pour l'imbriquer
+dans la table ``movies``. On peut alors créer une table ``roles`` comme suit:
+
+.. code-block:: sql
+
+    create table Roles (
+        id_film int,
+        id_artiste int,
+        role text,
+        artist frozen<artist>,
+        primary key (id_film, id_artiste)
+     ) 
+
+La clé de partitionnement est donc l'identifiant du film, et la
+clé de regroupement l'identifiant de l'artiste. Tous les rôles
+d'un même film seront sur le même serveur. Ils seront de plus
+regroupés et triés par identifiant d'artiste.
+
+
+.. _cass-cluster:
+.. figure:: ../figures/cassandra_clustering.png
+      :width: 60%
+      :align: center
+
+      Cassandra est un système distribué: la *clé de partitionnement* détermine le serveur
+
     
-Comme déjà indiqué, Cassandra est conçu pour de très grandes bases de données, et le rejet 
-de ces requêtes est une précaution. Le message indique clairement à l'utilisateur que
-sa requête est susceptible de prendre beaucoup de temps à s'exécuter. 
+*Toute recherche sur un autre attribut (par exemple l'intitulé du rôle ou
+le nom de l'artiste) n'a d'autre
+solution que de parcourir séquentiellement toute la table en effectuant le test sur
+le critère de recherche à chaque fois*.
 
+Comme déjà indiqué, Cassandra est conçu pour de très grandes bases de données, et le rejet 
+de ces requêtes séquentielle est une précaution. Le message indique clairement à l'utilisateur que
+sa requête est susceptible de prendre beaucoup de temps à s'exécuter. 
 À l'usage on décrouvre tout un ensemble de restrictions (par rapport à SQL) qui s'expliquent
 par cette volonté d'éviter l'exécution d'une requête qui impliquerait un parcours de tout
 ou partie de la table. Voyons quelques exemples, avec explications.
 
-.. note:: Certaines des explications qui suivent sont volontairement brèves car elles
-   impliquent une compréhension de la structure interne des données dans Cassandra ainsi que
-   de la méthode de répartition dans un environnement distribué.
-   Nous présenterons tout cela plus tard. 
-  
 Tentons une requête sur la clé primaire, mais avec un critère *d'inégalité*.
 
 .. code-block:: sql
@@ -641,8 +753,7 @@ une partie non prédictible de la base pour constituer le résultat. Cette inter
 n'est cependant pas totale. Dans le cas de la clause ``where``, l'utilisateur 
 peut prendre explicitement ses responsabilités en ajoutant la clause ``allow filtering``,
 comme nous l'avons montré ci-dessus.
-
-Si la table contient des milliards de ligne (bon, c'est peu probable ici), il faudra certainement
+Si la table contient des milliards de ligne, il faudra certainement
 attendre longtemps et exploiter intensivement les ressources du système pour un résultat
 limité. À utiliser
 à bon escient donc.
@@ -688,6 +799,253 @@ probablement une très mauvaise idée. On peut estimer qu'un film sur 100 a ét�
 à l'échelle du *Big Data*, ça laisse beaucoup de films à trouver, même avec l'index, et une requête
 qui peut ne pas être performante du tout.
 
+
+****************************************
+S3: étude de cas: conception d'un schéma
+****************************************
+
+De nombreux conseils sont disponibles pour la conception d'un schéma Cassandra. Cette conception est 
+nécessairement 
+différente de celle d'un schéma relationnel à cause de l'absence du système de clé étrangère et de l'opération
+de jointure. C'est la raison pour laquelle de nombreux *design patterns* sont proposés pour guider 
+la mise en place d'une architecture de données dans Cassandra qui soit cohérente avec les besoins 
+métiers, et la performance que peut offrir la base de données. 
+
+
+
+
+On adopte un des nombreux schémas possibles en 
+fonction des besoins.
+
+ - On conçoit les *chemins d'accès*, ou séquence des requêtes émises par une application	
+ - On organise les tables pour que  chaque requête  s'exécute *localement* et *séquentiellement*
+ - On peut créer ponctuellement des index ou des vues matérialisées
+ - Au pire (mais inévitable?) on multiplie les organisations physiques et donc la redondance
+
+Acceptable pour une approche WORM (*Write Once, Read many*)
+
+
+Cassandra oblige à réfléchir en priorité à la façon dont le 
+modèle de données va être utilisé. Quelles  requêtes vont être exécutées? Dans quel *sens* 
+mes données seront-elles traitées? C'est à partir de ces questions que pourra s'élaborer un modèle 
+optimisé, *dénormalisé* et donc  performant.  
+L'inconvénient d'une démarche basée sur les besoins est que si ces derniers évoluent (ou si une application
+différente veut accéder à une base existante), l'organisation
+de la base devient inadaptée. Avec un système relationnel comme MySQL, le raisonnement est opposé:
+la disponibilité des jointures permet de se fixer comme  but la *normalisation* du modèle de données 
+afin de répondre à tous les cas d'usage possibles, éventuellement de manière non optimale. 
+
+Etude de cas
+============
+
+
+.. _modele_swh:
+.. figure:: ../figures/modele_swh.png
+      :width: 100%
+      :align: center
+
+      Notre modèle de données
+
+Pour chaque table on a un point d'accès (pe ``'origin``) et l'identification
+relative à ce point d'accès (pe ``'snapshot``}). On nommera la table 
+``snapshot_by_origin``
+
+Quelques exemples: cherchons les visites
+
+Une première approche purement relationnelle ne fonctionne pas.
+
+.. code-block:: sql
+
+    create table Origin 
+       (origin_id uuid,
+        url varchar, 
+        description text,
+        primary key (origin_id));
+        
+    create table Visit 
+       (visit_id uuid,
+        origin_id
+        visit_ref int,
+        date date,
+        primary key (visit_id) 
+       );
+
+Il faut deux requêtes (pas de jointure)
+
+.. code-block:: sql
+
+  select origin_id in oid 
+  from Origin 
+  where url ='swh.org'
+  
+  select * from Visit 
+  where origin_id = oid
+ 
+Et Cassandra refuse les deux !  Organisons les clés et chemins d'accès.
+Les critères de recherche doivent être dans la clé
+
+.. code-block:: sql
+
+    create table Origin 
+     (url varchar, 
+      description text,
+      primary key (url)
+      );
+ 
+    create table Visit_by_origin
+     (url_origin varchar,
+      visit_ref int,
+      date date,
+      primary key (url_origin, 
+                   visit_ref)
+      );
+
+.. code-block:: sql
+      
+  select * from Origin 
+  where  url ='swh.org';
+ 
+  select * from Visit_by_origin 
+  where  url ='swh.org';
+  
+  select * from Visit_by_origin 
+  where  url ='swh.org'
+  and visit_ref < 3;
+ 
+Imbriquons pour avoir moins de tables/
+    
+Un type ``Visit``.
+    
+  
+.. code-block:: sql
+
+  create type Visit (
+      number int,
+      date_visit date)
+  
+    
+    
+Imbriqué dans ``Origin``
+    
+
+.. code-block:: sql
+  
+  create table Origin 
+     (url varchar, 
+      description text,
+      visites list<Visit>,
+      primary key (url)
+      )
+  
+Suppose un nombre limité de visites. Une requête localisée et unique pour trouver toutes les visites d'une origine.
+
+
+
+.. code-block:: sql
+  
+  select * from Origin 
+  where  url ='swh.org'
+  
+  
+  
+Les origines visitées au moins 10 fois
+  
+
+.. code-block:: sql
+     
+  select * from Origin 
+  where  url ='swh.org'
+  and count(visit.number) >= 10
+  
+
+Tentons une modélisation complète: ``Snapshot``
+
+.. code-block:: sql
+       
+  create type Origin (
+      description int,
+      other_infos text);
+  
+  
+  create table Snapshot_by_origin
+     (url varchar, 
+      snapshot_date,
+      snapshot_id uuid,
+      origin Origin,
+      visits list<Visit>,
+      branches map<string, uuid>,
+      primary key (url, 
+      snapshot_date)  )
+  
+Avec peu de branches par snapshot. Tous les snapshots d'une origine.
+  
+
+.. code-block:: sql
+  
+  select * from Snapshot_by_origin 
+  where  url ='swh.org'
+  
+  
+Snapshots après une date et contenant une branche ``master``
+   
+
+.. code-block:: sql
+
+  select * from Snapshot_by_origin 
+  where  url ='swh.org'
+  and snapshot_date > '01-MARCH-2024'
+  and branches contains key 'master'
+  
+
+On obtient les id des snapshots et des branches
+
+
+Connaissant une branche: les ``Revisions``
+
+Ici, vraie structure de graphe. Pas idéal
+    
+
+.. code-block:: sql
+  
+   create table Revision_by_branch
+      (branch_id uuid, 
+       revision_id uuid,
+       parents list<uuid>,
+       author varchar,
+       message varchar,
+       tstamp date, 
+       primary key (branch_id, 
+               revision_id)
+       ); 
+
+Toutes les révisions d'une branche par Stefano.
+
+.. code-block:: sql
+    
+  select * from Revision_by_branch 
+  where  branch_id ='bxyz'
+  and author = 'Stefano'
+  
+  
+   
+Les révisions dont un parent est la révision 'abcd'
+   
+
+.. code-block:: sql
+  
+  select * from Revision_by_branch 
+  where   branch_id ='bxyz'
+  and parents contains 'abcd'
+  
+
+ 
+On obtient les id des révisions d'une branche
+  
+*********
+Exercices
+*********
+
+
 Mise en pratique
 ================
 
@@ -711,42 +1069,6 @@ Voici quelques manipulations et suggestions de recherches complémentaires.
    Depuis la version 3, Cassandra propose un mécanisme de *vue matérialisé*. Etudiez
    la documentation à ce sujet, et montrez comment ce mécanisme peut permettre
    de répondre à des requêtes comme celle de l'exercice précédent.
-
-
-***************************
-S3:  Conception d'un schéma
-***************************
-
-Le modèle de données sur Cassandra est très influencé à l'origine par le système BigTable dont le
-plus proche héritier à ce jour est HBase. Cassandra en hérite principalement une terminologie assez dérourante
-et peu représentative d'une organisation assez classique structurée selon les niveaux base, table et document.
-Une fois dépassée ce petit obstacle, on constate une adoption des principes fondamentaux des systèmes
-documentaires distribués: des documents à la structure flexible construits sur la cellule (clé, valeur),
-entités d'information autonomes conçus pour le partitionnement dans un système distribué. 
-
-
-De nombreux conseils sont disponibles pour la conception d'un schéma Cassandra. Cette conception est 
-nécessairement 
-différente de celle d'un schéma relationnel à cause de l'absence du système de clé étrangère et de l'opération
-de jointure. C'est la raison pour laquelle de nombreux *design patterns* sont proposés pour guider 
-la mise en place d'une architecture de données dans Cassandra qui soit cohérente avec les besoins 
-métiers, et la performance que peut offrir la base de données. 
-
-Cassandra oblige à réfléchir en priorité à la façon dont le 
-modèle de données va être utilisé. Quelles  requêtes vont être exécutées? Dans quel *sens* 
-mes données seront-elles traitées? C'est à partir de ces questions que pourra s'élaborer un modèle 
-optimisé, *dénormalisé* et donc  performant.  
-L'inconvénient d'une démarche basée sur les besoins est que si ces derniers évoluent (ou si une application
-différente veut accéder à une base existante), l'organisation
-de la base devient inadaptée. Avec un système relationnel comme MySQL, le raisonnement est opposé:
-la disponibilité des jointures permet de se fixer comme  but la *normalisation* du modèle de données 
-afin de répondre à tous les cas d'usage possibles, éventuellement de manière non optimale. 
-
-
-*********
-Exercices
-*********
-
 
 .. _Ex-S5-5:
 .. admonition:: Exercice `Ex-S5-5`_: passer du relationnel aux documents complexes
