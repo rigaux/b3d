@@ -28,35 +28,6 @@
 \end{frame}
 
 
-\begin{frame}[fragile] \frametitle{Structure d'un schéma}
-
-\begin{columns}
-    \begin{column}{0.45\textwidth}
-  
-\includegraphics[height=.8\textwidth]{../figures/cassandra_chebotko.pdf}
-  \end{column}
- \begin{column}{0.45\textwidth}
- \begin{minted}{sql}
- create table Tname (
-   part_key_1 type,
-   part_key_2 type,
-   ... type,
-   clust_key_1 type,
-   ... type,
-   att_1 type,
-   att_2 type,
-   ... type,
-   primary key ( 
-       (part_key_1, part_key2, ...), 
-       (clust_key_1, clust_key_2, ...) 
-       )
- )
- \end{minted}
-\end{column}
-\end{columns}
-
-\end{frame}
-
 \begin{frame}[fragile]
 \frametitle{Imbrication de structures}
 
@@ -79,51 +50,6 @@ Une valeur d'attribut  peut correspondre\,:
 Les ensembles doivent rester de taille raisonnable
 \end{frame}
 
-\begin{frame}[fragile] \frametitle{Clé de partitionnement = placement}
-
-\begin{columns}
-    \begin{column}{0.45\textwidth}
-  
-\includegraphics[height=\textwidth]{../figures/cassandra_anneau.pdf}
-  \end{column}
- \begin{column}{0.45\textwidth}
-\begin{redbullet}
-		\item Pour chaque ligne on applique une fonction de hachage 
-		          aux valeurs de la clé de \alert{partitionnement}
-		\item La valeur de hachage détermine le placement dans le système distribué
-		\item $\Rightarrow$ une requête incluant comme critère une clé de partitionnement
-		     ne concerne qu'un seul serveur
-	\end{redbullet}
-
-\end{column}
-\end{columns}
-
-\end{frame}
-
-%%%%%%%%%%
-\begin{frame}[fragile] \frametitle{Clé de regroupement = contiguité}
-
-\begin{columns}
-    \begin{column}{0.45\textwidth}
-    
-\includegraphics[height=\textwidth]{../figures/cassandra_clustering.pdf}
-  
-  \end{column}
- \begin{column}{0.45\textwidth}
-\begin{redbullet}
-		\item Dans un fragment (sur un serveur) les lignes sont triées 
-		sur la clé primaire
-		\item Pour une même valeur de partitionnement,  les lignes 
-		   sont \alert{consécutives} et ordonnées sur la clé de regroupement
-		\item $\Rightarrow$ une requête sur une préfixe de la clé 
-		    primaire (part. + regroupement)
-		     correspond à un parcours \alert{séquentiel} sur un seul nœud
-	\end{redbullet}
-
-\end{column}
-\end{columns}
-
-\end{frame}
 
 %%%%%%%%%%%
 \begin{frame}[fragile] \frametitle{Principes de conception}
@@ -150,7 +76,6 @@ Acceptable pour une approche WORM (\textit{Write Once, Read many})
 \end{defblock}
 \end{frame}
 
-
 %%%%%%%%%%%%%%
 \begin{frame}[fragile]{Notre modèle}
 
@@ -158,9 +83,9 @@ Acceptable pour une approche WORM (\textit{Write Once, Read many})
 \includegraphics[height=.6\textheight]{../figures/modele_swh.pdf}
 \end{center}
 
-Pour chaque table on a un point d'accès (pe \texttt{'origin'}) et l'identification
+Pour chaque table on a un point d'accès (pe \texttt{'repository'}) et l'identification
 relative à ce point d'accès (pe \texttt{'snapshot'}). On nommera la table 
-\texttt{snapshot\_by\_origin}
+\texttt{snapshot\_by\_repository}
 \end{frame}
 
 
@@ -182,17 +107,17 @@ Une première approche purement relationnelle ne fonctionne pas.
 \begin{columns}
     \begin{column}{0.45\textwidth}
   \begin{minted}{sql}
-  create table Origin 
-     (origin_id uuid,
+  create table Repository 
+     (Repository_id uuid,
       url varchar, 
       description text,
-      primary key (origin_id))
+      primary key (Repository_id))
   \end{minted}
   
   \begin{minted}{sql}
   create table Visit 
      (visit_id uuid,
-      origin_id
+      Repository_id
       visit_ref int,
       date date,
        primary key (visit_id) )
@@ -202,14 +127,14 @@ Une première approche purement relationnelle ne fonctionne pas.
   Il faut deux requêtes (pas de jointure)
   \vfill
   \begin{minted}{sql}
-  select origin_id in oid 
-  from Origin 
+  select Repository_id in oid 
+  from Repository 
   where url ='swh.org'
   \end{minted}
 
   \begin{minted}{sql}
   select * from Visit 
-  where origin_id = oid
+  where Repository_id = oid
   \end{minted}
   \vfill
   Et Cassandra refuse les deux ! 
@@ -228,7 +153,7 @@ Les critères de recherche doivent être dans la clé
 \begin{columns}
     \begin{column}{0.45\textwidth}
   \begin{minted}{sql}
-  create table Origin 
+  create table Repository 
      (url varchar, 
       description text,
       primary key (url)
@@ -236,11 +161,11 @@ Les critères de recherche doivent être dans la clé
   \end{minted}
   
   \begin{minted}{sql}
-  create table Visit_by_origin
-     (url_origin varchar,
+  create table Visit_by_Repository
+     (url_Repository varchar,
       visit_ref int,
       date date,
-      primary key (url_origin, 
+      primary key (url_Repository, 
                    visit_ref)
       )
   \end{minted}
@@ -248,19 +173,19 @@ Les critères de recherche doivent être dans la clé
  \begin{column}{0.45\textwidth}
 
   \begin{minted}{sql}
-  select * from Origin 
+  select * from Repository 
   where  url ='swh.org'
   \end{minted}
   
   \vfill
     \begin{minted}{sql}
-  select * from Visit_by_origin 
+  select * from Visit_by_Repository 
   where  url ='swh.org'
   \end{minted}
     \vfill
    
   \begin{minted}{sql}
-  select * from Visit_by_origin 
+  select * from Visit_by_Repository 
   where  url ='swh.org'
   and visit_ref < 3
   \end{minted}
@@ -269,8 +194,7 @@ Les critères de recherche doivent être dans la clé
 \end{columns}
 
 \end{frame}
-	
-	
+
 %%%%%%%%%%%%%
 \begin{frame}[fragile] \frametitle{Imbriquons pour avoir moins de tables}
 
@@ -287,10 +211,10 @@ Les critères de recherche doivent être dans la clé
   \end{minted}
     
     \vfill
-    Imbriqué dans \texttt{Origin}
+    Imbriqué dans \texttt{Repository}
     \vfill
   \begin{minted}{sql}
-  create table Origin 
+  create table Repository 
      (url varchar, 
       description text,
       visites list<Visit>,
@@ -302,18 +226,18 @@ Les critères de recherche doivent être dans la clé
   Suppose un nombre limité de visites.
    \end{column}
  \begin{column}{0.45\textwidth}
-  Une requête localisée et unique pour trouver toutes les visites d'une origine.
+  Une requête localisée et unique pour trouver toutes les visites d'une Repositorye.
 
   \begin{minted}{sql}
-  select * from Origin 
+  select * from Repository 
   where  url ='swh.org'
   \end{minted}
   
   \vfill
-  Les origines visitées au moins 10 fois
+  Les Repositoryes visitées au moins 10 fois
   
    \begin{minted}{sql}
-  select * from Origin 
+  select * from Repository 
   where  url ='swh.org'
   and count(visit.number) >= 10
   \end{minted}
@@ -332,18 +256,18 @@ Les critères de recherche doivent être dans la clé
     \begin{column}{0.45\textwidth}
      
   \begin{minted}{sql}
-  create type Origin (
+  create type Repository (
       description int,
       other_infos text)
   \end{minted}
     
     \vfill
   \begin{minted}{sql}
-  create table Snapshot_by_origin
+  create table Snapshot_by_Repository
      (url varchar, 
       snapshot_date,
       snapshot_id uuid,
-      origin Origin,
+      Repository Repository,
       visits list<Visit>,
       branches map<string, uuid>,
       primary key (url, 
@@ -352,12 +276,12 @@ Les critères de recherche doivent être dans la clé
   Avec peu de branches par snapshot
    \end{column}
  \begin{column}{0.45\textwidth}
-  Tous les snapshots d'une origine.
+  Tous les snapshots d'une Repositorye.
   
   \vfill
   
   \begin{minted}{sql}
-  select * from Snapshot_by_origin 
+  select * from Snapshot_by_Repository 
   where  url ='swh.org'
   \end{minted}
   
@@ -365,7 +289,7 @@ Les critères de recherche doivent être dans la clé
    Snapshots après une date et contenant une branche \texttt{master}
    
  \begin{minted}{sql}
-  select * from Snapshot_by_origin 
+  select * from Snapshot_by_Repository 
   where  url ='swh.org'
   and snapshot_date > '01-MARCH-2024'
   and branches contains key 'master'
@@ -428,6 +352,38 @@ Les critères de recherche doivent être dans la clé
 	
 \end{frame}
 	
+
+	
+%%%%%%%%%%%%%
+\begin{frame}[fragile] \frametitle{En résumé (provisoire)}
+
+En synthèse\,:
+
+\begin{redbullet}
+
+   \item La clé primaire détermine le stockage \emph{et} les requêtes possibles
+   
+     $\Rightarrow$ \alert{clé de partitionnement} = point d'accès, \alert{clé de regroupement} =
+   identifiant relatif au point d'accès
+  
+  \item Il faut parfois ``retourner'' une clé primaire si on souhaite un accès 
+     symétrique à une table existante      (cf. exemple \texttt{révision/Directory})
+     
+      $\Rightarrow$  automatisable avec une vue matérialisée (forte redondance)
+
+   \item L'imbrication d'ensembles ou listes peut limiter le nombre d'étapes 
+   
+      $\Rightarrow$ leur taille doit être restreinte, cf. exemple des branches
+   
+\end{redbullet}
+	
+\end{frame}
+
+
+\end{document}
+
+\end{document}
+
 
 	
 %%%%%%%%%%%%%
@@ -521,34 +477,6 @@ Les critères de recherche doivent être dans la clé
 	
 	
 	
-%%%%%%%%%%%%%
-\begin{frame}[fragile] \frametitle{En résumé (provisoire)}
-
-En synthèse\,:
-
-\begin{redbullet}
-
-   \item La clé primaire détermine le stockage \emph{et} les requêtes possibles
-   
-     $\Rightarrow$ \alert{clé de partitionnement} = point d'accès, \alert{clé de regroupement} =
-   identifiant relatif au point d'accès
-  
-  \item Il faut parfois ``retourner'' une clé primaire si on souhaite un accès 
-     symétrique à une table existante      (cf. exemple \texttt{révision/Directory})
-     
-      $\Rightarrow$  automatisable avec une vue matérialisée (forte redondance)
-
-   \item L'imbrication d'ensembles ou listes peut limiter le nombre d'étapes 
-   
-      $\Rightarrow$ leur taille doit être restreinte, cf. exemple des branches
-   
-\end{redbullet}
-	
-\end{frame}
-
-\end{document}
-
-
 	
 \begin{frame}[fragile]{Clause $WHERE$}
 \begin{itemize}

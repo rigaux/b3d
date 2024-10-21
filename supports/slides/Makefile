@@ -24,11 +24,6 @@ introduction-ES:
 	mv genslides.pdf ../ressources-web/slintroduction-ES.pdf
 	make clean
 
-cassandra-swh : 
-	pdflatex  -shell-escape "\newcommand\titreDiapos{Jeudi 28 mars 2024}\newcommand\inputFile{cassandra-swh}\input{swhslides}"
-	mv swhslides.pdf ../ressources-web/slcassandra-swh.pdf
-	make clean
-
 cass-model : 
 	pdflatex  -shell-escape "\newcommand\titreDiapos{Cassandra: mod\'elisation des donn\'ees}\newcommand\inputFile{cass-model}\input{genslides}"
 	mv genslides.pdf ../ressources-web/slcass-model.pdf
@@ -37,6 +32,11 @@ cass-model :
 cass-cql : 
 	pdflatex  -shell-escape "\newcommand\titreDiapos{Cassandra: CQL ... et ses limites}\newcommand\inputFile{cass-cql}\input{genslides}"
 	mv genslides.pdf ../ressources-web/slcass-cql.pdf
+	make clean
+
+cass-etudecas : 
+	pdflatex  -shell-escape "\newcommand\titreDiapos{Jeudi 28 mars 2024}\newcommand\inputFile{cass-etudecas}\input{genslides}"
+	mv genslides.pdf ../ressources-web/slcass-etudecas.pdf
 	make clean
 
 json : 

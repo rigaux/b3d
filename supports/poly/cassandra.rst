@@ -663,7 +663,7 @@ Sans entrer dans les détails, une table Cassandra est censée être très volum
 Cassandra la découpe en *fragments* et place chaque fragment sur un
 des serveurs du système distribué (:numref:`cass-anneau`). Ce système
 a la forme d'un anneau mais nous allons laisser de côté cette caractéristique
-pour l'instannt.
+pour l'instant.
  
 .. _cass-anneau:
 .. figure:: ../figures/cassandra_anneau.png
@@ -804,40 +804,65 @@ qui peut ne pas être performante du tout.
 S3: étude de cas: conception d'un schéma
 ****************************************
 
-De nombreux conseils sont disponibles pour la conception d'un schéma Cassandra. Cette conception est 
-nécessairement 
-différente de celle d'un schéma relationnel à cause de l'absence du système de clé étrangère et de l'opération
-de jointure. C'est la raison pour laquelle de nombreux *design patterns* sont proposés pour guider 
-la mise en place d'une architecture de données dans Cassandra qui soit cohérente avec les besoins 
-métiers, et la performance que peut offrir la base de données. 
 
 
+.. admonition:: Supports complémentaires
+
+    * `Etude de cas Cassandra <http://b3d.bdpedia.fr/files/slcass-etudecas.pdf>`_
+   
+
+De nombreux conseils sont disponibles pour la conception d’un schéma Cassandra. 
+Cette conception est nécessairement différente de celle d’un schéma relationnel 
+à cause de l’absence du système de clé étrangère et de l’opération de jointure. 
+C’est la raison pour laquelle de nombreux design patterns sont proposés pour 
+guider la mise en place d’une architecture de données dans Cassandra qui soit 
+cohérente avec les besoins métiers, et la performance que peut offrir la base de 
+données. Je présente dans ce qui suit une étude de cas concrète, menée pour 
+une entreprise souhaitant archiver des dépôts de code logiciel de type GitHub. 
+Les principes adoptés sont largement inspirés de la documentation officielle 
+Cassandra que vous pouvez 
+consulter à https://cassandra.apache.org/doc/stable/cassandra/data_modeling/index.html.
 
 
-On adopte un des nombreux schémas possibles en 
-fonction des besoins.
+Les principes
+=============
 
- - On conçoit les *chemins d'accès*, ou séquence des requêtes émises par une application	
- - On organise les tables pour que  chaque requête  s'exécute *localement* et *séquentiellement*
- - On peut créer ponctuellement des index ou des vues matérialisées
- - Au pire (mais inévitable?) on multiplie les organisations physiques et donc la redondance
+En l’absence de normalisation comme en relationnel, plusieurs solutions 
+sont possibles, présentant des caractéristiques différentes en terme de capacité 
+à satisfaire certaines requêtes. Il en résulte que le schéma est construit en 
+fonction d’un besoin, ce qui est problématique puisque d’une part il faut garantir 
+que ce besoin est correctement exprimé, et que d’autre part le besoin eut évoluer 
+ou d’autres peuvent apparaître, le schéma devenant du coup obsolète. Avec un 
+système relationnel comme MySQL, le raisonnement est opposé: la disponibilité 
+des jointures permet de se fixer comme but la normalisation du modèle de données 
+afin de répondre à tous les cas d’usage possibles, éventuellement de manière non optimale.
 
-Acceptable pour une approche WORM (*Write Once, Read many*)
+L’argument des défenseurs de Cassandra est que cette approche est acceptable 
+pour une application de type WORM (Write Once, Read many). C’est le cas pour 
+l’application d’archivage que nous allons étudier.
+
+Admettons que le besoin soit bien identifié. On doit alors scénariser 
+la séquence des requêtes transmises par l’application (en l’absence de jointure, 
+une seule requête ne peut suffire, on effectue une requête par table). 
+On organise alors les tables pour que chaque requête s’exécute localement 
+et séquentiellement, avec un critère d’accès portant sur la clé. 
+*Le principe est que l’exécution d’une requête A fournit la valeur de la 
+clé qui sert d’acès à la requête suivante.*
+
+On peut créer ponctuellement des index ou des vues matérialisées. Au pire 
+(mais est-ce évitable?) on multiplie les organisations physiques et donc la redondance.
 
 
-Cassandra oblige à réfléchir en priorité à la façon dont le 
-modèle de données va être utilisé. Quelles  requêtes vont être exécutées? Dans quel *sens* 
-mes données seront-elles traitées? C'est à partir de ces questions que pourra s'élaborer un modèle 
-optimisé, *dénormalisé* et donc  performant.  
-L'inconvénient d'une démarche basée sur les besoins est que si ces derniers évoluent (ou si une application
-différente veut accéder à une base existante), l'organisation
-de la base devient inadaptée. Avec un système relationnel comme MySQL, le raisonnement est opposé:
-la disponibilité des jointures permet de se fixer comme  but la *normalisation* du modèle de données 
-afin de répondre à tous les cas d'usage possibles, éventuellement de manière non optimale. 
+Les besoins
+===========
 
-Etude de cas
-============
-
+Nous voulons donc archiver des dépôts de données de type GitHub ou GitLab. 
+La :numref:`modele_swh` montre notre modèle de données (simplifié). 
+Nous avons donc des dépôts (*repository*), 
+par exemple https://github.com/apache/cassandra, 
+contenant le code d’un logiciel ou autre ressource. 
+Pour archiver ce dépôt, on effectue périodiquement des visites 
+(*snapshot*) et on capture le contenu du dépôt à la date de visite.
 
 .. _modele_swh:
 .. figure:: ../figures/modele_swh.png
@@ -846,75 +871,117 @@ Etude de cas
 
       Notre modèle de données
 
-Pour chaque table on a un point d'accès (pe ``'origin``) et l'identification
-relative à ce point d'accès (pe ``'snapshot``}). On nommera la table 
-``snapshot_by_origin``
+La structure d’un dépôt logiciel est constituée de *branches* qui évoluent 
+en parallèle les unes des autres, chaque évolution consituant une révision. 
+Enfin, dans une révision, on stocke une arborescence de répertoire (*directory*) 
+contenant des *entry* de plusieurs types (fichiers, ou liens, ou sous-répertoires, etc.).
+Dans le cas des fichiers, on stocke le contenu (*content*).
 
-Quelques exemples: cherchons les visites
+Le besoin consiste à explorer cette structure en partant d’un 
+dépôt identifié par son URL. On peut vouloir connaître la liste des visites, 
+choisir une visite et lister les branches, choisir une branche et consulter 
+la liste des révisions. Enfin, ayant choisi une révision, on peut 
+reconstituer l’arborescence de son contenu.
 
-Une première approche purement relationnelle ne fonctionne pas.
+Remarquer que dans un modèle relationnel, chaque besoin correspondrait à 
+une seule requête avec plus ou moins de jointure selon la profondeur 
+d’exploration. Avec Cassandra, chaque besoin va correspondre à 
+une séquence plus ou moins longue de requêtes mono-tables. Encore faut-il 
+s’assurer que chaque requête va s’effectuer efficacement.
+
+Schéma et requêtes
+==================
+
+Prenons pour commencer l’hypothèse qu’on cherche les visites 
+faites à un dépôt. Une première approche purement relationnelle, 
+avec clé primaire et clé étrangère, ne fonctionne pas.
 
 .. code-block:: sql
 
-    create table Origin 
-       (origin_id uuid,
+    create table Repository 
+       (repo_id uuid,
         url varchar, 
         description text,
-        primary key (origin_id));
+        primary key (repo_id));
         
     create table Visit 
        (visit_id uuid,
-        origin_id
+        repo_id
         visit_ref int,
         date date,
         primary key (visit_id) 
        );
 
-Il faut deux requêtes (pas de jointure)
+Il faut deux requêtes (pas de jointure) pour trouver les visites faites au dépôt Cassandra.
+De plus aucune n'est indexée: une catastrophe dans un contexte de données
+massives.
 
 .. code-block:: sql
 
-  select origin_id in oid 
-  from Origin 
-  where url ='swh.org'
+  select repo_id in oid 
+  from Repository 
+  where url ='github.com/apache/cassandra'
   
   select * from Visit 
-  where origin_id = oid
- 
-Et Cassandra refuse les deux !  Organisons les clés et chemins d'accès.
-Les critères de recherche doivent être dans la clé
+  where repo_id = oid
+
+Cassandra refuse les deux puisqu’aucune requête n’utilise la clé comme critère ! 
+Organisons les clés et chemins d’accès, en prenant comme principe que les 
+critères de recherche doivent être dans la clé. La table ``Repository`` 
+est identifiée par l’URL qui servira toujours de point d’accès.
+
 
 .. code-block:: sql
 
-    create table Origin 
+    create table Repository 
      (url varchar, 
       description text,
       primary key (url)
       );
  
-    create table Visit_by_origin
-     (url_origin varchar,
-      visit_ref int,
-      date date,
-      primary key (url_origin, 
-                   visit_ref)
-      );
+      
+On peut donc toujours trouver très efficacement un dépôt.
 
 .. code-block:: sql
       
-  select * from Origin 
-  where  url ='swh.org';
+  select * from Repository 
+  where  url ='github.com/apache/cassandra';
  
-  select * from Visit_by_origin 
-  where  url ='swh.org';
+Pour trouver les visites à une URL, on peut commencer à exploiter 
+la structure des clés et le placement physique qu’elle induit.
+
+
+.. code-block:: sql
+
+    create table Visit_by_repository
+     (url_repo varchar,
+      visit_ref int,
+      date date,
+      primary key (url_repo, 
+                   visit_ref)
+      );
+
+Notez d’abord le nommage. On ne 
+peut accéder (efficacement) aux visites que si on connaît l’URL qui 
+nous intéresse. C’est le *point d’accès*. 
+On nomme donc la table ``Visit_by_repository`` pour bien indiquer cette restriction. 
+Toutes les visites à un dépôt seront sur un même serveur et stockées 
+consécutivement. On peut alors effectuer *efficacement* les requêtes suivantes.
+
+.. code-block:: sql
+
+  select * from repository
+  where  url ='github.com/apache/cassandra';
+
+  select * from Visit_by_repository
+  where  url ='github.com/apache/cassandra';
   
-  select * from Visit_by_origin 
-  where  url ='swh.org'
+  select * from Visit_by_repository
+  where  url ='github.com/apache/cassandra'
   and visit_ref < 3;
  
-Imbriquons pour avoir moins de tables/
-    
-Un type ``Visit``.
+Il existe des alternatives. On peut imbriquer les 
+visites dans la table Repository en créant un type ``Visit``.
     
   
 .. code-block:: sql
@@ -923,87 +990,79 @@ Un type ``Visit``.
       number int,
       date_visit date)
   
-    
-    
-Imbriqué dans ``Origin``
+
+Et en l'imbriquant dans ``Repository``
     
 
 .. code-block:: sql
   
-  create table Origin 
+  create table Repository 
      (url varchar, 
       description text,
       visites list<Visit>,
       primary key (url)
       )
-  
-Suppose un nombre limité de visites. Une requête localisée et unique pour trouver toutes les visites d'une origine.
 
-
+Cette option suppose un nombre limité de visites 
+(l’ordre de grandeur étant assez flou, quelques dizaines semble-t-il ?). 
+On dispose alors d’une requête localisée et unique pour trouver toutes 
+les visites d’un dépôt.
 
 .. code-block:: sql
   
-  select * from Origin 
-  where  url ='swh.org'
+  select * from Repository 
+  where  url ='github.com/apache/cassandra'
+
   
-  
-  
-Les origines visitées au moins 10 fois
+Cela permet des requêtes plus sophistiquées, comme les dépôts visités au moins 10 fois.
   
 
 .. code-block:: sql
      
-  select * from Origin 
-  where  url ='swh.org'
+  select * from Repository 
+  where  url ='github.com/apache/cassandra'
   and count(visit.number) >= 10
   
-
-Tentons une modélisation complète: ``Snapshot``
+Introduisons maintenant les clichés *Snapshot* avec comme point d’accès l’URL d’un dépôt.
 
 .. code-block:: sql
-       
-  create type Origin (
-      description int,
-      other_infos text);
+ 
   
-  
-  create table Snapshot_by_origin
+  create table Snapshot_by_repository
      (url varchar, 
       snapshot_date,
       snapshot_id uuid,
-      origin Origin,
+      repo Repository,
       visits list<Visit>,
       branches map<string, uuid>,
       primary key (url, 
       snapshot_date)  )
   
-Avec peu de branches par snapshot. Tous les snapshots d'une origine.
+On a utilisé un structure de dictionnaire (Map) pour placer les branches, 
+en supposant peu de branches par *snapshot*. On peut obtenir tous les clichés d’un dépôt.
   
 
 .. code-block:: sql
   
-  select * from Snapshot_by_origin 
-  where  url ='swh.org'
+  select * from Snapshot_by_repository
+  where  url ='github.com/apache/cassandra'
   
-  
-Snapshots après une date et contenant une branche ``master``
+
+Ou tous les clichés après une date et contenant une branche ``master``.
    
 
 .. code-block:: sql
 
-  select * from Snapshot_by_origin 
-  where  url ='swh.org'
+  select * from Snapshot_by_repository
+  where  url ='github.com/apache/cassandra'
   and snapshot_date > '01-MARCH-2024'
   and branches contains key 'master'
   
+On obtient les identifiants des clichés et des branches. Maintenant, 
+connaissant une branche, comment trouver les révisions ? 
+On a une structure de graphe (une révision en suit une autre, 
+une même révision peut avoir plusieurs descendants).
 
-On obtient les id des snapshots et des branches
-
-
-Connaissant une branche: les ``Revisions``
-
-Ici, vraie structure de graphe. Pas idéal
-    
 
 .. code-block:: sql
   
@@ -1018,6 +1077,10 @@ Ici, vraie structure de graphe. Pas idéal
                revision_id)
        ); 
 
+Dans le cas d’un graphe, il ne faut plus seulement
+pour le parcourir faire une requête par table, mais 
+une requête par nœud du graphe ! Quelques exemples:
+
 Toutes les révisions d'une branche par Stefano.
 
 .. code-block:: sql
@@ -1026,9 +1089,8 @@ Toutes les révisions d'une branche par Stefano.
   where  branch_id ='bxyz'
   and author = 'Stefano'
   
-  
-   
-Les révisions dont un parent est la révision 'abcd'
+
+Les révisions dont un parent est la révision 'abcd'.
    
 
 .. code-block:: sql
@@ -1037,17 +1099,14 @@ Les révisions dont un parent est la révision 'abcd'
   where   branch_id ='bxyz'
   and parents contains 'abcd'
   
+Et ainsi de suite. À titre d’exercice, je vous laisse compléter le 
+schéma avec les tables permettant de stocker les entrées et leur contenu.
 
- 
-On obtient les id des révisions d'une branche
   
 *********
 Exercices
 *********
 
-
-Mise en pratique
-================
 
 Voici quelques manipulations et suggestions de recherches complémentaires.
 
@@ -1069,97 +1128,38 @@ Voici quelques manipulations et suggestions de recherches complémentaires.
    Depuis la version 3, Cassandra propose un mécanisme de *vue matérialisé*. Etudiez
    la documentation à ce sujet, et montrez comment ce mécanisme peut permettre
    de répondre à des requêtes comme celle de l'exercice précédent.
-
-.. _Ex-S5-5:
-.. admonition:: Exercice `Ex-S5-5`_: passer du relationnel aux documents complexes
-
-   Vous trouverez la description d'une base relationnelle dans le chapitre
-   de mon cours sur SQL http://sql.bdpedia.fr/relationnel.html#la-base-des-voyageurs. Elle
-   décrit des voyageurs séjournant dans des logements. Notre but est de transformer
-   cette base en une collection de documents JSON.
-   
-     - Proposez un document JSON représentant *toutes* les informations disponibles
-       sur un des logements, par exemple *U Pinzutu*. On devrait donc y trouver
-       les activités proposées.
-     - Proposez un document JSON représentant *toutes* les informations disponibles
-       sur un voyageur, par exemple Phileas Fogg. 
-     - Proposez un schéma JSON pour des documents représentant les logements et leurs
-       activités mais pas les séjours.
-     - Vérifiez la validité syntaxique et insérez les documents dans MongoDb en effectuant
-       une validation avec le schéma.
    
 
-    .. ifconfig:: docstruct in ('public')
+.. _Ex-S3-1:
+.. admonition:: Exercice `Ex-S3-1`_: complétons le modèle GitHub
+
+   Notre schéma de l'étude de cas n'est pas fini. Nous voudrions 
+   pouvoir trouver tous les répertoires (*directory*) d'un dépôt
+   pour une branche donnée. 
    
-        .. admonition:: Correction
-
-          Voici un document JSON représentant un logement. Notez que l'on pourrait aussi ajouter
-          la liste des séjours (ça devient rapidement laborieux).
-          
-          .. code-block:: javascript
-
-                { 
-                   "code":"pi",
-                    "nom":" U Pinzutu",
-                    "capacité":10,
-                    "type":"Gîte",
-                    "lieu":"Corse",
-                    "activités":[ 
-                        { 
-                        "codeActivité":"Voile",
-                        "description":"Pratique du dériveur et du catamaran"
-                        },
-                        { 
-                        "codeActivité":"Plongée",
-                        "description":"Baptèmes et préparation des brevets"
-                        }
-                    ]
-                }
-
-          Le schéma pour ce type de document est le suivant (on peut ajouter toutes sortes de contraintes,
-          descriptions, etc.)
-
-          .. code-block:: javascript
-
-                { 
-                   "bsonType":"object",
-                    "required":["code","nom","capacité","lieu"],
-                    "properties":{ 
-                        "code":{ "bsonType":"string"},
-                        "nom":{"bsonType":"string"},
-                        "capacité":{"bsonType":"int"},
-                        "type":{"enum":["Gîte","Hôtel","Auberge"]},
-                        "lieu":{ "bsonType":"string"},
-                         "activités": { 
-                            "bsonType":"array",
-                            "items": {
-                                "bsontype": "object",
-                                "required":[ "codeActivité"],
-                                "properties":{ 
-                                    "codeActivité":{"bsonType":"string"}
-                                }
-                            }
-                        }
-                    }
-                }
-                
-
-.. _Ex-S5-1:
-.. admonition:: Exercice `Ex-S5-1`_: des schémas pour valider les documents JSON
-
-   Il est facile de transformer MongoDB en une poubelle de données en insérant n'importe quel
-   document. Depuis la version 3.2, MongoDB offre la possibilité d'associer
-   un schéma à une collection et de contrôler que les documents insérés sont conformes au schéma.
+   Nous voulons également trouver toutes les entrées d'un
+   répertoire donné. 
    
-   La documentation est ici: https://docs.mongodb.com/manual/core/schema-validation
+   Proposez les schémas des tables correspondant à ces besoins,
+   et donnez les requêtes CQL correspondantes.
    
-   À vous de jouer: définissez le schéma de la collection des films, et appliquez
-   la validation au moment de l'insertion. Vous pouvez commencer avec une collection simple, celle
-   des artistes, pour vous familiariser avec cette notion de schéma.
+   Question complémentaire\,: comment faire pour obtenir les
+   révisions d'un répertoire?
    
-
+   
 .. _Ex-S3-2:
-.. admonition:: Exercice `Ex-S3-2`_: modélisation d'une base Cassandra
+.. admonition:: Exercice `Ex-S3-2`_: déduplication
+  
+   Enfin se pose la question du contenu des entrées (fichiers). 
+   Ici nous avons un problème de redondance: il s'agit 
+   de ressources souvent volumineuses, et qui ne changent
+   souvent pas d'une révision à l'autre (et même d'une branche
+   à l'autre). Comment éviter de dupliquer un contenu en
+   le partageant entre des révisions et des branches? 
+   Proposez une approche avec Cassandra.
+
+.. _Ex-S3-3:
+.. admonition:: Exercice `Ex-S3-3`_: modélisation d'une base Cassandra
 
    Maintenant, vous allez modéliser une base Cassandra pour stocker les informations
    sur le métro parisien. Voici deux fichiers JSON:
