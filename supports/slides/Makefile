@@ -193,7 +193,7 @@ all:	prescours.pdf
 	make clean
 
 clean:
-	\rm -f *.vrb *.aux *.bbl *.blg *.dvi *.log *.ps *.snm *.out *.nav *.toc *~
+	\rm -f *.vrb *.aux *.bbl *.blg *.dvi *.log *.ps *.snm *.out *.nav *.toc *.pyg *~
 	\rm -Rf _minted*
 
 ultraclean:
