@@ -66,14 +66,11 @@ numfig = True
 
 def setup(app):
     app.add_config_value('docstruct', '', True)
-    app.add_config_value('xpathsol', '', True)
-    app.add_config_value('xpathsol2', '', True)
-    app.add_config_value('xquery', '', True)
-    app.add_config_value('xpathtp', '', True)
+    app.add_config_value('cassandra', '', True)
+    app.add_config_value('cassandratp', '', True)
     app.add_config_value('mongoquery', '', True)
     app.add_config_value('mrbasic', '', True)
     app.add_config_value('mongomapreduce', '', True)
-    app.add_config_value('cassandratp', '', True)
     app.add_config_value('mongodbtp', '', True)
     app.add_config_value('mongodbtp2', '', True)
     app.add_config_value('introri', '', True)
@@ -96,11 +93,13 @@ def setup(app):
     app.add_config_value('annales24', '', True)
 	
 docstruct = 'private'
+cassandra = 'public'
+cassandratp = 'private'
 rielastic = 'private'
 mongoquery = 'private'
 mongomapreduce = 'private'
 mrbasic = 'private'
-cassandratp = 'private'
+
 mongodbtp = 'private'
 mongodbtp2 = 'private'
 introri = 'private'

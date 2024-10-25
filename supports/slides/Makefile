@@ -35,7 +35,7 @@ cass-cql :
 	make clean
 
 cass-etudecas : 
-	pdflatex  -shell-escape "\newcommand\titreDiapos{Jeudi 28 mars 2024}\newcommand\inputFile{cass-etudecas}\input{genslides}"
+	pdflatex  -shell-escape "\newcommand\titreDiapos{Cassandra: \'etude de cas}\newcommand\inputFile{cass-etudecas}\input{genslides}"
 	mv genslides.pdf ../ressources-web/slcass-etudecas.pdf
 	make clean
 

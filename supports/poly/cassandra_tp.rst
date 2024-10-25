@@ -136,14 +136,18 @@ Maintenant, nous pouvons importer les fichiers CSV pour remplir les *Column Fami
         .. note:: 
             Le chemin "*path-to-file*" correspond à l'endroit où a été décompressé le fichier restaurants.zip
             
-            le docker-container-ID peut être récupéré grâce à la commande "*docker ps*". 
+            le docker-container-ID peut être récupéré grâce à la commande
+            
+            .. code-block:: bash
+            
+            	docker ps
             
             .. code-block:: bash
 
-               CONTAINER ID        IMAGE                     COMMAND              CREATED             STATUS              PORTS                                                                                                                                                                                                   NAMES
-               b1fa2c7c255d        poklet/cassandra:latest   "/bin/sh -c start"   6 minutes ago       Up 6 minutes        0.0.0.0:32787->22/tcp, 0.0.0.0:32786->7000/tcp, 0.0.0.0:32785->7001/tcp, 0.0.0.0:32784->7199/tcp, 0.0.0.0:32783->8012/tcp, 0.0.0.0:32782->9042/tcp, 0.0.0.0:32781->9160/tcp, 0.0.0.0:32780->61621/tcp   cassandra
+               CONTAINER ID        IMAGE                     COMMAND              CREATED             STATUS                                                                                                                                                                                                       NAMES
+               b1fa2c7c255d        poklet/cassandra:latest   "/bin/sh -c start"   6 minutes ago       Up 6 minutes
             
-            le container-ID est : *b1fa2c7c255d* 
+            Ici, le container-ID est donc *b1fa2c7c255d* 
 
   3. Dans la console *cqlsh*, importer les fichiers '**restaurants.csv**' et '**restaurants_inspections.csv**'
 
@@ -157,7 +161,7 @@ Maintenant, nous pouvons importer les fichiers CSV pour remplir les *Column Fami
                                 violationdescription, criticalflag, score, grade)
                FROM '/restaurants_inspections.csv' WITH DELIMITER=',';
             
-        .. note:: les fichiers sont copiés à la racine du container. Si vous changez le dossier de stockage, il faut bien sûr  l'indiquer dans l'instruction précédente.
+        .. note:: Les fichiers sont copiés à la racine du container. Si vous changez le dossier de stockage, il faut bien sûr  l'indiquer dans l'instruction précédente.
 
           Vous pouvez vérifier l'existence des fichiers dans le container avec : 
 
@@ -183,6 +187,11 @@ qui est fortement inspirée de SQL.
 Vous trouverez la syntaxe complète ici : 
 
 <https://cassandra.apache.org/doc/latest/cql/dml.html#select>).
+
+Notez que certaines requêtes seront refusées par CQL. Essayez de comprendre
+pourquoi, et trouvez un contournement. Il y en a essentiellement deux: créer 
+un index ou utiliser ``ALLOW FILTERING``.
+
 
 Requêtes CQL simples
 --------------------
@@ -372,15 +381,18 @@ représentent, d'une certaine manière, le résultat pré-calculé de la jointur
 
 Cela suppose au préalable la détermination des requêtes à soumettre à la base
 puisque les données ne sont plus symétriques, et privilégient de fait
-certains types d'accès (cf. le cours sur la modélisation dans le chapitre
-:ref:`chap-bddoc`). Plusieurs possibilités s'offrent à vous :
+certains types d'accès (cf.  le chapitre
+:ref:`chap-cassandra`). Si on ne souhaite 
+pas enchaîner les requêtes (cf. étude de cas) il 
+faut utiliser l'imbrication. 
 
-      * Type imbriqué
-      * Utilisation d'un *map*.
+Notre besoin ici est de pouvoir sélectionner les restaurants en fonction de leur grade. On
+voudrait par exemple répondre à la question::
+    
+     noms des restaurants ayant au obtenu moins un grade 'A' dans leurs inspections
 
-Les exercices suivants vous proposent des besoins (requêtes). 
-À vous de définir la bonne modélisation en utilisant l'une des possibilités
-ci-desssus, et de vérifier qu'elle permet de satisfaire
+À vous de définir la bonne modélisation 
+et de vérifier qu'elle permet de satisfaire
 ce type de recherche.
 
 .. note:: Pour importer un gros fichier de documents JSon, nous avons 
@@ -396,37 +408,59 @@ ce type de recherche.
      
    .. code-block:: bash
 
-          java -jar JSonFile2Cassandra.jar -host 192.168.99.100 -port 32783 
-              -keyspace resto_NY -columnFamily InspectionRestaurant 
-              -file InspectionsRestaurant.json
+		java -jar JSonFile2Cassandra.jar -host localhost -port 3000 \
+             -keyspace resto_NY -columnFamily InspectionRestaurant  \
+             -file InspectionsRestaurant.json
 
-Premier besoin
-==============
-
-Notre besoin ici est de pouvoir sélectionner les restaurants en fonction de leur grade. On
-voudrait par exemple répondre à la question::
-    
-     noms des restaurants ayant au moins un grade 'A' dans leurs inspections
 
 Voici les étapes à suivre.
 
-  #. Définir le modèle de document associant les restaurants et leurs inspections,
-     en utilisant les types imbriqués,
-     et créer la table.
-      
+  #. Définir un schéma associant les restaurants et leurs inspections,
+     en utilisant les types imbriqués, et créer la table. Le format
+     des documents attendus est le suivant
+     
+     .. code-block:: json
+	
+		{
+			"idRestaurant": 40373938,
+       			 "restaurant": {
+                	"name": "IHOP",
+                	"borough": "BRONX",
+                	"buildingnum": "5655",
+                	"street": "BROADWAY",
+                	"zipcode": "10463",
+                	"phone": "7185494565",
+                	"cuisineType": "American"
+        		},
+        		"inspectionDate": "2016-08-16",
+        		"violationCode": "04L",
+        		"violationDescription": "Evidence of mice or live mice present in facilitys food and/or non-food areas.",
+        		"criticalFlag": "Critical",
+        		"score": 15,
+        		"grade": "A"
+		} 
+
+     Vous trouverez dons notre jeu de données un fichier
+     ``InspectionRestaurant.json`` à importer.
+
      .. ifconfig:: cassandratp in ('public')
 
         .. admonition:: Correction
       
-           #. Il faut imbriquer les restaurants dans les inspections.
-              on crée un type et on l'intégre à la table 
-              comme ceci :
+           #. On peut  imbriquer les restaurants dans les inspections
+              ou l'inverse. On va illustrer la première solution. 
+              Commençons par créer un type ``Restaurant``.
     
            .. code-block:: sql
    
                 CREATE TYPE Restaurant (
                     Name VARCHAR, borough VARCHAR, BuildingNum VARCHAR, Street VARCHAR,
                    ZipCode INT, Phone VARCHAR, CuisineType VARCHAR);
+
+			Puis la table avec le restaurant imbriqué.
+			
+			.. code-block:: sql
+			
                 CREATE TABLE InspectionRestaurant (
                    idRestaurant INT, InspectionDate date, ViolationCode VARCHAR,
                    ViolationDescription VARCHAR, CriticalFlag VARCHAR, Score INT, 
@@ -434,7 +468,7 @@ Voici les étapes à suivre.
                   PRIMARY KEY ( idRestaurant, InspectionDate )
                  ) ;
 
-  #. Insérer un document dans la table.
+  #. Insérer le document-exemple ci-dessus  dans la table pour vérifier que tout va bien. 
  
      .. ifconfig:: cassandratp in ('public')
 
@@ -450,7 +484,7 @@ Voici les étapes à suivre.
                                  "phone":"7185494565", "cuisineType":"American"},
                  "inspectionDate":"2016-08-16", 
                  "violationCode":"04L", 
-                 "violationDescription": "On voit des sourtis!.", 
+                 "violationDescription": "On voit des souris!.", 
                  "criticalFlag": "Critical", 
                  "score":15, 
                  "grade":"A"}';
@@ -476,109 +510,25 @@ Voici les étapes à suivre.
       qu'il y a d'inspections. Ce qui rend cette requête un peu 
       moins efficace car elle demande d'interroger plus de ressources. Aucun ``distinct`` ne 
       peut être exécuté en dehors de la clé primaire. Bref, ce n'est pas vraiment satisfaisant.
-      
 
-Second besoin
-=============
-      
-.. admonition:: Note
+  #. Recréez la table, mais cette fois sans index, en utilisant 
+     la clé primaire pour permettre la recherche sur le grade. Insérez le
+     document-exemple et vérifiez que la requête s'exécute sans ``allow filtering``.
 
-   Il semble qu'il y ait quelques corrections à effectuer dans les ...
-   corrections que nous proposons ci-dessous. Ce sera fait prochainement.
-
-Maintenant, on veut pouvoir rechercher les restaurants par leur quartier (*borough*). 
-
-  #. Est-ce possible sur le schéma précédent?
-  
      .. ifconfig:: cassandratp in ('public')
 
         .. admonition:: Correction
-
-           Les types figés (``frozen``) sont traités comme des *blob*. De fait, 
-           lorsque l'on souhaite les interroger, il faut filtrer sur l'ensemble du document 
-           imbriqué (l'ensemble des 
-           informations du restaurant), ce qui n'est pas gérable dans notre cas.
-
-  #. Proposer un modélisation adaptée, et créer la table. Utiliser cette fois la solution
-     du ``map`` avec la date d'insertion comme clé.
-  
-     .. ifconfig:: cassandratp in ('public')
-    
-        .. admonition:: Correction
-
-         .. code-block:: sql
-
-             CREATE TYPE Inspection (
-               ViolationCode VARCHAR,
-               ViolationDescription VARCHAR, CriticalFlag VARCHAR, Score INT, GRADE VARCHAR,
-             ) ;
-             CREATE TABLE RestaurantInspections (
-                id INT, Name VARCHAR, borough VARCHAR, BuildingNum VARCHAR, Street VARCHAR,
-                ZipCode INT, Phone VARCHAR, CuisineType VARCHAR,
-                Inspections map<text, frozen<Inspection>>,
-                PRIMARY KEY (id)
-             );
-
-  #. Insérer des données dans la nouvelle table, soit directement, soit avec l'utilitaire d'import.
-  
-     .. ifconfig:: cassandratp in ('public')
-
-        .. admonition:: Correction
-
-          .. code-block:: sql
         
-              INSERT INTO RestaurantInspections JSON ' {"id":40373938, 
-               "name":"IHOP", "borough":"BRONX", "buildingnum":"5655", "street":"BROADWAY",
-               "zipcode":"10463", "phone":"7185494565", "cuisineType":"American",
-               "inspections":{
-                  "2016-08-16":{"violationCode":"04L", "violationDescription":
-                    "Evidence of mice.", 
-                    "criticalFlag":"Critical", "score":15, "grade":""},
-                  "2014-02-20":{"violationCode":"08C", "violationDescription":
-                    "Pesticide used!",
-                    "criticalFlag":"Not Critical", "score":7, "grade":""},
-                  "2014-03-11":{"violationCode":"10B", "violationDescription":
-                    "Plumbing not properly installed.",
-                    "criticalFlag":"Not Critical", "score":12, "grade":"A"}
-                }}';
-
-  #. Trouver tous les restaurants du Bronx.
-  
-     .. ifconfig:: cassandratp in ('public')
-
-        .. admonition:: Correction
-
-          .. code-block:: sql
-
-               select * from inspectionRestaurant 
-               where restaurant['borough'] = 'BRONX' allow filtering;
-
-  #. Maintenant, on veut, sur cette second table, trouver tous les 
-     restaurants ayant reçu une note 'A'. Est-ce possible? Chercher une
-     solution permise par le fait que nous avons utilisé le type ``map``.
-
-     .. ifconfig:: cassandratp in ('public')
-
-        .. admonition:: Correction
-
-          C'est de fait possible avec le type ``map``. On crée 
-          un index sur le Grade de *RestaurantInspections* ;
-
-          .. code-block:: sql
-      
-             CREATE INDEX RestaurantInspections_Grade ON RestaurantInspections ( Inspections.grade ) ;
-   
-          On peut alors écrire la requête en fonction du nouveau schéma :
-
-          .. code-block:: sql
-    
-               SELECT Name FROM RestaurantInspections 
-               WHERE Inspections.Grade='A' ALLOW FILTERING;
-
-Bonus
-=====
-
-Pour pouvoir développer une application au dessus de Cassandra, il est nécessaire 
-d'avoir un pilote ou *Driver*. Vous pourrez les trouver sur la page de **DataStaX** : 
-<https://academy.datastax.com/all-downloads>
-
+        	On supprime la table puis on la recrée.
+        	
+        	.. code-block:: sql
+  			 
+                 CREATE TABLE InspectionRestaurant (
+                    idRestaurant INT, InspectionDate date, ViolationCode VARCHAR,
+                    ViolationDescription VARCHAR, CriticalFlag VARCHAR, Score INT, 
+                    Grade VARCHAR, Restaurant frozen<Restaurant>,
+                   PRIMARY KEY ( Grade, InspectionDate )
+                  ) ;
+                  
+            Plus besoin de créer un index. Mais la table n'est utile que pour
+            une seule requête: ce n'est pas terrible non plus....

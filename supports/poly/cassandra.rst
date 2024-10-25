@@ -1027,16 +1027,13 @@ Introduisons maintenant les clichés *Snapshot* avec comme point d’accès l’
 
 .. code-block:: sql
  
-  
   create table Snapshot_by_repository
      (url varchar, 
       snapshot_date,
       snapshot_id uuid,
       repo Repository,
-      visits list<Visit>,
       branches map<string, uuid>,
-      primary key (url, 
-      snapshot_date)  )
+      primary key (url, snapshot_date)  )
   
 On a utilisé un structure de dictionnaire (Map) pour placer les branches, 
 en supposant peu de branches par *snapshot*. On peut obtenir tous les clichés d’un dépôt.
@@ -1060,9 +1057,16 @@ Ou tous les clichés après une date et contenant une branche ``master``.
   
 On obtient les identifiants des clichés et des branches. Maintenant, 
 connaissant une branche, comment trouver les révisions ? 
-On a une structure de graphe (une révision en suit une autre, 
-une même révision peut avoir plusieurs descendants).
 
+On continue la même démarche et on crée une
+table ``Revision_by_branch``. On arrive
+ici à une situation épineuse: les révisions
+forment un graphe (à partir d'une même
+révision, chaque développeur peut en créer une nouvelle,
+et les révisions peuvent être réconciliées ensuite. 
+On va donc représenter les parents d'une révision
+(en supposant qu'il n'y en a pas des centaines,
+ce qui semble raisonnable).
 
 .. code-block:: sql
   
@@ -1077,11 +1081,13 @@ une même révision peut avoir plusieurs descendants).
                revision_id)
        ); 
 
-Dans le cas d’un graphe, il ne faut plus seulement
-pour le parcourir faire une requête par table, mais 
-une requête par nœud du graphe ! Quelques exemples:
+Dans le cas d’un graphe, on ne peut parfois plus
+se contenter de faire une requête par table. Il
+faut accepter dans certains cas de faire 
+une requête par nœud du graphe !
 
-Toutes les révisions d'une branche par Stefano.
+Commençons par les requêtes adaptées à la modélisation. 
+On veut toutes les révisions d'une branche par Stefano.
 
 .. code-block:: sql
     
@@ -1089,18 +1095,60 @@ Toutes les révisions d'une branche par Stefano.
   where  branch_id ='bxyz'
   and author = 'Stefano'
   
-
-Les révisions dont un parent est la révision 'abcd'.
-   
+Tout va bien, on reste dans le cadre des requêtes efficaces.
+Prenons maintenant les révisions dont un parent est la révision 'abcd'.
 
 .. code-block:: sql
   
   select * from Revision_by_branch 
   where   branch_id ='bxyz'
   and parents contains 'abcd'
+
+Ca va encore, tant que l'on connait l'identifiant de la branche. 
+Maintenant on veut aller en sens inverse et "remonter" 
+vers les parents et ascendants de la révision 'lklklk'. 
+On obtient la liste des parents avec la requête
+
+.. code-block:: sql
   
-Et ainsi de suite. À titre d’exercice, je vous laisse compléter le 
-schéma avec les tables permettant de stocker les entrées et leur contenu.
+  select parents from Revision_by_branch 
+  where   branch_id ='bxyz'
+  and revision_id = 'lklklk'
+
+Il faut ensuite effectuer *une* requête par parent. 
+Pour chaque valeur ``id_du_parent``, on exécute:
+
+.. code-block:: sql
+  
+  select parents from Revision_by_branch 
+  where   branch_id ='bxyz'
+  and revision_id = 'id_du_parent'
+
+Soit une requête pour chaque objet, ce qui est inadapté
+à un système gérant des données massives. 
+On a peut-être intérêt dans ce cas à charger une bonne fois le graphe
+dans l'application.
+
+En résumé:
+
+ - La clé primaire détermine le stockage *et*  les requêtes acceptables. La
+   *clé de partitionnement* est le point d'accès, la *clé de regroupement* est
+   l'identifiant relatif au point d'accès.
+  
+  - Il faut parfois "retourner" une clé primaire si on souhaite un accès 
+    symétrique à une table existante. Ce serait 
+    le cas par exemple si on voulait trouver toutes les
+    révisions d'un fichier *et* tous les fichiers d'une révision (cf. exercice).
+    C'est automatisable avec une vue matérialisée mais entraine une forte redondance.
+  - L'imbrication d'ensembles ou de listes peut limiter le nombre d'étapes 
+    mais leur taille doit être restreinte, cf. exemple des branches.
+
+La modélisation NoSQL, c'est du cas par cas, et les mêmes règles ne
+s'appliquent pas à tous les systèmes.
+
+À titre d’exercice, je vous laisse compléter le 
+schéma avec les tables permettant de stocker les répertoires,
+les entrées et leur contenu.
 
   
 *********
@@ -1114,21 +1162,6 @@ Voici quelques manipulations et suggestions de recherches complémentaires.
 .. admonition:: Exercice `MEP-S2-1`_: expérimentez CQL
 
    À vous de jouer: reproduisez les requêtes ci-dessus sur votre base Cassandra. 
-
-.. _MEP-S2-2:
-.. admonition:: Exercice `MEP-S2-2`_: données imbriquées
-
-   Peut-on exprimer des critères sur les données imbriquées? Peut-on
-   par exemple trouver tous les films mis en scène par Tarantino? À vous de chercher
-   la solution (si elle existe) dans la documentation Cassandra.
-
-.. _MEP-S2-3:
-.. admonition:: Exercice `MEP-S2-3`_: sujet d'étude, les vues matérialisées
-
-   Depuis la version 3, Cassandra propose un mécanisme de *vue matérialisé*. Etudiez
-   la documentation à ce sujet, et montrez comment ce mécanisme peut permettre
-   de répondre à des requêtes comme celle de l'exercice précédent.
-   
 
 .. _Ex-S3-1:
 .. admonition:: Exercice `Ex-S3-1`_: complétons le modèle GitHub
@@ -1146,7 +1179,96 @@ Voici quelques manipulations et suggestions de recherches complémentaires.
    Question complémentaire\,: comment faire pour obtenir les
    révisions d'un répertoire?
    
+   .. ifconfig:: cassandra in ('public')
+
+       .. admonition:: Correction
+  
+			Les répertoires forment une structure d'arbre, donc
+			un graphe. Pas idéal avec Cassandra. 
+			
+			Voici une proposition. Il existe d'autres
+			solutions car tout dépend des besoins et
+			des volumétries anticipées.
+			
+			La
+			table suivante intègre les enfants et parents.
+			
+			.. code-block:: sql
+
+				 create table Directory_by_revision
+				     (revision_id uuid,
+				      directory_id uuid,
+				      children list<uuid>,
+				      parent_id uuid,
+				      primary key (revision_id, directory_id)
+      				)
+			
+			On peut naviguer vers les parent ou vers les
+			enfants, mais avec une requête à chaque fois. Il faut 
+			de plus supposer qu'il n'y a pas trop d'enfants 
+			(sous-répertoires) sinon il faut s'en remettre 
+			à la table des entrées ci-dessous en considérant
+			qu'un sous-répertoire est une entrée d'un type particulier.
+			
+			Maitenant, connaissant une *directory* pour une
+			révision donnée, je modélise
+			les entrées.
+			
+			.. code-block:: sql
+			
+				create table Entry_by_dir
+				     (revision_id uuid,
+				     	directory_id uuid, 
+				     	entry_id uuid,
+      					name varchar,
+     				 	access_rights varchar,
+      					primary key ( (revision_id, directory_id), entry_id)
    
+			Remarquez la clé de partitionnement composite. Toutes
+			les entrées d'un même répertoire seront sur le même serveur,
+			*mais* les répertoires d'une même révision pourront
+			être sur des serveurs différents.
+			Notez également qu'il y a sans doute trop d'entrées (fichiers) par répertoire 
+			pour les représenter par une liste imbriquée
+
+			On peut alors obtennir toutes les entrées d'une *directory*.
+			
+			.. code-block:: sql
+ 
+ 				select name from Entry_by_dir
+  				where directory_id = 'xyz'
+  				
+  			On peut trouver une entrée dont le nom est ``README.md`` à
+  			condition de le faire dans un répertoire spécifique.
+  			
+  			.. code-block:: sql
+			
+				select content_ref from Entry_by_dir
+				where directory_id = 'xyz'
+				and name = 'README.md'
+				
+			
+			
+			À l'inverse si je veux avoir la liste des révisions
+			d'une *directory* , je dois inverser la clé.
+			
+			.. code-block:: sql
+
+				create table Revision_by_directory 
+				     (directory_id uuid,
+				      revision_id uuid,
+				      children list<uuid>,
+      					primary key (revision_id,
+          							directory_id)
+      					)
+
+			On a une forte redondance si on veut les deux... Cette
+			situation peut être gérée en créant 
+			``Revision_by_directory`` comme une *vue matérialisée*
+			(étude complémentaire à mener si cela vous  intéresse).
+    
+
+
 .. _Ex-S3-2:
 .. admonition:: Exercice `Ex-S3-2`_: déduplication
   
@@ -1158,62 +1280,47 @@ Voici quelques manipulations et suggestions de recherches complémentaires.
    le partageant entre des révisions et des branches? 
    Proposez une approche avec Cassandra.
 
-.. _Ex-S3-3:
-.. admonition:: Exercice `Ex-S3-3`_: modélisation d'une base Cassandra
-
-   Maintenant, vous allez modéliser une base Cassandra pour stocker les informations
-   sur le métro parisien. Voici deux fichiers JSON:
-    
-      - http://b3d.bdpedia.fr/files/metro-lines.json, les lignes de métro
-      - http://b3d.bdpedia.fr/files/metro-stops.json, tous les arrêts de métro
-
-   Proposez un modèle Cassandra, créez la ou les table(s) nécessaires, essayez
-   d'insérer quelques données, voire toutes les données (ce qui suppose d'écrire un petit
-   programme pour les mettre au bon format).
-
-   .. ifconfig:: docstruct in ('public')
+   .. ifconfig:: cassandra in ('public')
 
        .. admonition:: Correction
   
-            .. code-block:: text
+			Si on veut éviter la duplication des contenus,
+			il faut les stocker avec leur identifiant
+			propre, sans les placer en fonction d'une branche
+			ou d'une révision
+			
+			.. code-block:: sql
 
-                  CREATE KEYSPACE IF NOT EXISTS Metros
-                   WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor': 3 };
+				 create table Content
+				     (content_id uuid,
+				      raw_content bits,
+				      primary key (content_id)
+				)
+				
+			Dans ce cas, on modifie la table des entrées pour
+			référencer le contenu.
+			
+			.. code-block:: sql
+			
+				create table Entry_by_dir
+				     (revision_id uuid,
+				     	directory_id uuid, 
+				     	entry_id uuid,
+      					name varchar,
+     				 	access_rights varchar,
+      					content_id uuid,
+      					primary key ( (revision_id, directory_id), entry_id)
+			
+			On voit tout de suite le problème: en essayant d'éviter une
+			déduplication on s'est condamné à effectuer *une* requête
+			pour *chaque* contenu, ce qui risque d'être insupportable.
+			Tout dépend du fait qu'on doive ou non accéder souvent aux contenus. 
+      	
 
-            .. code-block:: sql
-       
-                   create table lines(color text, name text, number text, 
-                                    route_name text, primary key(color));
-            
-                   create type line(line text, position int);
-  
-                   create table stops(
-                            description text, 
-                            latitude float,
-                            lines set<frozen<line>>,
-                            longitude float,
-                            name text,
-                            primary key(description)
-                       );
+.. _MEP-S2-3:
+.. admonition:: Exercice `MEP-S2-3`_: sujet d'étude, les vues matérialisées
 
-            .. code-block:: text
-
-                    insert into lines JSON '
-                          {
-                            "color": "#F58F53",
-                            "name": "Tramway 3A",
-                            "number": "3A",
-                            "route_name": "PONT GARIGLIANO - HOP G.POMPIDOU <-> PORTE DE VINCENNES"
-                          }';
+   Depuis la version 3, Cassandra propose un mécanisme de *vue matérialisé*. Etudiez
+   la documentation à ce sujet, et montrez comment ce mécanisme peut permettre
+   de répondre à des requêtes comme celle de l'exercice précédent.
    
-  
-                      insert into stops json '
-                        {
-                        "description": "Jean Jaurès (23 boulevard) - 92012",
-                        "latitude": 48.84228,
-                        "lines": [{"line": "ligne-10", "position": 2}],
-                                   "longitude": 2.238863,
-                                    "name": "Boulogne-Jean-Jaurès"
-                          }
-                    ';
-                

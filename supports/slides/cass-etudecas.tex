@@ -80,7 +80,7 @@ Acceptable pour une approche WORM (\textit{Write Once, Read many})
 \begin{frame}[fragile]{Notre modèle}
 
 \begin{center}
-\includegraphics[height=.6\textheight]{../figures/modele_swh.pdf}
+\includegraphics[width=\textwidth]{../figures/modele_swh.pdf}
 \end{center}
 
 Pour chaque table on a un point d'accès (pe \texttt{'repository'}) et l'identification
@@ -97,10 +97,10 @@ Une première approche purement relationnelle ne fonctionne pas.
 
 \begin{columns}
     \begin{column}{0.45\textwidth}
-    \alert{Schema}
+    \alert{Schéma}
     \end{column}
         \begin{column}{0.45\textwidth}
-    \alert{Queries}
+    \alert{Requêtes}
     \end{column}
 \end{columns}
 
@@ -129,7 +129,7 @@ Une première approche purement relationnelle ne fonctionne pas.
   \begin{minted}{sql}
   select Repository_id in oid 
   from Repository 
-  where url ='swh.org'
+  where url ='github.org/cassandra'
   \end{minted}
 
   \begin{minted}{sql}
@@ -147,7 +147,7 @@ Une première approche purement relationnelle ne fonctionne pas.
 %%%%%%%%%%%%%
 \begin{frame}[fragile] \frametitle{Organisons les clés et chemins d'accès}
 
-Les critères de recherche doivent être dans la clé
+Les critères de recherche doivent impliquer la clé
 
 \vfill
 \begin{columns}
@@ -174,19 +174,19 @@ Les critères de recherche doivent être dans la clé
 
   \begin{minted}{sql}
   select * from Repository 
-  where  url ='swh.org'
+  where  url ='github.org/cassandra'
   \end{minted}
   
   \vfill
     \begin{minted}{sql}
   select * from Visit_by_Repository 
-  where  url ='swh.org'
+  where  url ='github.org/cassandra'
   \end{minted}
     \vfill
    
   \begin{minted}{sql}
   select * from Visit_by_Repository 
-  where  url ='swh.org'
+  where  url ='github.org/cassandra'
   and visit_ref < 3
   \end{minted}
     
@@ -226,19 +226,19 @@ Les critères de recherche doivent être dans la clé
   Suppose un nombre limité de visites.
    \end{column}
  \begin{column}{0.45\textwidth}
-  Une requête localisée et unique pour trouver toutes les visites d'une Repositorye.
+  Une requête localisée et unique pour trouver toutes les visites d'un dépôt.
 
   \begin{minted}{sql}
   select * from Repository 
-  where  url ='swh.org'
+  where  url ='github.org/cassandra'
   \end{minted}
   
   \vfill
-  Les Repositoryes visitées au moins 10 fois
+  Les dépôts visités au moins 10 fois
   
    \begin{minted}{sql}
   select * from Repository 
-  where  url ='swh.org'
+  where  url ='github.org/cassandra'
   and count(visit.number) >= 10
   \end{minted}
   
@@ -263,15 +263,15 @@ Les critères de recherche doivent être dans la clé
     
     \vfill
   \begin{minted}{sql}
-  create table Snapshot_by_Repository
+  create table Snapshot_by_Repo
      (url varchar, 
       snapshot_date,
       snapshot_id uuid,
       Repository Repository,
-      visits list<Visit>,
       branches map<string, uuid>,
       primary key (url, 
-      snapshot_date)  )
+                   snapshot_date)  
+      )
   \end{minted}
   Avec peu de branches par snapshot
    \end{column}
@@ -282,16 +282,16 @@ Les critères de recherche doivent être dans la clé
   \vfill
   
   \begin{minted}{sql}
-  select * from Snapshot_by_Repository 
-  where  url ='swh.org'
+  select * from Snapshot_by_Repo
+  where  url ='github.org/cassandra'
   \end{minted}
   
    \vfill
    Snapshots après une date et contenant une branche \texttt{master}
    
  \begin{minted}{sql}
-  select * from Snapshot_by_Repository 
-  where  url ='swh.org'
+  select * from Snapshot_by_Repo
+  where  url ='github.org/cassandra'
   and snapshot_date > '01-MARCH-2024'
   and branches contains key 'master'
   \end{minted}
@@ -310,7 +310,8 @@ Les critères de recherche doivent être dans la clé
 
 \begin{columns}
     \begin{column}{0.45\textwidth}
-  Ici, vraie structure de graphe. Pas idéal\ldots
+  On poursuit la même démarche. Cette fois on
+  a affaire à un graphe. Pas facile à modéliser efficacement.
     
   \begin{minted}{sql}
   create table Revision_by_branch
@@ -346,7 +347,7 @@ Les critères de recherche doivent être dans la clé
   \end{minted}
 
 \vfill 
-  On obtient les id des révisions d'une branche
+  On obtient les id des révisions d'une branche. 
   
 \end{column}
 \end{columns}
@@ -354,6 +355,35 @@ Les critères de recherche doivent être dans la clé
 \end{frame}
 	
 
+
+%%%%%%%%%%%%%
+\begin{frame}[fragile] \frametitle{Et si je veux naviguer dans le graphe\,?}
+
+Les parents et ascendants de la révision 'lklklk'. 
+On obtient d'abord la liste des parents avec la requête
+   
+ \begin{minted}{sql}
+  select parents from Revision_by_branch 
+  where   branch_id ='bxyz'
+  and revision_id = 'lklklk'
+  \end{minted}
+
+\vfill 
+  Puis il faut faire une requête pour \alert{chaque} parent
+  
+  
+ \begin{minted}{sql}
+ select parents from Revision_by_branch 
+  where   branch_id ='bxyz'
+  and revision_id = 'id_du_parent'
+  \end{minted}
+  
+\vfill
+
+On a peut-être intérêt à charger une bonne fois le graphe
+dans l'application.
+\end{frame}
+	
 	
 %%%%%%%%%%%%%
 \begin{frame}[fragile] \frametitle{En résumé (provisoire)}

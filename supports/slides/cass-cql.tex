@@ -29,22 +29,27 @@ Sélectionnons tous les films.
 select  * from movies;
 \end{minted}
 
+\vfill
 
+Ou seulement les 20 premiers.
 \begin{minted}{sql}
 select  * from movies limit 20;
 \end{minted}
 
-
+\vfill
+Retour en JSON
 \begin{minted}{sql}
 select JSON * from movies;
 \end{minted}
 
-
+\vfill
+Accédons à un objet imbriqué.
 \begin{minted}{sql}
 select title, director.last_name from movies;
 \end{minted}
 
-
+\vfill
+En revanche, on ne peut pas accéder aux éléments d'un ensemble.
 \begin{minted}{sql}
 select title, actors.last_name from movies;
 \end{minted}

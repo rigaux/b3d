@@ -14,6 +14,8 @@ Cours de bases de données documentaires et distribuées
   docstruct
   rech-exacte
   cassandra
+  cassandra_tp
+  annales
 
 Indices and tables
 ==================

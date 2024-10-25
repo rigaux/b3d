@@ -190,6 +190,29 @@ Avec JSON
 \end{frame}
 
 
+
+\begin{frame}[fragile]
+\frametitle{Imbrication de structures}
+
+C'est le principe de dénormalisation\,: on regroupe 
+les données le plus possible dans des lignes pour éviter les jointures.
+
+\vfill
+
+Une valeur d'attribut  peut correspondre\,:
+\begin{redbullet}
+	\item à un ensemble de valeurs (non ordonnées)\,: \textbf{SET} 
+	\item à une liste de valeurs\,: \textbf{LIST}
+	\item à un dictionnaire\,: \textbf{MAP} 
+	\item à un nuplet\,: \textbf{TUPLE} 
+	\item à une instance d'un type utilisateur
+\end{redbullet}
+
+\vfill
+
+Les ensembles doivent rester de taille raisonnable
+\end{frame}
+
 \begin{frame}[fragile]
 \frametitle{Avec imbrication}
 
