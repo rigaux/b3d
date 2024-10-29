@@ -15,6 +15,7 @@ Cours de bases de données documentaires et distribuées
   rech-exacte
   cassandra
   cassandra_tp
+  rech-approchee
   annales
 
 Indices and tables

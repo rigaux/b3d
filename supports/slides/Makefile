@@ -18,6 +18,11 @@ modelisation :
 	mv genslides.pdf ../ressources-web/slmodelisation.pdf
 	make clean
 
+json : 
+	pdflatex -shell-escape "\newcommand\titreDiapos{Codage JSON}\newcommand\inputFile{json}\input{generic-slides}"
+	pdflatex -shell-escape "\newcommand\titreDiapos{Codage JSON}\newcommand\inputFile{json}\input{generic-slides}"
+	mv generic-slides.pdf ../ressources-web/sljson.pdf
+	make clean
 
 introduction-ES:
 	pdflatex   -shell-escape "\newcommand\titreDiapos{BD documentaires et moteurs de recherche: ElasticSearch}\newcommand\inputFile{introduction-ES}\input{genslides}"
@@ -38,12 +43,6 @@ cass-etudecas :
 	pdflatex  -shell-escape "\newcommand\titreDiapos{Cassandra: \'etude de cas}\newcommand\inputFile{cass-etudecas}\input{genslides}"
 	mv genslides.pdf ../ressources-web/slcass-etudecas.pdf
 	make clean
-
-json : 
-	pdflatex -shell-escape "\newcommand\titreDiapos{Codage JSON}\newcommand\inputFile{json}\input{generic-slides}"
-	pdflatex -shell-escape "\newcommand\titreDiapos{Codage JSON}\newcommand\inputFile{json}\input{generic-slides}"
-	mv generic-slides.pdf ../ressources-web/sljson.pdf
-	make clean
 	
 couchdb : 
 	pdflatex -shell-escape "\newcommand\titreDiapos{Web, REST et CouchDB}\newcommand\inputFile{couchdb}\input{genslides}"
@@ -55,6 +54,39 @@ mongodb :
 	mv genslides.pdf ../ressources-web/slmongodb.pdf
 	make clean
 
+
+ri-intro-principes: 
+	pdflatex   -shell-escape "\newcommand\titreDiapos{Principes de la Recherche d'Information}\newcommand\inputFile{ri-intro-principesRI}\input{genslides}"
+	mv genslides.pdf ../ressources-web/slri-intro-principes.pdf
+	make clean
+
+ri-ranking-rankedsearch: 
+	pdflatex   -shell-escape "\newcommand\titreDiapos{Recherche avec classement}\newcommand\inputFile{ri-ranking-rankedsearch}\input{genslides}"
+	mv genslides.pdf ../ressources-web/slri-ranking-rankedsearch.pdf
+	make clean
+
+
+ri-ranking-fulltextsearch: 
+	pdflatex   -shell-escape "\newcommand\titreDiapos{Recherche plein texte}\newcommand\inputFile{ri-ranking-fulltextsearch}\input{genslides}"
+	mv genslides.pdf ../ressources-web/slri-ranking-fulltextsearch.pdf
+	make clean
+
+ri-intro-lucene-query:
+	pdflatex   -shell-escape "\newcommand\titreDiapos{Interrogation avec les requêtes Lucene}\newcommand\inputFile{ri-intro-lucene-query}\input{genslides}"
+	mv genslides.pdf ../ressources-web/slri-intro-lucene-query.pdf
+	make clean
+
+ri-indexation-analyse:
+	pdflatex   -shell-escape "\newcommand\titreDiapos{Analyse de documents pour la Recherche d'Information}\newcommand\inputFile{ri-indexation-analyse}\input{genslides}"
+	mv genslides.pdf ../ressources-web/slri-indexation-analyse.pdf
+	make clean
+
+ri-indexation-ES:
+	pdflatex   -shell-escape "\newcommand\titreDiapos{Indexation avec Elasticsearch}\newcommand\inputFile{ri-indexation-ES}\input{genslides}"
+	mv genslides.pdf ../ressources-web/slri-indexation-ES.pdf
+	make clean
+
+
 mapreduce : 
 	pdflatex   -shell-escape "\newcommand\titreDiapos{MapReduce d\'emystifi\'e}\newcommand\inputFile{mapreduce}\input{genslides}"
 	mv genslides.pdf ../ressources-web/slmapreduce.pdf
@@ -65,12 +97,6 @@ mongo-mr :
 	mv genslides.pdf ../ressources-web/slmongomr.pdf
 	make clean
 
-
-introri: 
-	pdflatex  -shell-escape  "\newcommand\titreDiapos{Introduction \`a  la recherche d'information}\newcommand\inputFile{introri}\input{generic-slides}"
-	pdflatex  -shell-escape  "\newcommand\titreDiapos{Introduction \`a  la recherche d'information}\newcommand\inputFile{introri}\input{generic-slides}"
-	mv generic-slides.pdf ../ressources-web/slintrori.pdf
-	make clean
 
 boolsearch: 
 	pdflatex   -shell-escape -interaction=nostopmode  "\newcommand\titreDiapos{Requêtes booléennes}\newcommand\inputFile{lucene-query}\input{generic-slides}"
@@ -163,26 +189,6 @@ pig:
 spark: 
 	pdflatex  -shell-escape "\newcommand\titreDiapos{Introduction à Spark}\newcommand\inputFile{spark}\input{genslides}"
 	mv genslides.pdf ../ressources-web/slspark.pdf
-	make clean
-
-ri-intro-principes: 
-	pdflatex   -shell-escape "\newcommand\titreDiapos{Principes de la Recherche d'Information}\newcommand\inputFile{ri-intro-principesRI}\input{genslides}"
-	mv genslides.pdf ../ressources-web/slri-intro-principes.pdf
-	make clean
-
-ri-intro-lucene-query:
-	pdflatex   -shell-escape "\newcommand\titreDiapos{Interrogation avec les requêtes Lucene}\newcommand\inputFile{ri-intro-lucene-query}\input{genslides}"
-	mv genslides.pdf ../ressources-web/slri-intro-lucene-query.pdf
-	make clean
-
-ri-indexation-analyse:
-	pdflatex   -shell-escape "\newcommand\titreDiapos{Analyse de documents pour la Recherche d'Information}\newcommand\inputFile{ri-indexation-analyse}\input{genslides}"
-	mv genslides.pdf ../ressources-web/slri-indexation-analyse.pdf
-	make clean
-
-ri-indexation-ES:
-	pdflatex   -shell-escape "\newcommand\titreDiapos{Indexation avec Elasticsearch}\newcommand\inputFile{ri-indexation-ES}\input{genslides}"
-	mv genslides.pdf ../ressources-web/slri-indexation-ES.pdf
 	make clean
 
 all:	prescours.pdf

@@ -55,6 +55,22 @@
       \usebeamertemplate{block begin}}
     {\par\usebeamertemplate{block end}\end{actionenv}}
 
+
+\newenvironment{exoblock}[1][]{
+\begingroup
+\setbeamercolor{block title}{bg=violet,fg=white}%bg=background, fg= foreground
+\setbeamercolor{block body}{fg=violet}%bg=background, fg= foreground
+\begin{block}{Test #1}}
+{\end{block}\endgroup}
+
+
+\newenvironment{noteblock}[2][]{
+\begingroup
+\setbeamercolor{block title}{bg=violet,fg=white}%bg=background, fg= foreground
+\setbeamercolor{block body}{fg=violet}%bg=background, fg= foreground
+\begin{block}{#2}}
+{\end{block}\endgroup}
+
 %
 % Insertion d'une figure
 %

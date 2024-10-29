@@ -137,7 +137,7 @@ dont on est sûr de la pertinence, la précision s'améliore mais on augmente le
 risque de faux négatifs (c'est-à-dire de ne pas garder des documents
 pertinents), et donc d'un rappel dégradé.
 
-L'évaluation d'un système de RI est un tâche complexe et fragile car elle repose
+L'évaluation d'un système de RI est une tâche complexe et fragile car elle repose
 sur des enquêtes impliquant des utilisateurs. Reportez-vous à l'ouvrage de
 référence cité au début du chapitre (et au matériel de cours associé) pour en
 savoir plus.
@@ -746,7 +746,7 @@ Quiz
     
   
 *****************************
-S1: recherche avec classement
+S3: recherche avec classement
 *****************************
 
 Supports complémentaires:
@@ -1036,7 +1036,7 @@ Quiz
 
 
 **************************
-S2: recherche plein  texte
+S4: recherche plein  texte
 **************************
 
 Supports complémentaires:

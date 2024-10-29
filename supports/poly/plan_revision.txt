@@ -22,12 +22,9 @@ Etude de cas: Cassandra
   Organisation physique des données
   Notre base de films
 
-
 TP Cassandra 
 
-
 Recherche approchée
-   Recherche d'information approchée
    
 TP ElasticSearch
 
