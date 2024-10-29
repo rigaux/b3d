@@ -152,6 +152,11 @@ de mots-clés.  On va donner à cette recherche une définition assez restrictiv
 pour l'instant: il s'agit de trouver tous les documents contenant *tous* les
 mots-clés. Prenons pour exemple l'ensemble (modeste) de documents ci-dessous.
   
+  
+
+.. _Exemple-S1-1:
+.. admonition:: Exemple  `Exemple-S1-1`_: des petits documents pour comprendre
+ 
      * :math:`d_1`: ``Le loup est dans la bergerie.``
      * :math:`d_2`: ``Le loup et le trois petits cochons``
      * :math:`d_3`: ``Les moutons sont dans la bergerie.``
@@ -1270,7 +1275,7 @@ On en déduit donc que le cosinus de l'angle entre deux vecteurs satisfait:
 
 Quel est l'intérêt de prendre ce cosinus comme mesure de similarité? L'idée est que l'on compare
 la *direction* de deux vecteurs, indépendamment de leurs longueurs. La  :numref:`CosineSim`
-montre la représentation des vecteurs pour nos documents de l'exercice `Ex-S1-1`_. Les
+montre la représentation des vecteurs pour nos documents de l'exercice `Ex-S3-1`_. Les
 vecteurs en ligne pleine sont les vecteurs unitaires, normalisés, les lignes pointillées
 montrant les vecteurs complets. Pour des raisons d'illustration,
 l'espace est réduit à deux dimensions correspondant  aux deux termes, "loup" et "bergerie".
@@ -1531,8 +1536,6 @@ Exercices
           * p = 20/20 = 1 ; r = 20/100 = 0.2
           * p = 10/20 = 0.5 ; r = 10/30 = 1/3
 
-
-
 .. _Ex-S1-3:
 .. admonition:: Exercice `Ex-S1-3`_: proposons une autre mesure
   
@@ -1580,23 +1583,426 @@ Exercices
     qui parlent de loup mais pas de mouton").
 
 
-.. _Ex-S1-6:
-.. admonition:: Exercice  `Ex-S1-6`_: recherches
+.. _Ex-S3-1:
+.. admonition:: Exercice `Ex-S3-1`_: premiers pas vers la recherche plein texte
 
-   Exprimez les recherches suivantes sur votre base de données
+   Voici quelques documents textuels (brefs!).
    
-     * les films dans lesquels on parle d'un "meurtrier";
-     * même critère, mais en ajoutant le mot-clé "féroce";
-     * films avec Kate Winslett et Leonardo di Caprio;
-     * films qui sont soit des drames, soit du fantastique;
-     * films avec le mot-clé "France"; obtient-on les films produits en France? Sinon pourquoi?
-       Que faudrait-il faire?
-     * on recherche le film "Sleepy Hollow"; effectuez une recherche sur le titre
-       ("Sleepy", "Hollow", "Sleepy Hollow") puis sur le résumé.
-     * films satisfaisant une combinaison de critères: parus entre 1990 et 2000 *et* aux USA,
-       *ou* contenant les mots-clés "Michael" et "Sonny"; 
-     * etc.
+     * A: ``Le loup est dans la bergerie.``
+     * B: ``Les moutons sont dans la bergerie.``
+     * C: ``Un loup a mangé un mouton, les autres loups sont restés dans la bergerie.``
+     * D:  ``Il y a trois moutons dans le pré, et un mouton dans la gueule du loup.``
+       
+   Prenons le vocabulaire suivant: {"loup", "mouton", "bergerie", "pré", "gueule"}. 
+   
+     * Construisez la fonction qui associe chaque document à un vecteur dans :math:`\{0, 1\}^{5}`. Vous pouvez
+       représenter cette fonction sous forme d'une matrice d'incidence.
+     * Calculer le score de chaque document par la distance Euclidienne
+       pour les recherches suivantes, et en déduire le classsement:
      
-   Vous êtes invités à effectuer les recherches avec ou sans majuscules, à chercher
-   des phrases comme "féroce et meurtrier", à indiquer ou non des noms de champs,
-   et à interpréter les résultats (ou l'absence de résultat) obtenus.
+       - :math:`q_1`. "loup et pré"
+       - :math:`q_2`. "loup et mouton"
+       - :math:`q_3`. "bergerie"
+       - :math:`q_4`. "gueule du loup"
+  
+.. ifconfig:: rankingS1 in ('public')
+
+   .. admonition:: Correction
+  
+      Les vecteurs des documents
+      
+        - :math:`v(A) = [1, 0, 1, 0, 0]`
+        - :math:`v(B) = [0, 1, 1, 0, 0]`
+        - :math:`v(C) = [1, 1, 1, 0, 0]`
+        - :math:`v(D) = [1, 1, 0, 1, 1]`
+        
+      Les vecteurs des requêtes
+      
+        - :math:`v(q_1) = [1, 0, 0, 1, 0]`
+        - :math:`v(q_2) = [1, 1, 0, 0, 0]`
+        - :math:`v(q_3) = [0, 0, 1, 0, 0]`
+        - :math:`v(q_4) = [1, 0, 0, 0, 1]`
+        
+      En ce qui concerne les requêtes:
+      
+        - :math:`E(q_1, A) = \sqrt{2}; E(q_1, B) = \sqrt{4}; E(q_1, C) = \sqrt{3}; E(q_1, D) = \sqrt{2}`.  A et D sont les plus pertinents,
+          suivi de C  et enfin B. Notez que A de contient pas le mot "pré". Pourquoi
+          obtient-il le même score que D?
+        - :math:`E(q_2, A) = \sqrt{2}; E(q_2, B) = \sqrt{2}; E(q_2, C) = \sqrt{1}; E(q_2, D) = \sqrt{2}`. 
+        - :math:`E(q_3, A) = \sqrt{1}; E(q_3, B) = \sqrt{1}; E(q_3, C) = \sqrt{2}; E(q_3, D) = \sqrt{5}`.
+        - :math:`E(q_4, A) = \sqrt{2}; E(q_4, B) = \sqrt{4}; E(q_4, C) = \sqrt{3}; E(q_4, D) = \sqrt{2}`. C'est
+          donc D qui l'emporte, mais à égalité avec A, ce ne correspond pas vraiment à l'intuition.
+
+
+.. _ftsdistanceapp:
+.. _Ex-S3-2:
+.. admonition:: Exercice `Ex-S3-2`_:  à propos de la fonction de distance
+
+   Supposons que l'on prenne comme distance non pas la distance Euclidienne mais le carré
+   de cette distance. Est-ce que cela change le classement? Qu'est-ce que cela vous inspire?
+   
+.. ifconfig:: rankingS1 in ('public')
+
+   .. admonition:: Correction
+  
+      On peut effectuer un calcul *simplifié* de la distance, tant que l'ordre est respecté. Ce
+      qui nous intéresse en fait, ce n'est pas le score proprement dit, mais l'ordre des scores. 
+
+
+.. _ftsbaddistance:
+.. _Ex-S3-3:
+.. admonition:: Exercice `Ex-S3-3`_:  critique de la distance Euclidienne
+
+   La  distance que nous avons utilisée mesure la *différence* entre la requête
+   et un document, par comparaison des termes un à un. Cela induit des inconvénients
+   qu'il est assez facile de mettre en évidence. 
+   
+   Supposons maintenant que le vocabulaire a une taille très grande. On fait une recherche avec 1 mot-clé.
+   
+     - quel est le score pour un document qui ne contient 99 termes et pas ce mot-clé?
+     - quel est le score pour un document qui contient 101 termes *et* le mot-clé? 
+
+   Conclusion? Le classement obtenu sera-t-il satisfaisant? Trouvez un cas où un document est bien classé
+   même s'il ne contient pas le mot-clé !
+   
+.. ifconfig:: rankingS1 in ('public')
+
+   .. admonition:: Correction
+  
+      Distance de :math:`\sqrt{100}=10` dans le premier cas; de :math:`\sqrt{100}` dans le second également. Ils seront classés au même niveau,
+      ce qui ne va pas du tout!   
+      
+      Un document avec 50 termes sera mieux classé
+      que n'importe quel document de 100 termes contenant ou non le mot-clé. Cela nous met sur
+      la piste de ce qui ne va pas: la mesure que nous utilisons est fortement dépendante de la
+      taille du document, au détriment de sa pertinence.
+
+.. _ftsuniform:
+.. _Ex-S3-4:
+.. admonition:: Exercice `Ex-S3-4`_:  critique de l'hypothèse d'uniformité des termes
+
+   Enfin, dans notre approche très simplifiée, tous les termes ont la même importance. Calculez
+   le classement pour la requête:
+   
+      - :math:`q_5`. "bergerie et gueule"
+ 
+   et tentez d'expliquer le résultat. Est-il satisfaisant? Quel est le biais (pensez au raisonnement
+   sur la longueur du document dans l'exercice précédent).
+
+.. ifconfig:: rankingS1 in ('public')
+
+   .. admonition:: Correction
+  
+      Vecteur de la requête: :math:`v(q_5) =  [0, 0, 1, 0, 1]]`
+      
+      Calcul des classements:
+      
+       - :math:`E(q_5, A) = \sqrt{2}; E(q_5, B) = \sqrt{2}; E(q_5, C) = \sqrt{3}; E(q_2, D) = \sqrt{4}`. 
+       
+     Tous les documents sont mieux classés que D, alors que "gueule" est un terme plus discriminant.       
+
+
+
+.. _Ex-S4-1:
+.. admonition:: Exercice `Ex-S4-1`_: à propos de la requête
+
+     Je soumets une requête :math:`t_1, t_2, \cdots, t_n`. 
+     Quel est le poids de chaque terme dans le vecteur représentant cette requête? 
+     La normalisation de ce vecteur est elle importante pour le classement (justifier)?
+
+
+.. _Ex-S4-2:
+.. admonition:: Exercice `Ex-S4-2`_: encore des voitures, des serpents et des baleines
+
+   Reprenons notre exemple des documents *d1*, *d2* et *d3*, 
+   calculez le classement pour les requêtes suivantes:
+   
+     - serpent
+     - voiture et serpent
+   
+.. _Ex-S4-3:
+.. admonition:: Exercice `Ex-S4-3`_: pesons le loup, le mouton et la bergerie
+
+   Nous reprenons nos documents de l'exemple `Ex-S3-1`_.
+     
+      - Donnez, pour chaque document, le tf de chaque terme.
+      - Donnez les idf des termes (ne pas prendre le logarithme, pour simplifier).
+      - En déduire la matrice d'incidence montrant  l'idf pour chaque
+        terme, le nombre de termes pour chaque document,  et le tf pour chaque cellule.
+                
+.. ifconfig:: rankingS2 in ('public')
+
+      .. admonition:: Correction
+  
+         Fréquence des termes par document (tf).
+         
+          - Document A: loup (1), bergerie (1)
+          - Document B: mouton (1), bergerie (1)
+          - Document C: loup (2), mouton (1), bergerie (1)
+          - Document D: loup (1), mouton (2), pré (1), gueule (1)
+          
+         Fréquence inverse des termes dans les documents (idf): loup  (4/3), 
+         mouton (4/3), bergerie (4/3), pré (4), gueule (4).
+       
+         .. _loups2:
+         .. list-table:: La matrice d'incidence
+            :widths: 15 10 10 10 10 10
+            :header-rows: 1
+
+            * - 
+              - loup (4/3)
+              - mouton (4/3)
+              - bergerie (4/3)
+              - pré (4)
+              - gueule (4)
+            * - A 
+              - 1
+              - 0
+              - 1
+              - 0
+              - 0
+            * - B
+              - 0
+              - 1
+              - 1
+              - 0
+              - 0
+            * - C 
+              - 2
+              - 1
+              - 1
+              - 0
+              - 0
+            * - D
+              - 1
+              - 2
+              - 0
+              - 1
+              - 1
+
+.. _Ex-S4-4:
+.. admonition:: Exercice `Ex-S4-4`_: interrogeons et classons
+
+   Reprendre les requêtes suivantes:    
+      
+       - :math:`q_1`. "loup et pré"
+       - :math:`q_2`. "loup et mouton"
+       - :math:`q_3`. "bergerie"
+       - :math:`q_4`. "gueule du loup"
+   
+   et calculer le classement avec la distance cosinus, en ne prenant en compte
+   que le vecteur des tf. 
+ 
+.. _Ex-S4-5:
+.. admonition:: Exercice `Ex-S4-5`_: comparons les loups et les moutons
+
+     - Reprenez une nouvelle fois  les documents de l'exercice  `Ex-S1-1`_. Vous devriez
+       avoir la matrice des tf.idf calculée dans l'exercice `Ex-S4-3`_.
+      
+        - classez les documents B, C, D par similarité cosinus décroissante 
+          avec A;
+        - calculez la similarité cosinus entre chaque paire de documents; peut-on
+          identifier 2 groupes évidents? 
+   
+   
+.. _Ex-S4-6:
+.. admonition:: Exercice `Ex-S4-6`_ : un exemple complet
+
+   Voici trois recettes.
+   
+    - Panna cotta (pc):  Mettre la crème, le sucre et la vanille dans une casserole et faire frémir. Ajouter 
+      les 3 feuilles de gélatine préalablement  trempées dans l'eau froide. Bien remuer 
+      et verser la crème dans des coupelles. Laisser refroidir quelques heures.
+    - Crème brulée (cb): Faire bouillir le lait, ajouter la crème et le sucre hors du feu. Ajouter les 
+      jaunes d'œufs, mettre au four au bain marie et laisser cuire doucement 
+      à 180C environ 10 minutes. Laisser refroidir puis mettre dessus du sucre roux et le 
+      brûler avec un petit chalumeau.
+    - Mousse au chocolat (mc): Faire ramollir le chocolat dans une terrine. Incorporer les jaunes et le sucre.
+      Puis, battre les blancs en neige ferme et les ajouter délicatement au 
+      mélange à l'aide d'une spatule. Mettre au frais 1 heure ou 2 minimum.
+   
+   À vous de jouer pour la création de l'index et les calculs de classement.
+   
+     - On prend pour vocabulaire  les mots suivants : crème, sucre, œuf, gélatine. Tous
+       les autres mots sont ignorés.
+       Donnez la matrice d'incidence avec l'idf de chaque terme, et le tf de chaque paire (terme, document).
+     - Donnez les normes de vecteurs représentant chaque document.  
+     - Donner les résultats classés par combinaison tf (on ignore l'idf) pour les requêtes suivantes 
+       
+          - crème et sucre
+          - crème et œuf
+          - œuf et gélatine
+
+     - Même chose mais en tenant compte de l'idf (sans appliquer le logarithme).
+             
+     - Commentez le résultat de la dernière requête. Est-il correct intuitivement? Que penser de l'indexation
+       du terme 'œuf', est-elle réprésentative du contenu des recettes?
+
+ 
+   .. ifconfig:: rankingS2 in ('public')
+
+      .. admonition:: Correction
+   
+         #. Matrice d'incidence
+
+            Crème apparaît dans 2 documents sur 3, idf=3/2;  sucre dans 3 sur 3 (idf=1),         
+            œuf dans 1 sur 3 (idf=3) comme gélatine. On obtient:
+            
+           .. csv-table:: 
+                 :header: " ", pc, cb, mc
+                 :widths: 10, 10, 10, 10
+             
+                 "crème (3/2)", "2", "1", "0"
+                 "sucre (1)", "1", "2", 1
+                 "œuf (3)", 0, 1, 0
+                 "gélatine (3)", 1, 0, 0
+
+         #. Les normes: 
+           
+             - pc: :math:`\sqrt{2^2 + 1+ 1} = \sqrt{6}`
+             - cb: :math:`\sqrt{1 + 2^2 + 1} = \sqrt{6}`
+             - mc: :math:`\sqrt{1} = 1`
+                          
+         #. Classement (on ne normalise pas la requête car cela n'influe pas sur le classement,
+            et du coup on a des cosinus supérieurs à 1): 
+
+             - crème et sucre:
+             
+                  * pc: :math:`\frac{2+ 1}{\sqrt{6}}`
+                  * cb: :math:`\frac{1 + 2}{\sqrt{6}}`
+                  * mc: :math:`\frac{1}{1}`
+ 
+             - crème et œuf: 
+             
+                  * pc: :math:`\frac{2}{\sqrt{6}}`
+                  * cb: :math:`\frac{1 + 1}{\sqrt{6}}`
+                  * mc: :math:`\frac{0}{1}`
+             
+             - œuf et gélatine: 
+             
+                  * pc: :math:`\frac{2+ 1}{\sqrt{6}}`
+                  * cb: :math:`\frac{1}{\sqrt{6}}`
+                  * mc: :math:`\frac{0}{1}`
+
+         #. Etudions maintenant l'impact de l'idf. En prenant le logarithme, on obtient:
+         
+              - :math:`idf(\text{crème}) = log(1.5) = 0,176`
+              - :math:`idf(\text{sucre}) = log(1) = 0`
+              - :math:`idf(\text{œuf}) = log(3) = 0,477`
+              - :math:`idf(\text{gélatine}) = log(3) = 0,477`
+              
+            On remarque que l'IDF de 'sucre' vaut zéro, ce qui revient à dire que ce terme
+            ne sert à rien dans une requête. Cela reflête le fait que 'sucre' apparaît
+            dans *tous* les documents et que son pouvoir de discrimination est nul.
+            
+            Ce qui nous donne la matrice des tf.idf suivante:
+            
+            .. csv-table:: 
+                 :header: " ", pc, cb, mc
+                 :widths: 10, 10, 10, 10
+             
+                 "crème", "0,352", "0,176", "0"
+                 "sucre", "0", "0", 0
+                 "œuf", 0, "0,477", 0
+                 "gélatine", "0,477", 0, 0
+
+
+            Un inconvénient immédiat apparaît: le document ``mc`` a tous ses coefficients
+            à zéro et n'apparaîtra dans aucun résultat, même pour les requêtes sur le sucre.
+            Pour pallier ce défaut, on peut prendre pour l'idf non pas le log mais :math:`1+log`.
+            Celà fait partie des très nombreux petits réglages qui font la qualité d'un moteur de recherche.
+
+            Les normes des vecteurs:
+             
+               - pc: :math:`\sqrt{0,352^2 +  0,477^2} = 0,593`
+               - cb: :math:`\sqrt{0,176^2 + 0,477^2} = 0,508`               
+             
+            La requête "œuf et gélatine" est représentée par le vecteur (0,477, 0,477). La similarité
+            cosinus (toujours en ignorant la norme de la requête qui est constante et ne change 
+            pas le classement)  est donc:
+             
+                  * pc: :math:`\frac{0,477^2}{0,593}`
+                  * cb: :math:`\frac{0,477^2}{0,508}`
+            
+            C'est donc la crème brulée qui l'emporte. Pourquoi? Parce que le terme
+            "œuf" commun entre la requête et le document est prépondérant dans la représentation
+            vectorielle de ce dernier.
+            En prenant en compte l'idf, il semble en effet que le document ``cb`` parle essentiellement
+            d'œuf, alors que le document ``pc`` parle à peu près à parts égales d'œuf et de crème.
+            Le document le plus spécifiquement liée à la requête vient donc en premier.
+            
+            La pauvre mousse au chocolat n'apparaît pas dans le résultat, 
+            alors qu'il faut vraiment des œufs pour la préparer.
+
+         #. Interprétation: clairement, il faut des œufs dans la mousse au chocolat, mais le mot 'œuf'
+            lui-même n'apparaît pas, ce qui fausse les résultats. Le tf est à 0 pour le document mc, 
+            et l'idf de 'œuf' est surévalué (parce que le nombre de documents lui-même est 
+            ridiculement petit).
+            
+            Notre moteur de recherche souffre donc des limitations d'une approche purement lexicale
+            basée uniquement sur le tf.idf. Il mérite donc des améliorations, la plus séduiasante
+            étant la consrtruction de réseaux de termes de type *word to vec* pour tenter d'identifier 
+            les concepts à apparier, plutôt que les termes.
+
+.. _Ex-S4-7:
+.. admonition:: Exercice `Ex-S4-7`_: et si on calculait autrement?
+
+   Chaque document est représenté comme un vecteur dans un espace *n*-dimensionnel.
+   avec des coefficients *normalisés* tf.idf.   
+                 
+        .. _euclidianSim:
+    
+     .. figure:: ../figures/EuclidianSim.png       
+        :width: 50%
+        :align: center
+   
+        Calcul basé sur la distance Euclidienne
+                 
+    Revenons à notre idée initiale de calculer la similarité basée sur la distance Euclidienne entre
+    les deux points A et B: 
+    
+    .. math:: 
+
+       E(A, B) = \sqrt{(a_1 - b_1)^2 + (a_2 - b_2)^2 + \cdots + (a_n - b_n)^2}
+                 
+    La figure :numref:`EuclidianSim` montre la distance Euclidienne, et la distance cosinus 
+    entre les deux points A et B. Montrez qu'un classement par ordre décroissant
+    de la similarité cosinus et identique au classement par ordre croissant de
+    la distance Euclidienne! (Aide: montrez que la distance augmente quand le cosinus
+    diminue. Un peu de Pythagore peut aider).     
+
+
+   .. ifconfig:: rankingS2 in ('public')
+
+      .. admonition:: Correction
+   
+         Notons que: OBC et CBA sont deux triangles rectangles, par définition
+         du cosinus comme projection orthogonale. Par ailleurs, on ne considère pour les calculs
+         de similarité que les points situés dans le quadrant des coordonnées positives, et le cosinus
+         est donc une valeur positive entre 0 et 1. 
+         
+         Enfin, on sait que A et B sont sur le cercle trigonométrique. Donc:
+         
+           - :math:`|| OB || = 1`     
+           - :math:`||OA || = 1 = ||OC || + || CA ||`  
+
+         C'est parti pour Pythagore, comme au collège. Nous avons:
+         
+            - :math:`|| AB ||^2 = || BC ||^2 + ||AC ||^2`  
+            - :math:`|| OB ||^2 = 1 = || OC ||^2 + ||BC ||^2`, et donc :math:`||BC ||^2 = 1 - || OC ||^2`
+
+         Ce qui nous donne:
+         
+            - :math:`|| AB ||^2 = 1 - || OC ||^2 + ||AC ||^2  = 1 - || OC ||^2 + (1- ||OC ||)^2` 
+            - :math:`|| AB ||^2 = 2  (1 - || OC ||)` 
+         
+         
+         AB est la distance euclidienne, OC la distance cosinus comprise entre 0 et 1. 
+         L'une augmente (de 0 à :math:`\sqrt{2}`) quand l'autre diminue (de 1 à 0). C.Q.F.D.
+         
+         La distance cosinus est plus efficace à  calculer car il suffit de considérer
+         les indices des deux vecteurs pour lesquels les coordonnéess
+         sont toutes les deux non nulles, alors
+         que pour la distance euclidienne on doit prendre en compte ceux pour lesquelles
+         *au moins* une des coordonnées est non nulle.
+         

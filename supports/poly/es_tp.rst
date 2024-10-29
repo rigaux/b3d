@@ -467,3 +467,27 @@ Si on peut associer du boosting positif à certaines valeurs de certains
 champs, on peut rejeter vers le bas du classement des documents qui
 contiennent certaines valeurs pour d'autres champs. On peut combiner boosting
 positif et boosting négatif (évidemment pour des champs différents).
+
+
+.. _Ex-S1-6:
+.. admonition:: Exercice  `Ex-S1-6`_: recherches
+
+   Exprimez les recherches suivantes sur votre base de données
+   
+     * les films dans lesquels on parle d'un "meurtrier";
+     * même critère, mais en ajoutant le mot-clé "féroce";
+     * films avec Kate Winslett et Leonardo di Caprio;
+     * films qui sont soit des drames, soit du fantastique;
+     * films avec le mot-clé "France"; obtient-on les films produits en France? Sinon pourquoi?
+       Que faudrait-il faire?
+     * on recherche le film "Sleepy Hollow"; effectuez une recherche sur le titre
+       ("Sleepy", "Hollow", "Sleepy Hollow") puis sur le résumé.
+     * films satisfaisant une combinaison de critères: parus entre 1990 et 2000 *et* aux USA,
+       *ou* contenant les mots-clés "Michael" et "Sonny"; 
+     * etc.
+     
+   Vous êtes invités à effectuer les recherches avec ou sans majuscules, à chercher
+   des phrases comme "féroce et meurtrier", à indiquer ou non des noms de champs,
+   et à interpréter les résultats (ou l'absence de résultat) obtenus.
+
+
