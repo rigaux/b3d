@@ -16,6 +16,7 @@ Cours de bases de données documentaires et distribuées
   cassandra
   cassandra_tp
   rech-approchee
+  es_tp
   annales
 
 Indices and tables

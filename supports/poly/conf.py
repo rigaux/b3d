@@ -92,8 +92,8 @@ def setup(app):
     app.add_config_value('annales23', '', True)
     app.add_config_value('annales24', '', True)
 	
-docstruct = 'private'
-cassandra = 'private'
+docstruct = 'public'
+cassandra = 'public'
 cassandratp = 'private'
 rielastic = 'private'
 mongoquery = 'private'
