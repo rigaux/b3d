@@ -94,7 +94,7 @@ def setup(app):
 	
 docstruct = 'public'
 cassandra = 'public'
-cassandratp = 'private'
+cassandratp = 'public'
 rielastic = 'private'
 mongoquery = 'private'
 mongomapreduce = 'private'

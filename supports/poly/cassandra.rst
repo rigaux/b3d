@@ -1210,7 +1210,7 @@ Voici quelques manipulations et suggestions de recherches complémentaires.
 			à la table des entrées ci-dessous en considérant
 			qu'un sous-répertoire est une entrée d'un type particulier.
 			
-			Maitenant, connaissant une *directory* pour une
+			Maintenant, connaissant une *directory* pour une
 			révision donnée, je modélise
 			les entrées.
 			
@@ -1231,12 +1231,14 @@ Voici quelques manipulations et suggestions de recherches complémentaires.
 			Notez également qu'il y a sans doute trop d'entrées (fichiers) par répertoire 
 			pour les représenter par une liste imbriquée
 
-			On peut alors obtennir toutes les entrées d'une *directory*.
+			On peut alors obtennir toutes les entrées d'une *directory*
+			(pour une révision donnée).
 			
 			.. code-block:: sql
  
  				select name from Entry_by_dir
-  				where directory_id = 'xyz'
+  				where revision_id = 'a986678'
+  				and directory_id = 'xyz'
   				
   			On peut trouver une entrée dont le nom est ``README.md`` à
   			condition de le faire dans un répertoire spécifique.
@@ -1244,7 +1246,8 @@ Voici quelques manipulations et suggestions de recherches complémentaires.
   			.. code-block:: sql
 			
 				select content_ref from Entry_by_dir
-				where directory_id = 'xyz'
+				where revision_id = 'a986678'
+  				and directory_id = 'xyz'
 				and name = 'README.md'
 				
 			
@@ -1258,8 +1261,7 @@ Voici quelques manipulations et suggestions de recherches complémentaires.
 				     (directory_id uuid,
 				      revision_id uuid,
 				      children list<uuid>,
-      					primary key (revision_id,
-          							directory_id)
+      					primary key (revision_id,directory_id)
       					)
 
 			On a une forte redondance si on veut les deux... Cette

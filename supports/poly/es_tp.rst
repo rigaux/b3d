@@ -11,21 +11,21 @@ de mise en pratique: vous devriez disposer d'un serveur installé avec Docker
 et de l'application ElasticVue (reportez-vous au chapitre :ref:`chap-introri`).
 
 
-Nous allons utiliser une  base de films plus large que celle que l'on a vu en cours. 
+Nous allons utiliser une  base de films plus large que celle que l'on a vue en cours. 
 Récupérez un fichier contenant environ 5000 films, au format JSON :
 http://b3d.bdpedia.fr/files/big-movies-elastic.json.
 
 Vous pouvez importer avec ElasticVue en faisant des copier/coller. Autre
-possibilité: appeler directement le service ``_bulk``.
+possibilité: appeler directement le service ``_bulk`` avec ``curl``.
 Dans le dossier où vous avez récupéré le fichier, lancez la commande de
-chargement dans ElasticSearch suivante (ajoutez loginnet:
+chargement dans ElasticSearch suivante (ajoutez login et mot de passe):
 
 .. code-block:: bash
 
 		curl -s --cacert http_ca.crt  -U elastic:mot_de_passe https -X POST http://localhost:9200/_bulk/ --data-binary @big-movies-elastic.json
 
 Dans l'interface Elasticvue, vous devriez voir apparaître un index appelé `movies` 
-contenant 4850 films.
+contenant 5000 films.
 Les documents ont la structure suivante :
 
 .. code-block:: json
@@ -63,9 +63,14 @@ Les documents ont la structure suivante :
 S1: recherche plein texte avec ElasticSearch
 ********************************************
 
-Le DSL est un langage extrêmement riche. Dans cette introduction
-nous nous concentrons sur  les recherches
+Le DSL est un langage extrêmement riche. Nous avons
+déjà vu les recherches "exactes" dans 
+le chapitre  :ref:`chap-bddoc`. 
+Nous nous concentrons sur  les recherches
 plein-texte (avec classement donc) et quelques opérations de combinaison.
+La documentation officielle 
+est ici: https://www.elastic.co/guide/en/elasticsearch/reference/current/full-text-queries.html.
+
 
 	
 Les recherches plein-texte
@@ -75,12 +80,9 @@ On s'intéresse ici aux recherches portant sur des champs
 textuels analysés (et ayant donc fait l'objet de transformations,
 cf. le chapitre  :ref:`chap-introri`). La correspondance 
 entre le texte indexé et celui de la requête est
-exprimée par un *score*. La documentation
-est ici: https://www.elastic.co/guide/en/elasticsearch/reference/current/full-text-queries.html.
-
-
-Reprenons la requête qui cherche les occurrences de *Star Wars*,
-cette fois avec l'opérateur ``match`` 
+exprimée par un *score*. 
+Reprenons la requête qui cherche les occurrences de *Star Wars*
+avec l'opérateur ``match`` 
 
 .. code-block:: json
 
@@ -96,11 +98,14 @@ cette fois avec l'opérateur ``match``
   		"_source": false
    	}
 
+
 Cette fois, contrairement à ce qui se passait avec ``term``, 
 les transformations sont appliquées au document *et* à
 la requête, et le résultat correspond aux principes de la recherche plein texte 
 avec classement.
-Prenez le temps de comprendre (intuitivement) 
+Vous pouvez constater que la requête est triée sur le
+score (attribut ``_score`` dans chaque élément du résultat). 
+Prenez le temps de comprendre (au moins intuitivement) 
 le rapport entre le titre du film et son classement. 
 
 Il faut bien réaliser que chaque terme est pris en compte
@@ -265,7 +270,13 @@ Vous pouvez limiter la quantité d'informations qui se trouvent dans le champ
 À vous de jouer
 ===============
 
-Maintenant, proposez des requêtes pour les besoins d'informations suivants (vous
+Cette section suppose un investissement de votre part pour comprendre
+et expérimenter le langage d'Elastic Search. *Elle est optionnelle
+dans le cadre de l'UE NFE204* pour laquelle on ne vous demandra
+pas de connaître la syntaxe d'un système particulier. À faire donc 
+uniquement si vous souhaitez approfondir le sujet.
+ 
+Proposez des requêtes pour les besoins d'informations suivants (vous
 pouvez aussi proposer des variantes "exactes"):
 
 - Films 'Star Wars' dont le réalisateur (directors) est 'George Lucas' (requête
@@ -607,11 +618,6 @@ contient ce que nous cherchons (ouf).
          	]
          }
       }   
-
-.. important:: ElasticVue ne semble pas savoir afficher le champ
-   ``aggregation``. Vous pouvez donc effectuer ces requêtes
-   avec la fenêtre ``REST`` en transmettant la requête 
-   avec un ``POST`` à l'URL ``<index>/_search``.
    
 On peut appliquer une agrégation sur le résultat d'une requête, comme
 par exemple ci-dessous où on ne prend que les films du genre
@@ -775,160 +781,6 @@ suivantes:
       connaître les occurrences des termes utilisés.
 
 
-Bonus : Agrégats via mapping spécifique
-=======================================
-
-Certaines requêtes d'agrégats ne peuvent marcher car elasticsearch ne souhaite
-pas (par défaut) effectuer des agrégats sur des chaînes spécifiques (array,
-noms, etc.). Pour ce faire, il faut définir un mapping différent pour les
-données, en créant un sous-champ associé au champ original, et en spécifiant que
-ce sous-champ ne doit pas être analysé. Nous l'appelons ci-dessous *raw* (brut).
-On ne pourra pas effectuer toutes les requêtes possibles sur ce sous-champ, mais
-il sera précieux pour les agrégations.
-
-Vous pourrez consulter le mapping par défaut généré pour notre jeu de données :
-http://localhost:9200/movies/?pretty
-
-Pour pouvoir importer les données avec un mapping approprié, nous allons créer
-une nouvelle base "movies2" (toutes les requêtes devront être faites sur
-``/movies2/movie/_search``).
-
-Suivez les instructions suivantes :
-
-  - À l'adresse http://b3d.bdpedia.fr/files/elastictp/mapping.es7.json, vous pourrez
-    trouver un fichier de mapping différent, correspondant à notre nouveau
-    besoin. Le jeu de données associé est à télécharger à l'adresse :
-    http://b3d.bdpedia.fr/files/elastictp/movies_elastic2.json.
-
-  - Importez le mapping sur elasticsearch : 
-
-  .. code-block:: bash                                                            
-
-      curl -XPUT "localhost:9200/movies2?pretty" -H 'Content-Type: application/json' -d @mapping.es7.json
-
-  - Importez le nouveau fichier de données (dans l'index "movies2"): 
-
-  .. code-block:: bash                                                            
-
-      curl -s -XPOST http://localhost:9200/movies2/_bulk/ -H 'Content-Type: application/json' --data-binary @movies_elastic2.json
-
-Vous pourrez retrouver le mapping ici : http://localhost:9200/movies2/?pretty
-Et interroger les données ici : http://localhost:9200/movies2/movie/_search?pretty
-
-Par exemple, nous pouvons grouper par "genre" de film, et donner leurs
-occurrences :
-
-.. code-block:: json
-
-  {"aggs" : {
-      "nb_per_genres" : {
-        "terms" : {"field" : "fields.genres.raw"}
-  }}}
-
-La clé "raw" est utilisée pour aller récupérer la donnée associée. Ceci n'est
-possible que sur les données dont le mapping est de type "raw". Attention, il
-n'est alors plus possible de faire des recherches par similarité (requêtes
-textuelles), seulement des recherches exactes.
-
-Proposez des requêtes pour pouvoir :
-
-- Donner le nombre d'occurrences de chaque réalisateur ou réalisatrice.
-
-  .. ifconfig:: rielastic in ('public')
-
-   .. admonition:: Correction
-     
-      .. code-block:: json
-
-        {"aggs" : {
-            "nb_per_director" : {
-              "terms" : {
-                "field" : "fields.directors.raw",
-                "size" : 25,
-                }
-        }}}
-
-- Donner le nombre d'occurrences de chaque mot dans les titres des films.
-
-  .. ifconfig:: rielastic in ('public')
-
-   .. admonition:: Correction
-     
-      .. code-block:: json
-
-        {"aggs" : {
-            "nb_par_mot_des_titres" : {
-              "terms" : {"field" : "fields.title.raw"}
-        }}}
-
-  Vous constaterez que l'agrégation se fait sur les mots, et non sur le titre.
-  Ainsi, les mots récurrents sont : "the", "of", "a", "in", "and", "2"...
-  
-  Nous pouvons ainsi vérifier que les données textuelles sont bien segmentées
-  par mots et que le regroupement se fait par mot. Cela est également dû à la
-  clé ``terms`` présente dans la requête.
-
-- Donner la note (rating) moyenne, le rang min et max, des films par acteur.
-  Bonus : triez par note moyenne. Qu'observez-vous ? Que proposez-vous ?
-
-  .. ifconfig:: rielastic in ('public')
-
-   .. admonition:: Correction
-     
-      .. code-block:: json
-
-        {"aggs" : {
-            "group_actors" : {
-              "terms" : {
-                "field" : "fields.actors.raw",
-                "order": {
-                  "rating_moyen": "desc"
-                }
-              },
-              "aggs" : {
-                "rating_moyen" : {"avg" : {"field" : "fields.rating"}},
-                "rang_min" : {"min" : {"field" : "fields.rank"}},
-                "rang_max" : {"max" : {"field" : "fields.rank"}}
-              }
-        }}}
-
-- Nombre de réalisateurs distincts pour les films d'aventure.
-
-  .. ifconfig:: rielastic in ('public')
-
-   .. admonition:: Correction
-     
-      .. code-block:: json
-
-        {"query":{
-            "match" : {"fields.genres" : "Adventure"}
-          },
-          "aggs" : {
-            "nb_distinct" : {
-              "cardinality" : {"field" : "fields.directors"}
-            }
-          }
-        }
-
-- Termes les plus utilisés (agrégat : ``significant_terms``) dans les
-  descriptions des films de George Lucas.
-
-  .. ifconfig:: rielastic in ('public')
-
-   .. admonition:: Correction
-     
-      .. code-block:: json
-
-        {"query" :{
-            "match" : {"fields.directors" : "George Lucas"}
-          },
-          "aggs" : {
-            "terms_significatifs" : {
-              "significant_terms" : {"field" : "fields.plot", "size":6}
-        }}}
-
-
-
 ************************************
 S3: Le classement dans Elasticsearch
 ************************************
@@ -955,7 +807,7 @@ pour essayer d'arriver au meilleur résultat.
 En lisant les explications sur la *Practical Scoring Function*, on constate
 donc que pour chaque terme:
 
- - l'``idf`` est :math:`log (1 + \frac{N-n}{n}`), *N* étant le nombre
+ - la valeur de ``idf`` est :math:`log (1 + \frac{N-n}{n}`), *N* étant le nombre
    total de documents, *n* le nombre de documents contenant le terme 
  - le ``tf`` est la fréquence normalisée de manière simplifiée 
    par rapport à un calcul cosinus exact, l'idée étant toujours
@@ -1002,7 +854,7 @@ Dans la fenêtre droite, le résultat contient un objet
 ``explanation`` qui détaille les paramètres du classement.
 Il est notamment indiqué qu'il est obtenu par la formule
 :math:`boost \times idf \times tf`, ce qui devrait vous rappeler
-la méthode présentée dans le chapitre :ref:`chap-ranking`.
+la méthode présentée dans le chapitre :ref:`chap-introri`.
 En détaillant, on voit que
 Elasticsearch utilise  une fonction
 de score  qui  utilise  3
@@ -1049,8 +901,7 @@ verrons ensuite comment *booster* chaque terme individuellement).
   	}
   
 Le résultat du ``_explain`` montre que le *boost* pris en compte
-dans le calcul du score  a doublé par rapport à la version précédente
-(où le *boost* était par défaut à 1).
+dans le calcul du score  a doublé par rapport à la version précédente.
 
 .. note:: Pourquoi ElasticSearch affiche-t-il des valeurs 
    de *boost* qui   semblent supérieures aux valeurs d'entrée? Parce que 
