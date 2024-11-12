@@ -44,6 +44,7 @@ Partie 2: systèmes distribués
  Calcul distribué
    Hadoop/HDFS
    MapReduce
+ Etude de cas : Spark
    Spark 
    
 TP Spark 

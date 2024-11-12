@@ -17,6 +17,8 @@ Cours de bases de données documentaires et distribuées
   cassandra_tp
   rech-approchee
   es_tp
+  traitements_lot
+  pigtp
   annales
 
 Indices and tables

@@ -1443,8 +1443,8 @@ Quiz
     Quelle propriété est vraie pour le calcul de la similarité cosinus entre deux documents
    
     A) :eqt:`I` On doit prendre en compte toutes les coordonnées des vecteurs
-    #) :eqt:`I` On ne prend en compte que les paires de coordonnées (1,1) 
-    #) :eqt:`C` On ne prend en compte que les paires dont une coordonnée est non nulle
+    #) :eqt:`C` On ne prend en compte que les paires de coordonnées non nulles
+    #) :eqt:`I` On ne prend en compte que les paires dont une coordonnée est non nulle
     #) :eqt:`I`  On ne prend en compte que les paires de coordonnées (0,0) 
 
 .. eqt:: ri-tfidf-5
