@@ -5,19 +5,30 @@ Traitements par lot
 ###################
 
 
-.. admonition:: Pour aller plus après ce chapitre
+Nous avons étudié jusqu'à présent les recherches, exactes ou approchées,
+permettant de retrouver des informations en temps réel, ou du moins
+avec un délai de réponse compatible avec une utilisation interactive. 
+Un autre scénario pour la gestion de très grandes collections est celui
+d'un *traitement par lot* qui consiste à extraire des informations
+à partir d'un sous-ensemble important de la collection voire
+même de la collection entière. C'est le cas par exemple
+pour la construction d'indicateurs statistiques, pour
+l'apprentissage de modèles IA, ou la production d'une collection
+dérivée, typiquement un index.
 
-    * `Le cours RCP216 sur la fouille et de la visualisation de données massives  <http://cedric.cnam.fr/vertigo/Cours/RCP216/>`_.
-      Complémentaire au cours NFE204, RCP216 aborde beaucoup plus en détails les calculs distribués
-      (dont le modèle MapReduce fait partie) en général, et la fouille de données à grande échelle en particulier. 
-      Lecture très fortement recommandée après l'introduction du présent chapitre.
- 
- 
-Nous abordons maintenant un processus plus  complet pour le traitement d'une collection,
-que nous allons appeler *chaîne de traitement* par traduction de "*data processing pipelines*"
-(ou simplement *workflow*).
-Le principe général est de soumettre chaque document d'une collection 
-à une séquence d'opérations, comme par exemple:
+Pour ce type de scénario on ne s'attend pas à des temps de réponses
+de quelques secondes, au vu de la taille des données considérées. Les
+temps de parcours et de calcul peuvent prendre des minutes, des heures ou
+même des jours. Les problématiques sont plutôt
+de contrôler le temps d'exécution en parallélisant les calculs,
+d'une part, et de s'assurer de la terminaison de ces calculs même
+si des pannes surviennent, d'autre part.
+
+Nous étudions dans ce chapitre la première problématique  avec les
+modèles de  *chaîne de traitement* (par traduction de "*data processing pipelines*"
+ou, simplement, *workflow*).
+Le principe général est de soumettre tous les documents  d'une collection 
+à une séquence d'opérateurs, comme par exemple:
 
   * un *filtrage*, en ne gardant le document que s'il satisfait certains critères; 
   * une *restructuration*, en changeant la forme du document;
@@ -25,22 +36,29 @@ Le principe général est de soumettre chaque document d'une collection
   * un *regroupement* avec d'autres documents sur certains critères;
   * des *opérations d'agrégation* sur des groupes de documents.
   
-Une chaîne de traitement permet *entre autres* de calculer des agrégations, comme
-le ``group by`` de SQL.  Leur pouvoir d'expression va au-delà, notamment
-par la possibilité d'ajouter en cours de route des attributs calculés, ou
-de changer complètement la structure des informations manipulées. Enfin,
-et c'est essentiel, ces chaînes sont conçues pour pouvoir s'exécuter
-dans un environnement distribué, avec un effet de passage à l'échelle
-obtenu par la parallélisation. 
+Les opérateurs qui nous intéressent sont dits *opérateurs de second ordre*. 
+Contrairement aux opérateurs classiques qui s'appliquent directement à des données, un 
+opérateur de second ordre prend des fonctions en paramètre et applique
+ces fonctions à des données au cours d'un traitement immuable
+(par exemple un parcours séquentiel). Pour le traitement
+de données massives, on s'intéresse plus particulièrement
+aux opérateurs *parallélisables* qui permettent une
+forme d'industrialisation des calculs en les distribuant 
+sur plusieurs machines. 
 
-La spécification d'une chaîne de traitement s'appuie sur un paradigme 
-nommé MapReduce que nous rencontrerons de manière récurrente. Ce chapitre propose
-une présentation détaillé du principe de calcul MapReduce, et une illustration
-pratique avec deux systèmes: MongoDB et CouchDB. MapReduce n'est
-vraiment intéressant que dans un contexte distribué: cet aspect sera
-abordé en profondeur dans le chapitre :ref:`chap-calcdistr`. 
-Nous nous en tenons (à l'exception d'une présentation intuitive
-dans la première session) au contexte centralisé (un seul serveur) dans ce qui suit,
+Nous allons développer longuement ces notions un peu complexes. Pour
+commencer nous présentons deux des opérateurs qui sont à l'origine
+des systèmes de traitement de données massives, Map et Reduce. Nous
+introduirons ensuite d'autres opérateurs avec un langage
+simple d'utilisation, Pig latin. Les futurs chapitres viseront
+à expliquer la distribution des données et des calculs
+en vue d'obtenir une parallélisation efficace, ce que
+nous résumerons avec une étude de Spark, sans doute le principal
+système distribué à l'heure actuelle.
+
+Nous nous en tenons donc pour l'instant
+(à l'exception d'une présentation intuitive
+dans la première session) au contexte centralisé (un seul serveur),
 ce qui permet de se familiariser avec les concepts et la pratique dans un cadre simple.
         
 ************************
@@ -614,7 +632,7 @@ Quiz
 
 
 ************************
-S2: MapReduce et CouchB
+S2: MapReduce et CouchDB
 ************************
 
 .. admonition:: Supports complémentaires
@@ -664,8 +682,8 @@ pouvoir tester le MapReduce de CouchDB grâce à l'interface de définition
 de ces vues temporaires
 
 Accédez à l'interface d'administration de CouchDB à l'URL ``_utils``,
-puis choisissez la base des films (que vous devez avoir chargé au cours d'un
-exercice précédent). Vous devriez avoir l'affichage de la
+puis choisissez la base des films (que vous devez avoir chargé 
+en expérimentant Docker). Vous devriez avoir l'affichage de la
 :numref:`couch-films`.
 
 .. _couch-films:
@@ -728,7 +746,7 @@ de la :numref:`couch-runview`.
       Définition et test d'une vue 
 
 .. important:: Pour être sûr d'activer la fonction de Reduce, cochez la case
-   "Reduce" dans l'interface de CouchDB. Cette case se trouve dans la fenietre des options
+   "Reduce" dans l'interface de CouchDB. Cette case se trouve dans la fenêtre des options
    (montrée sur la :numref:`couch-runview`).
    
 Un deuxième exemple: la vue produit la liste des acteurs (c'est la clé),
@@ -780,9 +798,6 @@ Mise en pratique
         pour chaque année la liste des titres de ces films.
       - Donnez, pour chaque metteur en scène, la liste des films qu'il a réalisés.
 
-    }
-
-
 ****************************************************
 S3: Spécification de traitements distribués avec Pig
 ****************************************************
@@ -792,27 +807,34 @@ S3: Spécification de traitements distribués avec Pig
     * `Diapositives: Le langage Pig latin <http://b3d.bdpedia.fr/files/slpig.pdf>`_
     * `Vidéo de la session Pig latin <https://mediaserver.lecnam.net/permalink/v125f35a4214383v9nvp/>`_  
 
-MapReduce est  un système orienté vers les développeurs qui doivent concevoir et
+MapReduce est  un système initialement orienté vers les développeurs qui doivent concevoir et
 implanter la composition de plusieurs *jobs* pour des algorithmes
 complexes qui ne peuvent s'exécuter en une seule phase. Cette caractéristique
-rend également les systèmes MapReduce difficilement accessibles
-à des non-programmeurs.
+rend les systèmes MapReduce difficilement accessibles
+à des non-programmeurs. De plus, disposer seulement de deux opérateurs 
+assez rudimentaires n'est pas très satisfaisant pour des traitements complexes.
 
-La définition de langages de plus haut niveau permettant de spécifier
-des opérations complexes sur les données est donc apparue comme une nécessité dès
-les premières versions de systèmes comme Hadoop. L'initiative est souvent
+Très tôt après l'apparition des premières versions de systèmes MapReduce
+comme Hadoop sont apparus des propositions visant
+d'une part à définir  des langages de plus haut niveau permettant de spécifier
+des opérations complexes sur les données en limitant la programmation,
+et d'autre d'étendre la collection des opérateurs disponibles.
+L'initiative est souvent
 venue de communautés familières des bases de données et désirant retrouver
 la simplicité et la "déclarativité" du langage SQL, transposées dans
 le domaine des chaînes de traitements pour données massives.
 
-Cette section présente le langage Pig latin, une des premières tentatives
+Avant d'étudier un système complet avec Spark,
+nous commençons ici avec le langage Pig latin, une des premières tentatives
 du genre, une des plus simples, et surtout l'une des plus représentatives
 des opérateurs de manipulation de données qu'il est possible d'exécuter
-sous forme de *jobs* MapReduce en conservant la scalabilité et la
+sous forme de chaînes de traitement conservant la scalabilité et la
 gestion des pannes.
 
 Pig latin (initialement développé par un laboratoire Yahoo!) est
-un projet Apache disponible à http://pig.apache.org. Vous avez (au moins) deux possibilités
+un projet Apache disponible à http://pig.apache.org. Il n'évolue
+plus depuis longtemps mais la version finale est suffisante
+pour tester l'effet des opérateurs. Vous avez (au moins) deux possibilités
 pour l'installation.
 
   - Utilisez la machine Docker https://hub.docker.com/r/hakanserce/apache-pig/
@@ -990,13 +1012,17 @@ sur le contenu et la structure. Dans une même collection peuvent ainsi
 cohabiter des documents de structure très différente.
 
 
-**Application de fonctions**. Un des besoins récurrents dans les chaînes de traitement est
-d'appliquer des fonctions pour annoter, restructurer ou enrichir le contenu des documents passant
+**Application de fonctions**. Souvenez-vous
+de la notion *d'opérateur de second ordre*: ils
+prennent en argument des fonctions à appliquer 
+à une collection. Ces fonctions servent à annoter, restructurer ou enrichir le 
+contenu des documents passant
 dans le flux. Ici, la collection finale ``avg_nb`` est obtenue en appliquant une fonction standard ``count()``. 
 Dans le cas général, on applique des fonctions applicatives intégrées au contexte d'exécution Pig:
-*ces fonctions utilisateurs (User Defined Functions ou UDF) sont le moyen privilégié de combiner
-les opérateurs d'un langage comme Pig avec une application effectuant des traitements sur les documents*.
-L'opérateur ``foreach/generate`` permet cette combinaison.
+*ces fonctions utilisateurs* (User Defined Functions ou UDF) 
+sont appliquées par les opérateurs de second ordre d'un langage comme Pig 
+à de grandes collections, en mode distribué, et avec gestion
+des pannes.
 
 Les opérateurs
 ==============
@@ -1561,15 +1587,15 @@ Commençons par un exercice-type commenté.
    On considère des documents représentant des articles ou ouvrages de recherche, avec la liste de leurs auteurs. Voici le
    format d'après un exemple.
    
-    .. code-block:: javascript
+    .. code-block:: json
     
-      { 
-        "type": "Book",
-        "title": "Bases de données distribuées",
-        "year": 2020,
-        "publisher": "Cnam", 
-        "authors": ["R. Fournier-S'niehotta", P. Rigaux", "N. Travers"]
-      }
+        { 
+          "type": "Book",
+          "title": "Bases de données distribuées",
+          "year": 2020,
+          "publisher": "Cnam", 
+          "authors": ["R. Fournier-S'niehotta", "P. Rigaux", "N. Travers"]
+        }
 
    On veut calculer, pour chaque trio d'auteurs (x, y, z), le nombre d'articles que
    ces trois auteurs ont co-signés. Précisions: si les auteurs d'un article sont un sur-ensemble

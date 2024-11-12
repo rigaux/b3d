@@ -4,8 +4,6 @@
 Pig : Travaux pratiques
 #######################
 
-Rappel : le cours se trouve là : :ref:`chap-calcdistr`
-
 *******************************************
 Première partie : analyse de flux multiples
 *******************************************
@@ -202,13 +200,13 @@ Allons-y pour des programmes Pig traitant ces données.
 Deuxième partie : analyse de requêtes
 *************************************
 
-.. Cet exercice est basé sur le tutoriel fourni avec Pig, sur le `site officiel
-   <https://pig.apache.org/docs/r0.7.0/tutorial.html>`. 
+.. note:: Cet exercice est basé sur le tutoriel fourni avec Pig, sur le site officiel
+   https://pig.apache.org/docs/r0.7.0/tutorial.html. 
 
 L'objectif est d'aller significativement plus loin avec Pig, en procédant à de
 l'analyse de données. On va utiliser un fichier de logs du moteur de recherche
-Excite. C'était un portail de recherche très utilisé avant l'an 2000, beaucoup
-moins maintenant. Il est accessible à l'adresse suivante : http://msxml.excite.com/. 
+Excite. C'était un portail de recherche très utilisé avant l'an 2000
+et l'arrivée de Google. 
 Nos données sont donc les requêtes qui ont été soumises à ce moteur pendant une
 journée, en 1997. 
 
