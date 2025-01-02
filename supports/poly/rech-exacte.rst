@@ -376,7 +376,7 @@ serveur Web, il parle le HTTP et manipule des ressources (:numref:`CouchDB`).
    
       Architecture (simplifiée) de CouchDB
 
-Je vous revoie au chapitre :ref:`chap_docker`  pour l'installation de CouchDB,
+Je vous revoie au chapitre :ref:`chap-docker`  pour l'installation de CouchDB,
 le chargement d'une base et l'interaction avec le serveur, soit via cUrl,
 soit via l'interface graphique disponible à  http://admin:admin@localhost:5984/_utils
      

@@ -871,7 +871,7 @@ transformées et enrichies.
 
 Pour être concrets, nous allons prendre l'exemple (classique) d'un traitement s'appliquant 
 à une collection de documents textuels et déterminant la *fréquence
-des termes dans les documents* (indicateur TF, cf. :ref:`chap-ranking`). Pour chaque terme présent dans la collection,
+des termes dans les documents* (indicateur TF, cf. :ref:`chap-introri`). Pour chaque terme présent dans la collection,
 on doit donc obtenir le nombre d'occurrences.
 
 Le principe de localité des données
@@ -1496,10 +1496,10 @@ Exercices
               return ({date, categ}, sum(prix));
             }
 
-.. __Ex-mapred-3:
-.. admonition:: Exercice `_Ex-mapred-3`_:  algèbre linéaire distribuée
+.. _Ex-mapred-3:
+.. admonition:: Exercice `Ex-mapred-3`_:  algèbre linéaire distribuée
 
-    Nous disposons le calcul d'algèbre linéaire du chapitre `chap-mapreduce`_. On a donc
+    Nous disposons du calcul d'algèbre linéaire du chapitre :ref:`chap-mapreduce`. On a donc
     une matrice *M* de dimension :math:`N \times N`
     représentant les liens entres les :math:`N`  pages du Web, chaque lien étant
     qualifié par un facteur d'importance (ou "poids"). La matrice est représentée par une

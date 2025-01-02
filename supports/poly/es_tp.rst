@@ -799,7 +799,7 @@ trace de documentation de cette fonction semble être
 ici (me dire si vous trouvez plus récent): 
 https://www.elastic.co/guide/en/elasticsearch/guide/current/practical-scoring-function.html>.
 On retrouve les notions de *tf*,  *idf* et *normalisation* 
-présentées dans le chapitre :ref:`chap-ranking`, mais avec des formules  
+présentées dans le chapitre :ref:`chap-introri`, mais avec des formules  
 (légèrement) différentes des versions
 canoniques: chaque système fait sa petite cuisine
 pour essayer d'arriver au meilleur résultat. 

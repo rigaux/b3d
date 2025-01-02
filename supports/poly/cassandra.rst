@@ -642,7 +642,7 @@ le schéma d'une table. La syntaxe complète est ci-dessous:
       )
 
 
-.. _cass-schema-table:
+.. _cassandra_chebotko:
 .. figure:: ../figures/cassandra_chebotko.png
       :width: 60%
       :align: center

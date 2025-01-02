@@ -351,7 +351,7 @@ en termes informatiques.
    mais il est également tout à fait autorisé de l'exécuter 
    sur une seule machine en deux étapes. C'est le scénario que nous adoptons
    pour l'instant, jusqu'au moment où nous
-   aborderons les calculs distribués dans le chapitre :ref:`chap-calcdistr`. 
+   aborderons les calculs distribués. 
 
 Le principe de MapReduce est ancien et provient de la programmation fonctionnelle. Il se résume
 ainsi: étant donné une collection *d'items*, on applique à chaque item

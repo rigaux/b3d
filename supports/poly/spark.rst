@@ -11,7 +11,7 @@ puissantes que le simple MapReduce des origines, toujours disponible dans
 l'écosystème Hadoop.
 
 Ces fonctionnalités consistent notamment en un ensemble d'opérateurs de second
-ordre (voir cette notion dans le chapitre :ref:`chap-calcdistr`) qui étendent
+ordre (voir cette notion dans le chapitre :ref:`chap-cloud`) qui étendent
 considérablement la simple paire constituée du Map et du Reduce. Nous avons eu
 un aperçu de ces opérateurs avec Pig, qui reste cependant lié  à un contexte
 d'exécution MapReduce (un programme Pig est compilé et exécuté comme une
@@ -767,7 +767,7 @@ vous avez les éléments pour répondre: une *étape* dans Spark regroupe un ens
 qu'il est possible d'exécuter *localement*, sur une seule machine, sans avoir à efectuer des
 échanges réseau. C'est une généralisation de la phase de *Map* dans un environnement MapReduce.
 Les étapes sont logiquement séparées par des phases de *shuffle* qui consistent à redistribuer
-les données afin de les regrouper selon certains critères. Relisez le chapitre :ref:`chap-calcdistr`
+les données afin de les regrouper selon certains critères. Relisez le chapitre :ref:`chap-cloud`
 pour revoir vos bases du calcul distribué si ce n'est pas clair.
 
 Quand le traitement s'effectue sur des données partitionnées, une *étape* est effectuée en parallèle

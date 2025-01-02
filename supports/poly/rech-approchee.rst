@@ -9,15 +9,15 @@ Recherche approchée
      * Un cours complet en ligne (en anglais) et accompagné d'un ouvrage de
        référence : http://www-nlp.stanford.edu/IR-book/. *Certaines parties du
        cours empruntent des exemples à ce livre*.
-  
+
 *********************************************
 S1: introduction à la recherche d'information
 *********************************************
 
 .. admonition:: Supports complémentaires:
 
-      * `Présentation: Introduction à la recherche d'information <http://b3d.bdpedia.fr/files/slri-intro-principes.pdf>`_
-      * `Vidéo de la session Introduction RI - principes <https://mediaserver.lecnam.net/permalink/v125f5947d4c11yianvt/>`_  
+	* `Présentation: Introduction à la recherche d'information <http://b3d.bdpedia.fr/files/slri-intro-principes.pdf>`_
+	* `Vidéo de la session Introduction RI - principes <https://mediaserver.lecnam.net/permalink/v125f5947d4c11yianvt/>`_
 
 Qu'est ce que la recherche d'information
 ========================================
@@ -40,16 +40,15 @@ sûr, mais aussi les systèmes d'information d'entreprise). Les techniques
 utilisées ont également beaucoup progressé, avec des  résultats spectaculaires.
 La RI est maintenant omniprésente dans beaucoup d'environnements informatiques, 
 et notamment:
- 
-  * La recherche sur le Web, utilisée quotidiennement par des milliards d'utilisateurs,
-  * La recherche de messages dans votre boîte mail,
-  * La recherche de fichiers sur votre ordinateur (*Spotlight*),
-  * La recherche de documents dans une base documentaire, publique ou privée,
-  
+
+  * la recherche sur le Web, utilisée quotidiennement par des milliards d'utilisateurs;
+  * la recherche de messages dans votre boîte mail;
+  * la recherche de fichiers sur votre ordinateur (*Spotlight*);
+  * la recherche de documents dans une base documentaire, publique ou privée.
+
 Ce chapitre introduit ces différents aspects en se concentrant sur la recherche
 d'information appliquée à des collections de documents structurés, comprenant
-des parties textuelles importantes. 
-
+des parties textuelles importantes.
 
 Précision et  rappel
 ====================

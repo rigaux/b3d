@@ -57,8 +57,8 @@ Avant d'interroger la base de données, il nous la créer. Pour commencer :
 
   .. code-block:: sql
 
-    CREATE KEYSPACE IF NOT EXISTS resto_NY 
-       WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor': 1};
+      CREATE KEYSPACE IF NOT EXISTS resto_NY 
+         WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor': 1};
 
 Nous créons ainsi une base de données *resto_NY* pour laquelle le facteur de réplication 
 est mis à 1, ce qui suffit dans un cadre centralisé. 
