@@ -38,7 +38,7 @@ d'un document (unité d'information).
   \item le serveur écrit le document sur le disque\,; 
   \item \alert{$S_1$ transmet la demande d'écriture à un ou plusieurs autres serveurs $S_2, \ldots, S_n$}, créant
      des \alert{replicas} ou \alert{copies}\,;
-  \item $S_1$ ``rend la main'' au client.
+  \item $S_1$ ``rend la main'' au client (acquittement)
 \end{redbullet}
 
 Essentiel, réplication synchrone/asynchrone\,?
@@ -69,7 +69,7 @@ Technique universellement utilisée en centralisé
 
 \vfill
 
-Permet de se ramener à des entrées/sorties \alert{séquentielles}.
+Permet de se ramener à des entrées/sorties \alert{séquentielles}
 
 \end{frame}
 
@@ -85,7 +85,7 @@ Le client est acquitté quand \alert{tous} les serveurs ont effectué l'écritur
 
 \vfill
 
-Sécurité totale; cohérence forte; \alert{très lent}.
+Sécurité totale; cohérence forte; \alert{plus lent}.
 
 \end{frame}
 
@@ -101,7 +101,7 @@ Le client est acquitté quand \alert{un} des serveurs a effectué l'écriture. L
 
 \vfill
 
-Sécurité partielle; cohérence faible; \alert{Efficace}.
+Sécurité partielle; cohérence faible; \alert{efficace}.
 
 \end{frame}
 
@@ -133,7 +133,6 @@ La cohérence est la capacité d’un système de gestion de données à reflét
 
 \end{frame}
 
-
 \begin{frame}
 \frametitle{Soyons cohérents (ou pas...)}
 
@@ -155,6 +154,46 @@ Plusieurs niveaux de cohérence dans les systèmes distribués / NoSQL.
 Les systèmes NoSQL dans l'ensemble abandonnent la cohérence forte pour
 favoriser la réplication asynchrone, et donc le débit en écriture/lecture.
 \end{remblock}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Le principe du quorum}
+
+On peut gérer la cohérence plus finement grâce au paramétrage suivant\,:
+
+\vfill
+
+\begin{redbullet}
+  \item $W$ le nombre *d'écritures* synchrones avant acquittement au client
+   
+  \item $R$ le nombre de *lectures*  synchrones avant acquittement au client par renvoi de la copie la plus récente
+
+  \item $RF$ le facteur de réplication.
+\end{redbullet}
+
+$W$ et $R$ varient entre 1 et $RF$
+\vfill
+
+\begin{remblock}{Critère de cohérence forte}
+La cohérence forte est assurée si $R + W > RF$.
+\end{remblock}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Illustration du quorum}
+
+Avec $W=2$, $R=3$ et $RF=4$.
+
+\vfill
+
+\figSlideWithSize{replication-quorum}{11cm}
+
+\vfill
+$\Rightarrow$ toute lecture accèdera à \alert{au moins}
+une des versions cohérentes.
 
 \end{frame}
 

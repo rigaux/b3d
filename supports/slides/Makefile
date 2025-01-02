@@ -116,16 +116,6 @@ fulltextsearch:
 	mv generic-slides.pdf ../ressources-web/slfulltextsearch.pdf
 	make clean
 
-pagerank: 
-	pdflatex  "\newcommand\titreDiapos{L'algorithme PageRank}\newcommand\inputFile{pagerank}\input{generic-slides}"
-	mv generic-slides.pdf ../ressources-web/slpagerank.pdf
-	make clean
-
-cloudold: 
-	pdflatex -shell-escape -interaction=nostopmode "\newcommand\titreDiapos{Cloud et scalabilit\'e}\newcommand\inputFile{cloud}\input{generic-slides}"
-	mv generic-slides.pdf ../ressources-web/slcloud.pdf
-	make clean
-	
 cloud:
 	pdflatex   -shell-escape "\newcommand\titreDiapos{Cloud et scalabilit\\'e}\newcommand\inputFile{cloud}\input{genslides}"
 	mv genslides.pdf ../ressources-web/slcloud.pdf
@@ -177,7 +167,7 @@ cassdistrib:
 	make clean
 
 mapred: 
-	pdflatex  -shell-escape  "\newcommand\titreDiapos{Map Reduce}\newcommand\inputFile{pig}\input{genslides}"
+	pdflatex  -shell-escape  "\newcommand\titreDiapos{Map Reduce}\newcommand\inputFile{mapred}\input{genslides}"
 	mv genslides.pdf ../ressources-web/slmapred.pdf
 	make clean
 

@@ -1,0 +1,1498 @@
+
+<!DOCTYPE html>
+
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
+    <title>Le cloud, une nouvelle machine de calcul &#8212; Bases de données documentaires et distribuées v&lt;release&gt; - Cours CNAM NFE204</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/agogo.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/translations.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Recherche" href="search.html" />
+    <link rel="next" title="Systèmes NoSQL: la réplication" href="replication.html" />
+    <link rel="prev" title="Pig : Travaux pratiques" href="pigtp.html" /> 
+  </head><body>
+    <div class="header-wrapper">
+      <div class="header">
+        <div class="headertitle"><a
+          href="index.html">Le &lt;em&gt;cloud&lt;/em&gt;, une nouvelle machine de calcul</a></div>
+        <div class="rel">
+          <a href="pigtp.html" title="Pig : Travaux pratiques"
+             accesskey="P">précédent</a><font color="white"> |</font>
+          <a href="replication.html" title="Systèmes NoSQL: la réplication"
+             accesskey="N">suivant</a><font color="white"> |</font>
+          <a href="genindex.html" title="Index général"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+<script type="text/javascript" src="_static/dynsite.js"></script>
+
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="le-cloud-une-nouvelle-machine-de-calcul">
+<span id="chap-cloud"></span><h1>Le <em>cloud</em>, une nouvelle machine de calcul<a class="headerlink" href="#le-cloud-une-nouvelle-machine-de-calcul" title="Lien permanent vers ce titre">¶</a></h1>
+<p>Jusqu’à présent nous avons considéré le cas de la gestion de documents
+(ou plus généralement d’objets semi-structurés sérialisés) dans le contexte
+classique d’une unique machine tenant le rôle de serveur de données, et
+communiquant avec des applications clientes. Le serveur dispose d’un CPU,
+de mémoire RAM, d’un ou plusieurs disques pour la persistance. C’est une architecture
+classique, courante, facile à comprendre. Elle permet de se pencher sur
+des aspects importants comme la modélisation des données, leur indexation, la
+recherche.</p>
+<p><strong>La problématique</strong>.
+Nous envisageons maintenant la problématique de la <em>scalabilité</em> et les
+méthodes pour l’aborder et la résoudre. Pour parler en termes intuitifs (pour l’instant)
+la scalabilité est la capacité d’un système à s’adapter à une croissance non bornée
+de la taille des données (nous parlons de données, et de traitements sur les données,
+c’est restrictif et voulu car c’est le sujet du cours). Cette croissance, si nous ne lui envisageons
+pas de limite,   finit <em>toujours</em> par dépasser les capacités d’une seule machine.
+Si c’est en mémoire RAM, cette capacité se mesure au mieux en TeraOctets (TOs);
+si c’est sur le disque, en dizaines de TéraOctets. Même si on améliore les composants
+physiques, toujours viendra le moment où le serveur individuel sera saturé.</p>
+<p>Un moyen de gérer la scalabilité est d’ajouter des machines au système, et d’en
+faire donc un <em>système distribué</em>. Cela ne va pas sans redoutables complications
+car il faut s’assurer de la bonne coopération des machines pour assumer une tâche commune.
+Cette méthode est aussi celle qui est privilégiée aujourd’hui pour faire face
+au déluge de production des données numériques (et de leurs utilisateurs). Nous en proposons
+dans ce qui suit une présentation qui se veut suffisamment exhaustive pour couvrir
+les techniques les plus couramment utilisées, en les illustrant par quelques
+systèmes représentatifs.</p>
+<p><strong>Une nouvelle perspective.</strong>
+Un mot, avant de rentrer dans le gras, sur le titre du chapitre qui fait référence
+au <em>cloud</em>, considéré comme un outil d’allocation de machines à la demande. Reconnaissons
+tout de suite que c’est un peu réducteur car le <em>cloud</em> a d’autres aspects, et on peut y recourir pour
+disposer d’une seule machine sans envisager la dimension de la scalabilité. Il
+serait plus correct de parler de <em>grappe de serveurs</em> mais c’est plus long.</p>
+<p>Donc assumons le terme, dans une perspective générale qui définit <em>le cloud
+comme une nouvelle machine de calcul à part entière, élastique et scalable, apte
+à prendre en charge des masses de données sans cesse croissantes.</em>
+La première session va introduire cette perspective d’ensemble, et nous commencerons
+ensuite une investigation systématique de ses possibilités.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Rappelons qu’un MégaOctet (MO), c’est <span class="math notranslate nohighlight">\(10^6\)</span> octets; un GigaOctet (GO) c’est
+<span class="math notranslate nohighlight">\(10^9\)</span> octets soit 1 000 MOs;  un TéraOctet (TO) c’est <span class="math notranslate nohighlight">\(10^{12}\)</span> octets (1 000 GOs);
+un PétaOctet (PO) c’est <span class="math notranslate nohighlight">\(10^{15}\)</span> octets, 1 000 TOs. Le PO, c’est l’unité
+du volume de données gérés par les applications à l’échelle du Web.
+Pas besoin d’aller au-delà pour l’instant!</p>
+</div>
+<section id="s1-cloud-et-donnees-massives">
+<h2>S1: <em>cloud</em> et données massives<a class="headerlink" href="#s1-cloud-et-donnees-massives" title="Lien permanent vers ce titre">¶</a></h2>
+<p>Supports complémentaires:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference external" href="http://b3d.bdpedia.fr/files/slcloud.pdf">Présentation: Cloud et données massives</a></p></li>
+<li><p><a class="reference external" href="https://mediaserver.lecnam.net/permalink/v125f35a3b11a2rwjfdo/">Vidéo de la session Cloud</a></p></li>
+</ul>
+</div></blockquote>
+<p>Ce chapitre  envisage le <em>cloud</em> comme une nouvelle machine de calcul en tant
+que telle, qui se distingue de celles que nous utilisons tous les jours
+par le fait qu’elle est constituée de composants autonomes (les serveurs) communiquant par réseau.
+Sur cette machine globale se déploient des logiciels dont la caractéristique commune est de tenter
+d’utiliser au mieux les ressources de calcul et de stockage disponible, de s’adapter
+à leur évolution (ajout/retrait de machines, ou pannes) et accessoirement de faciliter
+la tâche des utilisateurs, développeurs et administrateurs du système.</p>
+<section id="vision-generale">
+<h3>Vision générale<a class="headerlink" href="#vision-generale" title="Lien permanent vers ce titre">¶</a></h3>
+<p>La  <a class="reference internal" href="#cloud"><span class="std std-numref">Fig. 51</span></a>  résume la vision sur laquelle nous allons nous appuyer
+pour l’étude des systèmes distribués.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Je rappelle une dernière fois pour ne plus avoir à le préciser ensuite: la
+perspective adoptée ici est celle de la gestion de <em>données</em> massives. Les grilles
+de calcul par exemple n’entrent pas dans ce contexte. Autre rappel: ces données
+sont des unités d’information autonomes et identifiables que nous appelons <em>documents</em>
+pour faire simple.</p>
+</div>
+<p>La figure montre une organisation en couches allant du matériel à l’applicatif. Ces couches reprennent
+l’architecture classique d’un système orienté données: stockage et calcul au niveau bas,
+système de gestion de données au-dessus de la couche matérielle, interfaces d’accès au données
+ou de traitement analytique, et enfin applications s’appuyant sur ces interfaces pour la
+partie de leurs tâches relative aux accès et à la manipulation des données.</p>
+<p>Qui dit architecture en  couche dit <em>abstraction</em>. Idéalement, chaque couche prend en charge
+des problèmes techniques pour épargner à la couche supérieure d’avoir à s’en soucier. Un SGBD
+relationnel par exemple gère l’accès aux disques, la protection des données, la reprise sur panne,
+la concurrence d’accès, en isolant les applications de ces préoccupations qui leur compliqueraient
+considérablement la tâche. Les deux couches intermédiaires de notre architecture tiennent
+un rôle similaire.</p>
+<figure class="align-center" id="id3">
+<span id="cloud"></span><a class="reference internal image-reference" href="_images/cloud.png"><img alt="_images/cloud.png" src="_images/cloud.png" style="width: 90%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 51 </span><span class="caption-text">Perspective générale sur les systèmes distribués dans un <em>cloud</em></span><a class="headerlink" href="#id3" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>Pour bien comprendre en quoi ce rôle a des aspects particuliers dans le cadre d’un système distribué à grande
+échelle, commençons par la couche matérielle qui va principalement nous occuper dans
+ce chapitre.</p>
+<section id="la-couche-materielle">
+<h4>La couche matérielle<a class="headerlink" href="#la-couche-materielle" title="Lien permanent vers ce titre">¶</a></h4>
+<p>Notre figure montre une couche matérielle constituée de serveurs reliés par un réseau. Chaque serveur
+dispose d’un  processeur (souvent multi cœurs), d’une mémoire centrale à accès direct (RAM)
+et d’un ou plusieurs supports de stockage persistant, les disques.</p>
+<p>Dans une grappe de serveur, les machines sont dotées de composants de base (soit essentiellement
+la carte mère, les disques et la connectique) et dépourvues de tous les petits accessoires
+des ordinateurs de bureau (clavier, souris, lecteur DVD, etc.). De plus, les composants utilisés
+sont souvent de qualité moyenne voire médiocre afin de limiter les coûts. On parle de
+<em>commodity server</em> dans le jargon du milieu. C’est un choix qui peut se résumer
+ainsi: <em>on préfère avoir beaucoup de serveurs de qualité faible que quelques serveurs
+de très bonne qualité</em>. Il a des conséquences
+très importantes, et notamment:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>le faible coût des serveurs permet d’en ajouter facilement à la demande, et d’obtenir
+la scalabilité souhaitée;</p></li>
+<li><p>d’un autre côté la qualité médiocre des composants implique un taux de panne relativement
+élevé; <em>c’est un facteur essentiel qui impacte toutes les couches du système distribué</em>.</p></li>
+</ul>
+</div></blockquote>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Dans les environnements de <em>cloud</em> proposés sous forme de service, les serveurs
+sont le plus souvent créés par <em>virtualisation</em> ce qui apporte plus de flexibilité pour
+la gestion du service mais impacte (modérément) les performances. Comme on ne peut pas
+parler de tout, on va ignorer cette option ici. Vous êtes maintenant familiarisés avec
+l’utilisation de Docker: imaginez ce que cela donne, en terme d’administration,
+si vous ne disposez pas d’une machine mais de quelques centaines ou milliers.</p>
+</div>
+<p>Les serveurs sont empilés
+dans des baies spéciales (<em>rack</em>) équipées pour leur fournir l’alimentation, la connexion réseau
+vers la grappe de serveur, la ventilation. La  <a class="reference internal" href="#rack-and-server"><span class="std std-numref">Fig. 52</span></a> montre un serveur
+et une baie typiques.</p>
+<figure class="align-center" id="id4">
+<span id="rack-and-server"></span><a class="reference internal image-reference" href="_images/rack-and-server.png"><img alt="_images/rack-and-server.png" src="_images/rack-and-server.png" style="width: 90%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 52 </span><span class="caption-text">Un serveur et une baie de serveurs.</span><a class="headerlink" href="#id4" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>Enfin, les baies sont alignées les unes à côté des autres dans de grands hangars
+(les fameux <em>data centers</em>, ou grappes de serveurs), illustrés par la  <a class="reference internal" href="#google-server-farm"><span class="std std-numref">Fig. 53</span></a>.</p>
+<figure class="align-center" id="id5">
+<span id="google-server-farm"></span><a class="reference internal image-reference" href="_images/google-server-farm.jpg"><img alt="_images/google-server-farm.jpg" src="_images/google-server-farm.jpg" style="width: 90%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 53 </span><span class="caption-text">Une grappe de serveurs.</span><a class="headerlink" href="#id5" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>Les baies sont connectées les unes aux autres grâce à des routeurs, et la grappe de serveur
+est elle-même connectée à l’Internet par un troisième niveau de connexion (après ceux intra-baie,
+et inter-baies). On obtient une connectique dite « hiérarchique » qui joue un rôle
+dans la gestion des données massives.</p>
+<p>Voici quelques ordres de grandeur pour se faire une idée de l’infrastructure matérielle
+d’un système à grande échelle:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>une baie contient quelques dizaines de serveurs, typiquement une quarantaine;</p></li>
+<li><p>les grappes de serveurs peuvent atteindre des centaines de baies: 100 baies =
+env. 4000 serveurs = des PétaOctets de stockage.</p></li>
+<li><p>les grandes sociétés comme Google, Facebook, Amazon ont depuis longtemps dépassé
+le cap du million de serveurs: essayez d’en savoir plus si cela vous intéresse (pas si facile).</p></li>
+</ul>
+</div></blockquote>
+<p>Pas besoin d’atteindre cette échelle pour commencer à faire du distribué: quelques machines (2
+au minimum…) et on a déjà mis le pied dans la porte. Intervient alors la notion d”<em>élasticité</em>
+étroitement liée au <em>cloud</em>: étant donnée l’abondance de ressources, il est très facile
+d’allouer une ou plusieurs nouvelles machines à notre système. Si ce dernier est conçu de manière
+à être <em>scalable</em> (définition plus loin) il n’y a virtuellement pas de limite à l’accroissement
+de sa capacité matérielle.</p>
+<p>Il faut souligner que dans l’infrastructure que nous présentons, la dépendance entre
+les serveurs est réduite au minimum. Ils ne partagent pas de mémoire ou de périphériques, et leur
+seul moyen de communiquer est l’échange de messages (<em>message passing</em>). Cela implique
+que si un serveur tombe en panne, l’impact reste local.</p>
+</section>
+<section id="gare-a-la-panne">
+<h4>Gare à la panne<a class="headerlink" href="#gare-a-la-panne" title="Lien permanent vers ce titre">¶</a></h4>
+<p>Une des conséquences importantes d’une infrastructure basée sur
+des serveurs à faible coût est la fréquence des <em>pannes</em> affectant le système. Ces pannes
+peuvent être matérielles, logicielles, ou liées au réseau. Elles sont temporaires (un composant
+ne répond plus pendant une période plus ou moins courte, puis réapparaît - typique des problèmes
+réseau) ou permanentes (un disque qui devient inutilisable).</p>
+<p>La fréquence d’une panne est directement liée au nombre de composants. Si, pour prendre
+un exemple classique, un disque tombe en panne en moyenne tous les 10 ans, on aura
+affaire (en moyenne) à une panne par an avec 10 disques, et une panne par jour
+à partir de quelques milliers de disques ! Il ne s’agit que d’une moyenne: si tous les
+matériels ont été acquis au même moment, ils auront tendance à tomber en panne à peu
+près dans la même période.</p>
+<p>L’ensemble du système distribué doit être conçu pour tolérer ces pannes et continuer
+à fonctionner, éventuellement en mode dégradé. La principale méthode pour faire face
+à des pannes est la <em>redondance</em>: on duplique par exemple systématiquement</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>les données (sur des disques différents!) pour pallier les défaillances de disque;</p></li>
+<li><p>les composants logiciels dont le rôle est vital et dont la défaillance
+impliquerait l’arrêt complet du système (<em>single point of failure</em>) sont également
+dupliqués, l’un d’eux assurant la tâche et le (ou les) autre(s) étant prêts
+à prendre la relève en cas de défaillance.</p></li>
+</ul>
+</div></blockquote>
+<p>Par ailleurs, le système doit être équipé d’un mécanisme de détection des pannes
+pour pouvoir appliquer une méthode de reprise et assurer la disponibilité permanente.
+En résumé, les pannes et leur gestion automatisée constituent un des soucis majeurs
+dans les environnements <em>Cloud</em>.</p>
+</section>
+</section>
+<section id="systemes-distribues">
+<h3>Systèmes distribués<a class="headerlink" href="#systemes-distribues" title="Lien permanent vers ce titre">¶</a></h3>
+<p>La couche logicielle qui exploite les ressources d’une ferme de serveur
+constitue un <em>système distribué</em>. Son rôle est de coordonner les actions
+de plusieurs ordinateurs connectés par un réseau, en vue d’effectuer  une tâche commune.
+Les systèmes NoSQL ont esentiellement en commun
+d’être des systèmes distribués dont la tâche principale est la
+gestion de grandes masses de données.</p>
+<section id="messages-et-protocole">
+<h4>Messages et protocole<a class="headerlink" href="#messages-et-protocole" title="Lien permanent vers ce titre">¶</a></h4>
+<p>Commençons par quelques caractéristiques communes et un peu de terminologie. Un système
+distribué est constitué de composants logiciels (des processus) que nous appellerons
+<em>nœuds</em>. En règle générale, on trouve un nœud sur chaque machine, mais ce n’est pas une obligation.</p>
+<p>Ces nœuds
+sont interconnectés par réseau et communiquent par <em>échange de messages</em>. La
+connexion au réseau s’effectue par un port numéroté. Dans le cas du Web
+par exemple (le système distribué le plus connu et le plus fréquenté!), le port est en général
+le port 80. Rien n’empêche d’avoir plusieurs nœuds sur une même machine,
+mais il faut dans ce cas associer à chacun un numéro de port différent. La
+configuration du système distribué consiste à énumérer la liste des nœuds
+participants, référencés par l’adresse de la machine et le numéro de port.</p>
+<p>Le format des messages obéit à un certain protocole que nous n’avons pas
+à connaître en général. Certains systèmes utilisent le protocole HTTP
+(par exemple CouchDB, ou Elastic Search pour son interface REST),
+ce qui présente l’avantage d’une très bonne intégration au Web et une normalisation
+de fait (des librairies HTTP existent dans tous les langages),
+mais l’inconvénient d’une certaine lourdeur. La plupart des protocoles d’échange
+sont  spécifiques.</p>
+</section>
+<section id="clients-maitres-et-esclaves">
+<h4>Clients, maîtres et esclaves<a class="headerlink" href="#clients-maitres-et-esclaves" title="Lien permanent vers ce titre">¶</a></h4>
+<p>L’organisation du système distribué dépend des différents <em>types</em> de nœuds, de leur interconnexion et des
+relations possibles avec le nœud-client (l’application). Nous allons essentiellement rencontrer deux topologies,
+illustrées respectivement par la  <a class="reference internal" href="#client-master-slave"><span class="std std-numref">Fig. 54</span></a> et la  <a class="reference internal" href="#client-master"><span class="std std-numref">Fig. 55</span></a>.</p>
+<figure class="align-center" id="id6">
+<span id="client-master-slave"></span><a class="reference internal image-reference" href="_images/client-master-slave.png"><img alt="_images/client-master-slave.png" src="_images/client-master-slave.png" style="width: 90%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 54 </span><span class="caption-text">Une architecture avec maître-esclave</span><a class="headerlink" href="#id6" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>Dans la première, le système distribué est organisé selon une topologie <em>maître-esclave</em>. Un
+nœud particulier, le <em>maître</em>, tient un rôle central. Il  est
+notamment chargé des tâches administratives du système</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>ajouter un nœud, en supprimer un autre,</p></li>
+<li><p>surveiller la cohérence et la disponibilité du système,</p></li>
+<li><p>appliquer une méthode de reprise sur panne le cas échéant.</p></li>
+</ul>
+</div></blockquote>
+<p>Il est aussi souvent chargé de communiquer avec l’application cliente (qui constitue un troisième type de nœud).
+Dans une telle architecture, le nœud-maître communique avec les nœuds-esclaves, qui
+eux-mêmes peuvent communiquer entre eux. Un client qui s’adresse au système distribué
+envoie ses requêtes au nœud-maître, et ce dernier peut le mettre en communication
+avec un ou plusieurs nœuds-esclaves. En revanche, un nœud-client ne peut pas
+transmettre une requête directement à un esclave, ce qui évite des problèmes de
+concurrence et de cohérence que nous aurons l’occasion  de détailler sur
+des exemples pratiques.</p>
+<p>Insistons sur le fait que les nœuds sont des composants <em>logiciels</em> (des processus
+qui tournent en tâche de fond)  hébergés par une machine. Il n’y a pas forcément
+de lien un-à-un entre un nœud et une machine. La  <a class="reference internal" href="#client-master-slave"><span class="std std-numref">Fig. 54</span></a> montre
+par exemple que le maître et un des esclaves sont hébergés par le serveur 1.
+En fait, tous les nœuds peuvent être sur une même machine. Le système reste distribué, mais
+pas vraiment scalable!</p>
+<figure class="align-center" id="id7">
+<span id="client-master"></span><a class="reference internal image-reference" href="_images/client-master.png"><img alt="_images/client-master.png" src="_images/client-master.png" style="width: 90%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 55 </span><span class="caption-text">Une architecture multi-nœuds</span><a class="headerlink" href="#id7" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>Dans la seconde topologie (plus rare), il n’y a plus ni maître ni esclave,
+et on parlera en général de (multi-)nœuds, voire de (multi-)serveurs (au sens logiciel du terme).
+Dans ce cas (<a class="reference internal" href="#client-master"><span class="std std-numref">Fig. 55</span></a>), le client peut indifféremment s’adresser à chaque
+nœud.</p>
+<p>Cette topologie a la mérite d’éviter d’avoir un nœud particulier (le maître) dont
+l’existence est indispensable pour le fonctionnement global du système. On parle pour un tel nœud
+de <em>point individuel de défaillance</em> (<em>single point of failure</em>), situation que l’on cherche à éviter
+en principe. Cela rend l’ensemble
+du système plus fragile que si tous les nœuds ont des rôles équivalents. Cela dit,
+une architecture avec un maître est plus facile à mettre en œuvre en pratique
+et nous la rencontrerons plus souvent, associée à des dispositifs pour protéger
+les tâches du nœud-maître.</p>
+</section>
+<section id="gestion-des-pannes-ou-failover">
+<h4>Gestion des pannes, ou <em>failover</em><a class="headerlink" href="#gestion-des-pannes-ou-failover" title="Lien permanent vers ce titre">¶</a></h4>
+<p>L’infrastructure à base de composants bon marché est soumise à des pannes fréquentes. Il est exclu
+de pallier ces pannes par la mobilisation permanente d’une armée d’ingénieurs système, et
+un caractère distinctif des systèmes distribués (et en particulier de ceux dits NoSQL)
+est d’être capable de fonctionner sans interruption en dépit des pannes, par application
+d’une méthode de reprise sur panne souvent désignée par le mot <em>failover</em>.</p>
+<p>En règle générale, la reprise sur panne s’appuie sur deux mécanismes génériques:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>un  des nœuds est chargé de surveiller en permanence l’ensemble des nœuds du système
+par envoi périodique de messages de contrôle (<em>heartbeat</em>); en cas d’interruption
+de la communication, on va considérer qu’une panne est intervenue;</p></li>
+<li><p>la méthode de reprise s’appuie sur la redondance des services et la réplication
+des données: pour tout composant fautif, on doit pouvoir trouver un autre composant
+doté des mêmes capacités.</p></li>
+</ul>
+</div></blockquote>
+<p>Signalons un cas épineux: celui d’un
+<em>partitionnement du réseau</em>. Dans un système avec <em>n</em> machines, on se retrouve avec
+deux sous-groupes qui ne communiquent plus, l’un constitué de <span class="math notranslate nohighlight">\(m\)</span> machines, l’autre des
+<span class="math notranslate nohighlight">\(n-m\)</span> autres machines.
+Que faire dans ce cas? Qui continue à fonctionner et comment?
+Nous verrons en détail les méthodes de réplication et de reprise pour quelques systèmes représentatifs.</p>
+</section>
+</section>
+<section id="les-systemes-de-stockage-distribues-dits-nosql">
+<h3>Les systèmes de stockage distribués, dits NoSQL<a class="headerlink" href="#les-systemes-de-stockage-distribues-dits-nosql" title="Lien permanent vers ce titre">¶</a></h3>
+<p>On peut considérer que les systèmes de gestion de données massives apparus depuis les années 2000,
+et collectivement
+regroupés sous le terme commode de « NoSQL », sont une réponse à la question: « <em>quel outil me
+permettrait de tirer parti de ma grappe de serveur pour mes données, en limitant au maximum
+les difficultés liés à la distribution et au parallélisme?</em> »</p>
+<p>Une solution tout à fait
+naturelle aurait été d’adopter les systèmes relationnels <em>distribués</em> qui existent depuis
+longtemps et ont fait leur preuve. Pour des raisons qui tiennent à la nature plus « documentaire »
+des données massives (voir le début de ce cours) et à la perception des lourdeurs de certains
+aspects des systèmes relationnels (jointures et transactions  notamment), un autre choix s’est  imposé. Il
+consiste à sacrifier certaines fonctionnalités (modèle, langage normalisé et puissament
+expressif, transactions)
+au profit de la capacité à se déployer dans un environnement distribué, à en tirer parti au
+mieux, à fournir une méthode de <em>failover</em> automatique,
+et à faire preuve d’élasticité pour monter en puissance par ajout de nouvelles
+ressources.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Le terme « NoSQL » est censé signifier quelque chose comme « <em>Not Only SQL</em> », soit
+l’idée que les systèmes relationnels ne sont pas bons à tout faire, et que certaines
+niches (dont la gestion de données à très grande échelle) imposent des choix différents
+(en fait, des sacrifices sur les fonctionnalités avancées: modèle de données, interrogation, cohérence).
+Aucune personne sensée ne prétend <em>remplacer</em> les systèmes relationnels dans la très grande majorité des applications, mais
+tous les systèmes NoSQL prétendent faire mieux en matière de scalabilité horizontale.</p>
+</div>
+<p>Les systèmes dits « NoSQL » sont extraordinairement variés. Un de leurs  points communs
+est d’être conçus explicitement pour une infrastructure <em>cloud</em> semblable à celle que
+nous avons décrite ci-dessus. On retrouve dans cette conception des principes récurrents
+que nous allons justement essayer de mettre en valeur dans tout ce qui suit. Résumons-les:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>capacité à exploiter de manière équilibrée un ensemble de machines en vue d’une tâche précise;</p></li>
+<li><p>capacité à détecter les pannes et à s’y adapter automatiquement;</p></li>
+<li><p>capacité à évoluer par ajout/suppression de nouvelles ressources matérielles, sans interruption de service.</p></li>
+</ul>
+</div></blockquote>
+<p>Il n’est pas question ici d’énumérer tous les systèmes existants. Ce serait laborieux, répétitif
+et fragile puisqu’il en apparaît (et peut-être disparaît) tous les jours.
+Ce qu’il faut retenir essentiellement, c’est que:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>ces systèmes fournissent nativement une adaptation à une infrastructure distribuée;</p></li>
+<li><p>les modèles de données sont principalement de nature documentaire (ceux que nous
+étudions principalement), graphe (réputés assez peu scalables) et …
+pas de modèle du tout: on stocke des chaînes d’octets !</p></li>
+<li><p>on peut distinguer les systèmes à orientation analytique (traitements longs appliqués
+à une partie significative des données à des fins statistiques) et temps réel (accès
+instantané, quelques millisecondes, à des unités d’informations/documents).</p></li>
+</ul>
+</div></blockquote>
+<p>Malgré le côté foisonnant de la scène NoSQL, tous s’appuient sur quelques principes
+de base que nous allons étudier dans la suite du cours; connaissant ces principes,
+il est plus facile de comprendre les systèmes. Une  précision très importante: aucune normalisation
+dans le monde du NoSQL. Choisir un système, c’est se lier les mains avec un modèle de données,
+un stockage, et une interface spécifique.</p>
+<p>Une dernière remarque pour finir: les systèmes NoSQL les plus sophistiqués (Cassandra par exemple) tendent lentement
+à évoluer vers une gestion de données structurées, équipée d’un langage d’interrogation qui rappelle furieusement SQL.
+Bref, on se dirige vers ce qui ressemble fortement à du relationnel distribué.</p>
+</section>
+<section id="les-systemes-de-calcul-distribues">
+<h3>Les systèmes de calcul distribués<a class="headerlink" href="#les-systemes-de-calcul-distribues" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Enfin la dernière couche de notre architecture est constituée de systèmes de calcul distribués
+qui s’appuient en général sur un système de stockage NoSQL pour accéder aux données initiales. Le premier
+système de ce type est Hadoop, équipé d’un moteur de calcul MapReduce. Une alternative plus sophistiquée
+est apparue en 2008 avec Spark, qui propose d’une part des opérations plus complètes, d’autre
+part un système de gestion des pannes plus performant. D’autres systèmes plus ou moins équivalents
+existent, dont Flink qui est spécialisé pour le traitement de grand flux de données.</p>
+<p>Tout système informatique repose sur un ensemble de mécanismes de stockage
+et d’accès à l’information, les <em>mémoires</em>.  Ces mémoires se différencient
+par leur prix, leur rapidité, le mode d’accès aux données
+(séquentiel ou par adresse) et enfin leur durabilité.</p>
+<p>La gestion des mémoires est une problématique fondamentale des SGBD: pour
+une révision, je vous renvoie au chapitre « stockage » de mon cours sur les
+<a class="reference external" href="http://sys.bdpedia.fr">aspects systèmes des bases de données</a>. Les notions
+essentielles sont revues ci-dessous, et reprise dans le cadre d’une ferme de serveur
+où le réseau et la topologie du réseau jouent un rôle important.</p>
+</section>
+<section id="la-hierarchie-des-memoires">
+<h3>La hiérarchie des mémoires<a class="headerlink" href="#la-hierarchie-des-memoires" title="Lien permanent vers ce titre">¶</a></h3>
+<p>D’une manière générale, plus une mémoire est rapide, plus elle est
+chère et – conséquence directe – plus sa capacité est réduite. Dans
+un cadre centralisé, mono-serveur, les mémoires forment une hiérarchie
+classique illustrée par la  <a class="reference internal" href="#hiermem"><span class="std std-numref">Fig. 56</span></a>, allant de la mémoire la plus petite
+mais la plus efficace à la mémoire la plus volumineuse
+mais la plus lente. Un bonne partie du travail d’un SGBD consiste
+à placer l’information requise par une application le plus haut possible
+dans la hiérarchie des mémoires: dans le cache du processeur idéalement;
+dans la mémoire RAM si possible; au pire il faut aller la chercher
+sur le disque, et là ça coûte très cher.</p>
+<figure class="align-center" id="id8">
+<span id="hiermem"></span><img alt="_images/hiermem.png" src="_images/hiermem.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 56 </span><span class="caption-text">Hiérarchie des mémoires dans un serveur</span><a class="headerlink" href="#id8" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>La mémoire vive (que nous appellerons mémoire
+principale) et les disques (ou mémoire secondaire) sont les principaux niveaux
+à considérer pour des applications de bases de données. Une base
+de données est à peu près toujours stockée sur disque, pour les raisons
+de taille et de persistance, mais  les données
+doivent impérativement être placées en mémoire vive pour
+être traitées.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>La mémoire RAM est une mémoire <em>volatile</em> dont le contenu
+est effacé lors d’une panne. Il est donc essentiel de synchroniser la mémoire
+avec le disque périodiquement (typiquement au moment d’un <em>commit</em>).</p>
+</div>
+<p>Si on considère maintenant un <em>cloud</em>, la hiérarchie se complète avec
+les liens réseaux connectant les serveurs. Du côté du réseau aussi on trouve une hiérarchie:
+les serveurs d’une même baie sont liés par un réseau rapide, mais les baies elles-mêmes
+sont liées par des routeurs qui limitent le débit des échanges.</p>
+<figure class="align-center" id="id9">
+<span id="hiermem-cloud"></span><img alt="_images/hiermem-cloud.png" src="_images/hiermem-cloud.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 57 </span><span class="caption-text">Hiérarchie des mémoires dans une ferme de serveurs</span><a class="headerlink" href="#id9" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>La <a class="reference internal" href="#hiermem-cloud"><span class="std std-numref">Fig. 57</span></a>  illustre les mémoires et leur communication dans une ferme de serveur. On
+pourrait y  ajouter un troisième niveau de communication réseau, celui entre deux
+fermes de serveurs distinctes.</p>
+</section>
+<section id="performances">
+<h3>Performances<a class="headerlink" href="#performances" title="Lien permanent vers ce titre">¶</a></h3>
+<p>On peut évaluer (par des ordres de grandeur, car les variations sont importantes en fonction
+du matériel) les performances d’un système tel que celui de la <a class="reference internal" href="#hiermem-cloud"><span class="std std-numref">Fig. 57</span></a> selon deux critères:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><em>Temps d’accès</em>, ou <em>latence</em>: connaissant  <em>l’adresse</em> d’un document, quel est le temps
+nécessaire pour aller à l’emplacement mémoire indiqué par cette adresse
+et obtenir le document ?    On parle de lecture par clé
+ou encore <em>d’accès direct</em> pour cette opération;</p></li>
+<li><p><em>Débit</em>: quel est le volume de données lues par unité de temps
+dans le meilleur des cas?</p></li>
+</ul>
+</div></blockquote>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Dans le cas d’un disque magnétique, le débit s’applique
+une lecture <em>séquentielle</em> respectant l’ordre de stockage des données
+sur le support. Si on effectue la lecture dans un ordre différent, il
+s’agit en fait d’une séquence d’accès directs, et c’est extrêmement lent.</p>
+</div>
+<p>Le temps d’un accès <em>direct</em>  en mémoire vive est par exemple de l’ordre
+de 10 nanosecondes (<span class="math notranslate nohighlight">\(10^{-8}\)</span> sec.), de 0,1 millisecondes pour un SSD, et
+de l’ordre de 10 millisecondes (<span class="math notranslate nohighlight">\(10^{-2}\)</span> sec.) pour un disque.
+Cela  représente un ratio approximatif de 1 000 000 (1 million!)
+entre les performances respectives de la mémoire centrale et du disque magnétique !
+Un SSD est très approximativement 100 fois plus rapide (en accès direct) qu’un disque magnétique.</p>
+<blockquote>
+<div><table class="colwidths-given docutils align-default" id="id10">
+<caption><span class="caption-number">Tableau 12 </span><span class="caption-text">Performance des divers types de mémoire</span><a class="headerlink" href="#id10" title="Lien permanent vers ce tableau">¶</a></caption>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 13%" />
+<col style="width: 27%" />
+<col style="width: 40%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Type mémoire</p></th>
+<th class="head"><p>Taille</p></th>
+<th class="head"><p>Temps d’accès aléatoire</p></th>
+<th class="head"><p>Débit en accès séquentiel</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Mémoire <em>cache</em> (Static RAM)</p></td>
+<td><p>Quelques MOs</p></td>
+<td><p><span class="math notranslate nohighlight">\(\approx  10^{-8}\)</span> (10 nanosec.)</p></td>
+<td><p>Plusieurs dizaines de GOs par seconde</p></td>
+</tr>
+<tr class="row-odd"><td><p>Mémoire principale (Dynamic RAM)</p></td>
+<td><p>Quelques GOs</p></td>
+<td><p><span class="math notranslate nohighlight">\(\approx  10^{-8} -  10^{-7}\)</span> (10-100 nanosec.)</p></td>
+<td><p>Quelques GO par seconde</p></td>
+</tr>
+<tr class="row-even"><td><p>Disque magnétique</p></td>
+<td><p>Quelques TOs</p></td>
+<td><p><span class="math notranslate nohighlight">\(\approx  10^{-2}\)</span> (10 millisec.)</p></td>
+<td><p>Env. 100 MOs par seconde.</p></td>
+</tr>
+<tr class="row-odd"><td><p>SSD</p></td>
+<td><p>Quelques TOs</p></td>
+<td><p><span class="math notranslate nohighlight">\(\approx  10^{-4}\)</span> (0,1 millisec.)</p></td>
+<td><p>Jusqu’à quelques GOs par seconde.</p></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>En ce qui concerne les composants réseau, la méthode la plus courante est d’utiliser des routeurs
+Ethernet 48 ports offrant un débit d’environ 10 GigaBits/sec. On utilise un routeur de ce type pour chaque baie,
+en connectant par exemple les 40 serveurs de la baie. À un second niveau, les routeurs-baie
+sont connectés par un routeur-ferme qui se charge de mettre en communication les serveurs
+de baies différentes (<a class="reference internal" href="#hiermem-cloud"><span class="std std-numref">Fig. 57</span></a>). Les 8 ports restant au niveau de chaque
+baie sont par exemple utilisés pour cette connexion globale. Cela introduit un facteur
+d’agrégation (<em>oversubscription</em>) puisque  chaque port « global » doit gérer le débit
+de 5 serveurs de la baie.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Vous avez compris la phrase qui précède? Si non, réfléchissez.</p>
+</div>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>RAM locale</p></th>
+<th class="head"><p>Disque local</p></th>
+<th class="head"><p>RAM Baie</p></th>
+<th class="head"><p>Disque baie</p></th>
+<th class="head"><p>RAM cloud</p></th>
+<th class="head"><p>Disque cloud</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Latence (micro sec)</p></td>
+<td><p>0.1</p></td>
+<td><p>10 000</p></td>
+<td><p>300</p></td>
+<td><p>10 000</p></td>
+<td><p>500</p></td>
+<td><p>10 000</p></td>
+</tr>
+<tr class="row-odd"><td><p>Débit (en MO/s)</p></td>
+<td><p>10 000</p></td>
+<td><p>100</p></td>
+<td><p>125</p></td>
+<td><p>100</p></td>
+<td><p>25</p></td>
+<td><p>20</p></td>
+</tr>
+</tbody>
+</table>
+<p>Le tableau ci-dessus donne les ordres de grandeur pour la latence et le débit au
+sein de la hiérarchie de mémoire (il faudrait ajouter les SSDs, cf. les performances
+de ces derniers). Ce ne sont que des estimations: le débit de 20 MO/s par exemple est
+obtenu en considérant que le facteur d’agrégation au niveau de chaque baie est de 5 (soit
+100 MO/s divisé par 5), et en supposant que le trafic est équitablement réparti
+entre les 5 serveurs partageant un même port.
+L’accès la RAM d’un serveur en dehors de la baie subit l’effet combiné du réseau
+(10 Gbits/s, soit 1,25 GO/s) et du facteur 5.</p>
+<p>Il reste à donner une idée du coût. À ce jour (2024) voici ce qu’il en est pour une mémoire de 1 TO.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>RAM: environ 3 000 $</p></li>
+<li><p>SSD: environ 100 $</p></li>
+<li><p>Disque: environ 20 $</p></li>
+</ul>
+</div></blockquote>
+<p>C’est sans doute moins cher si on achète en gros, mais cela donne une idée du rapport. Le SSD
+est très attractif mais reste encore presque 5 fois plus cher qu’un disque magnétique classique.</p>
+</section>
+<section id="quiz">
+<h3>Quiz<a class="headerlink" href="#quiz" title="Lien permanent vers ce titre">¶</a></h3>
+<div class="reauthoring_embedded_quiz" id="cloud-1"><form class="reauthoring_embedded_quiz_questions"><p>Quel est l’ordre de grandeur du volume de données qui rend nécessaire le passage
+à un système distribué?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Le Giga</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Le Téra</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Le Péta</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="cloud-2"><form class="reauthoring_embedded_quiz_questions"><p>Que désigne le terme de <em>commodity server</em>?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Une machine dont la mémoire et la puissance de calcul sont extensibles</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Une machine propre à tous les usages, depuis l’ordinateur de bureau jusqu’au serveur</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Une machine réduite aux composants principaux, ces derniers étant à bas coût</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="cloud-3"><form class="reauthoring_embedded_quiz_questions"><p>À quoi correspond la notion de <em>SPOF</em> (<em>Single point of failure</em>)?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Un composant dont le bon fonctionnement est nécessaire à tout le système</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Un composant par lequel toutes les données doivent passer</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Le composant le plus fragile du système</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="cloud-4"><form class="reauthoring_embedded_quiz_questions"><p>Qu’est-ce que le <em>failover</em>? Pourquoi est-ce important dans les systèmes de type <em>cloud</em>?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Le <em>failover</em> est la capacité d’une machine à se rétablir après une panne</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Le <em>failover</em> est la capacité d’un système à pallier la panne d’un de ses composants</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Le <em>failover</em> est le taux de panne du système</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="cloud-5"><form class="reauthoring_embedded_quiz_questions"><p>Parmi les arguments suivants en faveur du protocole HTTP pour la gestion de données
+massives, lequel vous semble le moins convaincant?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> C’est un protocole normalisé implanté dans tous les langages de programmation</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> C’est un protocole qui échange les données de manière compacte</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> C’est un protocole pour lequel il existe déjà des applications clients: les navigateurs Web</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="cloud-6"><form class="reauthoring_embedded_quiz_questions"><p>Quel est le point faible d’une architecture Maître-esclave?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Le maître est un SPOF</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Toutes les communications, y compris celles entre esclaves, doivent passer par le maître</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Une application client doit connaître tous les nœuds, et savoir lequel est le maître</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="cloud-7"><form class="reauthoring_embedded_quiz_questions"><p>Parmi les propriétés suivantes, une seule s’applique aux systèmes NoSQL. Laquelle?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Ils disposent d’un haut niveau de fonctionnalités (transactions, langage expressif)</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Ils sont normalisés</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Ils s’adaptent nativement à des environnements distribués</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div></section>
+</section>
+<section id="s2-la-scalabilite">
+<h2>S2: La scalabilité<a class="headerlink" href="#s2-la-scalabilite" title="Lien permanent vers ce titre">¶</a></h2>
+<p>Supports complémentaires:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference external" href="http://b3d.bdpedia.fr/files/slscalable.pdf">Présentation: Scalabilité</a></p></li>
+<li><p><a class="reference external" href="https://mediaserver.lecnam.net/permalink/v125f35a40247xlka7dn/">Vidéo de la session consacrée à la scalabilité</a></p></li>
+</ul>
+</div></blockquote>
+<p>Il est temps de revenir sur la notion de scalabilité pour la définir précisément,
+et de donner quelques exemples pour comprendre en pratique ce que cela implique.</p>
+<section id="une-definition">
+<h3>Une définition<a class="headerlink" href="#une-definition" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Voici une définition assez générale, basée sur les notions (à expliciter)
+de « système », « performance » et « ressource ».</p>
+<div class="admonition-definition-scalabilite admonition" id="def-scalability">
+<p class="admonition-title">Définition (scalabilité).</p>
+<p>Un système est <em>scalable</em>  si ses <em>performances</em>
+sont proportionnelles aux <em>ressources</em> qui lui sont allouées.</p>
+</div>
+<p>Il s’agit d’une notion très stricte de la scalabilité, qu’il est difficile d’obtenir
+en pratique mais nous donne une idée précise du but à atteindre.</p>
+<p>Explicitons maintenant les notions sur lesquelles repose la définition.
+Dans notre cas, la notion de <em>système</em> est assez bien identifiée:
+il s’agit de l’environnement distribué de gestion/traitement de données basé sur l’architecture
+de la  <a class="reference internal" href="#cloud"><span class="std std-numref">Fig. 51</span></a>.</p>
+<p>Les <em>ressources</em> sont les composants matériels que l’on peut ajouter au système.
+Il s’agit essentiellement des serveurs, mais on peut aussi prendre en compte des dispositifs liés
+au réseau comme les routeurs. La consommation des ressources s’évalue essentiellement selon les unités
+de grandeur suivantes:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>la mémoire RAM alouée au système;</p></li>
+<li><p>le temps de calcul;</p></li>
+<li><p>la mémoire secondaire (disque)</p></li>
+<li><p>la bande passante (réseau).</p></li>
+</ul>
+</div></blockquote>
+<p>La notion de <em>performance</em> est la plus flexible. Voici les deux acceptions principales que nous
+allons étudier.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><em>débit</em>: c’est le nombre d’unités d’information (documents) que nous pouvons
+traiter par unité de temps, toutes choses égales par ailleurs;</p></li>
+<li><p><em>latence</em>: c’est le temps mis pour accéder à une unité d’information (document), en
+lecture et/ou en écriture.</p></li>
+</ul>
+</div></blockquote>
+<p>Au lieu de mesurer le débit en documents/seconde, on regarde souvent le nombre d’octets (par
+exemple, 10 MO/s). C’est équivalent si on accepte que les documents ont une taille moyenne
+avec un écart-type pas trop élevé. En ce qui concerne la latence, on mesure souvent le
+nombre d’accès par seconde sur un nombre important d’opérations, afin de lisser les écarts,
+et on nomme cette mesure <em>transactions par seconde</em> (abrégé par tps).</p>
+</section>
+<section id="exemple-comptons-les-documents">
+<h3>Exemple: comptons les documents<a class="headerlink" href="#exemple-comptons-les-documents" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Pour mettre en évidence la scalabilité, conformément à la définition ci-dessus,
+il faut quantifier les grandeurs <em>ressource</em> et <em>performance</em> et  montrer que leur
+rapport est constant <em>pour un volume de données fixé</em>. Prenons un premier exemple:
+on veut compter le nombre de documents dans le système.
+Charge serveur effectue indépendamment son propre comptage.
+Il exécute pour cela une opération qui consiste à charger en mémoire centrale les données
+stockées sur des disques magnétiques.  On mesure le débit de cette opération en MO/s
+(<a class="reference internal" href="#scalability1"><span class="std std-numref">Fig. 58</span></a>).</p>
+<figure class="align-center" id="id11">
+<span id="scalability1"></span><a class="reference internal image-reference" href="_images/scalability1.png"><img alt="_images/scalability1.png" src="_images/scalability1.png" style="width: 90%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 58 </span><span class="caption-text">Mesure de scalabilité</span><a class="headerlink" href="#id11" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>Avec un seul serveur, on constate un débit de 100 MO/s. Avec deux serveurs, on peut répartir
+les données équitablement et effectuer les lectures en parallèle: on obtient un débit
+de 200 MO/s. Il n’est pas difficile d’extrapoler et de considérer que si on a <em>n</em> serveurs,
+le débit sera de <em>n</em> * 100 MO/s.</p>
+<p><em>Attention</em>: dans ce scénario on suppose que tous les accès
+sont de nature <em>locale</em>, et qu’il n’y a pas d’échange entre les serveurs. À la fin de l’opération
+on obtient le nombre de documents sur chaque serveur, et cette information (un entier sur 4 ou 8 octets) est suffisamment
+petite pour être transférée au client qui effectue l’agrégation.</p>
+<p>Le traitement est scalable. La figure montre le débit global: c’est bien une droite exprimant la dépendance linéaire entre
+le nombre de ressources et la performance. La droite en vert montre que le débit par serveur est
+constant: c’est une condition nécessaire mais pas suffisante pour garantir la scalabilité au
+niveau du système global. Si toutes les données devaient par exemple transiter dans un
+unique tuyau de débit 1 GO/s, au bout de 10 serveurs en parallèle ce tuyau constituerait
+le goulot d’étranglement du système.</p>
+<p>Comme le montre cet exemple simple, la scalabilité nécessite d’envisager le système de manière globale,
+en veillant à l’équilibre de tous
+ses composants.</p>
+</section>
+<section id="autre-exemple-cherchons-les-doublons">
+<h3>Autre exemple: cherchons les doublons<a class="headerlink" href="#autre-exemple-cherchons-les-doublons" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Prenons un exemple un peu plus complexe. On veut chercher d’éventuels doublons
+dans notre collection de vidéos. Après d’intenses réflexions, le groupe d’ingénieur NFE204
+décide d’implanter un algorithme en deux étapes.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>la première parcourt les vidéos et produit, pour chacune, une <em>signature</em>
+(cf. <a class="reference external" href="http://en.wikipedia.org/wiki/Digital_video_fingerprinting">http://en.wikipedia.org/wiki/Digital_video_fingerprinting</a>); cette première étape
+se fait localement;</p></li>
+<li><p>la seconde étape regroupe les signatures; si deux signatures (ou plus) égales sont trouvées,
+c’est un doublon!</p></li>
+</ul>
+</div></blockquote>
+<p>La première étape est à peu de choses près le parcours en parallèle de tous
+les disques, associé à un traitement local pour extraire la signature (<a class="reference internal" href="#scalability2"><span class="std std-numref">Fig. 59</span></a> ).
+Le résultat est une liste de paires <em>(id, signature)</em> où l’id de chaque document est associé
+à sa signature.</p>
+<figure class="align-center" id="id12">
+<span id="scalability2"></span><a class="reference internal image-reference" href="_images/scalability2.png"><img alt="_images/scalability2.png" src="_images/scalability2.png" style="width: 90%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 59 </span><span class="caption-text">Extraction des signatures</span><a class="headerlink" href="#id12" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>La seconde étape va nécessiter des échanges réseau. On va associer chaque serveur à une partie
+des signatures, par hachage. Par exemple (très simple), si on a <em>n</em> serveurs, on
+va associer une signature <em>h</em> au serveur <em>mod(h, n)</em>.  La <a class="reference internal" href="#scalability3"><span class="std std-numref">Fig. 60</span></a>
+illustre le cas de 3 serveurs: les signatures <em>X1</em> et <em>X4</em> sont envoyées au serveur 1
+puisque <em>mod(1,3)=mod(4,3)=1</em>.</p>
+<p>On envoie alors
+chaque paire <em>(i, s)</em> issue de l’étape 1, constituée d’un identifiant <em>i</em> et d’une signature <em>s</em> au serveur
+associé à <em>s</em>. Si deux signatures sont égales, elles se retrouveront sur le même serveur. Il suffit
+donc d’effectuer, <em>localement</em>, une comparaison de signatures pour reporter les doublons. C’est le
+cas pour les documents i1 et i8 dans la  <a class="reference internal" href="#scalability3"><span class="std std-numref">Fig. 60</span></a>.</p>
+<figure class="align-center" id="id13">
+<span id="scalability3"></span><a class="reference internal image-reference" href="_images/scalability3.png"><img alt="_images/scalability3.png" src="_images/scalability3.png" style="width: 90%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 60 </span><span class="caption-text">Transfert des signatures et détection des doublons.</span><a class="headerlink" href="#id13" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>Le traitement est-il scalable? Oui en ce qui concerne la première étape, pour les raisons
+analysées dans le premier exemple: le traitement s’effectue localement sur
+chaque serveur, de manière indépendante.</p>
+<p>La seconde étape implique un transfert réseau
+de l’ensemble des listes produites dans la première étape.
+Il faut donc tout d’abord  comparer le coût du transfert réseau, celui de la lecture
+des données, et celui du traitement. Les données échangées (ici, des paires de valeurs) sont
+certainement beaucoup plus petites que les documents. Il est possible alors que le transfert réseau de ces
+listes soit 100 ou 1000 fois moins coûteux que le parcours des documents et l’extraction de la signature.
+Dans ce cas le coût prépondérant est celui de la première étape, et le traitement global est scalable.</p>
+<p>Si le coût des transferts réseaux est comparable (ou supérieur) à celui des traitements,
+il faudrait,  pour que la scalabilité soit stricte,  qu’il soit possible
+d’améliorer le débit dans la grappe de serveur proportionnellement au nombre de serveurs.
+C’est typiquement difficile, à moins de recourir à du matériel de connectique très sophistiqué et donc
+très coûteux. Il est plus probable que le débit restera constant ou, pire
+se <em>dégradera</em> avec l’ajout de nouveaux serveurs. L’échange réseau devient le facteur
+entravant la scalabilité.</p>
+</section>
+<section id="quelques-conclusions">
+<h3>Quelques conclusions<a class="headerlink" href="#quelques-conclusions" title="Lien permanent vers ce titre">¶</a></h3>
+<p>En pratique, il est difficile d’augmenter les performances du réseau proportionnellement
+aux ressources, et les transferts sont l’un des facteurs qui peuvent limiter la scalabilité en pratique.
+La situation la plus favorable est celle de notre premier exemple, où l’essentiel
+des traitements se fait <em>localement</em>, avec un résultat de taille négligeable qu’il est ensuite
+possible de transférer à une autre machine ou  à l’application cliente. Plus généralement,
+il faut être attentif à limiter le plus possible la taille des données échangées entre les
+serveurs de manière à ce que le coût des transferts reste négligeable par rapport à celui
+des traitements.</p>
+<p>Le fait d’être scalable (selon notre définition) ne veut pas dire que le temps
+de calcul est <em>acceptable</em>. Si un traitement prend 10 ans, il prendra encore 5 ans en doublant les ressources…
+La première chose à faire est de s’en apercevoir à l’avance en effectuant des tests et en mesurant
+le coût des éléments dans la chaîne de traitement. Ensuite, il faut voir si on peut optimiser.</p>
+<p>Quand un traitement est complètement optimisé, et que la durée prévisible reste
+trop élevée, la question suivante est : suis-je prêt à allouer les ressources nécessaires?
+Et là, si la réponse est non, il est temps de reconsidérer la définition du problème.
+La définition du BigData, ça pourrait être: toutes les données que je peux me permettre
+de stocker, et pour lesquelles il existe au moins un traitement assez intéressant
+au vu des ressources que je dois y consacrer. À méditer.</p>
+</section>
+<section id="id1">
+<h3>Quiz<a class="headerlink" href="#id1" title="Lien permanent vers ce titre">¶</a></h3>
+<div class="reauthoring_embedded_quiz" id="scal-1"><form class="reauthoring_embedded_quiz_questions"><p>Un système de <em>n</em> serveurs consacre 80% de CPU à une application; la taille des données
+double, on ajoute <em>n</em> nouveaux serveurs, et on reste à 80% de CPU. Est-ce suffisant
+pour dire que le système est scalable?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Oui, c’est par définition</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Non, car il se peut que le réseau soit surchargé</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Non, on ne peut mesurer la scalabiité que pour 100% d’utilisation des ressources</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="scal-2"><form class="reauthoring_embedded_quiz_questions"><p>On veut implanter une jointure (par exemple entre les films et leur metteur
+en scène) avec la technique  proposée dans le chapitre <a class="reference internal" href="traitements_lot.html#chap-mapreduce"><span class="std std-ref">Traitements par lot</span></a>.
+On distribue donc les films selon l’identifiant de leur réalisateur, les
+artistes selon leur identifiant, et on effectue les jointures localement. C’est
+donc une forme de jointure par hachage.</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Cette méthode est scalable pour la jointure peut s’effectuer en parallèle
+sur tous les serveurs</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Cette méthode n’est pas scalable puisqu’elle implique un échange par réseau
+de toutes les données</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="scal-3"><form class="reauthoring_embedded_quiz_questions"><p>Un système scalable en débit  l’est également en latence, et réciproquement</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Oui, car cela signifie que les ressources alloués contribuent proportionnellement
+aux capacités du système</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Non, car un système temps réel peut s’appuyer sur un index qui ne
+contribue pas à l’amélioration du débit global</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Non, ça n’est vrai que dans un sens: un système analytique scalable
+est également scalable pour une appli temps réel puisque cela
+implique la scalabilité réseau, mais l’inverse n’est pas vrai.</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div></section>
+</section>
+<section id="calculs-distribues">
+<h2>3: Calculs distribués<a class="headerlink" href="#calculs-distribues" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="admonition-supports-complementaires admonition">
+<p class="admonition-title">Supports complémentaires</p>
+<ul class="simple">
+<li><p><a class="reference external" href="http://b3d.bdpedia.fr/files/slmapred.pdf">Diapositives: MapReduce et traitements à grande échelle</a></p></li>
+<li><p><a class="reference external" href="https://mediaserver.lecnam.net/permalink/v125f35a420dbiiaq0nc/">Vidéo de la session MapReduce</a></p></li>
+</ul>
+</div>
+<p>Reportez-vous au chapitre <a class="reference internal" href="rech-exacte.html#chap-bddoc"><span class="std std-ref">Recherche exacte</span></a> pour une présentation du <em>modèle</em> MapReduce
+d’exécution.  Rappelons que MapReduce <em>n’est pas</em>
+un langage d’interrogation de données, mais un modèle d’exécution de <em>chaînes
+de traitement</em> dans lesquelles des données (massives) sont progressivement
+transformées et enrichies.</p>
+<p>Pour être concrets, nous allons prendre l’exemple (classique) d’un traitement s’appliquant
+à une collection de documents textuels et déterminant la <em>fréquence
+des termes dans les documents</em> (indicateur TF, cf. <span class="xref std std-ref">chap-ranking</span>). Pour chaque terme présent dans la collection,
+on doit donc obtenir le nombre d’occurrences.</p>
+<section id="le-principe-de-localite-des-donnees">
+<h3>Le principe de localité des données<a class="headerlink" href="#le-principe-de-localite-des-donnees" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Dans une approche classique de traitement de données stockées
+dans une base, on utilise une architecture client-serveur dans
+laquelle l’application cliente reçoit les données du serveur.
+Cette méthode est difficilement applicable en présence d’un très gros volume
+de données, et ce d’autant moins que les collections sont stockées
+dans un système distribué. En effet:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>le transfert par le réseau d’une large collection devient très pénalisant
+à  grande échelle (disons, le TéraOctet);</p></li>
+<li><p>et surtout, la distribution des données est une opportunité pour effectuer
+les calculs <em>en parallèle</em> sur chaque machine de stockage, opportunité perdue
+si l’application cliente fait tout le calcul.</p></li>
+</ul>
+</div></blockquote>
+<p>Ces deux arguments se résument dans un principe dit de <em>localité des données</em>
+(<em>data locality</em>). Il peut s’énoncer ainsi: les meilleures performances
+sont obtenues quand chaque fragment de la collection est traité <em>localement</em>, minimisant
+les besoins d’échanges réseaux entre les machines.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Reportez-vous au chapitre <a class="reference internal" href="#chap-cloud"><span class="std std-ref">Le cloud, une nouvelle machine de calcul</span></a> pour une analyse
+quantitative montrant l’intérêt de ce principe.</p>
+</div>
+<p>L’application du principe de localité des données mène à une architecture
+dans laquelle, contrairement au client-serveur, les données ne sont pas
+transférées au programme client, mais le programme distribué à toutes les machines
+stockant des données (<a class="reference internal" href="#data-locality"><span class="std std-numref">Fig. 61</span></a>).</p>
+<figure class="align-center" id="id14">
+<span id="data-locality"></span><a class="reference internal image-reference" href="_images/data-locality.png"><img alt="_images/data-locality.png" src="_images/data-locality.png" style="width: 100%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 61 </span><span class="caption-text">Principe de localité des données, par transfert des programmes</span><a class="headerlink" href="#id14" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>En revanche, demander à un développeur d’écrire une application distribuée
+basée sur ce principe constitue un défi technique de grande ampleur. Il faut
+en effet concevoir simultanément les tâches suivantes:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>implanter la <em>logique</em> de l’application, autrement dit le traitement particulier
+qui peut être plus ou moins complexe;</p></li>
+<li><p>concevoir la parallélisation de cette application, sous la forme d’une
+exécution concurrente coordonnant plusieurs machines et assurant
+un accès à un partitionnement de la collection traitée;</p></li>
+<li><p>et bien entendu, gérer la reprise sur panne dans un environnement qui,
+nous l’avons vu, est  instable.</p></li>
+</ul>
+</div></blockquote>
+<p>Un <em>framework</em> d’exécution distribuée comme MapReduce est justement dédié
+à la prise en charge des deux derniers aspects, spécifiques à la distribution
+dans un <em>cloud</em>, et ce de manière <em>générique</em>. Le <em>framework</em> définit
+un processus immuable d’accès et de traitement, et le programmeur implante
+la logique de l’application sous la forme de briques logicielles confiées
+au <em>framework</em> et appliquées par ce dernier dans le cadre du processus.</p>
+<p>Avec MapReduce, le processus se déroule en deux phases, et les « briques
+logicielles » consistent en deux fonctions fournies par le développeur. La phase de Map
+traite chaque document individuellement et applique une fonction <em>map()</em> dont
+voici le pseudo-code pour notre application de calcul du TF.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> mapTF<span class="o">(</span><span class="nv">$id</span>, <span class="nv">$contenu</span><span class="o">)</span>
+<span class="o">{</span>
+  // <span class="nv">$id</span>: identifiant du document
+  // <span class="nv">$contenu</span>: contenu textuel du document
+
+  // On boucle sur tous les termes du contenu
+  foreach  <span class="o">(</span><span class="nv">$t</span> <span class="k">in</span> <span class="nv">$contenu</span><span class="o">)</span> <span class="o">{</span>
+    // Comptons les occurrences du terme dans le contenu
+    <span class="nv">$count</span> <span class="o">=</span> nbOcc <span class="o">(</span><span class="nv">$t</span>, <span class="nv">$contenu</span><span class="o">)</span><span class="p">;</span>
+    // On <span class="s2">&quot;émet&quot;</span> le terme et son nombre des occurrences
+    emit <span class="o">(</span><span class="nv">$t</span>, <span class="nv">$count</span><span class="o">)</span><span class="p">;</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>La phase de Reduce reçoit des valeurs groupées sur la clé et applique
+une agrégation de ces valeurs. Voici le pseudo-code pour notre application TF.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> reduceTF<span class="o">(</span><span class="nv">$t</span>, <span class="nv">$compteurs</span><span class="o">)</span>
+<span class="o">{</span>
+  // <span class="nv">$t</span>: un terme
+  // <span class="nv">$compteurs</span>: la séquence des décomptes effectués localement par le Map
+  <span class="nv">$total</span> <span class="o">=</span> <span class="m">0</span><span class="p">;</span>
+
+  // Boucles sur les compteurs et calcul du total
+  foreach <span class="o">(</span><span class="nv">$c</span> <span class="k">in</span> <span class="nv">$compteurs</span><span class="o">)</span> <span class="o">{</span>
+   <span class="nv">$total</span> <span class="o">=</span> <span class="nv">$total</span> + <span class="nv">$c</span><span class="p">;</span>
+  <span class="o">}</span>
+
+  // Et on produit le résultat
+  <span class="k">return</span> <span class="nv">$total</span><span class="p">;</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>Dans ce cadre restreint, le <em>framework</em> prend en charge la distribution
+et la reprise sur panne.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Ce processus en deux phases et très limité et ne permet
+pas d’exprimer des algorithmes complexes, ceux basés par exemple
+sur une itération menant progressivement au résultat. C’est l’objectif
+essentiel de modèles d’exécution plus puissants que nous présentons
+ultérieurement.</p>
+</div>
+</section>
+<section id="execution-distribuee-d-un-traitement-mapreduce">
+<h3>Exécution distribuée d’un traitement MapReduce<a class="headerlink" href="#execution-distribuee-d-un-traitement-mapreduce" title="Lien permanent vers ce titre">¶</a></h3>
+<p>La <a class="reference internal" href="#mr-execution"><span class="std std-numref">Fig. 62</span></a> résume l’exécution d’un traitement ( »<em>job</em> »)
+MapReduce avec un <em>framework</em> comme Hadoop. Le système d’exécution distribué
+fonctionne sur une architecture maître-esclave dans laquelle
+le maître (<em>JobTracker</em> dans Hadoop) se charge de recevoir la
+requête de l’application, la distribue sous forme de tâche à des
+nœuds (<em>TaskTracker</em> dans Hadoop) accédant aux fragments de la collection, et coordonne finalement le
+déroulement de l’exécution. Cette coordination inclut notamment la gestion des pannes.</p>
+<figure class="align-center" id="id15">
+<span id="mr-execution"></span><a class="reference internal image-reference" href="_images/mr-execution.png"><img alt="_images/mr-execution.png" src="_images/mr-execution.png" style="width: 100%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 62 </span><span class="caption-text">Exécution distribuée d’un traitement MapReduce</span><a class="headerlink" href="#id15" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>L’application cliente se connecte au maître, transmet les fonctions
+de Map et de Reduce, et soumet la demande d’exécution. Le client est alors libéré,
+en attente de la confirmation par le maître que le traitement est terminé
+(cela peut prendre des jours …). Le framework fournit des outils pour surveiller
+le progrès de l’exécution pendant son déroulement.</p>
+<p>Le traitement s’applique à une source de données partitionnée. Cette source
+peut être un simple système de fichiers distribués, un système relationnel, un système NoSQL
+type MongoDB ou HBase, voire même un moteur de recherche comme Solr ou ElasticSearch.</p>
+<p>Le Maître dispose de l’information sur le partitionnement des données
+(l’équivalent du contenu de la table de routage, présenté dans le chapitre
+sur le partitionnement) ou la récupère du serveur de données. Un nombre
+<em>M</em> de serveurs stockant tous les fragments
+concernés est alors impliqué dans le traitement. Idéalement, ces
+serveurs vont être chargés eux-mêmes du calcul pour respecter le principe
+de localité des données mentionné ci-dessus. Un système comme Hadoop
+fait de son mieux pour respecter ce principe.</p>
+<p>La fonction de Map est transmise aux <em>M</em> serveurs et une tâche dite
+<em>Mapper</em> applique la fonction à un fragment. Si le serveur contient
+plusieurs fragments (ce qui est le cas normal) il faudra exécuter
+autant de tâches. Si le serveur est multi-cœurs, plusieurs
+fragments peuvent être traités en parallèle sur la même machine.</p>
+<div class="admonition-exemple-le-partitionnement-des-donnees-pour-l-application-tf admonition">
+<p class="admonition-title">Exemple: le partitionnement des données pour l’application TF</p>
+<p>Supposons par exemple que notre collection contienne 1 milliard de documents
+dont la taille moyenne est de 1000 octets. On découpe la collection en fragments
+de 64 MOs. Chaque fragment contient donc 64 000 documents. Il y a donc
+à peu près  <span class="math notranslate nohighlight">\(\lceil 10^9/64,000 \rceil \approx 16,000\)</span> fragments. Si on
+dispose de 16 machines, chacune devra traiter (en moyenne) 1000 fragments
+et donc exécuter mille tâches de <em>Mapper</em>.</p>
+<p>Le parallélisme peut alors être interne à une machine, en fonction du nombre de
+<em>cores</em> dont elle dispose. Une machine <em>4 cores</em> pourra ainsi effectuer 4 tâches en parallèle en théorie.</p>
+</div>
+<p>Chaque <em>mapper</em> travaille, dans la mesure du possible,  <em>localement</em>: le fragment est lu
+sur le disque <em>local</em>,
+document par document, et l’application de la fonction de Map
+« émet » des paires (clé, valeur) dites « intermédiaires » qui
+sont stockées sur le disque <em>local</em>. Il n’y a donc aucun échange
+réseau pendant la phase de Map (dans le cas idéal où la
+localité des données peut être complètement respectée).</p>
+<div class="admonition-exemple-la-phase-de-map-pour-l-application-tf admonition">
+<p class="admonition-title">Exemple: la phase de Map pour l’application TF</p>
+<p>Supposons que chaque document contienne en moyenne 100 termes distincts.
+Chaque fragment contient 64 000 documents. Un <em>Mapper</em> va
+donc produire 6 400 000 paires <em>(t, c)</em>  où <em>t</em>
+est un terme et <em>c</em> le nombre d’occurrences.</p>
+</div>
+<p>À l’issue de la phase de Map, le maître initialise la phase de Reduce
+en choisissant <em>R</em> machines disponibles. Il faut alors distribuer les
+paires intermédiaires à ces <em>R</em> machines. C’est une phase « cachée »,
+dite de <em>shuffle</em>,
+qui constitue potentiellement le goulot d’étranglement de l’ensemble
+du processus car elle implique la lecture sur les disques des <em>Mappers</em> de toutes
+les paires intermédiaires, et leur envoi par réseau aux machines des <em>Reducers</em>.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Vous noterez peut-être qu’une solution beaucoup plus efficace
+serait de transférer immédiatement par le réseau les paires intermédiaires
+des <em>Mappers</em> vers les <em>Reducers</em>. Il y a une explication à ce choix
+en apparence sous-optimal: c’est la reprise sur panne (voir plus loin).</p>
+</div>
+<p>Pour chaque paire intermédiaire, un simple algorithme de hachage permet
+de distribuer les clés équitablement sur les <em>R</em> machines chargées du Reduce.</p>
+<p>Au niveau d’un <em>Reducer</em> <span class="math notranslate nohighlight">\(R_i\)</span>, que se passe-t-il?</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Tout d’abord il faut récupérer <em>toutes</em> les paires intermédiaires produites
+par les <em>Mappers</em> et affectées à <span class="math notranslate nohighlight">\(R_i\)</span>.</p></li>
+<li><p>Il faut ensuite <em>trier</em> ces paires sur la clé pour regrouper
+les paires partageant la même clé. On obtient des paires
+<em>(k, [v])</em> où <em>k</em> est une clé, et <em>[v]</em> la liste des valeurs
+reçues par le <em>Reducer</em> pour cette clé.</p></li>
+<li><p>Enfin, chacune des paires  <em>(k, [v])</em> est soumise à la fonction de Reduce.</p></li>
+</ul>
+</div></blockquote>
+<div class="admonition-exemple-la-phase-de-reduce-pour-l-application-tf admonition">
+<p class="admonition-title">Exemple: la phase de Reduce pour l’application TF</p>
+<p>Supposons <em>R=10</em>. Chaque <em>Reducer</em> recevra donc en moyenne 640 000 paires
+<em>(t, c)</em> de chaque <em>Mapper</em>.  Ces paires sont triées sur le terme <em>t</em>. Pour chaque
+terme on a donc la liste des nombres d’occurences trouvés
+dans chaque document par les <em>Mappers</em>. Au pire, si un terme est présent dans
+chaque document, le tableau <em>[v]</em> contient un million d’entiers.</p>
+<p>Il reste, avec la fonction de Reduce, à faire le total de ces nombres d’occurences
+pour chaque terme.</p>
+</div>
+<div class="admonition-exemple-comptons-les-loups-et-le-moutons admonition">
+<p class="admonition-title">Exemple: comptons les loups et le moutons</p>
+<p>Vous souvenez-vous de ces quelques documents?</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>A: <code class="docutils literal notranslate"><span class="pre">Le</span> <span class="pre">loup</span> <span class="pre">est</span> <span class="pre">dans</span> <span class="pre">la</span> <span class="pre">bergerie.</span></code></p></li>
+<li><p>B: <code class="docutils literal notranslate"><span class="pre">Les</span> <span class="pre">moutons</span> <span class="pre">sont</span> <span class="pre">dans</span> <span class="pre">la</span> <span class="pre">bergerie.</span></code></p></li>
+<li><p>C: <code class="docutils literal notranslate"><span class="pre">Un</span> <span class="pre">loup</span> <span class="pre">a</span> <span class="pre">mangé</span> <span class="pre">un</span> <span class="pre">mouton,</span> <span class="pre">les</span> <span class="pre">autres</span> <span class="pre">loups</span> <span class="pre">sont</span> <span class="pre">restés</span> <span class="pre">dans</span> <span class="pre">la</span> <span class="pre">bergerie.</span></code></p></li>
+<li><p>D:  <code class="docutils literal notranslate"><span class="pre">Il</span> <span class="pre">y</span> <span class="pre">a</span> <span class="pre">trois</span> <span class="pre">moutons</span> <span class="pre">dans</span> <span class="pre">le</span> <span class="pre">pré,</span> <span class="pre">et</span> <span class="pre">un</span> <span class="pre">mouton</span> <span class="pre">dans</span> <span class="pre">la</span> <span class="pre">gueule</span> <span class="pre">du</span> <span class="pre">loup.</span></code></p></li>
+</ul>
+</div></blockquote>
+<p>Ils sont maintenant stockés dans un système partitionné sur 3 serveurs comme
+montré sur la <a class="reference internal" href="#mr-execution-ex"><span class="std std-numref">Fig. 63</span></a>. Nous appliquons notre traitement TF
+pour compter le nombre total d’occurrences de chaque terme (on va s’intéresser
+aux termes principaux).</p>
+<figure class="align-center" id="id16">
+<span id="mr-execution-ex"></span><a class="reference internal image-reference" href="_images/mr-execution-ex.png"><img alt="_images/mr-execution-ex.png" src="_images/mr-execution-ex.png" style="width: 80%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 63 </span><span class="caption-text">Un exemple minuscule mais concret</span><a class="headerlink" href="#id16" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>Nous avons trois <em>Mappers</em> qui produisent les données intermédiaires présentées
+sur la figure. Comprenez-vous pourquoi le terme <em>bergerie</em> apparaît deux fois
+pour le premier <em>Mapper</em> par exemple?</p>
+<p>La phase de Reduce, avec 2 <em>Reducers</em>, n’est illustrée que pour le terme <em>loup</em>
+donc on suppose qu’il est affecté au premier <em>Reducer</em>. Chaque <em>Mapper</em> transmet
+donc ses paires intermédiaires <em>(loup, …)</em> à <em>R1</em> qui se charge de regrouper
+et d’appliquer la fonction de Reduce.</p>
+</div>
+<p>Quand tous les <em>Reducers</em> ont terminé, le résultat est disponible sur leur disque local. Le
+client peut alors le récupérer.</p>
+</section>
+<section id="la-reprise-sur-panne">
+<h3>La reprise sur panne<a class="headerlink" href="#la-reprise-sur-panne" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Comment assurer la gestion des pannes pour une exécution MapReduce? Dans la mesure
+où elle peut consister en centaines de tâches individuelles, il est inenvisageable
+de reprendre l’ensemble de l’exécution si l’une de ces tâches échoue, que ce soit
+en phase de Map ou en phase de Reduce. Le temps de tout recommencer, une nouvelle
+panne surviendrait, et le <em>job</em> ne finirait jamais.</p>
+<p>Le modèle MapReduce a été conçu dès l’origine
+pour que la reprise sur panne puisse être gérée au niveau de chaque tâche individuelle,
+et que la coordination de l’ensemble soit également résiliente aux problèmes de machine
+ou de réseau.</p>
+<p>Le Maître délègue les tâches aux machines et surveille la progression de l’exécution.
+Si une tâche semble interrompue, le Maître initie une action de reprise
+qui dépend de la phase.</p>
+<section id="panne-en-phase-de-reduce">
+<h4>Panne en phase de Reduce<a class="headerlink" href="#panne-en-phase-de-reduce" title="Lien permanent vers ce titre">¶</a></h4>
+<p>Si la machine reste accessible et que la panne se résume à un échec du processus, ce dernier
+peut être relancé sur la même machine, et si possible sur les données locales
+déjà transférées par le <em>shuffle</em>. C’est le cas le plus favorable.</p>
+<p>Dans un cas plus grave, avec perte des données par exemple,
+une reprise plus radicale consiste à choisir une autre machine, et à relancer
+la tâche en réinitialisant le transfert des paires intermédiaires depuis les
+machines chargées du Map. C’est possible car ces paires ont été écrites sur les disques
+locaux et restent donc disponibles. C’est une caractéristique très importante
+de l’exécution MapReduce: <em>l’écriture complète des fragments intermédiaires
+garantit la possibilité de reprise en cas de panne</em>.</p>
+<p>Une méthode beaucoup
+plus efficace mais beaucoup moins robuste consisterait à ce que chaque <em>mapper</em>
+transfère immédiatement les paires intermédiaires, sans écriture sur le disque local,
+vers la machine chargée du Reduce. Mais en cas de panne de ce dernier,
+ces paires intermédiaires risqueraient de disparaître et on ne saurait plus
+effectuer la reprise sur panne  (sauf à ré-exécuter l’ensemble du processus).</p>
+<p>Cette caractéristique explique également la lenteur (déspérante) d’une exécution MapReduce,
+due en grande partie à la nécessité d’effectuer des écritures et lectures répétées
+sur disque, à chaque phase.</p>
+</section>
+<section id="panne-en-phase-map">
+<h4>Panne en phase Map<a class="headerlink" href="#panne-en-phase-map" title="Lien permanent vers ce titre">¶</a></h4>
+<p>En cas de panne pendant l’exécution d’une tâche de Map, on peut
+soit reprendre la tâche sur la même machine si c’est le processus qui a échoué,
+soit transférer la tâche à une autre machine. On tire ici parti
+de la <em>réplication</em> toujours présente dans les systèmes distribués:
+quel que soit le fragment stocké sur une machine, il existe un réplica
+de ce fragment sur une autre, et à partir de ce réplica une tâche
+équivalente peut être lancée.</p>
+<p>Le cas le plus pénalisant est la panne d’une machine pendant la phase
+de transfert vers les Reducers. Il faut alors reprendre toutes les
+tâches initialement allouées à la machine, en utilisant la réplication.</p>
+</section>
+<section id="et-le-maitre">
+<h4>Et le maître?<a class="headerlink" href="#et-le-maitre" title="Lien permanent vers ce titre">¶</a></h4>
+<p>Finalement, il reste à considérer le cas du Maître qui est un point individuel
+d’échec: en cas de panne, il faut tout recommencer.</p>
+<p>L’argument des <em>frameworks</em> comme Hadoop est qu’il existe un Maître
+pour des dizaines de travailleurs, et qu’il est peu probable qu’une panne affecte
+directement le serveur hébergeant le nœud-Maître. Si cela arrive, on peut
+accepter de reprendre l’ensemble de l’exécution, ou prendre des mesures
+préventives en dupliquant toutes les données du Maître sur un nœud de
+secours.</p>
+</section>
+</section>
+<section id="id2">
+<h3>Quiz<a class="headerlink" href="#id2" title="Lien permanent vers ce titre">¶</a></h3>
+<div class="reauthoring_embedded_quiz" id="mapreduce-1"><form class="reauthoring_embedded_quiz_questions"><p>Qu’est-ce qu’un opérateur de second ordre?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  C’est un opérateur qui est appliqué à des documents
+par d’autres opérateurs</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img>  C’est un opérateur qui  applique d’autres opérateurs à des documents</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> C’est un opérateur qui résulte de la composition d’opérateurs primaires</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="mapreduce-2"><form class="reauthoring_embedded_quiz_questions"><p>Quel est le rôle de l’opération de  <em>shuffle</em> ?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img>  Distribuer les résultats des <em>mappers</em> vers les <em>reducers</em></p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  Distribuer les résultats des <em>reducers</em> vers les <em>mappers</em></p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Distribuer les documents équitablement sur les <em>mappers</em></p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="mapreduce-3"><form class="reauthoring_embedded_quiz_questions"><p>Où sont stockés les résultats des <em>Mappers</em> ?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  Dans un système de stockage distribué pour permettre la reprise sur panne</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img>  Localement, pour favoriser la performance</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Ils sont transmis aux <em>reducers</em> au fur et à mesure</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="mapreduce-4"><form class="reauthoring_embedded_quiz_questions"><p>Que dit le principe de <em>data locality</em>.</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Que les données doivent rester à l’intérieur d’un même système distribué</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img>  Que les données doivent être traitées là où elles sont stockées</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Que les données peuvent être échangées entre <em>mappers</em> ou
+entre <em>reducers</em>, mais pas entre <em>mappers</em> et <em>reducers</em></p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="mapreduce-5"><form class="reauthoring_embedded_quiz_questions"><p>J’implante un système MapReduce en transmettant directement les paires
+intermédiaires des Mappers vers les Reducers, sans écriture locale. En cas
+de plantage d’un des Reducers avec perte locale des données, que faut-il recalculer?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Tout!</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  On ne relance que la fraction des <em>mappers</em> qui a alimenté
+le <em>reducer</em> planté (soit <em>1/R</em> des <em>mappers</em>, <em>R</em> étant le nombre
+de reducers)</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Il suffit de ré-executer le <em>reducer</em></p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="mapreduce-6"><form class="reauthoring_embedded_quiz_questions"><p>Quand commence l’exécution de la phase de <em>Reduce</em> ?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Dès que les <em>mappers</em> commencent à transmettre des paires
+intermédiaires</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  Dès que l’un des <em>mappers</em> a complètement terminé sa tâche</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Dès que <em>tous</em> les <em>mappers</em> ont terminé leur tâche</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="mapreduce-7"><form class="reauthoring_embedded_quiz_questions"><p>Pourquoi ne pas exécuter la fonction de Reduce sur les paires intermédiaires stockées sur les disques des machines de Map?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Parce qu’elles ne sont pas triées et qu’il faut donc faire appel à une autre machine dédiée au tri</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img>  Parce qu’une machine de Map ne détient qu’une partie des paires d’un même groupe</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Parce qu’une même paire peut être impliquée dans plusieurs groupes, d’où la phase de <em>Shuffle</em></p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="mapreduce-8"><form class="reauthoring_embedded_quiz_questions"><p>Quand peut-on effacer les paires intermédiaires stockées sur les <em>mappers</em></p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Dès qu’elles ont été transmises aux <em>reducers</em></p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> À la toute fin du processus, quand le dernier <em>reducer</em> a terminé.</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Dès que tous les  <em>reducers</em> ont acquitté la réception des paires qu’ils doivent traiter</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div></section>
+</section>
+<section id="exercices">
+<h2>Exercices<a class="headerlink" href="#exercices" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="admonition-exercice-ex-s1-1-quel-cloud-pour-notre-application admonition" id="ex-s1-1">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-s1-1">Ex-S1-1</a>: quel <em>cloud</em> pour notre application?</p>
+<p>À partir de maintenant on va se placer dans le scénario d’une
+gestion (légale!) de vidéos à la demande. La collection
+est essentiellement constituée de vidéos d’une taille
+moyenne de 500 MO. À chaque vidéo on
+associe quelques méta données (de taille négligeable) comme son titre,
+ses auteurs, l’année de réalisation, etc.
+Au départ on a 10 000 vidéos, mais
+on espère rapidement en gérer 1 000 000 (un million).</p>
+<p>Faites une petite étude économique pour déterminer quel
+serait le coût annuel d’une grappe de serveurs pour stocker
+ce million de vidéos. Regardez les offres de quelques fournisseurs: Amazon
+EC2, Microsoft Azure, Google Cloud Computing, OVH, Gandi, ….</p>
+<p>À vous de choisir la configuration de vos serveurs.
+Vous avez un budget serré ! Et n’oubliez pas</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>de prendre en compte la réplication pour faire face aux pannes inévitables.</p></li>
+<li><p>de prendre en compte le coût du traffic réseau pour installer vos vidéos et les
+transmettre à vos clients.</p></li>
+</ul>
+</div></blockquote>
+<p>Vous avez le droit de faire un fichier Excel (ou équivalent)
+résumant les tailles et performance de vos composants, le coût d’exploitation, etc.
+Vous aurez un coût unitaire par vidéo, et en fonction du nombre de clients, vous
+pouvez même déterminer un tarif (merci de rémunérer les auteurs).</p>
+</div>
+<div class="admonition-exercice-ex-s1-2-combien-de-pannes admonition" id="ex-s1-2">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-s1-2">Ex-S1-2</a>: combien de pannes?</p>
+<p>Essayons d’estimer le taux de panne dans mon système. On dispose des données suivantes:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>le taux annuel de panne (<em>Annual Failure Rate</em>) de mes disques est de 4%;</p></li>
+<li><p>chaque serveur se plante 3 fois par an en moyenne;</p></li>
+<li><p>je constate que chaque baie se trouve coupée du réseau 3 fois par mois,
+coupure d’une durée suffisante pour
+que je doive appliquer un <em>failover</em>.</p></li>
+</ul>
+</div></blockquote>
+<p>Estimez le nombre moyen de disques perdus par an, de redémarrages de serveur par an/mois/jour, de
+pannes de réseau par mois/jour.</p>
+</div>
+<div class="admonition-exercice-ex-s1-3-quelques-calculs admonition" id="ex-s1-3">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-s1-3">Ex-S1-3</a>: quelques calculs</p>
+<p>Je dois exécuter mon traitement de recherche de doublons dans les vidéos, décrit
+dans la section sur la scalabilité. J’applique une fonction d’extraction de signature, <em>f</em>, et pour
+l’instant je ne considère que la première étape.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Supposons pour commencer que le coût du traitement par <em>f</em> soit négligeable
+par rapport à la lecture des vidéos sur les disques. Combien de temps
+faut-il (dans le meilleur des cas) pour avoir parcouru toutes les vidéos dans votre <em>cloud</em> (reprenez
+la configuration choisie précédemment).</p></li>
+<li><p>Ma fonction <em>f</em> prend 1s pour chaque MO; combien de temps
+faudra-t-il pour avoir testé toutes mes vidéos?</p></li>
+<li><p>Jusqu’où faut-il que j’optimise ma fonction <em>f</em>  pour que l’accès au disque redevienne prépondérant?</p></li>
+<li><p>J’arrive à optimiser mon traitement: 2 millisecondes par MO. Quelle solution me reste-t-il?</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="admonition-exercice-ex-s1-4-et-avec-le-reseau admonition" id="ex-s1-4">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-s1-4">Ex-S1-4</a>: et avec le réseau?</p>
+<p>Maintenant je considère la deuxième étape, et je suppose qu’une paire (id, signature)
+occupe en moyenne 100 octets. Calculer le temps
+de transfert, en supposant (1) que toutes les machines sont dans une même baie, avec un débit de 1 Gbits/s et (2)
+qu’elles sont dans des baies distinctes, avec un débit moyen de 200 Mbits/s.</p>
+</div>
+<div class="admonition-exercice-ex-mapred-1-un-grep-en-mapreduce admonition" id="ex-mapred-1">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-mapred-1">Ex-mapred-1</a>: un <code class="docutils literal notranslate"><span class="pre">grep</span></code>, en MapReduce</p>
+<p>On veut scanner des millards de fichiers et afficher tous ceux qui contiennent
+une chaîne de caractères <em>c</em>. Donnez la solution en MapReduce, en utilisant
+le formalisme de votre choix (de préférence un pseudo-code un peu structuré quand même).</p>
+</div>
+<div class="admonition-exercice-ex-mapred-2-un-rollup-en-mapreduce admonition" id="ex-mapred-2">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-mapred-2">Ex-mapred-2</a>: un <code class="docutils literal notranslate"><span class="pre">rollup</span></code>, en MapReduce</p>
+<p>Une grande surface enregistre tous ses tickets de caisse, indiquant
+les produits vendus, le prix et la date, ainsi que le client
+si ce dernier a une carte de fidélité.</p>
+<p>Les produits sont classés selon une taxonomie comme illustré sur la  <a class="reference internal" href="#taxonomie"><span class="std std-numref">Fig. 64</span></a>,
+avec des niveaux de précision.
+Pour chaque produit on sait à quelle catégorie précise de N1 il appartient (par exemple, <code class="docutils literal notranslate"><span class="pre">chaussure</span></code>);
+pour chaque catégorie on connaît son parent.</p>
+<figure class="align-center" id="id17">
+<span id="taxonomie"></span><a class="reference internal image-reference" href="_images/taxonomie.png"><img alt="_images/taxonomie.png" src="_images/taxonomie.png" style="width: 60%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 64 </span><span class="caption-text">Les produits et leur classement.</span><a class="headerlink" href="#id17" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>Supposons que la collection <code class="docutils literal notranslate"><span class="pre">Tickets</span></code> contienne
+des documents de la forme (idTicket, idClient, idProduit, catégorie, date, prix).
+Comment obtenir en MapReduce le total des ventes à une date <em>d</em>, pour le niveau N2?
+On fait donc une agrégation de <code class="docutils literal notranslate"><span class="pre">Tickets</span></code> au niveau supérieur de la
+taxonomie.</p>
+</div>
+<div class="admonition-exercice-ex-mapred-3-algebre-lineaire-distribuee admonition">
+<p class="admonition-title">Exercice <a href="#id20"><span class="problematic" id="id21">`_Ex-mapred-3`_</span></a>:  algèbre linéaire distribuée</p>
+<p>Nous disposons le calcul d’algèbre linéaire du chapitre <a href="#id22"><span class="problematic" id="id23">`chap-mapreduce`_</span></a>. On a donc
+une matrice <em>M</em> de dimension <span class="math notranslate nohighlight">\(N \times N\)</span>
+représentant les liens entres les <span class="math notranslate nohighlight">\(N\)</span>  pages du Web, chaque lien étant
+qualifié par un facteur d’importance (ou « poids »). La matrice est représentée par une
+collection math:<cite>C</cite>  dans laquelle chaque document est de la forme
+{« id »: &amp;23, « lig »: <em>i</em>, « col »: <em>j</em>, « poids »: <span class="math notranslate nohighlight">\(m_{ij}\)</span>}, et
+représente un lien entre la page <span class="math notranslate nohighlight">\(P_i\)</span> et la page <span class="math notranslate nohighlight">\(P_j\)</span> de poids <span class="math notranslate nohighlight">\(m_{ij}\)</span></p>
+<p>Vous avez déjà vu le calcul de la norme des lignes de la matrice, et celui du produit
+de la matrice par un vecteur <span class="math notranslate nohighlight">\(V\)</span>. Prenons en compte maintenant la taille et la distribution.</p>
+<p><strong>Questions</strong></p>
+<blockquote>
+<div><ul>
+<li><p>On estime qu’il y a environ <span class="math notranslate nohighlight">\(N=10^{10}\)</span> pages sur le Web, avec 15 liens par
+page en moyenne. Quelle est la taille de la collection <span class="math notranslate nohighlight">\(C\)</span>, en TO,  en supposant que chaque document
+a une taille de 16 octets</p></li>
+<li><p>Nos serveurs ont 2 disques de 1 TO chacun et chaque document est répliqué  2 fois (donc trois versions en tout).
+Combien affectez-vous de serveurs au système de stokage?</p></li>
+<li><p>Maintenant, on suppose que <span class="math notranslate nohighlight">\(V\)</span> ne tient plus dans la mémoire RAM d’une seule machine. Proposez
+une méthode de partitionnement de la collection <span class="math notranslate nohighlight">\(C\)</span> et de <span class="math notranslate nohighlight">\(V\)</span> qui permette d’effectuer
+le calcul distribué de <span class="math notranslate nohighlight">\(M \times V\)</span> avec MapReduce sans jamais avoir à lire
+le vecteur sur le disque.</p>
+<p>Donnez le critère de partitionnement et la technique (par intervalle ou par hachage).</p>
+</li>
+<li><p>Supposons qu’on puisse stocker <em>au plus</em> deux (2) coordonnées d’un vecteur
+dans la mémoire d’un serveur. Inspirez-vous de la <a class="reference internal" href="#mr-execution-ex"><span class="std std-numref">Fig. 63</span></a>
+pour montrer le déroulement du traitement distribué précédent en choisissant le nombre minimal de serveurs
+permettant de conserver le vecteur en mémoire RAM.</p>
+<p>Pour illustrer le calcul, prenez la matrice <span class="math notranslate nohighlight">\(4\times4\)</span> ci-dessous, et le vecteur <span class="math notranslate nohighlight">\(V = [4,3,2,1]\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}M= \left[ {\begin{array}{cccc}
+ 1 &amp; 2  &amp; 3 &amp; 4 \\
+ 7 &amp; 6 &amp; 5 &amp; 4 \\
+ 6 &amp; 7  &amp; 8 &amp; 9 \\
+  3 &amp; 3  &amp; 3 &amp; 3 \\
+ \end{array} } \right]\end{split}\]</div>
+</li>
+</ul>
+<blockquote>
+<div><ul class="simple">
+<li><p>Expliquez pour finir comment calculer  la similarité cosinus
+entre <span class="math notranslate nohighlight">\(V\)</span> et les lignes <span class="math notranslate nohighlight">\(L_i\)</span> de la matrice.</p></li>
+</ul>
+</div></blockquote>
+</div></blockquote>
+</div>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+            <div>        
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Licence Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">
+  Ce cours</span> de <a xmlns:cc="http://creativecommons.org/ns#" href="http://www.bdpedia.fr" property="cc:attributionName" rel="cc:attributionURL">Philippe Rigaux</a> est mis à disposition selon les termes de la <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">licence Creative Commons Attribution - Pas d’Utilisation Commerciale - Partage dans les Mêmes Conditions 4.0 International</a>.
+</div>
+        <hr/>
+          <h3>Table Of Contents</h3>
+          <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docker.html">Préliminaires: Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docstruct.html">Modélisation de bases NoSQL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rech-exacte.html">Recherche exacte</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cassandra.html">Etude de cas: Cassandra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cassandra_tp.html">Cassandra - Travaux Pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rech-approchee.html">Recherche approchée</a></li>
+<li class="toctree-l1"><a class="reference internal" href="es_tp.html">ElasticSearch - Travaux pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="traitements_lot.html">Traitements par lot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pigtp.html">Pig : Travaux pratiques</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Le <em>cloud</em>, une nouvelle machine de calcul</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#s1-cloud-et-donnees-massives">S1: <em>cloud</em> et données massives</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#vision-generale">Vision générale</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#la-couche-materielle">La couche matérielle</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#gare-a-la-panne">Gare à la panne</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#systemes-distribues">Systèmes distribués</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#messages-et-protocole">Messages et protocole</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#clients-maitres-et-esclaves">Clients, maîtres et esclaves</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#gestion-des-pannes-ou-failover">Gestion des pannes, ou <em>failover</em></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#les-systemes-de-stockage-distribues-dits-nosql">Les systèmes de stockage distribués, dits NoSQL</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#les-systemes-de-calcul-distribues">Les systèmes de calcul distribués</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#la-hierarchie-des-memoires">La hiérarchie des mémoires</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#performances">Performances</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quiz">Quiz</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#s2-la-scalabilite">S2: La scalabilité</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#une-definition">Une définition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#exemple-comptons-les-documents">Exemple: comptons les documents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#autre-exemple-cherchons-les-doublons">Autre exemple: cherchons les doublons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quelques-conclusions">Quelques conclusions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Quiz</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#calculs-distribues">3: Calculs distribués</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#le-principe-de-localite-des-donnees">Le principe de localité des données</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#execution-distribuee-d-un-traitement-mapreduce">Exécution distribuée d’un traitement MapReduce</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#la-reprise-sur-panne">La reprise sur panne</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#panne-en-phase-de-reduce">Panne en phase de Reduce</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#panne-en-phase-map">Panne en phase Map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#et-le-maitre">Et le maître?</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Quiz</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#exercices">Exercices</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="replication.html">Systèmes NoSQL: la réplication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sharding.html">Systèmes NoSQL: le partitionnement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="annales.html">Annales des examens</a></li>
+</ul>
+
+          <h3 style="margin-top: 1.5em;">Recherche</h3>
+          <form class="search" action="search.html" method="get">
+            <input type="text" name="q" />
+            <input type="submit" value="Go" />
+            <input type="hidden" name="check_keywords" value="yes" />
+            <input type="hidden" name="area" value="default" />
+          </form>
+          <p class="searchtip" style="font-size: 90%">
+      Saisissez un ou plusieurs mots-clés.
+          </p>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <a href="pigtp.html" title="Pig : Travaux pratiques"
+             >précédent</a> |
+          <a href="replication.html" title="Systèmes NoSQL: la réplication"
+             >suivant</a> |
+          <a href="genindex.html" title="Index général"
+             >index</a>
+        </div>
+
+        <div class="right">
+        <a href="index.html">Le &lt;em&gt;cloud&lt;/em&gt;, une nouvelle machine de calcul</a><br/>
+          
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2014-2025, Nicolas Travers, Raphaël Fournier S&#39;niehotta et Philippe Rigaux.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>
