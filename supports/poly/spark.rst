@@ -4,9 +4,10 @@
 Etude de cas: Apache Spark
 ##########################
 
-Avec le système Spark, nous abordons un premier exemple (sans doute le plus en
-vogue au moment où ces lignes sont écrites)  d'environnements dédiés au calcul
-distribué à grande échelle qui proposent des fonctionnalités bien plus
+Avec le système Spark, nous récapitulons une  bonne partie 
+des sujets abordés dans e cours. 
+Spark est un environnement dédis au calcul
+distribué à grande échelle, proposant des fonctionnalités bien plus
 puissantes que le simple MapReduce des origines, toujours disponible dans
 l'écosystème Hadoop.
 
@@ -18,13 +19,14 @@ d'exécution MapReduce (un programme Pig est compilé et exécuté comme une
 séquence de *jobs* MapReduce). 
 
 Entre autres limitations, cela ne couvre pas une classe importante
-d'algorithmes: ceux qui procèdent par *itérations*        sur un résultat
+d'algorithmes: ceux qui procèdent par *itérations*       sur un résultat
 progressivement affiné à chaque exécution. Ce type d'algorithme est très
 fréquent dans le domaine général de la fouille de données: PageRank, *kMeans*,
 calculs de composantes connexes dans les graphes, etc.
 
-Ce chapitre propose une introduction au système Spark.
-
+Ce chapitre propose une vision d'ensemble du système Spark, avec des aspects 
+pratiques, et une illustration de son intégration avec un système
+de stockage distribué comme Cassandra.
 
 ************************
 S1: Introduction à Spark
@@ -35,13 +37,12 @@ S1: Introduction à Spark
     * `Diapositives: Introduction à Spark <http://b3d.bdpedia.fr/files/slspark.pdf>`_
     * `Vidéo d'introduction à Spark <https://mediaserver.lecnam.net/permalink/v125f5947d4d8krmjech/>`_  
 
-Avec MapReduce, la spécification de l'itération reste à la charge du
-programmeur; il faut stocker le résultat d'un premier *job* dans une collection
-intermédiaire et réiterer le *job* en prenant la collection intermédiaire comme
-source. C'est laborieux pour l'implantation, et surtout très peu efficace quand
-la collection intermédiaire est grande. Le processus de
-sérialisation/désérialisation sur disque propre à la gestion de la reprise sur
-panne en MapReduce entraîne des performances médiocres.
+MapReduce repose sur un mécanisme de progression consistant
+à écrire sur disque les résultats intermédiaires. En présence de chaînes
+de traitement complexes, incluant parfois des itérations sur 
+une même source de données, ce mécanisme de
+sérialisation/désérialisation sur disque devient extrêmement 
+pénalisant pour les performances.
 
 Dans Spark, la méthode est très différente. Elle consiste  à placer ces jeux de
 données en mémoire RAM et à éviter la pénalité des écritures sur le disque. Le
@@ -52,19 +53,16 @@ Architecture système
 
 Spark est un *framework* qui coordonne l'exécution de *tâches* sur des *données*
 en les répartissant au sein d'un *cluster* de machines. Il est voulu comme
-extrêmement modulaire et flexible. Ainsi, la gestion même du cluster de machines
-peut être déléguée soit au cluster manager de Spark, soit à Yarn ou à Mesos
-(d'autres gestionnaires pour Hadoop).
-
+extrêmement modulaire et flexible.
 Le programmeur envoie au *framework* des *Spark Applications*, pour lesquelles
 Spark affecte des ressources (RAM, CPU) du cluster en vue de leur
 exécution. Une Spark application se compose d'un processus *driver* et
 d\'*executors*. Le *driver* est essentiel pour l'application car il exécute la
 fonction `main()` et est responsable de 3 choses : 
 
-- conserver les informations relatives à l'application ;
-- répondre aux saisies utilisateur ou aux demandes de programmes externes ;
-- analyser, distribuer et ordonnancer les tâches (cf plus loin).
+ - conserver les informations relatives à l'application ;
+ - répondre aux saisies utilisateur ou aux demandes de programmes externes ;
+ - analyser, distribuer et ordonnancer les tâches (cf plus loin).
     
 Un *executor* n'est responsable que de 2 choses : exécuter le code qui lui
 est assigné par le *driver* et lui rapporter l'état d'avancement de la tâche.
@@ -86,8 +84,7 @@ peuvent configurer combien d'exécutors reposent sur chaque nœud.
 
 Spark est un *framework* multilingue : les programmes Spark peuvent être écrits en
 Scala, Java, Python, SQL et R. Cependant, il d'abord écrit en Scala, il s'agit
-de son langage par défaut. C'est celui dans lequel nous travaillerons. Il est
-concis et offre l'intégralité de l'API. Attention, l'API est complète en Scala
+de son langage par défaut. L'API est complète en Scala
 et Java, pas nécessairement dans les autres langages. 
 
 .. note:: Spark peut aussi fonctionner en mode *local*, dans lequel *driver* et
@@ -95,16 +92,15 @@ et Java, pas nécessairement dans les autres langages.
    de proposer une transparence (pour les programmes) entre une exécution locale
    ou sur un cluster.
 
-
 Architecture applicative
 ========================
 
 L'écosystème des API de Spark est hiérarchisé et comporte
 essentiellement 3 niveaux :
 
-- les APIs bas-niveau, avec les RDDs (*Resilient Distributed Dataset*);
-- les APIs de haut niveau, avec les *Datasets*, *DataFrames* et SQL;
-- les autres bibliothèques (*Structured Streaming*, *Advanced Analytics*, etc.).
+ - les APIs bas-niveau, avec les RDDs (*Resilient Distributed Dataset*);
+ - les APIs de haut niveau, avec les *Datasets*, *DataFrames* et SQL;
+ - les autres bibliothèques (*Structured Streaming*, *Advanced Analytics*, etc.).
 
 Nous allons laisser de côté dans ce cours le dernier niveau : l'exploration des
 bibliothèques de *machine learning* relève du `cours RCP216
@@ -113,10 +109,11 @@ bibliothèques de *machine learning* relève du `cours RCP216
 Initialement, les RDDs ont été au centre de la programmation avec Spark (ce qui
 a pour conséquence que de nombreuses ressources que vous trouverez sur Spark
 reposeront dessus). Aujourd'hui, on leur préfère des APIs de plus haut niveau,
-que nous allons explorer en détail, les Datasets et DataFrames. Celles-ci
+que nous allons explorer en détail, les *Datasets* et *DataFrames*. Celles-ci
 présentent l'avantage d'être proches de structures de données connues (avec une
 vision tabulaire), donc de faciliter le passage à Spark. En outre, elles sont
-optimisées *très efficacement* par le *framework*, d'où des gains de performance.
+gérées  efficacement par le *framework* grâce au contrôle des
+types de données qu'elles lui apportent, d'où des gains de performance.
 
 L'innovation des RDDs
 ---------------------
@@ -150,7 +147,7 @@ Actions et transformations : la chaîne de traitement Spark
 ----------------------------------------------------------
 
 Un élément fondamental de la pratique de Spark réside dans **l'immutabilité**
-des collections, elles ne peuvent être modifiées après leur création. C'est un
+des collections (RDD ou autres). Elles ne peuvent être modifiées après leur création. C'est un
 peu inhabituel et cela induit des manières nouvelles de travailler. 
 
 En effet, pour passer des données d'entrée à la sortie du programme, on devra
@@ -182,9 +179,12 @@ pour des compléments).
 Les collections obtenues au cours des différentes étapes d'une chaîne de
 traitement sont stockées dans des RDDs, des DataFrames, etc., selon l'API
 employée. C'est exactement la notion que nous avons déjà étudiée avec Pig. La
-différence essentielle est que dans Spark, les RDD ou DataFrames peuvent être
-marquées comme étant *persistants* car ils  peuvent être réutilisés dans
-d'autres chaînes. Spark fait son possible pour stocker les structures
+différence essentielle est que dans Spark, les RDD ou DataFrames sont, 
+par défaut, *transients*, c'est-à-dire non matérialisés sur un
+support externe comme le disque. Ils peuvent cependant être
+marqués comme étant *persistants*, dans le cas où
+l'on souhaite les réutiliser à plusieurs reprises (cas d'une itération). 
+Spark fait son possible pour conserver les structures
 persistantes en mémoire RAM, pour un maximum d'efficacité.
 
 .. _spark-rdd:
@@ -199,14 +199,16 @@ Les collections forment un graphe construit par application de transformations �
 partir de collections stockées (:numref:`spark-rdd`). S'il n'est pas marqué
 comme persistant, le RDD/DataFrame sera transitoire et ne sera pas conservé en
 mémoire après calcul (c'est le cas des RDD 1 et 3 sur la figure). Sinon, il est
-stocké en RAM, et disponible comme source de données pour d'autres
+stocké en RAM, ou mis sur disque s'il n'y a pas assez de mémoire,
+et disponible comme source de données pour d'autres
 transformations.
 
 Par opposition aux transformations qui produisent d'autres RDD ou DataFrames, les **actions**
 produisent des *valeurs* (pour l'utilisateur). L'évaluation des opérations en
 Spark est dite "paresseuse", c'est-à-dire que Spark attend le plus possible pour
-exécuter le graphe des instructions de traitement. Plus précisément, une action
-déclenche l'exécution des transformations qui la précèdent.
+exécuter le graphe des instructions de traitement. Comme dans Pig, 
+une action
+déclenche donc l'exécution de l'ensemble des transformations qui la précèdent.
 
 L'évaluation paresseuse (*lazy evaluation*) permet à Spark de compiler de
 simples transformations de DataFrames en un plan d'exécution physique
@@ -224,15 +226,19 @@ n'importe quel document, sans aucun préjugé sur la structure (ou l'absence de
 structure) de ce dernier. Cela rend le système très généraliste, mais empêche
 une manipulation fine des constituants des documents, comme par exemple le
 filtrage en fonction de la valeur d'un champ. C'est le programmeur de
-l'application qui doit fournir la fonction effectuant le filtre.
+l'application qui doit fournir la fonction effectuant le filtre. Cela impose
+un "décodage" des éléments du RDD dans un format reconnu par
+le langage de programmation utilisé. C'es ce décodage (ou, pour
+le dire plus techniquement, la sérialisation/désérialisation) qui
+pénalise l'utilisation directe des RDD.
 
 On l'a dit, Spark implémente une API de plus haut niveau avec des structures
 assimilables à des tables relationnelles : les *Dataset* et *DataFrame*. Ils
 comportent un *schéma*, avec les définitions des colonnes. La connaissance de ce
 schéma -- et éventuellement de leur type -- permet à Spark de proposer des
 opérations plus fines, et des optimisations inspirées des techniques
-d'évaluation de requêtes dans les systèmes relationnels. En fait, on se ramène à
-une implantation distribuée du langage SQL.  En interne, un avantage important
+d'évaluation de requêtes dans les systèmes relationnels. En fait, on se rapproche 
+d'une implantation distribuée du langage SQL.  En interne, un avantage important
 de la connaissance du schéma est d'éviter de recourir à la sérialisation des
 objets Java (opération effectuée dans le cas des RDD pour écrire sur disque et
 échanger des données en réseau). 
@@ -459,13 +465,9 @@ Quiz
     #) :eqt:`I` Seuls les DataSets peuvent prendre une base relationnelle comme source de données
 
 
-*********
-S4: Spark
-*********
-
-.. admonition:: Supports complémentaires
-
-    * `Vidéo  Spark en pratique: *DataFrames* <https://mediaserver.lecnam.net/permalink/v125f5947d50aigwjp4q/>`_  
+********************
+S2: Mise en pratique
+********************
 
 
 Il est temps de passer à l'action. Nous allons commencer par montrer  comment effectuer
@@ -630,8 +632,11 @@ en appliquant la fonction (standard) Python ``split()`` aux documents:
 La méthode ``split`` décompose une chaîne de caractères (ici, en prenant comme séparateur un espace)
 en une liste de mots.
 On donne un nom à la colonne
-avec ``name()``(sinon la colonne est nommée par défaut `split(value, \s+, -1)split(value, \s+, -1)``, 
-pas très pratique.
+avec ``name()`` 
+(sinon la colonne est nommée par défaut ``split(value, \s+, -1)split(value, \s+, -1)``, 
+ce qui n'est pas très pratique). Notez que ``split``, comme beaucoup d'autres
+fonctions, crée une colonne, et qu'il faut appeler la fonction ``select``
+pour construire un *dataframe* à partir de cette colonne (ou de plusieurs).
 
 .. code-block:: python
 
@@ -644,7 +649,7 @@ pas très pratique.
 	|[Il, y, a, trois,...|
 	+--------------------+
 
-Nous allons maintenant "applatir" chaque tableau pour, à partir d'une
+Nous allons maintenant "aplatir" chaque tableau pour, à partir d'une
 ligne de la colonne ``mots``, obtenir autant de lignes qu'il y a de mots.
 C'est l'équivalent de la fonction ``flatten`` dans Pig. Concrètement: 
 
@@ -692,8 +697,8 @@ simple étant ``count``.
 		|   autres|    1|
 		|     sont|    2|
 
-Et voilà! On a décomposé chaque étapé, mai on aurait pu 
-exprimertoute la chaîne de traitement  en une seule fois.
+Et voilà! On a décomposé chaque étape, mai on aurait pu 
+exprimer toute la chaîne de traitement  en une seule fois.
 
 .. code-block:: python
 
@@ -721,109 +726,82 @@ soumettre à divers traitements, il suffit d'appeler la fonction ``cache()``:
 
     compteurTermes.cache()
 
-L'interface de contrôle Spark
-=============================
+Spark SQL, gestion de données structurées
+=========================================
 
-Spark dispose d'une interface Web qui permet de consulter les entrailles du système et de mieux comprendre
-ce qui est fait. Elle est accessible sur le port 4040, donc à l'URL http://localhost:4040 pour 
-une exécution du *shell*. 
-Pour explorer les informations fournies par cette interface, nous allons exécuter 
-notre
-*workflow*, assemblé en une seule chaîne d'instructions .
-Lancez  *pyspark* est exécutez ce *workflow*.
-
-Maintenant, vous devriez pouvoir accéder à l'interface et obtenir un affichage semblable 
-à celui de la :numref:`sparkUI`. En particulier, le *job* que vous venez d'exécuter devrait
-apparaître, avec sa durée d'exécution et quelques autres informations.
-
-.. _sparkUI:
-.. figure:: ../figures/sparkUI.png
-     :width: 85%
-     :align: center
-  
-     L'interface Web de Spark
-
-L'onglet *jobs*
----------------
-
-Cliquez sur le nom du *job* pour obtenir des détails sur les étapes du calcul
-(:numref:`sparkQueryPlan`). Spark nous
-dit que l'exécution s'est faite en deux étapes. Ce n'est pas forcément
-très clair, mais la première comprend les 
-transformations textuelle, et la seconde les opérations d'agrégation.
-Les deux étapes sont séparées par une phase de *shuffle*.
+Allons maintenant un peu plus loin en étudiant l'import de données
+structurées dans  park et leur manipulation
+avec Spark SQL, une forme de SQL adaptée aux spécificités
+des *dataframes*. Nous allons prendre le
+fichier des films ``films.json``, dans le format proposé
+sur https://deptfod.cnam.fr/bd/tp/datasets/ (il convient également
+pour un import dans MongoDB).
 
 
-.. _sparkQueryPlan:
+Pour la création du *dataframe* initial, on applique simplement 
+la fonction de lecture JSON.
 
-.. figure:: ../figures/sparkQueryPlan.png
-     :width: 85%
-     :align: center
-  
-     Plan d'exécution d'un *job* Spark: les étapes.
+.. code-block:: python
 
-À quoi correspondent ces *étapes*? En fait, si vous avez bien suivi ce qui précède dans le cours,
-vous avez les éléments pour répondre: une *étape* dans Spark regroupe un ensemble d'opérations
-qu'il est possible d'exécuter *localement*, sur une seule machine, sans avoir à efectuer des
-échanges réseau. C'est une généralisation de la phase de *Map* dans un environnement MapReduce.
-Les étapes sont logiquement séparées par des phases de *shuffle* qui consistent à redistribuer
-les données afin de les regrouper selon certains critères. Relisez le chapitre :ref:`chap-cloud`
-pour revoir vos bases du calcul distribué si ce n'est pas clair.
+     df = spark.read.json("films.json")
 
-Quand le traitement s'effectue sur des données partitionnées, une *étape* est effectuée en parallèle
-sur les  fragments, et Spark appelle *tâche* l'exécution de l'étape sur un fragment
-particulier, pour une machine particulière. Résumons:
-
-  - Un *job* est l'exécution d'une chaîne de traitements (*workflow*) dans un environnement distribué. 
-  - Un *job* est découpé en *étapes*, chaque étape étant un segment du *workflow* qui peut s'exécuter localement.
-  - L'exécution d'une étape se fait par un ensemble de tâches, une par machine hébergeant un fragment
-    du RDD servant de point d'entrée à l'étape.
+    # Le schéma a été inferré d'après le contenu
+    df.printSchema()
     
-Et voilà ! Si c'est clair passez à la suite, sinon relisez. 
+     # Regardons un extrait de ce contenu
+    df.show()
+
+Le *dataframe* peut maintenant être inspecté en s'appuyant sur le schéma
+et des fonctions spécifiques aux types de données importées. Quelques
+exemples:
+
+.. code-block:: python
+
+    # Affichage de quelques 
+	df.select(df["director"], df["year"]).show()
+	# Filtrage
+	df.filter(df['year'] > 2000).show()
+	# Regroupement et comptage
+	df.groupBy("year").count().show()
+
+On peut même pousser l'illusion un cran plus loin et créer 
+une représentation relationnelle du *dataframe*.
+
+.. code-block:: python
+
+		df.createOrReplaceTempView("films")
+		
+``films`` est alors une table sur laquelle on peut exprimer des
+requêtes SQL.
 
 
-L'onglet *Stages*
------------------
+.. code-block:: python
+  
+    sqlDF = spark.sql("SELECT * FROM films where year > 2000")
 
-Vous pouvez obtenir des informations complémentaires sur chaque étape avec
-l'onglet *Stages* (qui veut dire *étapes*, en anglais). En particulier,
-l'interface montre de nombreuses statistiques sur le temps d'exécution, le
-volume des données échangées, etc. Tout cela est très précieux quand on veut
-vérifier que tout va bien pour  des traitements qui durent des heures ou des
-jours.
-
-
-L'onglet *Storage*
-------------------
-
-Maintenant, consultez l'onglet *Storage*. Il devrait être vide et c'est normal: 
-aucun *job* n'est en cours d'exécution.
-Notre fichier de départ est trop petit pour que la durée 
-d'exécution soit significative. Mais introduisez l'opération de persistance
-``cache()`` dans le *workflow*:  
+Spark SQL connaît les types imbriqués, comme le montre l'exemple suivant:
 
 
 .. code-block:: python
 
-       compteurTermes = loupsEtMoutons.select(sf.split(loupsEtMoutons.value, "\s+"
-                      ).name("mots")
-                      ).select(sf.explode(sf.col("mots")
-                      ).name("mot")
-                      ).groupBy("mot"
-                      ).count(
-                      ).cache(
-                      )
-       
-Et exécutez à nouveau l'action ``compteurTermes.show()``. Cette fois un RDD devrait apparaître dans l'onglet *Storage*,
-et de plus vous devriez comprendre pourquoi!
+       sqlDF = spark.sql("SELECT director.first_name FROM films where year > 2000").show()
 
-Exécutez une nouvelle fois l'action ``show()`` et consultez les statistiques des temps d'exécution. 
-La dernière exécution devrait être significativement plus rapide que les précédentes. Comprenez-vous
-pourquoi? Regardez les étapes, et clarifiez tout cela dans votre esprit.
+Et on peut effectuer des transformations structurelles, comme "l'aplatissement"
+d'un tableau. Voici comment créer le *dataframe* associant à chaque acteur le titre
+et le metteur en scène de chacun des films dans lesquels il a joué.
 
-Il ne s'agit que d'un fichier de 4 lignes en entrée. On peut extrapoler à de très grandes collections
-et réaliser le gain potentiel avec cette méthode (qui n'est pas magique: on a échangé du temps
-contre de l'espace, comme toujours). 
+.. code-block:: python
+ 
+     roles = df.select(df.title,sf.explode (df.actors).alias("acteur"),df.director)
+     
+C'est l'équivalent d'un ``Map`` dans lequel on émettrait une paire clé valeur
+pour chaque acteur d'un film. L'équivalent du ``Reduce`` est obtenu
+par la combinaison de ``groupBy``  suivi d'une fonction d'agrégation.
+Voici le nombre de rôles joués par chaque acteur.
+
+.. code-block:: python
+
+      acteurs = roles.groupBy(roles.acteur).count()
 
 
 Mise en pratique
@@ -936,12 +914,15 @@ traitements que de celui du système.
     exécution (*compile-time checking*, par opposition au *run-time checking*),
     et permet une sérialisation très rapide, indépendante de la sérialisation
     Java, grâce à une couche composée d' *encoders*.
-    
 
-Nous allons en profiter pour instancier un début d'architecture réaliste en associant Spark à Cassandra
-comme source de données. Dans une telle organisation, le stockage et le partitionnement sont assurés 
-par Cassandra, et le calcul distribué par Spark. Idéalement, chaque nœud Spark traite un ou plusieurs
-fragments d'une collection partitionnée Cassandra, et communique donc avec un des nœuds de la
+Nous allons en profiter pour instancier un début d'architecture réaliste en 
+associant Spark à Cassandra
+comme source de données. Dans une telle organisation, le stockage et le 
+partitionnement sont assurés 
+par Cassandra, et le calcul distribué par Spark. Idéalement, chaque 
+nœud Spark traite un ou plusieurs
+fragments d'une collection partitionnée Cassandra, et communique donc 
+avec un des nœuds de la
 grappe Cassandra. On obtient alors un système complètement distribué et donc *scalable*.
 
 Préliminaires
@@ -949,236 +930,231 @@ Préliminaires
 
 La base Cassandra que nous prenons comme support est celle des restaurants
 New-Yorkais. Reportez-vous au chapitre :ref:`chap-cassandra_tp` pour la création
-de cette base. Dans ce qui suit, on suppose que le serveur Cassandra est en
-écoute sur la machine 192.168.99.100, port 32769 (si vous utilisez Cassandra
-avec Docker, reportez-vous aussi aux manipulations vues en TP pour trouver les
-bonnes valeurs d'IP et de port, qui sont probablement différentes de celles-ci).
+de cette base. Dans ce qui suit, on suppose que le serveur Cassandra est 
+dans un conteneur Docker qui effectue un renvoi sur le port 3000 
+de la machine hôte. On se connecte donc sur Cassandra 
+avec la machine ``localhost``  et le port 3000. Je suppose également
+qu'à ce stade du cours vous êtes capables d'identifier votre
+propre configuration.
 
-Pour associer Spark et Cassandra, il faut récupérer le connecteur  sur la page
-https://spark-packages.org/package/datastax/spark-cassandra-connector. Prenez la
-version la plus récente, en tout cas celle correspondant à votre version de
-Spark.
-
-Vous obtenez un fichier jar. Pour qu'il soit pris en compte, le plus simple est
-de le copier dans le répertoire ``jars`` de Spark. Lancez alors le *shell*
-Spark. Il ne reste plus qu'à se connecter au serveur Cassandra en ajoutant la
-configuration (machine et port) dans le contexte Spark. Exécutez donc au
-préalable les commandes suivantes (en remplaçant la machine et le port par vos
-propres valeurs, bien sûr).
-
-.. code-block:: scala
-
-   import org.apache.spark.sql.cassandra._
-   import com.datastax.spark.connector.cql.CassandraConnectorConf
-   import com.datastax.spark.connector.rdd.ReadConf
-
-   // Paramètres de connexion
-   spark.setCassandraConf("default", 
-                      CassandraConnectorConf.ConnectionHostParam.option("192.168.99.100") 
-                   ++ CassandraConnectorConf.ConnectionPortParam.option(32769))
-
-.. admonition:: Pour les machines du CNAM
-
-  On peut mettre en place rapidement la base Cassandra avec les données et un
-  spark connecté à Cassandra en suivant les quelques lignes ci-dessous :
-
-  1. On lance la machine Cassandra en tapant :
-
-    .. code-block:: bash
-
-      docker run --name mon-cassandra -p3000:9042 -d cassandra:latest
-
-  2. On télécharge les données sur les restaurants et on décompresse le fichier :
-
-    .. code-block:: bash
-
-      wget b3d.bdpedia.fr/files/restaurants.zip
-      unzip restaurants.zip
-
-  3. On récupère l'id de notre container Cassandra :
-
-    .. code-block:: bash
-
-      docker ps
-
-  4. On copie les fichiers sur la "machine" Cassandra
-
-    .. code-block:: bash
-
-      docker cp ./restaurants.csv <CONTAINER-ID>:/
-      docker cp ./restaurants_inspections.csv <CONTAINER-ID>:/
-
-  5. On ouvre un terminal cqlsh
-
-    .. code-block:: bash
-
-      docker exec -it mon-cassandra cqlsh
-
-  6. On lance les commandes de création de la base de données, puis celles des
-     tables, et enfin le remplissage des tables : voir
-     http://b3d.bdpedia.fr/cassandra_tp.html#creation-de-la-base-de-donnees
-
-  7. On télécharge dans un autre terminal le connecteur spark-cassandra :
-
-    .. code-block:: bash
-
-      wget https://b3d.bdpedia.fr/files/spark-cassandra-connector_2.11-2.3.0.jar
-
-  8. On lance spark avec le jar obtenu :
-
-    .. code-block:: bash
-
-      spark-shell --jars ./spark-cassandra-connector_2.11-2.3.0.jar
-
-  9. On utilise les options de connexion suivantes :
-
-    .. code-block:: scala
-
-       import org.apache.spark.sql.cassandra._
-       import com.datastax.spark.connector.cql.CassandraConnectorConf
-       import com.datastax.spark.connector.rdd.ReadConf
-
-       // Paramètres de connexion
-       spark.setCassandraConf("default", 
-                          CassandraConnectorConf.ConnectionHostParam.option("127.0.0.1") 
-                       ++ CassandraConnectorConf.ConnectionPortParam.option(3000))
+Pour associer Spark et Cassandra, il faut utiliser un connecteur
+disponible sur GitHub: https://github.com/datastax/spark-cassandra-connector.
+Nous allons nous appuyer sur l'interface Python, ``pyspark`` qui
+effectue automatiquement un téléchargement des librairies
+nécessaires quand on le lance avec l'option suivante
+(la version indiquée ici est la 3.5.0, prise en janvier 2025).
 
 
-Vous devriez pouvoir vérifier que la connexion fonctionne en interrogeant la table des restaurants.
+.. code-block:: bash
 
-.. code-block:: scala
+	pyspark --packages com.datastax.spark:spark-cassandra-connector_2.12:3.5.0
 
-   val restaurants_df = spark.read.cassandraFormat("restaurant", "resto_ny").load()
-   restaurants_df.printSchema()
-   restaurants_df.show()
- 
-.. note:: Il semble que le nom du *Keyspace* et de la table doivent être mis en minuscules.
+Une fois ``PySpark`` lancé, vous devez pouvoir établir une connexion
+avec Cassandra comme suit (en reprenant les paramètres à adapter selon
+votre contexte).
 
-Nous voici en présence d'un *DataFrame* Spark, dont le schéma (noms des colonnes) a été directement
-obtenu depuis Cassandra. En revanche, les colonnes ne sont pas typées (on pourrait espérer
-que le type est récupéré et transcrit depuis le schéma de Cassandra, mais ce n'est malheureusement
-pas le cas). 
+.. code-block:: python
 
-Pour obtenir un *Dataset* dont les colonnes sont typées, avec tous les avantages qui en
-résultent, il faut définir une classe dans le langage de programmation (ici, Scala)
-et demander la conversion, comme suit:
+	session = SparkSession.builder \
+		.appName("NFE204") \
+		.config("spark.cassandra.connection.host", "localhost") \
+		.config("spark.cassandra.connection.port", "3000") \
+		.config("spark.sql.extensions", "com.datastax.spark.connector.CassandraSparkExtensions") \
+		.getOrCreate()
+    	
+L'objet ``session`` permet de communiquer avec Cassandra.
+Essayez d'afficher un extrait des restaurants:
 
-.. code-block:: scala
+.. code-block:: python
 
-      case class Restaurant(id: Integer, Name: String, borough: String, 
-                             BuildingNum: String, Street: String,
-                             ZipCode: Integer, Phone: String, CuisineType: String)
-   
-      val restaurants_ds = restaurants_df.as[Restaurant]
-      
-Nous avons donc maintenant un *DataFrame* ``restaurant_df`` et un *Dataset* ``restaurant_ds``.
-Le premier est une collection d'objets de type ``Row``, le second une collection d'objets de
-type ``Restaurant``. On peut donc exprimer des opérations plus précises sur le second. 
-Notons que tout cela
-constitue une illustration pratique du compromis que nous étudions depuis le début de ce
-cours sur la notion de document: vaut-il mieux des données au schéma très contraint, mais
-offrant plus de sécurité, ou des données au schéma très flexible, mais beaucoup
-plus difficile à manipuler?
-
-Nous aurons également besoin des données sur les inspections de ces restaurants.
-
-.. code-block:: scala
-
-      case class Inspection (idRestaurant: Integer, InspectionDate: String, ViolationCode: String,
-            ViolationDescription: String, CriticalFlag: String, Score: Integer, Grade: String)
-   
-      val inspections_ds = spark.read.cassandraFormat("inspection", "resto_ny").load().as[Inspection]
-
-.. note:: Pour celles/ceux qui veulent expérimenter directement l'interface SQL de Spark,
-   il existe une troisième option, celle de créer une "vue" sur les restaurants Cassandra avec la commande suivante:
-   
-    .. code-block:: scala
-
-        val createDDL = """CREATE TEMPORARY VIEW restaurants_sql
-                    USING org.apache.spark.sql.cassandra
-                    OPTIONS (
-                     table "restaurant",
-                     keyspace "resto_ny")"""
-        spark.sql(createDDL) 
-
-        spark.sql("SELECT * FROM restaurants_sql").show
+	restaurants_df = session.read.format("org.apache.spark.sql.cassandra") \
+			.options(table="restaurant", keyspace="resto_ny") \
+			.load()
+	restaurants_df.show()
 
 
 
-Traitements basés sur les *Datasets*
-====================================
+Tout va bien ? Nous avons donc créé un *DataFrame* Spark nommé ``restaurant_df``, 
+dont le schéma (noms des colonnes) a été directement
+obtenu depuis Cassandra. En revanche, les colonnes ne sont pas typées 
+(on pourrait espérer
+que le type est récupéré et transcrit depuis le schéma de Cassandra, 
+mais ce n'est malheureusement pas le cas). 
 
+Tant que nous y sommes, nous allons créer un *Dataframe* pour les inspections.
 
-Nous allons illustrer l'interface de manipulation des  *Datasets* (elle
-s'applique aussi au *DataFrames*, à ceci près qu'on ne peut pas exploiter
-le typage précis donné par la classe des objets contenus dans la collection). 
-Pour bien saisir la puissance
-de cette interface, vous êtes invités à réfléchir à ce qu'il faudrait faire pour 
-obtenir un résultat équivalent si on avait affaire 
-à un simple RDD, sans schéma, avec donc la nécessité d'écrire une fonction à chaque
-étape.
+.. code-block:: python
 
-Commençons par les *projections* (malencontreusement référencées par la mot-clé
+	inspections_df = session.read.format("org.apache.spark.sql.cassandra") \
+			.options(table="inspection", keyspace="resto_ny") \
+			.load()
+
+Traitements Spark/Cassandra
+===========================
+
+Voici quelques exemples 
+de transformations Spark appliquées à des données
+issues de Cassandra.
+ Commençons par les *projections* (malencontreusement référencées par la mot-clé
 ``select`` depuis les débuts de SQL) consistant à ne conserver que certaines colonnes.
 La commande suivante ne conserve que trois colonnes.
 
 .. code-block:: scala
 
-    val restaus_simples = restaurants_ds.select("name", "phone", "cuisinetype")
-
+    restaus_simples = restaurants_df.select("name", "phone", "cuisinetype")
     restaus_simples.show()
     
 Voici maintenant comment
-on effectue une sélection (avec le mot-clé ``filter``, correspondant au ``where`` de SQL).
+on effectue une sélection (avec le mot-clé ``filter``, 
+correspondant au ``where`` de SQL).
 
 .. code-block:: scala
 
-    val manhattan = restaurants_df.filter("borough =  'MANHATTAN'")
-    
+    manhattan = restaurants_df.filter("borough =  'MANHATTAN'")
     manhattan.show()
 
 Par la suite, nous omettons l'appel à *show()* que vous pouvez ajouter si vous souhaitez
 consulter le résultat.
+Tout cela aurait aussi bien pu s'exprimer en CQL (voir exercices). Mais Spark
+va définitivement plus loin en termes de capacité de traitements,
+et propose notamment la fameuse opération de jointure qui nous a tant manqué 
+jusqu'ici. 
 
-L'interface *Dataset* offre une syntaxe légèrement différente qui permet de tirer parti du fait
-que l'on a affaire à une collection d'objets de type ``Restaurant``. On peut donc passer 
-en paramètre une expression booléenne Scala qui prend un object ``Restaurant``
-en entrée et renvoie un Booléen.
+.. code-block:: python
 
-.. code-block:: scala
-
-       val r = restaurants_ds.filter(r => r.borough == "MANHATTAN")
-
-Ce type de construction permet un typage statique (au moment de la compilation)
-qui garantit qu'il n'y aura pas de problème au moment de l'exécution.
+	restaus_inspections = restaurants_df.join(inspections_df, restaurants_df.id == inspections_df.idrestaurant)
 
 On peut effectuer des agrégats, comme par exemple le regroupement des
 restaurants par arrondissement (*borough*):
 
 .. code-block:: scala
 
-    val comptage_par_borough = restaurants_ds.groupBy("borough").count()
+    comptage_par_borough = restaus_inspections.groupBy("borough").count()
 
-Tout cela aurait aussi bien pu s'exprimer en CQL (voir exercices). Mais Spark
-va définitivement plus loin en termes de capacité de traitements,
-et propose notamment la fameuse opération de jointure qui nous a tant manqué 
-jusqu'ici. 
+Et un exemple complet: la moyenne des notes des restaurants de tapas.
 
-.. code-block:: scala
+.. code-block:: python
 
-     val restaus_inspections = restaurants_ds
-            .join(inspections_ds, restaurants_ds("id") === inspections_ds("idRestaurant"))
-   
+	from pyspark.sql import functions as sf
+	
+	comptage_tapas = restaurants_df.filter("cuisinetype > 'Tapas'") \
+    	.join(inspections_df, restaurants_df.id == inspections_df.idrestaurant) \
+     	.groupBy("name") \
+     	.agg(sf.avg("score"))
+
+
+L'interface de contrôle Spark
+=============================
+
+Spark dispose d'une interface Web qui permet de consulter les entrailles du système et de mieux comprendre
+ce qui est fait. Elle est accessible sur le port 4040, donc à l'URL http://localhost:4040 pour 
+une exécution du *shell*. 
+Pour explorer les informations fournies par cette interface, nous allons exécuter 
+notre *workflow* calculant la moyenne des scores des restaurants de tapas.
+Lancez  *pyspark* est exécutez ce *workflow*.
+
+Maintenant, vous devriez pouvoir accéder à l'interface et obtenir un affichage semblable 
+à celui de la :numref:`sparkUI`. En particulier, le *job* que vous venez d'exécuter devrait
+apparaître, avec sa durée d'exécution et quelques autres informations.
+
+.. _sparkUI:
+.. figure:: ../figures/sparkUI.png
+     :width: 85%
+     :align: center
   
-Le traitement suivant effectue la moyenne des votes pour les restaurants de Tapas.
+     L'interface Web de Spark
 
-.. code-block:: scala
+L'onglet *jobs*
+---------------
 
-     val restaus_stats = restaurants_ds.filter("cuisinetype > 'Tapas'")
-           .join(inspections_ds, restaurants_ds("id") === inspections_ds("idRestaurant"))
-           .groupBy(restaurants_ds("name"))
-          .agg(avg(inspections_ds("score")))
+Chaque exécution d'une action correspond à un *job*, lui-même
+décomposé en *stages* (étapes). Cette décomposition correspond à l'identification
+des  étapes du *workflow* qui peuvent d'exécuter en parallèle. 
+
+À quoi correspondent ces *étapes*? En fait, si vous avez bien suivi ce qui précède dans le cours,
+vous avez les éléments pour répondre: une *étape* dans Spark regroupe un ensemble d'opérations
+qu'il est possible d'exécuter *localement*, sur une seule machine, sans avoir à effectuer des
+échanges réseau. C'est une généralisation de la phase de *Map* dans un environnement MapReduce.
+Les étapes sont logiquement séparées par des phases de *shuffle* qui consistent à redistribuer
+les données afin de les regrouper selon certains critères. Relisez le chapitre :ref:`chap-cloud`
+pour revoir vos bases du calcul distribué si ce n'est pas clair.
+
+Quand le traitement s'effectue sur des données partitionnées, une *étape* est effectuée en parallèle
+sur les  fragments, et Spark appelle *tâche* l'exécution de l'étape sur un fragment
+particulier, pour une machine particulière. Résumons:
+
+  - Un *job* est l'exécution d'une chaîne de traitements (*workflow*) dans un environnement distribué. 
+  - Un *job* est découpé en *étapes*, chaque étape étant un segment du *workflow* qui peut s'exécuter localement.
+  - L'exécution d'une étape se fait par un ensemble de tâches, une par machine hébergeant un fragment
+    du RDD servant de point d'entrée à l'étape.
+
+Entre deux
+*stages*, il y a donc nécessairement une étape de distribution des données
+(*shuffle*) qui permet d'initialiser l'état de départ du *stage* qui suit.
+On retrouve une fonctionnement de base illustré déjà par MapReduce: les
+deux phases, Map et Reduce, sont parallélisables, mais le
+ppassage de l'une à l'autre correspond à une forme 
+de synchronisation.
+
+Cliquez sur le nom du *job* pour obtenir des détails sur les étapes du calcul
+(:numref:`sparkQueryPlan`). Spark nous
+dit que l'exécution s'est faite en trois étapes. Ce n'est pas forcément
+très clair, mais la première comprend les 
+transformations textuelle, et la seconde les opérations d'agrégation.
+Les deux étapes sont séparées par une phase de *shuffle*.
+
+
+.. _sparkQueryPlan:
+
+.. figure:: ../figures/sparkQueryPlan.png
+     :width: 85%
+     :align: center
   
+     Plan d'exécution d'un *job* Spark: les étapes.
+
+
+L'onglet *Stages*
+-----------------
+
+Vous pouvez obtenir des informations complémentaires sur chaque étape avec
+l'onglet *Stages* (qui veut dire *étapes*, en anglais). En particulier,
+l'interface montre de nombreuses statistiques sur le temps d'exécution, le
+volume des données échangées, etc. Tout cela est très précieux quand on veut
+vérifier que tout va bien pour  des traitements qui durent des heures ou des
+jours.
+
+
+L'onglet *Storage*
+------------------
+
+Maintenant, consultez l'onglet *Storage*. Il devrait être vide et c'est normal: 
+aucun *job* n'est en cours d'exécution.
+Notre fichier de départ est trop petit pour que la durée 
+d'exécution soit significative. Mais introduisez l'opération de persistance
+``cache()`` dans le *workflow*:  
+
+
+.. code-block:: python
+
+	comptage_tapas = restaurants_df.filter("cuisinetype > 'Tapas'") \
+    	.join(inspections_df, restaurants_df.id == inspections_df.idrestaurant) \
+    	.cache() 
+    	
+        
+Et exécutez à nouveau l'action ``comptage_tapas.show()``. Cette fois un RDD devrait apparaître dans l'onglet *Storage*,
+et de plus vous devriez comprendre pourquoi!
+
+Exécutez une nouvelle fois l'action ``show()`` et consultez les statistiques des temps d'exécution. 
+La dernière exécution devrait être significativement plus rapide que les précédentes. Comprenez-vous
+pourquoi? Regardez les étapes, et clarifiez tout cela dans votre esprit.
+
+
+
+L'onglet *SQL/Dataframe*
+------------------------
+
+Cet onglet montre de manière assez complète le plan d'exécution Spark pour 
+la jointure et l'agrégation.
 
 Mise en pratique
 ================

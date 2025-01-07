@@ -133,18 +133,16 @@ Un RDD, du point de vue du programmeur, c'est un conteneur d'objets java.
 
 Le type précis de ces objets n'est pas connu par Spark. Du coup:
 
-\begin{itemize}
+\begin{redbullet}
   \item Tout ce que Spark peut faire, c'est appliquer la sérialisation/désérialisation java 
   \item Aucun accès aux objets grâce à un langage déclaratif n'est possible.
   \item Et donc pas d'optimisation, et la nécessité de tout écrire sous forme de fonctions java. 
-\end{itemize}
+\end{redbullet}
 
 \vfill
 
 Depuis la version 1.6: on dispose de RDD améliorés: les \textit{Datasets}. On peut les traiter
 comme des tables relationnelles. 
-
-
 
 \vfill
 \begin{blocgauche}
