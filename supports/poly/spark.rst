@@ -5,8 +5,8 @@ Etude de cas: Apache Spark
 ##########################
 
 Avec le système Spark, nous récapitulons une  bonne partie 
-des sujets abordés dans e cours. 
-Spark est un environnement dédis au calcul
+des sujets abordés dans ce cours. 
+Spark est un environnement dédié au calcul
 distribué à grande échelle, proposant des fonctionnalités bien plus
 puissantes que le simple MapReduce des origines, toujours disponible dans
 l'écosystème Hadoop.
@@ -56,7 +56,7 @@ en les répartissant au sein d'un *cluster* de machines. Il est voulu comme
 extrêmement modulaire et flexible.
 Le programmeur envoie au *framework* des *Spark Applications*, pour lesquelles
 Spark affecte des ressources (RAM, CPU) du cluster en vue de leur
-exécution. Une Spark application se compose d'un processus *driver* et
+exécution. Une application Spark  se compose d'un processus *driver* et
 d\'*executors*. Le *driver* est essentiel pour l'application car il exécute la
 fonction `main()` et est responsable de 3 choses : 
 
@@ -214,7 +214,7 @@ L'évaluation paresseuse (*lazy evaluation*) permet à Spark de compiler de
 simples transformations de DataFrames en un plan d'exécution physique
 efficacement réparti dans le cluster. Un exemple de cette efficacité est
 illustrée par le concept de *predicate pushdown* : si un :code:`filter()` à la
-fin d'une séquence amène à ne travailler que sur 1 ligne des données d'entrée,
+fin d'une séquence amène à ne travailler que sur une ligne des données d'entrée,
 les autres opérations en tiendront compte, optimisant d'autant la performance en
 temps et en espace.
 
@@ -235,7 +235,7 @@ pénalise l'utilisation directe des RDD.
 On l'a dit, Spark implémente une API de plus haut niveau avec des structures
 assimilables à des tables relationnelles : les *Dataset* et *DataFrame*. Ils
 comportent un *schéma*, avec les définitions des colonnes. La connaissance de ce
-schéma -- et éventuellement de leur type -- permet à Spark de proposer des
+schéma -- et éventuellement de leur type dans le cas des *datasets* -- permet à Spark de proposer des
 opérations plus fines, et des optimisations inspirées des techniques
 d'évaluation de requêtes dans les systèmes relationnels. En fait, on se rapproche 
 d'une implantation distribuée du langage SQL.  En interne, un avantage important
@@ -531,7 +531,7 @@ avec une unique colonne ``value``.
 Spark propose des *actions* directement
 applicables à un DataFrame et produisant des résultats scalaires.
 (Un DataFrame est interfacé comme un objet auquel nous pouvons appliquer 
-des méthodes.) Voici des exemples des méthodes ``count()`` et ``first()``.
+des méthodes). Voici des exemples des méthodes ``count()`` et ``first()``.
 
 
 .. code-block:: python
@@ -548,8 +548,7 @@ du Dataframe sous forme de table.
 
 .. code-block:: python
 
-	loupsEtMoutons.show() // Récupération du dataframe complet
-     
+	loupsEtMoutons.show() // Récupération du dataframe complet  
 
 	+--------------------+
 	|               value|
@@ -679,7 +678,7 @@ Groupons maintenant les mots:
     compteurTermes = listeMots.groupBy("mot")
 
 On obtient une structure intermédiaire de type ``GroupedData`` sur
-laquelle on eut appliquer des opérations d'agrégation, la plus
+laquelle on peut appliquer des opérations d'agrégation, la plus
 simple étant ``count``.
 
 .. code-block:: python
@@ -697,7 +696,7 @@ simple étant ``count``.
 		|   autres|    1|
 		|     sont|    2|
 
-Et voilà! On a décomposé chaque étape, mai on aurait pu 
+Et voilà! On a décomposé chaque étape, mais on aurait pu 
 exprimer toute la chaîne de traitement  en une seule fois.
 
 .. code-block:: python
@@ -714,7 +713,7 @@ exprimer toute la chaîne de traitement  en une seule fois.
 .. note:: Attention aux indentations en Python... Si vous voulez
    reproduire la commande, le plus simple est de tout mettre sur une seule ligne.
 
-Le résultat pourra vous sembler un peu étrange (``pré,``) : il manque les
+Le résultat pourra vous sembler un peu étrange (``pré,``) car il manque les
 diverses étapes de simplification du texte qui sont de mise pour un moteur de
 recherche (vues dans le chapitre :ref:`chap-introri` pour les détails). Mais
 l'essentiel est de comprendre l'enchaînement des opérateurs.
@@ -730,7 +729,7 @@ Spark SQL, gestion de données structurées
 =========================================
 
 Allons maintenant un peu plus loin en étudiant l'import de données
-structurées dans  park et leur manipulation
+structurées dans Spark et leur manipulation
 avec Spark SQL, une forme de SQL adaptée aux spécificités
 des *dataframes*. Nous allons prendre le
 fichier des films ``films.json``, dans le format proposé
@@ -757,8 +756,8 @@ exemples:
 
 .. code-block:: python
 
-    # Affichage de quelques 
-	df.select(df["director"], df["year"]).show()
+	# Affichage de quelques colonnes
+    df.select(df["director"], df["year"]).show()
 	# Filtrage
 	df.filter(df['year'] > 2000).show()
 	# Regroupement et comptage
@@ -972,14 +971,25 @@ Essayez d'afficher un extrait des restaurants:
 			.load()
 	restaurants_df.show()
 
-
-
 Tout va bien ? Nous avons donc créé un *DataFrame* Spark nommé ``restaurant_df``, 
 dont le schéma (noms des colonnes) a été directement
 obtenu depuis Cassandra. En revanche, les colonnes ne sont pas typées 
 (on pourrait espérer
 que le type est récupéré et transcrit depuis le schéma de Cassandra, 
 mais ce n'est malheureusement pas le cas). 
+
+Vous remarquerez peut-être que si vous exécutez plusieurs fois
+la commande ``show()``, seule la première prends un peu de temps. 
+Pour les suivantes, Spark a mis en cache le contenu du dataset 
+``restaurants_df`` et l'affichage est quasiment instantané.
+C'est une règle générale:
+Spark tente de préserver les calculs intermédiaire, même s'ils
+ne sont pas marqués comme persistants. On peut 
+forcer la conservation du dataframe
+
+.. code-block:: python
+
+	restaurants_df.cache()
 
 Tant que nous y sommes, nous allons créer un *Dataframe* pour les inspections.
 
@@ -989,13 +999,15 @@ Tant que nous y sommes, nous allons créer un *Dataframe* pour les inspections.
 			.options(table="inspection", keyspace="resto_ny") \
 			.load()
 
+Vous pouvez le rendre persistant si vous voulez.
+
 Traitements Spark/Cassandra
 ===========================
 
 Voici quelques exemples 
 de transformations Spark appliquées à des données
-issues de Cassandra.
- Commençons par les *projections* (malencontreusement référencées par la mot-clé
+issues de Cassandra. Commençons par les *projections* (malencontreusement référencées 
+par le mot-clé
 ``select`` depuis les débuts de SQL) consistant à ne conserver que certaines colonnes.
 La commande suivante ne conserve que trois colonnes.
 
@@ -1024,6 +1036,15 @@ jusqu'ici.
 
 	restaus_inspections = restaurants_df.join(inspections_df, restaurants_df.id == inspections_df.idrestaurant)
 
+Le calcul peut prendre un peut de temps pour la première action
+déclenchée sur ``restaus_inspections``. Par la suite, Spark aura sans doute
+mis le résultat en *cache*, ce que l'on peut forcer avec:
+
+
+.. code-block:: python
+
+	restaus_inspections.cache()
+	
 On peut effectuer des agrégats, comme par exemple le regroupement des
 restaurants par arrondissement (*borough*):
 
@@ -1038,10 +1059,9 @@ Et un exemple complet: la moyenne des notes des restaurants de tapas.
 	from pyspark.sql import functions as sf
 	
 	comptage_tapas = restaurants_df.filter("cuisinetype > 'Tapas'") \
-    	.join(inspections_df, restaurants_df.id == inspections_df.idrestaurant) \
-     	.groupBy("name") \
-     	.agg(sf.avg("score"))
-
+		.join(inspections_df, restaurants_df.id == inspections_df.idrestaurant) \
+		.groupBy("name") \
+		.agg(sf.avg("score"))
 
 L'interface de contrôle Spark
 =============================
@@ -1069,7 +1089,7 @@ L'onglet *jobs*
 
 Chaque exécution d'une action correspond à un *job*, lui-même
 décomposé en *stages* (étapes). Cette décomposition correspond à l'identification
-des  étapes du *workflow* qui peuvent d'exécuter en parallèle. 
+des  étapes du *workflow* qui peuvent s'exécuter en parallèle. 
 
 À quoi correspondent ces *étapes*? En fait, si vous avez bien suivi ce qui précède dans le cours,
 vous avez les éléments pour répondre: une *étape* dans Spark regroupe un ensemble d'opérations
@@ -1084,7 +1104,8 @@ sur les  fragments, et Spark appelle *tâche* l'exécution de l'étape sur un fr
 particulier, pour une machine particulière. Résumons:
 
   - Un *job* est l'exécution d'une chaîne de traitements (*workflow*) dans un environnement distribué. 
-  - Un *job* est découpé en *étapes*, chaque étape étant un segment du *workflow* qui peut s'exécuter localement.
+  - Un *job* est découpé en *étapes*, chaque étape étant un segment du *workflow* 
+    qui peutêtre parallélisé.
   - L'exécution d'une étape se fait par un ensemble de tâches, une par machine hébergeant un fragment
     du RDD servant de point d'entrée à l'étape.
 
@@ -1093,8 +1114,9 @@ Entre deux
 (*shuffle*) qui permet d'initialiser l'état de départ du *stage* qui suit.
 On retrouve une fonctionnement de base illustré déjà par MapReduce: les
 deux phases, Map et Reduce, sont parallélisables, mais le
-ppassage de l'une à l'autre correspond à une forme 
-de synchronisation.
+passage de l'une à l'autre correspond à une forme 
+de synchronisation des données pour les rendre adapté  à l'entrée
+de l'étape qui suit.
 
 Cliquez sur le nom du *job* pour obtenir des détails sur les étapes du calcul
 (:numref:`sparkQueryPlan`). Spark nous
@@ -1112,6 +1134,11 @@ Les deux étapes sont séparées par une phase de *shuffle*.
   
      Plan d'exécution d'un *job* Spark: les étapes.
 
+Vous pouvez noter que certaines étapes sont grisées et marquées
+comme *Skipped*. Elles correspondent à celles pour lesquelles
+le résultat est placé en *cache*. Elles font donc partie 
+du flot logique d'exécution, mais ne sont pas ré-exécutées.
+
 
 L'onglet *Stages*
 -----------------
@@ -1127,10 +1154,9 @@ jours.
 L'onglet *Storage*
 ------------------
 
-Maintenant, consultez l'onglet *Storage*. Il devrait être vide et c'est normal: 
-aucun *job* n'est en cours d'exécution.
-Notre fichier de départ est trop petit pour que la durée 
-d'exécution soit significative. Mais introduisez l'opération de persistance
+Maintenant, consultez l'onglet *Storage*. Il montre
+les *datasets* et *RDD* persistants, placés en cache.
+Introduisez par exemple l'opération de persistance
 ``cache()`` dans le *workflow*:  
 
 
@@ -1140,21 +1166,34 @@ d'exécution soit significative. Mais introduisez l'opération de persistance
     	.join(inspections_df, restaurants_df.id == inspections_df.idrestaurant) \
     	.cache() 
     	
-        
-Et exécutez à nouveau l'action ``comptage_tapas.show()``. Cette fois un RDD devrait apparaître dans l'onglet *Storage*,
-et de plus vous devriez comprendre pourquoi!
+Et exécutez à nouveau l'action ``comptage_tapas.show()``. Le RDD correspondant
+devrait apparaître dans l'onglet *Storage*.
 
 Exécutez une nouvelle fois l'action ``show()`` et consultez les statistiques des temps d'exécution. 
 La dernière exécution devrait être significativement plus rapide que les précédentes. Comprenez-vous
 pourquoi? Regardez les étapes, et clarifiez tout cela dans votre esprit.
 
-
-
 L'onglet *SQL/Dataframe*
 ------------------------
 
 Cet onglet montre de manière assez complète le plan d'exécution Spark pour 
-la jointure et l'agrégation.
+la jointure et l'agrégation. C'est le plus proche
+de ce que l'on obtient avec la commande 
+*explain* dans les systèmes relationnels: un plan d'exécution
+qui décrit les phases de traitement des données. Ici, ce
+plan correspond à une jointure par tri-fusion en
+environnement distribué (:numref:`sparkQueryPlan`). Si vous avez déjà
+exploré des plans d'exécution relationnels vous devriez y retrouver 
+les éléments esentiels.
+
+.. _plan-exec-spark:
+
+.. figure:: ../figures/plan-exec-spark.png
+     :width: 85%
+     :align: center
+  
+     L'onglet SQL/Dataframe et le plan d'exécution détaillé.
+
 
 Mise en pratique
 ================

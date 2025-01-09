@@ -642,25 +642,25 @@ Questions:
       
       Les normes
 
-       -  :math:`||d_1|| = \sqrt{4+ 1 = \sqrt{5`
-       - :math:`||d_2|| = \sqrt{1+1+1+1 = 2`
-       -  :math:`||d_3|| = \sqrt{1`
-       - :math:`||d_4|| = \sqrt{1+4=\sqrt{5`
+       -  :math:`||d_1|| = \sqrt{4+ 1} = \sqrt{5}`
+       - :math:`||d_2|| = \sqrt{1+1+1+1} = 2`
+       -  :math:`||d_3|| = \sqrt{1}`
+       - :math:`||d_4|| = \sqrt{1+4}=\sqrt{5}`
 
       Les cosinus (requête non normalisée).
 
-        -  Bush: d2 : :math:`\frac{1{2=0,5` ;  d4 : :math:`\frac{2{\sqrt{5 \simeq 0,89` ; d4 est premier car il mentionne deux fois Bush.
-        - Trump et Clinton:  d1 : :math:`\frac{2+1{\sqrt{5`; d2 : :math:`\frac{1+1{2`; d4 : :math:`\frac{1{\sqrt{5`; 
+        -  Bush: d2 : :math:`\frac{1}{2}=0,5` ;  d4 : :math:`\frac{2}{\sqrt{5}} \simeq 0,89` ; d4 est premier car il mentionne deux fois Bush.
+        - Trump et Clinton:  d1 : :math:`\frac{2+1}{\sqrt{5}}`; d2 : :math:`\frac{1+1}{2}`; d4 : :math:`\frac{1}{\sqrt{5}}`; 
     
           d1 est premier comme on pouvait s'y attendre: il parle exclusivement 
           de Trump et Clinton. Viennent ensuite d2 puis d4.
     
         - Trump et Sanders
   
-            - d1 : :math:`\frac{1{\sqrt{5`
-            - d2 : :math:`\frac{2{2`
-            - d3 :  :math:`\frac{1{1`  
-            - d4 :  :math:`\frac{1{\sqrt{5` 
+            - d1 : :math:`\frac{1}{\sqrt{5}}`
+            - d2 : :math:`\frac{2}{2}`
+            - d3 :  :math:`\frac{1}{1}`  
+            - d4 :  :math:`\frac{1}{\sqrt{5}}` 
     
          d2 et d3 arrivent à égalité. Intuitivement, il parlent tous les deux "à moitié"
          de Trump et Sanders.  d1 et d4 parlent de Trump *ou* de Sanders et aussi des autres
@@ -915,7 +915,7 @@ On veut maintenant équiper notre système d'une fonction de recherche plein tex
  
    .. math::
    
-         cos {  \theta  = \sum_{i=1^n v[i] \times q[i]
+         cos {\theta}   = \sum_{i=1}^n v[i] \times q[i]
 
    Où :math:`x[i]` désigne le nombre d'occurrences du *i*ème terme dans un vecteur *x*. 
    Expliquez pourquoi 
@@ -1246,15 +1246,15 @@ et une ébauche de classification *kMeans*.
 
    .. admonition:: Correction
 
-        - Normes: :math:`\sqrt{36=6 ; \sqrt{14=3,74 ; \sqrt{14=3,74; \sqrt{18=4,25`.
+        - Normes: :math:`\sqrt{36}=6 ; \sqrt{14}=3,74 ; \sqrt{14}=3,74; \sqrt{18}=4,25`.
         - Calculons la similarité cosinus
         
-            - :math:`cos(\rm{tat37HG, xuyh57) =\frac{5+3+2{6 \times 3,74 \approx 0,44`
-            - :math:`cos(\rm{tat37HG, jojoXYZ) =\frac{5+2+3{6 \times 3,74 \approx 0,44`
-            - :math:`cos(\rm{tat37HG, Ubbdyu) =\frac{15+9{6 \times 4,25 \approx  0,95`
-            - :math:`cos(\rm{xuyh57, jojoXYZ) =\frac{1+6+6{14 \approx 0,92`
-            - :math:`cos(\rm{xuyh57, Ubbdyu) =\frac{3{3,74 \times 4,25 \approx 0,18`
-            - :math:`cos(\rm{jojoXYZ, Ubbdyu) =\frac{3{3,74 \times 4,25 \approx 0,18`
+            - :math:`cos(\rm{tat37HG, xuyh57}) =\frac{5+3+2}{6} \times 3,74 \approx 0,44`
+            - :math:`cos(\rm{tat37HG, jojoXYZ}) =\frac{5+2+3}{6} \times 3,74 \approx 0,44`
+            - :math:`cos(\rm{tat37HG, Ubbdyu}) =\frac{15+9}{6} \times 4,25 \approx  0,95`
+            - :math:`cos(\rm{xuyh57, jojoXYZ}) =\frac{1+6+6}{14} \approx 0,92`
+            - :math:`cos(\rm{xuyh57, Ubbdyu}) =\frac{3}{3,74} \times 4,25 \approx 0,18`
+            - :math:`cos(\rm{jojoXYZ, Ubbdyu}) =\frac{3}{3,74} \times 4,25 \approx 0,18`
 
           On distingue donc bien deux groupes: ``jojoXYZ`` est très proche 
           de ``xuyh57``, et ``tat37HG`` est très proche 
@@ -1357,11 +1357,11 @@ ces mêmes contacts.
         - On part avec le vecteur :math:`(0, 0, 1, 0)` représentant 
           le fait que ``jojoXYZ`` est infecté. On multiplie
           par chaque vecteur de transition et on obtient la
-          probabilité :math:`\frac{1{3` d'infecter  ``tat37HG``,  :math:`\frac{2{3` 
+          probabilité :math:`\frac{1}{3}` d'infecter  ``tat37HG``,  :math:`\frac{2}{3}` 
           d'infecter ``xuyh57``
       
           Seconde étape : le vecteur est :math:`(1/3, 2/3, 0, 0)`. Si on part
-          de ``tat37HG``, ça nous laisse  une probabilité :math:`\frac{3{15`
+          de ``tat37HG``, ça nous laisse  une probabilité :math:`\frac{3}{15}`
           d'infecter ``Ubbdyu``.
 
         - C'est exactement PageRank: on multiplie le vecteur et la matrice
@@ -1425,25 +1425,25 @@ Nous disposons d'une matrice *M* de dimension :math:`N \times N`
 représentant les liens entres les :math:`N`  pages du Web, chaque lien étant
 qualifié par un facteur d'importance (ou "poids"). La matrice est représentée par une
 collection math:`C`  dans laquelle chaque document est de la forme 
-{"id": \&23, "lig": *i*, "col": *j*, "poids": :math:`m_{ij`, et
-représente un lien entre la page :math:`P_i` et la page :math:`P_j` de poids :math:`m_{ij`
+{"id": \&23, "lig": *i*, "col": *j*, "poids": :math:`m_{ij}`, et
+représente un lien entre la page :math:`P_i` et la page :math:`P_j` de poids :math:`m_{ij}`
 
-Exemple: voici une matrice :math:`M` avec :math:`N=4`. La première cellule de le seconde ligne
+Exemple: voici une matrice :math:`M` avec :math:`N=4`. La première cellule de la seconde ligne
 est donc représentée par
 un document {"id": \&t5x, "lig": 2, "col": 1, "poids": 7
 
 .. math::
 
-       M= \left[ {\begin{array{cccc
+       M= \left[ \begin{array}{cccc}
         1 & 2  & 3 & 4 \\
         7 & 6 & 5 & 4 \\
         6 & 7  & 8 & 9 \\
          3 & 3  & 3 & 3 \\
-        \end{array  \right] 
+        \end{array}  \right] 
 
 **Questions**
 
-  - On estime qu'il y a environ :math:`N=10^{10` pages sur le Web, avec 15 liens par
+  - On estime qu'il y a environ :math:`N=10^{10}` pages sur le Web, avec 15 liens par
     page en moyenne. Quelle est la taille de la collection :math:`C`, en TO,  en supposant que chaque document
     a une taille de 16 octets?
   - Nos serveurs ont 2 disques de 1 TO chacun et chaque document est répliqué  2 fois (donc trois versions en tout).
@@ -1457,7 +1457,7 @@ un document {"id": \&t5x, "lig": 2, "col": 1, "poids": 7
     
     .. math::
         
-        w_i = \Sigma_{j=1^N  m_{ij \times v_j
+        w_i = \Sigma_{j=1}^N  m_{ij} \times v_j
         
     On suppose pour le moment que :math:`V` tient en mémoire RAM
     et est accessible comme variable statique par toutes les fonctions de Map ou de Reduce.
@@ -1795,11 +1795,11 @@ une phase préalable de normalisation qui élimine les pluriels, majuscules, etc
 
 		.. admonition:: Correction
 
-			- :math:`||A_1|| = \sqrt{2`; 
-			- :math:`||A_2|| = \sqrt{2`; 
-			- :math:`||A_3|| = \sqrt{2`;
-			- :math:`||A_4|| = \sqrt{5` 
-			- :math:`||A_5|| = \sqrt{4`
+			- :math:`||A_1|| = \sqrt{2}`; 
+			- :math:`||A_2|| = \sqrt{2}`; 
+			- :math:`||A_3|| = \sqrt{2}`;
+			- :math:`||A_4|| = \sqrt{5}` 
+			- :math:`||A_5|| = \sqrt{4}`
 
  - Dans un espace vectoriel à deux dimensions avec "processeur" en abcisse
    et "réseau" en ordonnée, placez les vecteurs représentant nos documents.
@@ -1835,7 +1835,7 @@ et d'autres qui n'ont pas été abordés en cours
 
 La documentation nous dit :
 *When you index a document, it is stored on a single 
-primary shard determined by a simple formula* : :math:`shard = hash(id) \%\ \rm{number\_of\_primary\_shards`
+primary shard determined by a simple formula* : :math:`shard = hash(id) \%\ \rm{number\_of\_primary\_shards}`
     
 Voici la configuration initiale de votre *cluster* 
 ElasticSearch pour les questions qui suivent 
