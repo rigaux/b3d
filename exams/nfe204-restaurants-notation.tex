@@ -84,8 +84,8 @@
 \begin{document}
 
 \title{Sujet d'examen UE NFE204 - Session 1}
-\author{Année universitaire 2022-2023}
-\date{Examen première session: 31 janvier 2023}
+\author{Année universitaire 2024-2025}
+\date{Examen première session:  28 janvier 2025}
 
 \maketitle
 
@@ -93,8 +93,9 @@
 {\bf \Large Consignes}\\
 \begin{tabular}{| p{15cm} |}
 \hline
-Dur\'ee de l'examen : 3h00; En raison du passage en distanciel, pas de limitation sur l'utlisation
-des documents. Les exercices sont indépendants les uns des autres. Merci de soigner votre écriture.\\
+Dur\'ee de l'examen : 3h00; Calculatrice autoris\'ee\,; Documents autorisés: 5 pages recto-verso de note personnelles.\\
+
+Les exercices sont indépendants les uns des autres. Merci de soigner votre écriture.\\
 Ce sujet contient \pageref{LastPage} pages.\\
 
 \textit{Important}\,: nous n'évaluons pas les réponses par la syntaxe. Ne vous
@@ -105,8 +106,6 @@ autres détails mineurs
 \end{tabular}
 \end{center}
 
-
-\section*{Première partie : documents structurés et MapReduce (7 pts)}
 
 Nous gérons un site de commerce électronique qui recense des restaurants
 et permet à des internautes de les noter. Pour l'instant nous utilisons
@@ -160,30 +159,89 @@ Voici également un tout petit échantillon de la base.
 \end{minipage}
 \end{small}
 
-\vspace*{0.2cm}
-
 On veut implanter  un algorithme de filtrage collaboratif. Un des calculs consiste notamment
-à déterminer la note moyenne donnée par chaque internaute. 
-Quelqu'un décide alors de remplacer la base relationnelle par une base NoSQL, et SQL par MapReduce.
-Voyons s'il a raison.
+à déterminer la note moyenne donnée par chaque internaute, en fonction de
+certains critères comme la catégorie du restaurant.
+ 
+\section{Documents structurés (4 pts)}
 
 \begin{enumerate}
   \item Donnez une représentation de l'échantillon ci-dessus sous la forme d'une collection
       de documents JSON, centrée sur les entités ``Restaurant''. 
       Nous l'appellerons représentation A.
-  \item Proposez une autre représentation, centrée sur les entités ``Internaute''.  Nous l'appellerons représentation B.
-             \item Donnez la requête SQL qui calcule la note moyenne donnée par chaque internaute.
-           \item Expliquez le calcul MapReduce donnant cette moyenne, pour la représentation A.
-           \item Même chose pour la représentation B.
-           \item La phase de Reduce peut-elle être évitée pour l'un des calculs MapReduce\,?
-                Si oui expliquez pourquoi, et l'impact sur la performance du calcul. 
+  \item Proposez une autre représentation, centrée sur les entités ``Internaute''.  
+      Nous l'appellerons représentation B.
 \end{enumerate}
 
-\textbf{Important}\,: pour spécifier les calculs MapReduce, donner les fonctions de Map et de Reduce, en javascript,
+\section{Modélisation Cassandra (5 pts)}
+
+On veut proposer un schéma Cassandra pour explorer cette base. 
+Rappelons d'abord ce qu'est une clé composite en Cassandra\,: 
+\textit{A compound primary key consists of the partition key and the clustering key. The partition key determines 
+which node stores the data. Rows 
+for a partition key are stored in order based on the clustering key.} 
+
+On crée la table suivante\,:
+\begin{minted}{sql}
+create table Restaurant (catégorie text, id_restau text, nom restau text, adresse text,
+                     primary key (catégorie, id_restau));
+
+create type Internaute (id_internaute integer, nom text, prénom text);                 
+
+create table Notation (id_restau text,
+                       internaute frozen<Internaute>,
+                       note integer,
+                       commentaire text,
+                       primary key (id_restau, internaute));
+\end{minted}
+
+
+\begin{enumerate}
+    \item Commentez chacune des affirmations suivantes, indiquez si elles
+sont vraies ou fausses et pourquoi.
+
+\begin{enumerate}
+  \item Les lignes de \texttt{Restaurant} et les lignes de \texttt{Notation} 
+     sont sur le même serveur
+   \item Les restaurants d'une même catégorie sont sur le même serveur
+   \item Le choix de \texttt{catégorie} comme clé de partitionnement est judicieux.
+   \item Les notations d'un restaurant sont sur un seul serveur.
+   \item Les notations d'un même internaute sont sur un seul serveur et triées sur l'identifiant du restaurant.  
+\end{enumerate}  
+
+  \item On veut trouver efficacement la moyenne des notes d'un restaurant avec 
+  la requêtes CQL suivante:
+  \begin{minted}{sql}
+    select avg(note) from Restaurant where nom='Il pastificcio';
+  \end{minted}
+  Le schéma proposé est-il adapté\,? Si non, indiquez les modifications
+  nécessaires.
+  \item Proposez un second schéma qui permet de trouver efficacement 
+     la moyenne des notes données par un internaute.
+\end{enumerate}
+
+
+\section{Spécification de calculs distribués (4 pts)}
+
+On suppose que les informations sont disponibles sous la
+forme d'une collection de documents JSON structurés 
+selon la représentation A (cf. première question du sujet).
+     
+\begin{enumerate}
+  \item Indiquez
+    le traitement MapReduce qui, appliqué à cette collection de documents,
+    permet de produire les lignes à insérer dans la table Cassandra \texttt{Restaurant}
+    donné dans la section précédente. 
+
+\item Voyez-vous comment, avec un seul traitement MapReduce, insérer à la fois 
+   dans les tables \texttt{Restaurant} et dans \texttt{Notation} à partir
+   de notre collection de documents JSON\,? Proposez une solution.
+\end{enumerate}
+
+Pour spécifier les calculs MapReduce, donner les fonctions de Map et de Reduce, en javascript,
 en pseudo-code, au pire en langage naturel en étant le plus précis possible.
 
-
-\section*{Deuxième partie : recherche d'information (8 pts)}
+\section{Recherche d'information (5 pts)}
 
 On ajoute dans les  documents des commentaires sur les restaurants, désignés
 par $c_1, ..., c_5$. On veut maintenant
@@ -236,43 +294,22 @@ Les normes
 \end{solution}
   
   \item Donner les résultats classés par similarité cosinus basée sur les tf 
-  (on ignore l'idf) pour les requêtes suivantes. 
-  
-  \begin{itemize}
-    \item plat;
-    \item décor et dessert;
-    \item vin et plat.
-  \end{itemize}
-
-Expliquez brièvement la raison  du classement pour le premier document.
+  (on ignore l'idf) pour la requête associant les deux termes \texttt{décor} et 
+  \texttt{dessert}.
+     Expliquez brièvement la raison  du classement pour le premier document.
 
 \begin{solution}
 Les cosinus (requête non normalisée).
 
 \begin{itemize}
-  \item plat\,: c1 : $\frac{1}{\sqrt{2}}$;  
-       c4 : $\frac{1}{\sqrt{3}}$; 
-       c5 : $\frac{2}{\sqrt{6}}$; 
-  
-  \item décor et dessert\,: 
-  
-    c2 : $\frac{1+1}{\sqrt{3}}$; 
-    c4 :  $\frac{1+1}{\sqrt{3}}$  
-    c5 : $\frac{1}{\sqrt{6}}$; 
-
-  \item vin et plat
-  
-    c1 : $\frac{1+1}{\sqrt{2}}$; 
-    c2 : $\frac{1}{\sqrt{3}}$;
-    c3 :  $\frac{2}{\sqrt{3}}$  
-    c4 :  $\frac{1}{\sqrt{3}}$  
-    c5 : $\frac{1+2}{\sqrt{6}}$; 
-    
+  \item  c2 : $\frac{1+1}{\sqrt{3}}$
+   \item  c4 :  $\frac{1+1}{\sqrt{3}}$  
+    \item c5 : $\frac{1}{\sqrt{6}}$ 
  \end{itemize}
 
 \end{solution}  
 
-   \item Pour la requête "décor et dessert", et les documents c2 et c4,
+   \item Pour les documents c2 et c4,
    qu'est-ce qui change si on ne met pas de restriction 
    sur le vocabulaire (tous les mots sont indexés)?
    
@@ -281,60 +318,27 @@ Dans ce cas le plus petit document (c2) l'emporte car sa norme est
 plus petite. Intuititvement: il parle plus \emph{spécifiquement} de
 décor et de dessert que c4.
 \end{solution}   
-    
-\item On voudrait pouvoir mesurer les co-occurrences de termes, autrement dit
-    produire un indicateur représentant la probabilité que deux termes
-    apparaissent ensembles dans un même commentaire. Proposez une formule estimant
-    cette probablilité et s'appuyant
-      sur les informations présentes dans la matrice d'incidence.
-
 \end{enumerate}
 
 
-\section*{Troisième partie : flux (3 pts)}
+\section{Systèmes distribués (3 pts)}
 
-Nous recevons un flux de notes données à des restaurants nommé \texttt{restaus}. Chaque
-élément contient le nom du restaurant, l'identifiant
-de l'utilisateur, la note et le commentaire. Voici un échantillon.
+Rappelons que Elastic Search partitionne les documents avec une méthode 
+de hachage statique, alors que 
+Cassandra s'appuie sur la technique
+du \textit{consistent hashing}.
 
-\begin{smallverbatim}
-1,Le bougnat,100,4,"Plats médiocres ..."
-2,Délices de Saïgon,100,2,"Desserts nuls..."
-3,Le régal,101,4,"venez pour le décor"
-..
-\end{smallverbatim}
-
-On met en place une chaîne de traitement pour ce flux. Voici cette chaîne exprimée avec les opérateurs de Pig 
-
-\begin{smallverbatim}
-coll1 = filter restaus by contains(commentaire, "dessert")
-coll2 = group coll1 by nomRestaurant;
-coll3  = foreach coll2 generate group, AVG(coll1.note);
-\end{smallverbatim} 
+On suppose que notre grappe de serveur comprend $n$ serveurs. 
 
 \begin{enumerate}
- \item Que produit cette chaîne\,?
- 
-
-\begin{solution}
-La note moyenne, par restaurant, des commentaires relatifs aux desserts
-\end{solution}
- 
- \item Quel est le degré maximal de parallélisation\,?
-\begin{solution}
-La parallélisation est limitée par le nombre de restaurants.
-\end{solution}
-
+  \item Expliquez comment un document de notre collection A de documents 
+     JSON est inséré dans une grappe ElasticSearch (donnez l'algorithme 
+     déterminant le serveur). 
+     \item Même question pour une ligne de la table Cassandra \texttt{Notation}.
+     \item Notre collection double de taille en quelques jours. Que peut-on 
+     faire avec chacune des deux solutions envisagées, ElasticSearch et Cassandra,
+     pour assurer la scalabilité\,?
 \end{enumerate}
 
-\section*{Quatrième partie : systèmes distribués (2 pts)}
-
-Je vous propose pour finir de commenter 
-\href{https://www.elastic.co/guide/en/elasticsearch/guide/current/nested-objects.html}{la partie suivante de la documentation
-ElasticSearch}: elle parle des documents structurés et de leur représentation dans le 
-cadre d'unn outil de recherche.
-
-Expliquez de la manière la plus concise et précise possible comment ElasticSearch gère
-l'imbrication des objets pour ses opérations de recherche.
 
 \end{document}

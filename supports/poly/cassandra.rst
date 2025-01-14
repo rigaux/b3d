@@ -678,7 +678,7 @@ Pour chaque ligne on applique en effet une fonction (de hachage) aux valeurs de 
 Conséquence: **une requête incluant comme critère une clé de partitionnement
 ne concerne qu'un seul serveur**.
 
-De plus,d ans un fragment (sur un serveur) les lignes sont triées sur la clé primaire.
+De plus, dans un fragment (sur un serveur) les lignes sont triées sur la clé primaire.
 Pour une même valeur de partitionnement,  les lignes sont 
 donc *consécutives* et ordonnées sur la clé de regroupement.
 Une requête sur une préfixe de la clé   primaire (part. + regroupement)
