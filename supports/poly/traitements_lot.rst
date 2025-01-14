@@ -529,7 +529,7 @@ Spécifier un traitement, c'est donc *toujours* définir deux fonctions avec les
 ci-dessus. Le corps de chaque fonction doit indiquer, respectivement:
 
   - comment on produit des paires *(k, v)* à partir d'un document (fonction de Map, transformation);
-  - comment on on produit une valeur agrégée *V* à partir d'uune paire *(k, list(v))*.
+  - comment on on produit une valeur agrégée *V* à partir d'une paire *(k, list(v))*.
 
 Pratiques, réflechissez, vérifiez que vous avez bien compris!
 
