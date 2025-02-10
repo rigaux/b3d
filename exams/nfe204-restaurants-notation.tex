@@ -67,7 +67,7 @@
 \newenvironment{solution}[0]{
 ~\\ \color{red} \textbf{Solution : }\color{black}}{%
 }
-%\excludecomment{solution}
+\excludecomment{solution}
 
 
 \newcommand{\cle}[1]{\textbf{#1}}
@@ -93,22 +93,15 @@
 {\bf \Large Consignes}\\
 \begin{tabular}{| p{15cm} |}
 \hline
-Dur\'ee de l'examen : 3h00; Calculatrice autoris\'ee\,; Documents autorisés: 5 pages recto-verso de note personnelles.\\
-
-Les exercices sont indépendants les uns des autres. Merci de soigner votre écriture.\\
+Dur\'ee de l'examen : 3h00; Calculatrice autoris\'ee\,; Documents autorisés: 5 pages recto-verso de note personnelles.
 Ce sujet contient \pageref{LastPage} pages.\\
-
-\textit{Important}\,: nous n'évaluons pas les réponses par la syntaxe. Ne vous
-inquiétez pas d'utiliser un point-virgule à la place d'un point d'exclamation ou
-autres détails mineurs
-\\
 \hline
 \end{tabular}
 \end{center}
 
 
 Nous gérons un site de commerce électronique qui recense des restaurants
-et permet à des internautes de les noter. Pour l'instant nous utilisons
+et permet à des internautes de les noter. Au départ,  nous utilisons
 un système relationnel, dont voici le schéma (très simplifié).
 
 \begin{itemize}
@@ -120,7 +113,7 @@ un système relationnel, dont voici le schéma (très simplifié).
 \vspace*{0.2cm}
 
 La catégorie du restaurant indique son niveau de prix, entre * et ****. 
-Voici également un tout petit échantillon de la base.
+Voici  un tout petit échantillon de la base.
 
 \vspace*{0.2cm}
 \begin{small}
@@ -160,8 +153,8 @@ Voici également un tout petit échantillon de la base.
 \end{small}
 
 On veut implanter  un algorithme de filtrage collaboratif. Un des calculs consiste notamment
-à déterminer la note moyenne donnée par chaque internaute, en fonction de
-certains critères comme la catégorie du restaurant.
+à déterminer la note moyenne, en fonction de
+certains critères comme la catégorie du restaurant ou l'internaute.
  
 \section{Documents structurés (4 pts)}
 
@@ -173,6 +166,30 @@ certains critères comme la catégorie du restaurant.
       Nous l'appellerons représentation B.
 \end{enumerate}
 
+\begin{solution}
+Vu de nombreuses fois en cours. Voici pour la représentation A.
+\begin{minted}{json}
+   [{
+      "_id": 10,
+      "nom": "Bobo",
+      "catégorie": "**",
+      "notes": [{"id_inter": 100, "nom": "Marie", 
+                     "commentaire": "Nul",  "note": 1},
+                   {"id_inter": 101, "nom": "Adrien", 
+                     "commentaire": "Parfait",  "note": 5}
+                ]
+     },
+    {
+    "_id": 21,
+    "nom": "Le régal",
+    "catégorie": "****",
+    "notes": [{"id_inter": 101, "nom": "Adrien", 
+                     "commentaire": "Moyen",  "note": 3}
+                ]
+  ]
+\end{minted}
+\end{solution}
+
 \section{Modélisation Cassandra (5 pts)}
 
 On veut proposer un schéma Cassandra pour explorer cette base. 
@@ -181,7 +198,8 @@ Rappelons d'abord ce qu'est une clé composite en Cassandra\,:
 which node stores the data. Rows 
 for a partition key are stored in order based on the clustering key.} 
 
-On crée la table suivante\,:
+On crée les tables suivantes, correspondant à une modélisation Cassandra de 
+nos documents de type A\,:
 \begin{minted}{sql}
 create table Restaurant (catégorie text, id_restau text, nom restau text, adresse text,
                      primary key (catégorie, id_restau));
@@ -195,7 +213,6 @@ create table Notation (id_restau text,
                        primary key (id_restau, internaute));
 \end{minted}
 
-
 \begin{enumerate}
     \item Commentez chacune des affirmations suivantes, indiquez si elles
 sont vraies ou fausses et pourquoi.
@@ -205,21 +222,58 @@ sont vraies ou fausses et pourquoi.
      sont sur le même serveur
    \item Les restaurants d'une même catégorie sont sur le même serveur
    \item Le choix de \texttt{catégorie} comme clé de partitionnement est judicieux.
-   \item Les notations d'un restaurant sont sur un seul serveur.
+   \item Les notations d'un restaurant sont sur un seul serveur mais distribuées
+        de manière aléatoire dans le stockage local.
    \item Les notations d'un même internaute sont sur un seul serveur et triées sur l'identifiant du restaurant.  
 \end{enumerate}  
 
-  \item On veut trouver efficacement la moyenne des notes d'un restaurant avec 
-  la requêtes CQL suivante:
-  \begin{minted}{sql}
-    select avg(note) from Restaurant where nom='Il pastificcio';
-  \end{minted}
-  Le schéma proposé est-il adapté\,? Si non, indiquez les modifications
-  nécessaires.
-  \item Proposez un second schéma qui permet de trouver efficacement 
-     la moyenne des notes données par un internaute.
+  \item Expliquez maintenant quelles sont les requêtes et 
+     opérations nécessaires pour calculer la moyenne des notes 
+     d'une catégorie de restaurant (par exemple les '***'). 
+      Discutez de l'efficacité.     
+  \item Proposez un second schéma avec une table \texttt{Internaute}
+       correspondant à nos documents de type B
+      (première question du sujet).
 \end{enumerate}
 
+\begin{solution}
+\begin{enumerate}
+\item
+\begin{enumerate}
+  \item Non puisqu'elles n'ont pas la même clé de partitionnement.
+   \item Oui, la catégorie est la clé de partitionnement
+   \item Non car il n'y a que 5 catégories, donc un partitionnement limité à 5 fragments.
+   \item Oui sur un seul serveur mais de plus le stockage est contigu.
+   \item Pas du tout car l'internaute n'est pas clé de partitionnement. 
+\end{enumerate} 
+  \item Une première requête va récupérer tous les restaurants 
+   '***'. C'est un parcours séquentiel sur un seul serveur.
+\begin{minted}{sql}
+    select * from Restaurant where catégorie='***';
+\end{minted}
+
+    Ensuite, pour chaque identifiant de restaurant on
+    récupère les notes. Là aussi, parcours séquentiel sur un seul serveur
+    (mais autant de requêtes que de restaurants).
+\begin{minted}{sql}
+    select note from Notation where id_restau=<id>;
+\end{minted}
+     On a toutes les notes, on peut calculer la moyenne au fur et à mesure.
+   \item On peut tout mettre dans une seule table,
+  en intégrant les notes sous forme de liste (en espérant qu'il
+  n'y en aura pas trop).
+
+\begin{minted}{sql}
+create type Note (id_restau integer, note integer, commentaire text);                 
+
+create table Internaute (id_internaute text,
+                         nom text,
+                         notes list(Note),
+                         primary key (id_internaute));
+\end{minted}
+
+\end{enumerate}
+\end{solution}
 
 \section{Spécification de calculs distribués (4 pts)}
 
@@ -230,18 +284,44 @@ selon la représentation A (cf. première question du sujet).
 \begin{enumerate}
   \item Indiquez
     le traitement MapReduce qui, appliqué à cette collection de documents,
-    permet de produire les lignes à insérer dans la table Cassandra \texttt{Restaurant}
+    permet de produire les lignes à insérer dans la 
+    table Cassandra \texttt{Notation}
     donné dans la section précédente. 
 
-\item Voyez-vous comment, avec un seul traitement MapReduce, insérer à la fois 
-   dans les tables \texttt{Restaurant} et dans \texttt{Notation} à partir
-   de notre collection de documents JSON\,? Proposez une solution.
+\item  Indiquez
+    le traitement MapReduce qui, appliqué à cette collection de documents,
+    permet de produire les lignes à insérer dans la 
+    table Cassandra \texttt{Internaute} dont vous avez
+    proposé un schéma dans la section précédente. Vous pouvez aussi 
+    expliquer comment ce traitement permet de produire la  
+    représentation B à partir de la représentation A.
+   
+   \item La phase de Reduce (et donc celle de \textit{shuffle}) 
+   est-elle  nécessaire dans les deux cas\,? Expliquer.
 \end{enumerate}
 
 Pour spécifier les calculs MapReduce, donner les fonctions de Map et de Reduce, en javascript,
 en pseudo-code, au pire en langage naturel en étant le plus précis possible.
 
-\section{Recherche d'information (5 pts)}
+\begin{solution}
+
+\begin{enumerate}
+  \item Pour la fonction de Map, on reçoit un document représentant un
+     restaurant. Il faut boucler  sur les notes, et émettre 
+     une paire clé-valeur avec comme clé l'identifiant du restaurant
+     et l'internaute. On peut en fait directement insérer
+     dans la table \texttt{Notation} dès le Map puisqu'aucun 
+     regroupement n'est nécessaire.
+  \item Pour le second en revanche, le Reduce est indispensable. Le Map 
+  émet, dans une boucle sur les notes, des paires dont la clé est 
+  l'identifiant de l'internaute. Le \textit{shuffle} regroupe 
+  les paires de même clé ce qui permet de constituer la liste des notes, 
+  et le Reduce peut alors insérer 
+  une ligne pour chaque groupe dans la table \texttt{Internaute}. 
+\end{enumerate}
+
+\end{solution}
+\section{Recherche d'information (4 pts)}
 
 On ajoute dans les  documents des commentaires sur les restaurants, désignés
 par $c_1, ..., c_5$. On veut maintenant
@@ -336,9 +416,8 @@ On suppose que notre grappe de serveur comprend $n$ serveurs.
      déterminant le serveur). 
      \item Même question pour une ligne de la table Cassandra \texttt{Notation}.
      \item Notre collection double de taille en quelques jours. Que peut-on 
-     faire avec chacune des deux solutions envisagées, ElasticSearch et Cassandra,
-     pour assurer la scalabilité\,?
+     faire pour assurer la scalabilité avec chacune des deux solutions envisagées, 
+     ElasticSearch et Cassandra\,?
 \end{enumerate}
-
 
 \end{document}

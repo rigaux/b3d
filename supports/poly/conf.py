@@ -116,8 +116,8 @@ pigtp = 'public'
 annales18 = 'public'
 annales20 = 'public'
 annales23 = 'public'
-annales24 = 'private'
-pasfini = 'private'
+annales24 = 'public'
+pasfini = 'public'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
