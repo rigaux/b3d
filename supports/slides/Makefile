@@ -181,6 +181,12 @@ spark:
 	mv genslides.pdf ../ressources-web/slspark.pdf
 	make clean
 
+
+cs103-normalisation: 
+	pdflatex   -shell-escape "\newcommand\titreDiapos{La normalisation relationnelle}\newcommand\inputFile{cs103-normalisation}\input{cs103}"
+	mv cs103.pdf ../../../CS103/diapos/cs103-normalisation.pdf
+	make clean
+
 all:	prescours.pdf
 
 %.pdf: %.tex

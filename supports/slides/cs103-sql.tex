@@ -1,0 +1,99 @@
+
+
+
+%%%%%%%%%%%%%%%
+\begin{frame}{Pour n'a-t-on pas perdu d'information?}
+ 
+Parce qu'on peut reconstituer \alert{exactement} la relation complète
+\vfill
+
+    
+\begin{redbullet}
+  \item Connaissant \texttt{id\_expert}, je connais 
+     toutes les autres informations sur l'expert.
+ \item Connaissant \texttt{id\_manuscrit}, je connais \texttt{id\_expert}
+     \item  Par \alert{transitivité}, connaissant \texttt{id\_manuscrit}, je  connais \texttt{id\_expert},
+     et connaissant \texttt{id\_expert}, je connais toutes les autres informations sur l'expert
+\end{redbullet}
+
+\vfill
+
+
+\begin{blocgauche}
+L'association de la clé primaire et de la clé étrangère est le mécanisme
+de liaison des nuplets en relationnel.
+\end{blocgauche}
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%
+\begin{frame}{Avec un exemple}
+ 
+\begin{tabular}{c|c|c}
+\textbf{id\_expert} & \textbf{nom} & \textbf{adresse}\\ \hline
+   1 &Sophie &rue Montorgueil, Paris\\
+   2& Philippe  &rue des Martyrs, Paris\\
+\hline
+\end{tabular}
+
+\vfill
+
+\begin{tabular}{c|l|p{4cm}|c|p{3cm}}
+\textbf{id\_manuscrit} & \textbf{nom} & \textbf{titre} & \textbf{id\_expert}  & \textbf{Commentaire}\\ \hline
+   10& Serge&  L'arpète &2& Une réussite\\
+   20& Cécile& Un art du chant grégorien sous Louis XIV& 1& Bravo\\
+\hline
+\end{tabular}
+
+\vfill
+
+\begin{blocgauche}
+La valeur d'une clé étrangère est \alert{toujours} celle
+d'une clé de la table référencée.
+\end{blocgauche}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%
+\begin{frame}{Schéma normalisé et  contraintes}
+ 
+On normalise les schémas, et on demande au système de garantir deux contraintes.
+
+\begin{defblock}{Contrainte d'unicité}
+Une valeur de clé ne peut apparaître \alert{qu'une fois} dans une relation.
+\end{defblock}
+ 
+\vfill
+
+\begin{defblock}{Contrainte d'intégrité référentielle}
+La valeur d'une clé étrangère doit \alert{toujours}
+   être également une des valeurs de la clé référencée.\end{defblock}
+
+\vfill
+
+\begin{blocgauche}
+On obtient des schémas sans anomalie.
+\end{blocgauche}
+
+\end{frame}
+
+%%%%%%ù
+
+\begin{frame}{À retenir}
+
+Un schéma de BD correct:
+\vfill
+\begin{redbullet}
+  \item Toute relation a une clé
+ \item Tous les attributs dépendent \alert{directement} de la clé (forme normale)
+ \item On peut lier les nuplets les uns aux autres avec des clés étrangères.
+ \item Le système évite les anomalies en garantissant
+    la \alert{contrainte d'unicité} (clé) et la \alert{contrainte d'intégrité référentielle} (clé étrangère)
+\end{redbullet}
+
+\vfill
+
+\alert{Comment trouve-t-on le bon schéma\,?} Nous y reviendrons.
+\end{frame}
+

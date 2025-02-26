@@ -48,12 +48,14 @@
   \end{center}
  \end{figure*}
 }
+
 \newcommand{\figTex}[2]{%
   \begin{figure*}[hbt]
  \centerline{\input{#1.pstex_t}}
   \caption{\label{#1}  #2}
  \end{figure*}
 }
+
 
 % Macro commentaires
 \definecolor{turquoise}{rgb}{0.20 ,0.60, 0.60}
@@ -67,7 +69,7 @@
 \newenvironment{solution}[0]{
 ~\\ \color{red} \textbf{Solution : }\color{black}}{%
 }
-\excludecomment{solution}
+%\excludecomment{solution}
 
 
 \newcommand{\cle}[1]{\textbf{#1}}

@@ -20,7 +20,23 @@
 {\endgraf\small\verbatimtab}{\endverbatimtab}
 % tiny et verbatim: to be coherent with \file
 
-\renewcommand{\alert}[1]{\textcolor{MoocLab-red}{\textbf{#1}}}
+
+\usepackage{array}
+\usepackage{comment}
+\usepackage{colortbl}
+%\usepackage[svgnames]{xcolor}
+
+\definecolor{mygray}{gray}{0.90}
+\definecolor{mygreen}{rgb}{0,0.5,0}
+\definecolor{maroon}{rgb}{0.5,0,0}
+\definecolor{applegreen}{rgb}{0.55, 0.71, 0.0}
+\definecolor{asparagus}{rgb}{0.53, 0.66, 0.42}
+\definecolor{bananamania}{rgb}{0.98, 0.91, 0.71}
+
+\definecolor{sqlcolor}{rgb}{0.0, 0.5, 0.0}
+
+\renewcommand{\alert}[1]{\textcolor{MoocLab-red}{#1}}
+\newcommand{\sqlkw}[1]{\textcolor{blue}{\texttt{#1}}}
 
 % use for definitions
 \newenvironment<>{defblock}[1]{%
@@ -56,6 +72,22 @@
     {\par\usebeamertemplate{block end}\end{actionenv}}
 
 
+% use for notes
+\newenvironment<>{noteblock}{%
+  \begin{actionenv}%
+      \def\insertblocktitle{Note}%
+      \par%
+      \mode<presentation>{%
+        \setbeamercolor{block title}{fg=white,bg=maroon}
+       \setbeamercolor{block body}{fg=black,bg=white!50}
+       \setbeamercolor{itemize item}{fg=orange!20!black}
+       \setbeamertemplate{itemize item}[triangle]
+     }%
+      \usebeamertemplate{block begin}}
+    {\par\usebeamertemplate{block end}\end{actionenv}}
+
+
+
 \newenvironment{exoblock}[1][]{
 \begingroup
 \setbeamercolor{block title}{bg=violet,fg=white}%bg=background, fg= foreground
@@ -63,13 +95,6 @@
 \begin{block}{Test #1}}
 {\end{block}\endgroup}
 
-
-\newenvironment{noteblock}[2][]{
-\begingroup
-\setbeamercolor{block title}{bg=violet,fg=white}%bg=background, fg= foreground
-\setbeamercolor{block body}{fg=violet}%bg=background, fg= foreground
-\begin{block}{#2}}
-{\end{block}\endgroup}
 
 %
 % Insertion d'une figure

@@ -1,0 +1,230 @@
+
+\begin{frame}[fragile]{Qu'est-ce que la normalisation}
+
+La \alert{normalisation} relationnelle consiste à élaborer
+un schéma de données avec deux propriétés fondamentales\;:
+
+\vfill 
+
+\begin{redbullet}
+  \item Il n'y a \alert{aucune} redondance, et donc aucun risque \alert{d'incohérence}
+  \item Il n'y a aucune perte d'information
+\end{redbullet}
+
+\vfill
+
+
+\begin{noteblock}
+Essentiel en général, avec des exceptions, notamment les données historisées
+servant à l'analyse.
+\end{noteblock}
+
+\end{frame}
+
+
+
+
+\begin{frame}{Pourquoi pas une unique table\,?}
+
+\begin{small}
+\begin{center}
+\begin{tabular}{l|c|l|l|l|c}
+ date &  nom &  âge & département &  région &  pathologie \\
+\hline
+12/01/23 & Philippe R. & 63 &Paris & IdF & Diabète\\
+05/10/24 & Amélie A. & 32 & Var & PACA & Cancer\\
+31/03/22  & Julien S. & 16 & Manche & Normandie & Cardio\\
+14/01/24 & François J. &  52 & Orne & Normndie  & Neurologique \\
+02/07/21 & Sonia T. & 38 & Paris & Ile de F. & Diabète \\
+25/06/22 & Philippe R. & 25 &Cantal  & ARA  &  Respiratoires\\
+03/12/24 & Joëlle B.  & 72 & &  & Cardiologiques\\
+27/04/22  & Sonia T.  & 89 & Var & PACA & Epilespsie\\
+\hline
+\end{tabular}
+\end{center}
+\end{small}
+
+\vfill
+
+Enumérons les \alert{anomalies}  (insertion, modification, suppression)
+et \alert{incohérences}.
+\end{frame}
+
+
+
+\begin{frame}{Petit résumé}
+
+Une liste (non exhaustive) des problèmes soulevés par
+une modélisation bâclée.
+
+\vfill
+\begin{redbullet}
+  \item Impossible d'identifier des patients, régions ou pathologies
+  \item Pas de regroupement possible, pas d'agrégation fiable
+     \item Pas de nomenclature des pathologies sans patient -- pas
+         de répertoire des patients sans pathologie
+   \item Un même patient peut voir ses propriétés varier -- deux
+      patients disctincts peuvent être indiscernables
+    \item etc.
+\end{redbullet}
+
+
+\end{frame}
+
+
+\begin{frame}{Qu'est-ce que normaliser\,?}
+
+La normalisation consiste à 
+\vfill
+\begin{redbullet}
+  \item distinguer des ``entités''
+  \item  les identifier 
+     \item leur affecter une table spécifique 
+   \item lier ces tables pour ne pas perdre d'information
+\end{redbullet}
+
+\vfill
+
+
+\begin{noteblock}
+Il existe des propriétés formelles pour dire qu'un schéma est normalisé
+\end{noteblock}
+
+\end{frame}
+
+\begin{frame}{La modélisation du schéma}
+
+\includegraphics[width=\textwidth]{../figures/cs103_modele}
+
+\end{frame}
+
+
+\begin{frame}{Nos tables}
+
+\begin{redbullet}
+  \item Patient (\textbf{id}, nom, prénom, sexe, néLe)
+  \item Pathologie (\textbf{code}, intitulé, sousTypeDe)
+  \item Région (\textbf{code}, nom)
+  \item Dépt (\textbf{code}, nom, \textit{codeRégion})
+  \item Cas (\textbf{id}, \textit{idPatient}, \textit{codePathologie}, \textit{codeDépt})
+\end{redbullet}
+
+\vfill
+
+En \textbf{gras} les \alert{clés primaires}, en \textit{italiques} les
+\alert{clés étrangères}.
+\end{frame}
+
+%%%%%%%%%%%%%%%
+\begin{frame}{Le mécanisme des clés primaires et étrangères}
+ 
+
+\begin{minipage}[t]{7cm}
+\begin{tabular}{c|p{5cm}}
+\textbf{code} & nom \\ \hline
+ paca  & Provence, Alpes, Côte d'azur\\
+ara & Auvergne, Rhône Alpes\\
+nmd & Normandie\\
+occ & Occitanie\\
+\hline
+\end{tabular}
+La table des régions
+\end{minipage} \
+\begin{minipage}[t]{5cm}
+
+
+\begin{tabular}{c|c|c}
+\textbf{code} & nom & \textit{codeRégion} \\ \hline
+ 15  & Cantal & ara \\
+50 & Manche & nmd\\
+30 & Gard & occ\\
+61 & Orne & nmd
+\\
+\hline
+\end{tabular}
+La table des départements
+\end{minipage}
+
+\vfill
+
+\begin{remblock}{Contraintes}
+\begin{redbullet}
+  \item la valeur d'une clé primaire est unique
+ \item La valeur d'une clé étrangère est \alert{toujours} celle
+d'une clé de la table référencée.
+\end{redbullet}
+\end{remblock}
+\end{frame}
+
+%%%%%%%%%%%%%%%
+\begin{frame}{Suite et fin des exemples}
+ 
+
+\begin{minipage}[t]{7cm}
+\begin{tabular}{c|c|c|c|c}
+\textbf{id} & nom & prénom & sexe & néLe \\ \hline
+ 10  &  & Philippe & M & 18/09/1987\\
+20 & & Amélie & F & 12/01/1963\\
+30 && Julien & M & 2/11/2002\\
+40 & & François & M & 30/03/1993\\
+50 & & Joëlle & M & 18/02/1997\\
+60 & & Sonia & M & 29/07/1976\\
+\hline
+\end{tabular}
+La table des patients
+\end{minipage} \hspace*{2mm} \
+\begin{minipage}[t]{5cm}
+\begin{tabular}{c|c|c}
+\textbf{code} & intitulé & \textit{sousTypeDe} \\ \hline
+dia  & Diabètes &  \\
+neur & Neurologies & \\
+canc & Cancers & \\
+epi & Epislespie & neur \\
+csein & Cancer du sein & canc\\
+psy & Psychiatrie & \\
+\hline
+\end{tabular}
+La table des pathologies
+\end{minipage}
+
+\vfill
+\begin{center}
+\begin{tabular}{c|c|c|c}
+\textbf{id} & idPatient & codePathologie & codeDépt \\ \hline
+1000  &  10 & epi & 30\\
+2000 &  40 & dia & 15\\
+3000 &  50 & epi & 30\\
+4000 &  10 & neur & 61\\
+5000 &  20 & csein & 61\\
+6000 &  60 & dia & 50\\
+\hline
+\end{tabular}
+La table des cas
+\end{center} 
+\end{frame}
+
+
+%%%%%%ù
+
+\begin{frame}{À retenir}
+
+Un modèle relationnel normalisé évite les \alert{anomalies de mise à jour} et
+les \alert{incohérences} consécutives aux redondances.
+\vfill
+Caractéristique\,:
+
+\begin{redbullet}
+  \item La base est constitué de plusieurs (souvent, beaucoup) de tables
+      contenant des données élémentaires
+ \item Les liens sont basés sur les partages de valeur (clés primaire et étrangère)
+ \item L'ajout d'une information (un cas par exemple) peut nécessiter 
+        plusieurs écritures
+ \item La recherche d'une information peut nécessiter plusieurs lectures
+\end{redbullet}
+
+\vfill
+
+\alert{A-t-on perdu de l'information}\,? Comment reconstituer la table ``universelle'' 
+avant décomposition\,? À venir.
+\end{frame}
+

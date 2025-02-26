@@ -1,0 +1,48 @@
+\documentclass[aspectratio=169, handout]{beamer} %aspectratio: définit le format 16/9 ; handout = supprime la barre de navigation
+
+\usepackage{mooc-macros}
+
+%\usepackage{macros}
+
+% Paramètres indiquant le titre des diapos, et le fichier 
+\providecommand{\titreDiapos}{Titre diapos}% fallback definition
+\providecommand{\inputFile}{}% fallback definition
+
+
+\title {Certificat Intelligence Artificielle en Santé}
+
+
+\author {Philippe Rigaux}
+\date{}
+
+\begin{document}	
+
+
+\begin{frame}
+
+\titlepage 
+\medskip
+{\huge
+\alert{\titreDiapos}
+}
+
+    %insertion de la zone rouge auteur et du logo   
+        \begin{textblock*}{154px}(0.8cm,8.3cm)
+            \includegraphics[width=154px,height=19.5px]{cnam-auteur}
+        \end{textblock*} 
+        
+    %insertion du nom de l'auteur
+        \begin{textblock*}{80px}(1.1cm,8.5cm)
+            {\color{MoocLab-white}   \fontsize{9}{11}\selectfont Philippe Rigaux}
+        \end{textblock*}
+    
+\end{frame}
+
+
+%\lstset{basicstyle=\footnotesize,showstringspaces=false,language=XML,breaklines=false,columns=fullflexible,frame=shadowbox, rulesepcolor=\color{gray},captionpos=b}
+
+\section{\titreDiapos}
+
+\input{\inputFile}
+
+\end{document}
