@@ -94,8 +94,11 @@ Il existe des propriétés formelles pour dire qu'un schéma est normalisé
 
 \begin{frame}{La modélisation du schéma}
 
-\includegraphics[width=\textwidth]{../figures/cs103_modele}
+\includegraphics[width=0.8\textwidth]{../figures/cs103_modele}
 
+\vfill
+
+Schéma ``en étoile'', caratéristique des entrepôts de données
 \end{frame}
 
 
@@ -106,7 +109,7 @@ Il existe des propriétés formelles pour dire qu'un schéma est normalisé
   \item Pathologie (\textbf{code}, intitulé, sousTypeDe)
   \item Région (\textbf{code}, nom)
   \item Dépt (\textbf{code}, nom, \textit{codeRégion})
-  \item Cas (\textbf{id}, \textit{idPatient}, \textit{codePathologie}, \textit{codeDépt})
+  \item Cas (\textbf{id}, date, \textit{idPatient}, \textit{codePathologie}, \textit{codeDépt})
 \end{redbullet}
 
 \vfill
@@ -161,14 +164,14 @@ d'une clé de la table référencée.
  
 
 \begin{minipage}[t]{7cm}
-\begin{tabular}{c|c|c|c|c}
-\textbf{id} & nom & prénom & sexe & néLe \\ \hline
- 10  &  & Philippe & M & 18/09/1987\\
-20 & & Amélie & F & 12/01/1963\\
-30 && Julien & M & 2/11/2002\\
-40 & & François & M & 30/03/1993\\
-50 & & Joëlle & M & 18/02/1997\\
-60 & & Sonia & M & 29/07/1976\\
+\begin{tabular}{c|c|c|c}
+\textbf{id} & prénom & sexe & néLe \\ \hline
+ 10  &  Philippe & M & 18/09/1987\\
+20 & Amélie & F & 12/01/1963\\
+30 &Julien & M & 2/11/2002\\
+40 & François & M & 30/03/1993\\
+50 & Joëlle & F & 18/02/1997\\
+60 & Sonia & F & 29/07/1976\\
 \hline
 \end{tabular}
 La table des patients
@@ -189,14 +192,14 @@ La table des pathologies
 
 \vfill
 \begin{center}
-\begin{tabular}{c|c|c|c}
-\textbf{id} & idPatient & codePathologie & codeDépt \\ \hline
-1000  &  10 & epi & 30\\
-2000 &  40 & dia & 15\\
-3000 &  50 & epi & 30\\
-4000 &  10 & neur & 61\\
-5000 &  20 & csein & 61\\
-6000 &  60 & dia & 50\\
+\begin{tabular}{c|c|c|c|c}
+\textbf{id} & date & idPatient & codePathologie & codeDépt \\ \hline
+1000  & 08/12/2021 & 10 & epi & 30\\
+2000 &  24/05/2024 & 40 & dia & 15\\
+3000 &  30/03/2021 & 50 & epi & 30\\
+4000 &  18/07/2022 & 10 & neur & 61\\
+5000 &  06/10/2021 & 20 & csein & 61\\
+6000 &  20/07/2023 & 60 & dia & 50\\
 \hline
 \end{tabular}
 La table des cas

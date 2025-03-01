@@ -2,6 +2,53 @@
 
 
 %%%%%%%%%%%%%%%
+\begin{frame}{Reprenons notre base}
+ 
+
+\begin{minipage}[t]{7cm}
+\begin{tabular}{c|c|c|c}
+\textbf{id} & prénom & sexe & néLe \\ \hline
+ 10  &  Philippe & M & 18/09/1987\\
+20 & Amélie & F & 12/01/1963\\
+30 &Julien & M & 2/11/2002\\
+40 & François & M & 30/03/1993\\
+50 & Joëlle & F & 18/02/1997\\
+60 & Sonia & F & 29/07/1976\\
+\hline
+\end{tabular}
+La table des patients
+\end{minipage} \hspace*{2mm} \
+\begin{minipage}[t]{5cm}
+\begin{tabular}{c|c|c}
+\textbf{code} & intitulé & \textit{sousTypeDe} \\ \hline
+dia  & Diabètes &  \\
+neur & Neurologies & \\
+canc & Cancers & \\
+epi & Epislespie & neur \\
+csein & Cancer du sein & canc\\
+psy & Psychiatrie & \\
+\hline
+\end{tabular}
+La table des pathologies
+\end{minipage}
+
+\vfill
+\begin{center}
+\begin{tabular}{c|c|c|c|c}
+\textbf{id} & date & idPatient & codePathologie & codeDépt \\ \hline
+1000  & 08/12/2021 & 10 & epi & 30\\
+2000 &  24/05/2024 & 40 & dia & 15\\
+3000 &  30/03/2021 & 50 & epi & 30\\
+4000 &  18/07/2022 & 10 & neur & 61\\
+5000 &  06/10/2021 & 20 & csein & 61\\
+6000 &  20/07/2023 & 60 & dia & 50\\
+\hline
+\end{tabular}
+La table des cas
+\end{center} 
+\end{frame}
+
+%%%%%%%%%%%%%%%
 \begin{frame}{Pour n'a-t-on pas perdu d'information?}
  
 Parce qu'on peut reconstituer \alert{exactement} la relation complète
@@ -9,91 +56,152 @@ Parce qu'on peut reconstituer \alert{exactement} la relation complète
 
     
 \begin{redbullet}
-  \item Connaissant \texttt{id\_expert}, je connais 
-     toutes les autres informations sur l'expert.
- \item Connaissant \texttt{id\_manuscrit}, je connais \texttt{id\_expert}
-     \item  Par \alert{transitivité}, connaissant \texttt{id\_manuscrit}, je  connais \texttt{id\_expert},
-     et connaissant \texttt{id\_expert}, je connais toutes les autres informations sur l'expert
+  \item Connaissant un cas je connais l'identifiant du patient, 
+     de la pathologie, du département
+ \item Connaissant \texttt{idPatient}, je trouve l'unique patient 
+     dans la table Patient (et je suis sûr qu'il existe)
+     \item  Idem pour la pathologie, le département, et au-delà la région
 \end{redbullet}
 
 \vfill
 
 
 \begin{blocgauche}
-L'association de la clé primaire et de la clé étrangère est le mécanisme
-de liaison des nuplets en relationnel.
+Ce raisonnement est implanté dans SQL grâce à la jointure
 \end{blocgauche}
 
 \end{frame}
 
 
 %%%%%%%%%%%%%%%
-\begin{frame}{Avec un exemple}
+\begin{frame}[fragile]{Quelques exemples}
  
-\begin{tabular}{c|c|c}
-\textbf{id\_expert} & \textbf{nom} & \textbf{adresse}\\ \hline
-   1 &Sophie &rue Montorgueil, Paris\\
-   2& Philippe  &rue des Martyrs, Paris\\
-\hline
-\end{tabular}
+Le plus simple
+
+
+\begin{minted}{sql}
+select  * from Pathologie
+\end{minted}
 
 \vfill
 
-\begin{tabular}{c|l|p{4cm}|c|p{3cm}}
-\textbf{id\_manuscrit} & \textbf{nom} & \textbf{titre} & \textbf{id\_expert}  & \textbf{Commentaire}\\ \hline
-   10& Serge&  L'arpète &2& Une réussite\\
-   20& Cécile& Un art du chant grégorien sous Louis XIV& 1& Bravo\\
-\hline
-\end{tabular}
+
+\begin{minted}{sql}
+select  * from Patient where idDépt = 15
+\end{minted}
 
 \vfill
 
-\begin{blocgauche}
-La valeur d'une clé étrangère est \alert{toujours} celle
-d'une clé de la table référencée.
-\end{blocgauche}
+La jointure
+
+\begin{minted}{sql}
+select  d.nom as nomDépt, r.id, r.nom as nomRégion 
+from Département as d, Région as r
+where d.idRégion=r.id
+\end{minted}
+
+
 \end{frame}
 
 
 %%%%%%%%%%%%%%%
-\begin{frame}{Schéma normalisé et  contraintes}
+\begin{frame}[fragile]{Le problème des hiérarchies}
  
-On normalise les schémas, et on demande au système de garantir deux contraintes.
-
-\begin{defblock}{Contrainte d'unicité}
-Une valeur de clé ne peut apparaître \alert{qu'une fois} dans une relation.
-\end{defblock}
- 
-\vfill
-
-\begin{defblock}{Contrainte d'intégrité référentielle}
-La valeur d'une clé étrangère doit \alert{toujours}
-   être également une des valeurs de la clé référencée.\end{defblock}
+Courant dans les entrepôts de données (opération \texttt{rollup}). Difficile avec SQL
 
 \vfill
+Les pathologies de type cardiovasculaire.
 
-\begin{blocgauche}
-On obtient des schémas sans anomalie.
-\end{blocgauche}
+\begin{minted}{sql}
+select  * 
+from Cas as c 
+where codePathologie='cardio'
+or codePathologie in (
+   select code from Pathologie where sousTypeDe='cardio')
+\end{minted}
+
+\vfill
+Les pathologies à plusieurs niveaux (jointure externe \sqlkw{left join}
+
+\begin{minted}{sql}
+select  p1.intitulé as CodePatho, p2.intitulé as codeSousPatho
+from Pathologie as p1 left join Pathologie as p2
+on p1.code=p2.sousTypeDe
+\end{minted}
 
 \end{frame}
+
+
+%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Les agrégations}
+ 
+Clauses \sqlkw{group by} et\sqlkw{having}
+
+\vfill
+Les régions et leur nombre de département
+
+\begin{minted}{sql}
+select  r.nom as nomRégion, count(*) as nbDépts 
+from Département as d, Région as r
+where d.idRégion=r.id
+group by r.id
+\end{minted}
+
+\vfill
+Les régions avec moins de 5 départements
+
+\begin{minted}{sql}
+select  r.nom as nomRégion, count(*) as nbDépts 
+from Département as d, Région as r
+where d.idRégion=r.id
+group by r.id
+having nbDépts <= 5
+\end{minted}
+\end{frame}
+
+%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Les agrégations}
+ 
+Une option à toujours considérer\,: les vues
+\vfill
+Les cas groupés par pathologie\,:
+\begin{minted}{sql}
+create view CasParPathologie as
+select  c.codePathologie, p.intitulé, count(*) as 'nb_cas'
+from Cas as c, Pathologie as p
+where c.codePathologie=p.code
+group by codePathologie
+\end{minted}
+
+\vfill
+L'interrogation devient beaucoup plus simple
+
+\begin{minted}{sql}
+select * from CasParPathologie
+where codePathologie='cardio'
+\end{minted}
+\end{frame}
+
 
 %%%%%%ù
 
 \begin{frame}{À retenir}
 
-Un schéma de BD correct:
-\vfill
+
 \begin{redbullet}
-  \item Toute relation a une clé
- \item Tous les attributs dépendent \alert{directement} de la clé (forme normale)
- \item On peut lier les nuplets les uns aux autres avec des clés étrangères.
- \item Le système évite les anomalies en garantissant
-    la \alert{contrainte d'unicité} (clé) et la \alert{contrainte d'intégrité référentielle} (clé étrangère)
+  \item SQL est un langage puissant et très flexible pour l'interrogation et l'agrégation 
+      de données élémentaires
+ \item Une limite pour les agrégations sur des hiérarchies (rollup) 
+  \item Une limite (relative) en performance pour de très grandes bases
+  \item Les vues apportent simplicité et confidentialité
 \end{redbullet}
 
 \vfill
 
-\alert{Comment trouve-t-on le bon schéma\,?} Nous y reviendrons.
-\end{frame}
+Les systèmes d'entrepôts de données (\textit{data warehouse}) 
+combinent opérateurs spécialisés et outil d'exploration et visualisation.
 
+\vfill
+Passons à la pratique\,!
+
+\end{frame}
