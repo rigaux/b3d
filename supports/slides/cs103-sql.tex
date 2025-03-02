@@ -78,14 +78,6 @@ Ce raisonnement est implanté dans SQL grâce à la jointure
  
 Le plus simple
 
-
-\begin{minted}{sql}
-select  * from Pathologie
-\end{minted}
-
-\vfill
-
-
 \begin{minted}{sql}
 select  * from Patient where idDépt = 15
 \end{minted}
@@ -100,28 +92,9 @@ from Département as d, Région as r
 where d.idRégion=r.id
 \end{minted}
 
-
-\end{frame}
-
-
-%%%%%%%%%%%%%%%
-\begin{frame}[fragile]{Le problème des hiérarchies}
- 
-Courant dans les entrepôts de données (opération \texttt{rollup}). Difficile avec SQL
-
 \vfill
-Les pathologies de type cardiovasculaire.
 
-\begin{minted}{sql}
-select  * 
-from Cas as c 
-where codePathologie='cardio'
-or codePathologie in (
-   select code from Pathologie where sousTypeDe='cardio')
-\end{minted}
-
-\vfill
-Les pathologies à plusieurs niveaux (jointure externe \sqlkw{left join}
+Exploration de la hiérarchie avec jointure externe (\sqlkw{left join})
 
 \begin{minted}{sql}
 select  p1.intitulé as CodePatho, p2.intitulé as codeSousPatho
@@ -159,26 +132,57 @@ having nbDépts <= 5
 \end{minted}
 \end{frame}
 
+
 %%%%%%%%%%%%%%%
-\begin{frame}[fragile]{Les agrégations}
+\begin{frame}[fragile]{Le problème des hiérarchies}
+ 
+Courant dans les entrepôts de données (opération \texttt{rollup}). Difficile avec SQL
+
+\vfill
+Les pathologies de type cardiovasculaire (celles qui sont sous-type de 'cardio').
+
+\begin{minted}{sql}
+select  * 
+from Cas as c 
+where codePathologie in (
+   select code from Pathologie where sousTypeDe='cardio')
+\end{minted}
+
+\vfill
+
+Regroupement par super-type de pathologie, avec ROLLUP
+
+\begin{minted}{sql}
+select  superpatho.intitulé, count(*) as nb_cas
+from Cas as c, Pathologie as patho, Pathologie as superpatho
+where superpatho.code = patho.sousTypeDe
+and patho.code = c.codePathologie
+group by superpatho.intitulé with rollup
+\end{minted}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Les vues}
  
 Une option à toujours considérer\,: les vues
 \vfill
-Les cas groupés par pathologie\,:
 \begin{minted}{sql}
-create view CasParPathologie as
-select  c.codePathologie, p.intitulé, count(*) as 'nb_cas'
-from Cas as c, Pathologie as p
+create view CasParPathoSexeDept as
+select  p.intitulé, pa.sexe, d.nom as nomDépt, count(*) as 'nb_cas'
+from Cas as c, Pathologie as p, Département as d, Patient as pa
 where c.codePathologie=p.code
-group by codePathologie
+and c.idDépt =d.id
+and c.idPatient = pa.id
+group by c.codePathologie, pa.sexe, d.id
 \end{minted}
 
 \vfill
 L'interrogation devient beaucoup plus simple
 
 \begin{minted}{sql}
-select * from CasParPathologie
-where codePathologie='cardio'
+select * from CasParPathoSexeDept
+where nomDépt='Ardennes'
 \end{minted}
 \end{frame}
 
@@ -192,7 +196,7 @@ where codePathologie='cardio'
   \item SQL est un langage puissant et très flexible pour l'interrogation et l'agrégation 
       de données élémentaires
  \item Une limite pour les agrégations sur des hiérarchies (rollup) 
-  \item Une limite (relative) en performance pour de très grandes bases
+  \item Une limite (très relative) en performance pour de très grandes bases
   \item Les vues apportent simplicité et confidentialité
 \end{redbullet}
 

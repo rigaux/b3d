@@ -189,6 +189,10 @@ cs103-sql:
 	pdflatex   -shell-escape "\newcommand\titreDiapos{L'interrogation}\newcommand\inputFile{cs103-sql}\input{cs103}"
 	mv cs103.pdf ../../../CS103/diapos/cs103-sql.pdf
 	make clean
+cs103-docstruct: 
+	pdflatex   -shell-escape "\newcommand\titreDiapos{Mod\'elisation structur\'ee}\newcommand\inputFile{cs103-docstruct}\input{cs103}"
+	mv cs103.pdf ../../../CS103/diapos/cs103-docstruct.pdf
+	make clean
 
 all:	prescours.pdf
 

@@ -98,7 +98,20 @@ Il existe des propriétés formelles pour dire qu'un schéma est normalisé
 
 \vfill
 
-Schéma ``en étoile'', caratéristique des entrepôts de données
+\end{frame}
+
+\begin{frame}{Les bases OLAP}
+
+Notre schéma est ``en étoile'', caratéristique des entrepôts de données.
+Des \alert{faits} (ici des cas) sont qualifiés selon plusieurs 
+dimensions, parfois hiérarchique.
+
+\includegraphics[width=0.6\textwidth]{../figures/cs103_pathos}
+
+\vfill
+
+L'opération de \alert{rollup} permet de se placer à différents niveaux 
+de la hiérarchie.
 \end{frame}
 
 
@@ -223,6 +236,7 @@ Caractéristique\,:
  \item L'ajout d'une information (un cas par exemple) peut nécessiter 
         plusieurs écritures
  \item La recherche d'une information peut nécessiter plusieurs lectures
+ \item Toutes les données sont ``à plat'', aucun accès n'est privilégié
 \end{redbullet}
 
 \vfill
