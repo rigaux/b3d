@@ -1,9 +1,0 @@
-<!ELEMENT mail (header,body)>
-<!ELEMENT header (from,to+,cc*,bcc*,subject)>
-<!ELEMENT from (#PCDATA)>
-<!ELEMENT to (#PCDATA)>
-<!ELEMENT cc (#PCDATA)>
-<!ELEMENT bcc (#PCDATA)>
-<!ELEMENT subject (#PCDATA)>
-<!ELEMENT body (#PCDATA)>
-<!ENTITY author "moi même">

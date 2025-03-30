@@ -4,7 +4,8 @@
 %%%%%%%%%%%%%%%
 \begin{frame}{Reprenons notre base}
  
-
+ \vfill
+\begin{small}
 \begin{minipage}[t]{7cm}
 \begin{tabular}{c|c|c|c}
 \textbf{id} & prénom & sexe & néLe \\ \hline
@@ -16,6 +17,7 @@
 60 & Sonia & F & 29/07/1976\\
 \hline
 \end{tabular}
+
 La table des patients
 \end{minipage} \hspace*{2mm} \
 \begin{minipage}[t]{5cm}
@@ -46,6 +48,8 @@ La table des pathologies
 \end{tabular}
 La table des cas
 \end{center} 
+
+\end{small}
 \end{frame}
 
 %%%%%%%%%%%%%%%
@@ -66,9 +70,8 @@ Parce qu'on peut reconstituer \alert{exactement} la relation complète
 \vfill
 
 
-\begin{blocgauche}
-Ce raisonnement est implanté dans SQL grâce à la jointure
-\end{blocgauche}
+Ce raisonnement est implanté dans SQL grâce à la \alert{jointure}
+qui permet de \alert{dénormaliser} (par calcul). 
 
 \end{frame}
 
@@ -76,7 +79,7 @@ Ce raisonnement est implanté dans SQL grâce à la jointure
 %%%%%%%%%%%%%%%
 \begin{frame}[fragile]{Quelques exemples}
  
-Le plus simple
+Basique
 
 \begin{minted}{sql}
 select  * from Patient where idDépt = 15
@@ -106,9 +109,7 @@ on p1.code=p2.sousTypeDe
 
 
 %%%%%%%%%%%%%%%
-\begin{frame}[fragile]{Les agrégations}
- 
-Clauses \sqlkw{group by} et\sqlkw{having}
+\begin{frame}[fragile]{Les agrégations\,: clauses \sqlkw{group by} et\sqlkw{having}}
 
 \vfill
 Les régions et leur nombre de département
@@ -193,11 +194,15 @@ where nomDépt='Ardennes'
 
 
 \begin{redbullet}
+ \item \alert{Qui dit normalisation dit jointure et réciproquement\,!}
   \item SQL est un langage puissant et très flexible pour l'interrogation et l'agrégation 
       de données élémentaires
  \item Une limite pour les agrégations sur des hiérarchies (rollup) 
-  \item Une limite (très relative) en performance pour de très grandes bases
-  \item Les vues apportent simplicité et confidentialité
+  \item Une limite (très relative) en performance pour de très grandes bases\,: 
+  pour chaque ligne du résultat,  il faut combiner autant de lignes qu'il y a de tables dans le \sqlkw{from}
+ 
+  \item Avec les vues on a tous les avantages\,: normalisation \alert{et}
+   simplicité / confidentialité
 \end{redbullet}
 
 \vfill
@@ -207,5 +212,23 @@ combinent opérateurs spécialisés et outil d'exploration et visualisation.
 
 \vfill
 Passons à la pratique\,!
+
+\end{frame}
+
+
+\begin{frame}{La pratique}
+
+À vous de jouer\,!
+
+\vfill
+
+
+Rendez-vous sur le site \url{https://deptfod.cnam.fr/bd/tp} pour une petite dizaine
+de requêtes SQ
+
+\vfill
+
+\alert{Défi}\,: définir une requête qui produit un des jeux de données Ameli, par
+exemple \url{https://data.ameli.fr/explore/dataset/effectifs/information/}
 
 \end{frame}

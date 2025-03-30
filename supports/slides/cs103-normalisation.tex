@@ -8,14 +8,15 @@ un schéma de données avec deux propriétés fondamentales\;:
 
 \begin{redbullet}
   \item Il n'y a \alert{aucune} redondance, et donc aucun risque \alert{d'incohérence}
-  \item Il n'y a aucune perte d'information
+  \item Il n'y a aucune \alert{perte d'information}
 \end{redbullet}
 
 \vfill
 
 
 \begin{noteblock}
-Essentiel en général, avec des exceptions, notamment les données historisées
+Essentiel pour les bases de données généralistes. Beaucoup moins important
+pour des données historisées
 servant à l'analyse.
 \end{noteblock}
 
@@ -77,8 +78,8 @@ une modélisation bâclée.
 La normalisation consiste à 
 \vfill
 \begin{redbullet}
-  \item distinguer des ``entités''
-  \item  les identifier 
+  \item distinguer des ``entités'' 
+  \item les identifier 
      \item leur affecter une table spécifique 
    \item lier ces tables pour ne pas perdre d'information
 \end{redbullet}
@@ -87,16 +88,18 @@ La normalisation consiste à
 
 
 \begin{noteblock}
-Il existe des propriétés formelles pour dire qu'un schéma est normalisé
+Il existe des méthodes et des propriétés formelles pour dire 
+qu'un schéma est normalisé. Cf un cours sur les BD relationnelles.
 \end{noteblock}
 
 \end{frame}
 
-\begin{frame}{La modélisation du schéma}
+\begin{frame}{La modélisation de notre schéma}
 
-\includegraphics[width=0.8\textwidth]{../figures/cs103_modele}
 
-\vfill
+
+\includegraphics[width=1\textwidth]{../figures/cs103_modele}
+
 
 \end{frame}
 
@@ -104,7 +107,9 @@ Il existe des propriétés formelles pour dire qu'un schéma est normalisé
 
 Notre schéma est ``en étoile'', caratéristique des entrepôts de données.
 Des \alert{faits} (ici des cas) sont qualifiés selon plusieurs 
-dimensions, parfois hiérarchique.
+\alert{dimensions}, parfois hiérarchiques.
+
+\vfill
 
 \includegraphics[width=0.6\textwidth]{../figures/cs103_pathos}
 
@@ -117,9 +122,15 @@ de la hiérarchie.
 
 \begin{frame}{Nos tables}
 
+
+En \textbf{gras} les \alert{clés primaires}, en \textit{italiques} les
+\alert{clés étrangères}.
+
+\vfill
+
 \begin{redbullet}
   \item Patient (\textbf{id}, nom, prénom, sexe, néLe)
-  \item Pathologie (\textbf{code}, intitulé, sousTypeDe)
+  \item Pathologie (\textbf{code}, intitulé, \textit{sousTypeDe})
   \item Région (\textbf{code}, nom)
   \item Dépt (\textbf{code}, nom, \textit{codeRégion})
   \item Cas (\textbf{id}, date, \textit{idPatient}, \textit{codePathologie}, \textit{codeDépt})
@@ -127,8 +138,7 @@ de la hiérarchie.
 
 \vfill
 
-En \textbf{gras} les \alert{clés primaires}, en \textit{italiques} les
-\alert{clés étrangères}.
+Voir \url{https://deptfod.cnam.fr/bd/tp}
 \end{frame}
 
 %%%%%%%%%%%%%%%
@@ -165,9 +175,9 @@ La table des départements
 
 \begin{remblock}{Contraintes}
 \begin{redbullet}
-  \item la valeur d'une clé primaire est unique
+  \item la valeur d'une clé primaire est unique (pas de doublon)
  \item La valeur d'une clé étrangère est \alert{toujours} celle
-d'une clé de la table référencée.
+d'une clé de la table référencée (\emph{intégrité référentielle})
 \end{redbullet}
 \end{remblock}
 \end{frame}
@@ -187,6 +197,7 @@ d'une clé de la table référencée.
 60 & Sonia & F & 29/07/1976\\
 \hline
 \end{tabular}
+
 La table des patients
 \end{minipage} \hspace*{2mm} \
 \begin{minipage}[t]{5cm}
@@ -225,9 +236,9 @@ La table des cas
 \begin{frame}{À retenir}
 
 Un modèle relationnel normalisé évite les \alert{anomalies de mise à jour} et
-les \alert{incohérences} consécutives aux redondances.
+les \alert{incohérences}.
 \vfill
-Caractéristique\,:
+Caractéristiques\,:
 
 \begin{redbullet}
   \item La base est constitué de plusieurs (souvent, beaucoup) de tables
@@ -245,3 +256,26 @@ Caractéristique\,:
 avant décomposition\,? À venir.
 \end{frame}
 
+
+
+\begin{frame}{La pratique}
+
+Les données disponibles en Open Data sont le plus souvent agrégées, sans doute
+à partir d'une base relationnelle sous-jacente.
+
+\vfill
+
+Défi\,: choisissez un jeu de données et proposez une modélisation
+des faits élémentaires.
+
+\vfill
+
+Exemples
+\begin{redbullet}
+  \item Le modèle proposé est inspiré de \url{https://data.ameli.fr/explore/?refine.theme=Pathologies}
+  \item Sur le même site vous pouvez prendre les montants des honoraires 
+  des professionnels de santé et modéliser une base ``Consultations''.
+  \item Le choix du jeu de données est libre\,!
+\end{redbullet}
+
+\end{frame}

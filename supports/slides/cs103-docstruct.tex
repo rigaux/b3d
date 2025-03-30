@@ -49,8 +49,14 @@ Utilisation première : échange de données dans un environnement Web (par exem
 
 \vfill
 
-En NoSQL, JSON apporte flexibilit,  sérialisation et \alert{autonomie}
+En NoSQL, JSON apporte flexibilité,  sérialisation et \alert{autonomie}
 de représentation
+
+\vfill
+\begin{noteblock}
+Avec le modèle dénormalisé, on peut ``pré-calculer'' les jointures. 
+On le paye par un risque redondance et la perte de la symétrie d'accès.
+\end{noteblock}
 \end{frame}
 
 \definecolor{lightgray}{rgb}{.9,.9,.9}
@@ -58,12 +64,12 @@ de représentation
 \definecolor{purple}{rgb}{0.65, 0.12, 0.82}
 
 
-\begin{frame}[containsverbatim,fragile,allowframebreaks]{Les bases de JSON}
+\begin{frame}[fragile]{Les bases de JSON}
 
 Structure de base: paire  \textit{clef-valeur} (\textit{key-value})
 
 \begin{minted}{javascript}
-intitule": "Troubles addictifs"
+"intitule": "Troubles addictifs"
 \end{minted}
 
 \bigskip
@@ -122,7 +128,9 @@ Un \textit{tableau} (\textit{array}) est une liste
  de valeurs (dont le type n'est pas forcément le même).
 
 \begin{minted}{javascript}
-{"cardio": ["Insufisance cardiaque", "Accident vasculaire", "Embolie"]}
+{"cardio": ["Insufisance cardiaque", 
+            "Accident vasculaire", 
+            "Embolie"]}
 \end{minted}
 
 \vfill
@@ -161,6 +169,97 @@ Un \textit{document} est un objet contenant toutes les informations sur une enti
 \end{frame}
 
 
+\begin{frame}[containsverbatim,fragile]{Le risque de la redondance}
+
+Les objets ne sont plus séparés comme en relationnel, mais composés
+dans un même document.
+
+
+\begin{minted}[baselinestretch=.9,
+               fontsize=\small,
+               framesep=2mm]{javascript}
+{
+  "_id": "2",
+  "prennom": "aapeli",
+  "sexe": "m",
+  "neLe": "12/11/1962",
+  "dept": {
+     "code": "2A",
+     "nom": "Corse-du-Sud",
+     "population": 108765
+  }
+}
+\end{minted}
+
+\vfill
+On va répéter la description de la Corse du Sud autant de fois qu'il y a de patients.
+
+
+\end{frame}
+
+
+\begin{frame}[containsverbatim,fragile]{Tout n'est pas possible}
+
+On ne peut pas se permettre d'avoir des documents sans limite de taille.
+Exemple\,: pour les régions et départements, ça va.
+
+\begin{minted}[baselinestretch=.9,
+               fontsize=\small,
+               framesep=2mm]{javascript}
+{
+	"_id": "7",
+	"nom": "Corse",
+	"depts": [
+		{
+			"code": "2A",
+			"nom": "Corse-du-Sud"
+		},
+		{
+			"code": "2B",
+			"nom": "Haute-Corse"
+		}
+	]
+}
+\end{minted}
+
+\vfill
+Mais si je voulais mettre toutes les occurrences de cas dans cet objet,
+il ne serait plus vraiment utilisable.
+\end{frame}
+
+
+
+\begin{frame}[containsverbatim,fragile]{On a perdu la symétrie}
+
+En relationnel, aucun chemin d'accès aux données n'est privilégié.
+
+\vfill
+
+Avec une modélisation dénormalisée on choisit de privilégier 
+certaines entités.
+
+\vfill
+\begin{minted}[baselinestretch=.9,
+               fontsize=\small,
+               framesep=2mm]{javascript}
+{
+  "_id": "2",
+  "prennom": "aapeli",
+  "pathologies": [
+    {"intitule": "Cancer bronchopulmonaire",
+      "date": "03/02/2021", "dept": "75"
+    },
+    {"intitule": "Accident vasculaire",
+      "date": "11/10/2023", "dept": "75"
+    }
+  ]
+}
+\end{minted}
+
+\vfill
+Facile de construire une analyse centrée patient, très difficile 
+de regrouper par pathologie ou département. 
+\end{frame}
 
 \begin{frame}[fragile]
 \frametitle{Les systèmes utilisant JSON}
@@ -174,6 +273,11 @@ Beaucoup de systèmes NoSQL s'appuient sur JSON\,:
        \item CouchDb et CouchBase, et beaucoup d'autres
  \end{redbullet}
 
+\vfill
+
+\begin{noteblock}
+Il n'y a pas de langage de requêtes normalisé et pas d'interopérabilité.
+\end{noteblock}
 \end{frame}
 
 
@@ -195,5 +299,28 @@ La notion \alert{d'autonomie} (pas d'association entre documents) est essentiell
        \item Inconvénient\,: un jour ou l'autre il faudra faire des jointures; 
           les systèmes NoSQL ne sont pas bon pour ça.
  \end{redbullet}
+
+\end{frame}
+
+
+\begin{frame}{La pratique}
+
+À vous de jouer\,!
+
+\vfill
+
+
+Rendez-vous sur le site \url{https://deptfod.cnam.fr/bd/tp}, exportez les
+deux documents JSON proposés et étudiez-les
+
+\vfill
+
+\alert{Défi}\,: proposez une représentation JSON pour les cas, en 
+cherchant à éviter toute nécessité de jointure.
+
+\vfill
+
+Vous pouvez vérifier que votre document est correct avec un validateur JSON
+en ligne, comme \url{https://jsonlint.com/}
 
 \end{frame}

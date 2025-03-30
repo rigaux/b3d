@@ -1,0 +1,237 @@
+
+
+\begin{frame}{Parlons transaction et réplication}
+
+Une \alert{transaction} est une séquence d'opérations de \alert{lecture} ou d'\alert{écriture}, 
+se terminant par \sqlkw{commit} ou \sqlkw{rollback}.
+
+
+\vfill
+
+\begin{redbullet}
+
+  \item   Le \texttt{commit} est une instruction qui \alert{valide} toutes les mises à jour.
+
+  \item Le \texttt{rollback} est une instruction qui \alert{annule} toutes les mises à jour.
+
+\end{redbullet}
+\vfill
+
+\begin{remblock}{Essentiel}
+Les opérations d'une transaction sont solidaires: elles sont toutes validées, ou pas du tout
+(\alert{atomicité}).
+\end{remblock}
+\end{frame}
+
+
+\begin{frame}{Propriétés des transactions (en relationnel)}
+
+Un système relationnel contrôle la concurrence et
+garantit un ensemble de propriétés rassemblées sous l'acronyme ACID.
+
+\vfill
+
+\begin{redbullet}
+
+  \item  \alert{A = Atomicité}. Une transaction est validée complètement ou pas du tout.
+  
+  \item  \alert{C = Cohérence}. Une transaction mène d'un état cohérent à un autre état cohérent.
+  
+  \item \alert{I = Isolation}. Une transaction s'exécute comme si elle était seule.
+  
+   \item \alert{D = Durabilité}. Quand le commit s'exécute, ses résultats sont définitifs.
+\end{redbullet}
+
+\begin{noteblock}
+Les algorithmes sont \alert{très} complexes, et impactent les performances.
+\end{noteblock}
+\end{frame}
+
+
+
+\begin{frame}{Et en NoSQL}
+
+Les transactions sont indispensables en relationnel à cause de la multiplicité des
+écritures.
+\vfill
+
+En NoSQL, c'est différent
+
+\begin{redbullet}
+
+  \item  On peut souvent lire / écrire un seul document\,: pas besoin de transaction
+  
+  \item On a souvent des applications analytiques de type \textit{Write once, read many (WORM)}. 
+  
+  \item Et \alert{surtout} les systèmes NoSQL sont conçus pour être
+      distribués, et ça devient très très compliqué 
+  
+\end{redbullet}
+
+\vfill
+
+Les systèmes NoSQL ne proposent pas (sauf exception) des transactions
+ACID, mais un protocole simplifié, dit BASE.
+
+\end{frame}
+
+\section{La réplication, pourquoi?}
+
+\begin{frame}
+\frametitle{La réplication}
+
+Outil indispensable, universel pour la robustesse des systèmes distribués.
+
+\begin{redbullet}
+  \item \alert{Tolérance aux pannes}
+  
+     Vous cherchez un document sur $S_1$, qui est en panne\,? On le trouvera sur $S_2$
+     
+ \item \alert{Distribution des lectures}
+ 
+    Répartissons les lectures sur $S_1, S_2, \ldots, S_n$ pour satisfaire les millions de requêtes de nos clients.
+    
+ \item \alert{Distribution des écritures\,?}
+ 
+    Oui, mais attention, il faut \alert{réconcilier} les données ensuite.
+    
+ \end{redbullet}
+
+Le bon niveau de réplication? \alert{Trois copies pour une sécurité totale; deux au minimum}.
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Méthode générale de réplication}
+
+Une \alert{application} (le client) demande au \alert{système}  $S_1$ \alert{l'écriture}
+d'un document.
+
+\begin{redbullet}
+  \item $S_1$ écrit le document sur le disque\,; 
+  \item \alert{$S_1$ transmet la demande d'écriture à un ou plusieurs autres serveurs $S_2, \ldots, S_n$}, créant
+     des \alert{replicas} ou \alert{copies}\,;
+  \item $S_1$ ``rend la main'' au client (acquittement)
+\end{redbullet}
+
+Essentiel, réplication synchrone/asynchrone\,?
+
+\begin{redbullet}
+  \item \alert{synchrone}: $S_1$ \alert{attend} confirmation de $S_2, \ldots, S_n$ avant de rendre la main\,; 
+ \item \alert{asynchrone}: $S_1$ rend la main \alert{sans attendre}. 
+ \end{redbullet}
+
+\begin{remblock}{Conséquences}
+Une réplication \alert{asynchrone} est plus rapide, mais  favorise les \alert{incohérences}.
+\end{remblock}
+
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Réplication avec écritures synchrones}
+
+Le client est acquitté quand \alert{tous} les serveurs ont effectué l'écriture.
+
+\vfill
+
+\figSlideWithSize{replication-synchrone}{10cm}
+
+\vfill
+
+Sécurité totale; cohérence forte; \alert{plus lent}.
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Réplication avec écritures asynchrones}
+
+Le client est acquitté quand \alert{un} des serveurs a effectué l'écriture. Les autres
+écritures se font indépendamment.
+
+\vfill
+
+\figSlideWithSize{replication-asynchrone}{10cm}
+
+\vfill
+
+Sécurité partielle; cohérence faible; \alert{efficace}.
+
+\end{frame}
+
+\section{Cohérence des données}
+
+
+\begin{frame}
+\frametitle{Parlons cohérence}
+
+La cohérence est la capacité d’un système de gestion de données à refléter fidèlement les opérations d’une application.
+ 
+\begin{redbullet}
+  \item toute opération (validée) est immédiatement visible et permanente. 
+  \item si je fais une écriture de $d$ suivie d’une lecture, je dois constater les modifications effectuées; 
+  \item si je refais une lecture un peu plus tard, ces modifications doivent toujours être présentes.
+\end{redbullet}
+
+\alert{Cohérence forte = } une des fonctionnalités marquantes des systèmes relationnels.
+
+\begin{remblock}{Dans les systèmes NoSQL}
+\alert{La cohérence forte est sacrifiée au profit des performances.} 
+\end{remblock}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Les transactions de type BASE}
+
+BASE est un modèle de transaction adapté aux systèmes distribués.
+
+\vfill
+
+\begin{redbullet}
+  \item \alert{Basically Available} -- Pas de verrouillage, on privilégie
+       la disponibilité des données
+       
+  \item \alert{Soft State} -- on accepte des états intermédiaires décalés par rapport 
+      aux mises à jour en cours.
+  
+  \item \alert{Eventually Consistent} (Cohérence à terme) ) -- le système
+     garantit que les incohérences ne sont que transitoires. 
+\end{redbullet}
+\vfill
+
+Une propriété souvent cité (théorème CAP) dit qu'on ne peut pas tout avoir...
+\vfill
+
+\begin{noteblock}{C'est important\,?}
+BASE est un modèle transactionnel faible et problématique pour des 
+application à mise à jour intensive. Sans impact pour des applications
+analytiques
+\end{noteblock}
+
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{À retenir}
+
+\begin{redbullet}
+  \item L'absence de transactions ACID, comme l'absence de jointure, est
+une faiblesse importante des systèmes NoSQL pour les applications
+généralistes.
+
+  \item Ces systèmes priorisent la capacité à traiter de grands
+   volumes de données dans un contexte distribué.
+
+  \item Pour les applications analytiques traitant des données
+     figées en lecture, pas de problème.
+  
+\end{redbullet}
+
+\end{frame}
+
+\end{document}
+
+

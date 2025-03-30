@@ -1,0 +1,341 @@
+
+
+\section{Basics}
+
+\begin{frame}{Qu'est-ce que Cassandra\,?}
+
+Cassandra, conçu à l'origine par Facebook, maintenant un projet de la fondation Apache,
+distribué par la société Datastax.
+
+\begin{redbullet}
+  \item Initialement basé sur le système BigTable de Google (stockage orienté colonnes)
+   \item A fortement évolué vers un \textit{modèle relationnel étendu}
+  \item Un des rares systèmes NoSQL à proposer un typage fort
+  \item Un langage de définition de schéma et de requêtes, CQL (pas de jointure)
+    \end{redbullet}
+   \vfill
+   
+Construit dès l'origine comme un système \alert{scalable} et \alert{distribué}.
+
+\vfill
+
+\alert{Dans cette session, nous étudions le modèle de données.}
+
+\end{frame}
+
+
+\section{le modèle de données}
+
+
+\begin{frame}
+\frametitle{Modèle = relationnel + types complexes}
+
+Cassandra gère des \alert{bases} (\textit{keyspaces}), contenant des \alert{tables} (a.k.a.
+\textit{column families}).
+
+\vfill
+
+Une table contient des \alert{lignes} (\textit{rows}) constituées de \alert{valeurs simples}
+ou \alert{complexes}.
+
+\vfill
+
+\alert{Perspective A}: c'est du relationnel étendu en rompant la première règle de normalisation (type atomique).
+
+\vfill
+
+\alert{Perspective B}: chaque ligne est un document structuré au sens où nous l'avons vu jusqu'ici.
+
+\vfill
+
+\begin{remblock}{Attention}
+Vocabulaire confus et parfois déroutant: \textit{columns}, \textit{column families}, etc.
+\end{remblock}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Paires et documents}
+
+La structure de base est la paire (clé, valeur)
+
+\begin{redbullet}
+ \item Clé\,: un identifiant
+ \item Valeur\,:  atomique (entier, chaîne de caractères), ou complexe (dictionnaire, ensemble, liste)
+\end{redbullet}
+
+\vfill
+
+Une ligne (\textit{row}, document) est un identifiant (\textit{row key}) associé à un ensemble de paires (clé, valeur).
+
+\vfill
+
+Les lignes sont \alert{typées} par un schéma, y compris les données imbriquées.
+
+\vfill
+
+Cassandra n'autorise pas (au moins avec CQL) l'insertion de données ne respectant pas le schéma.
+
+\vfill
+
+\alert{Quelques aspects ignorés ici}, le versionnement notamment.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Tables et base de données}
+
+Une \alert{table} (anciennement \textit{column family}) est un ensemble de \textit{rows} conformes
+au schéma de la table.
+
+\vfill
+
+Les tables sont \alert{dénormalisées}\,: on peut avoir des attributs dont
+la valeur est un type construit (objet ou ensemble).
+\vfill
+
+
+Une \alert{base} est un ensemble de tables. On l'appelle \textit{keyspace}. Explication? Plus tard.
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Conception d'un schéma}
+
+\alert{Cassandra ne propose pas de jointure}. C'est du NoSQL après tout.
+
+\vfill
+
+Il est donc préférable de \alert{regrouper} les données le plus possible dans des lignes
+(notion de document autonome, déjà vue).
+
+\vfill
+
+
+Au pire, on peut représenter les mêmes données sous plusieurs formes.
+
+\begin{redbullet}
+  \item Tous les patients, avec leurs pathologies.
+  \item Toutes les pathologies, avec les occurrences de cas
+\end{redbullet}
+
+
+\vfill
+
+Le regroupement a aussi des inconvénients (redondance, difficulté d'accès aux
+données ``profondes''). 
+\end{frame}
+
+\section{Session découverte\,!}
+
+
+\begin{frame}[fragile]
+\frametitle{Application !}
+
+Création d'un \textit{keyspace}.
+
+\begin{minted}{sql}
+create keyspace if not exists Pathologies 
+       with replication = { 'class' : 'SimpleStrategy',
+               'replication_factor': 3 };
+\end{minted}
+
+\vfill
+
+Création d'une table des départements (sans imbrication).
+
+\begin{minted}{sql}
+ create table Departement (id text, 
+                code text, 
+                nom  int, 
+                primary key (id) 
+             );
+\end{minted}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Insertions}
+
+A la SQL
+
+\begin{minted}{sql}
+insert into Departement (id, code, nom)  
+      values ('xa1', '16', 'Charentes');
+insert into Departement (id,  code, nom)  
+          values ('v6t', '42', 'Loire');
+insert into Departement (id,  code, nom)  
+          values ('9uj', '25', 'Doubs');
+\end{minted}
+
+\vfill
+
+Avec JSON
+
+\begin{minted}{sql}
+insert into Departement JSON '{
+				"id" : "uh6",
+				"code": "43",
+				"nom": "Haute-Loire"
+			},' 
+\end{minted}
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+\frametitle{Et les régions ?}
+
+\vfill
+
+On peut créer une autre table 
+
+\begin{minted}{sql}
+ create table Region (id text, 
+                nom  int, 
+                primary key (id) 
+             );
+\end{minted}
+
+\vfil
+
+\alert{mais on ne pourra pas faire la jointure avec le langage CQL...}. Il
+faudrait écrire un programme...
+
+\vfill
+
+Deux solutions :
+\begin{redbullet}
+  \item Utiliser l'imbrication (données dénormalisées)
+  \item Organiser physiquement les tables pour que le programme soit efficace
+\end{redbullet}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Imbrication de structures}
+
+C'est le principe de dénormalisation\,: on regroupe 
+les données le plus possible dans des lignes pour éviter les jointures.
+
+\vfill
+
+Une valeur d'attribut  peut correspondre\,:
+\begin{redbullet}
+	\item à un ensemble de valeurs (non ordonnées)\,: \textbf{SET} 
+	\item à une liste de valeurs\,: \textbf{LIST}
+	\item à un dictionnaire\,: \textbf{MAP} 
+	\item à un nuplet\,: \textbf{TUPLE} 
+	\item à une instance d'un type utilisateur
+\end{redbullet}
+
+\vfill
+
+Les ensembles doivent rester de taille raisonnable
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Imbrication\,: la région dans les départements}
+
+Création d'un type
+\begin{minted}{sql}
+create type region (id text,
+                    nom text);
+\end{minted}
+
+\vfill
+
+Table des départements, avec imbrication d'un objet conforme au type \texttt{region}.
+
+
+\begin{minted}{sql}
+ create table Departement (id text, 
+                code text, 
+                nom  int, 
+                region frozen<region>,
+                primary key (id) 
+             );
+\end{minted}
+
+\vfill
+
+On poura accéder aux régions, mais seulement en passant par les départements...
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Insertion de documents}
+
+À partir d'un document JSON
+
+\begin{minted}{sql}
+insert into Departement JSON '{
+		"id" : "uh6",
+		"code": "43",
+		"nom": "Haute-Loire",
+		"region": {"id": "uin", "nom": "Auvergne-Rhône-Alpes"}
+		}' 
+\end{minted}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Imbrication\,: les départements dans les régions}
+
+Création d'un type pour le département
+\begin{minted}{sql}
+create type departement (id text,
+                      "code": text,
+                    nom text);
+\end{minted}
+
+\vfill
+
+Table des régions avec imbrication \alert{d'une liste} d'objets conforme au type \texttt{departement}.
+
+
+\begin{minted}{sql}
+ create table Region (id text, 
+                nom  int, 
+                departements set<frozen<departement>>,
+                primary key (id) 
+             );
+\end{minted}
+
+\vfill
+
+On poura accéder aux départements, mais seulement en passant par les régions...
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Insertion de documents}
+
+\begin{minted}{sql}
+insert into Region JSON '{
+		"_id": "3",
+		"nom": "Auvergne-Rhônes-Alpes",
+		"depts": [
+			{"code": "01", "nom": "Ain"},
+			{"code": "03", "nom": "Allier"}
+			{"code": "42","nom": "Loire"}
+		]
+	}' 
+\end{minted}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{À retenir}
+
+\begin{redbullet}
+   \item Cassandra propose un modèle relationnel étendu, basé sur la capacité à imbriquer
+     des types complexes dans la définition d'un schéma
+   \item  Cassandra a choisi d'imposer un typage fort: toute insertion doit être conforme au schéma;
+   \item L'imbrication des constructeurs de type
+   rend le modèle comparable aux documents structurés JSON ou XML.
+\end{redbullet}
+
+\end{frame}

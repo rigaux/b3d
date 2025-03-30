@@ -181,6 +181,10 @@ spark:
 	mv genslides.pdf ../ressources-web/slspark.pdf
 	make clean
 
+cs103-intro: 
+	pdflatex   -shell-escape "\newcommand\titreDiapos{Mod\'elisation des donn\'ees}\newcommand\inputFile{cs103-intro}\input{cs103}"
+	mv cs103.pdf ../../../CS103/diapos/cs103-intro.pdf
+	make clean
 cs103-normalisation: 
 	pdflatex   -shell-escape "\newcommand\titreDiapos{La normalisation relationnelle}\newcommand\inputFile{cs103-normalisation}\input{cs103}"
 	mv cs103.pdf ../../../CS103/diapos/cs103-normalisation.pdf
@@ -192,6 +196,22 @@ cs103-sql:
 cs103-docstruct: 
 	pdflatex   -shell-escape "\newcommand\titreDiapos{Mod\'elisation structur\'ee}\newcommand\inputFile{cs103-docstruct}\input{cs103}"
 	mv cs103.pdf ../../../CS103/diapos/cs103-docstruct.pdf
+	make clean
+cs103-mongodb: 
+	pdflatex   -shell-escape "\newcommand\titreDiapos{Introduction \`a MongoDB}\newcommand\inputFile{cs103-mongodb}\input{cs103}"
+	mv cs103.pdf ../../../CS103/diapos/cs103-mongodb.pdf
+	make clean
+cs103-distrib: 
+	pdflatex   -shell-escape "\newcommand\titreDiapos{Transactions et r\'eplication}\newcommand\inputFile{cs103-distrib}\input{cs103}"
+	mv cs103.pdf ../../../CS103/diapos/cs103-distrib.pdf
+	make clean
+cs103-cassandra-model: 
+	pdflatex   -shell-escape "\newcommand\titreDiapos{Mod\`ele de donn\'ees Cassandra}\newcommand\inputFile{cs103-cassandra-model}\input{cs103}"
+	mv cs103.pdf ../../../CS103/diapos/cs103-cassandra-model.pdf
+	make clean
+cs103-cql: 
+	pdflatex   -shell-escape "\newcommand\titreDiapos{Cassandra et le langage CQL}\newcommand\inputFile{cs103-cql}\input{cs103}"
+	mv cs103.pdf ../../../CS103/diapos/cs103-cql.pdf
 	make clean
 
 all:	prescours.pdf
@@ -208,23 +228,3 @@ clean:
 ultraclean:
 	\rm -f *.vrb *.aux *.bbl *.blg *.dvi *.log *.ps *.pdf *.snm *.out *.nav *.toc *~
 
-	
-xml : 
-	pdflatex -shell-escape "\newcommand\titreDiapos{Codage XML}\newcommand\inputFile{xml}\input{generic-slides}"
-	pdflatex -shell-escape "\newcommand\titreDiapos{Codage XML}\newcommand\inputFile{xml}\input{generic-slides}"
-	mv generic-slides.pdf ../ressources-web/slxml.pdf
-	make clean
-
-	
-xpath : 
-	pdflatex -shell-escape "\newcommand\titreDiapos{XPath, l'essentiel}\newcommand\inputFile{xpath}\input{generic-slides}"
-	pdflatex -shell-escape "\newcommand\titreDiapos{XPath, l'essentiel}\newcommand\inputFile{xpath}\input{generic-slides}"
-	mv generic-slides.pdf ../ressources-web/slxpath.pdf
-	make clean
-
-xquery : 
-	pdflatex -shell-escape "\newcommand\titreDiapos{Introduction \`a XQuery}\newcommand\inputFile{xquery}\input{generic-slides}"
-	pdflatex -shell-escape "\newcommand\titreDiapos{Introduction \`a XQuery}\newcommand\inputFile{xquery}\input{generic-slides}"
-	mv generic-slides.pdf ../ressources-web/slxquery.pdf
-	make clean
-	

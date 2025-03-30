@@ -1,0 +1,193 @@
+
+
+\section{Basics}
+
+\begin{frame}{Qu'est-ce que \mongodb/,?}
+
+%\frametitle{Qu'est-ce que \mongodb/,?}
+
+\mongodb/, un système "NoSQL", l'un des plus populaires
+
+\begin{redbullet}
+  \item s'appuie sur un modèle de données semi-structuré (encodage JSON)\,;
+  \item pas de schéma (complète flexibilité)\,;
+  \item un \alert{langage d'interrogation} original, limité (et spécifique)\,;
+   \end{redbullet}
+   \vfill
+   
+Construit dès l'origine comme un système \alert{scalable} et \alert{distribué}.
+
+\begin{redbullet}
+ \item distribution par partionnement (\textit{sharding})\,;
+  \item tolérance aux pannes par réplication.
+\end{redbullet}   
+
+
+\vfill
+
+Un aperçu du \alert{langage d'interrogation} de \mongodb/.
+
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Découvrons (avec le client \texttt{Compass})}
+
+Récupérez Compass et connectez-vous à MongoDB Atlas
+\vfill
+
+Choisissez la base Patients et faite quelques essais
+
+\vfill
+
+\begin{redbullet}
+  \item Insérez un document
+  \item Lancez un \texttt{find} avec une requête vide
+  \item Accédez au \texttt{shell} Mongo
+\end{redbullet}
+
+\vfill
+
+\begin{noteblock}
+Si vous voulez votre propre base vous pouvez récupérer les jeux
+de données sur le site.
+\end{noteblock}
+\end{frame}
+
+
+
+
+\begin{frame}[fragile]
+\frametitle{Aperçu du langage de requêtes}
+
+L'équivalent du \texttt{select-from-where}, \alert{sur une
+seule collection} (pas de \alert{jointure}).
+
+\vfill
+
+Principe de \textit{pattern matching}\,: on apparie
+les documents à la requête.
+
+
+\begin{smallverbatim}
+find ({"_id": "100"})
+\end{smallverbatim}
+
+
+\vfill
+
+\begin{smallverbatim}
+find ({"prenom": "aaron"})
+\end{smallverbatim}
+
+\vfill
+
+Avec des \alert{expressions de chemin} (simples!)
+
+\vfill
+
+
+\begin{smallverbatim}
+find ({"patholohies.intitule": "Embolie pulmonaire"} )
+\end{smallverbatim}
+
+\end{frame}
+
+
+\section{Manipulation de données avec \mongodb/}
+
+
+\begin{frame}[fragile]
+\frametitle{Les requêtes}
+
+Recherche par clé (très rapide). 
+
+\begin{minted}[baselinestretch=.9,
+               fontsize=\small,
+               framesep=2mm]{javascript}
+find({_id: "200"})
+\end{minted}
+
+\vfill 
+\begin{minted}[baselinestretch=.9,
+               fontsize=\small,
+               framesep=2mm]{javascript}
+find({"pathologies.dept": "57"})
+\end{minted}
+
+Avec pagination
+\begin{minted}[baselinestretch=.9,
+               fontsize=\small,
+               framesep=2mm]{javascript}
+db.patients.find({"sexe": "f"}).skip(0).limit(30)
+\end{minted}
+
+Avec une \alert{projection}
+
+\begin{minted}[baselinestretch=.9,
+               fontsize=\small,
+               framesep=2mm]{javascript}
+db.patients.find({"pathologies.dept": "57"}, {"prenom": 1})
+\end{minted}
+
+Avec une expression régulière (pas de guillemets!)\,:
+
+\begin{minted}[baselinestretch=.9,
+               fontsize=\small,
+               framesep=2mm]{javascript}
+db.patients.find({"prenom":  /aba/})
+\end{minted}
+
+Par intervalle:
+
+\begin{minted}[baselinestretch=.9,
+               fontsize=\small,
+               framesep=2mm]{javascript}
+db.patients.find({"pathologies.dept": {$gte: "50", $lte: "60"}})
+\end{minted}
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+\frametitle{Les requêtes, suite}
+
+Quelques clauses ensemblistes 
+
+\begin{verbatim}
+db.patients.find( { prenom: { \$in: ['aaron', 'adam', 'adeline' ] } } )
+\end{verbatim}
+
+Autres possibilités\,: \texttt{\$nin}, \texttt{\$all}, \texttt{\$exist}
+
+\begin{verbatim}
+db.patients.find( { prenom: { \$nin: ['aaron', 'adam', 'adeline' ] } } )
+\end{verbatim}
+
+\vfill
+
+\begin{noteblock}
+Les agrégations existent, mis c'est très compliqué
+\end{noteblock}
+\end{frame}
+
+
+
+
+\begin{frame}[fragile]
+\frametitle{Et les jointures}
+
+Pas de jointure avec Mongo.
+Il faut les effectuer du \alert{côté client}. 
+
+\vfill
+
+\figSlideWithSize{jointure-serveur-client}{7cm}
+
+\vfill
+
+En règle générale, il faut programme côté applicatif tout ce qu'on a perdu de SQL
+\end{frame}
+
