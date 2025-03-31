@@ -37,7 +37,13 @@ Un aperçu du \alert{langage d'interrogation} de \mongodb/.
 Récupérez Compass et connectez-vous à MongoDB Atlas
 \vfill
 
-Choisissez la base Patients et faite quelques essais
+Créez une base \texttt{Pathologies} et insérez les trois collections
+\texttt{region}, \texttt{patients} et \texttt{cas} à partir de nos
+fichiers JSON.
+
+\vfill 
+
+Faites quelques essais avec Compass
 
 \vfill
 
@@ -50,7 +56,7 @@ Choisissez la base Patients et faite quelques essais
 \vfill
 
 \begin{noteblock}
-Si vous voulez votre propre base vous pouvez récupérer les jeux
+Vous pouvez récupérer les jeux
 de données sur le site.
 \end{noteblock}
 \end{frame}
@@ -69,84 +75,39 @@ seule collection} (pas de \alert{jointure}).
 Principe de \textit{pattern matching}\,: on apparie
 les documents à la requête.
 
+\vfill
 
+\begin{redbullet}
+\item 
 \begin{smallverbatim}
-find ({"_id": "100"})
+find ({"_id": "10"})
 \end{smallverbatim}
 
-
-\vfill
-
+\item
 \begin{smallverbatim}
-find ({"prenom": "aaron"})
+find ({"nom": "Bretagne"})
 \end{smallverbatim}
-
-\vfill
-
-Avec des \alert{expressions de chemin} (simples!)
-
-\vfill
+\item
+On peut accéder aux objets imbriqués
 
 
 \begin{smallverbatim}
-find ({"patholohies.intitule": "Embolie pulmonaire"} )
+find ({"depts.nom": "Finistère"} )
 \end{smallverbatim}
+\item
 
-\end{frame}
-
-
-\section{Manipulation de données avec \mongodb/}
-
-
-\begin{frame}[fragile]
-\frametitle{Les requêtes}
-
-Recherche par clé (très rapide). 
-
-\begin{minted}[baselinestretch=.9,
-               fontsize=\small,
-               framesep=2mm]{javascript}
-find({_id: "200"})
-\end{minted}
-
-\vfill 
-\begin{minted}[baselinestretch=.9,
-               fontsize=\small,
-               framesep=2mm]{javascript}
-find({"pathologies.dept": "57"})
-\end{minted}
-
-Avec pagination
-\begin{minted}[baselinestretch=.9,
-               fontsize=\small,
-               framesep=2mm]{javascript}
-db.patients.find({"sexe": "f"}).skip(0).limit(30)
-\end{minted}
-
-Avec une \alert{projection}
-
-\begin{minted}[baselinestretch=.9,
-               fontsize=\small,
-               framesep=2mm]{javascript}
-db.patients.find({"pathologies.dept": "57"}, {"prenom": 1})
-\end{minted}
-
+\begin{smallverbatim}
+find ({"depts.nom": "Finistère"}, , {"nom": 1} )
+\end{smallverbatim}
+\item
 Avec une expression régulière (pas de guillemets!)\,:
 
-\begin{minted}[baselinestretch=.9,
-               fontsize=\small,
-               framesep=2mm]{javascript}
-db.patients.find({"prenom":  /aba/})
-\end{minted}
 
-Par intervalle:
+\begin{smallverbatim}
+find({"nom":  /Nor/})
+\end{smallverbatim}
 
-\begin{minted}[baselinestretch=.9,
-               fontsize=\small,
-               framesep=2mm]{javascript}
-db.patients.find({"pathologies.dept": {$gte: "50", $lte: "60"}})
-\end{minted}
-
+\end{redbullet}
 \end{frame}
 
 
@@ -154,26 +115,33 @@ db.patients.find({"pathologies.dept": {$gte: "50", $lte: "60"}})
 \begin{frame}[fragile]
 \frametitle{Les requêtes, suite}
 
+
+
+Par intervalle:
+
+\begin{smallverbatim}
+find({"depts.code": {$gte: "50", $lte: "52"}})
+\end{smallverbatim}
+
+
 Quelques clauses ensemblistes 
 
 \begin{verbatim}
-db.patients.find( { prenom: { \$in: ['aaron', 'adam', 'adeline' ] } } )
+{ "nom": { $in: ['Bretagne', 'Normandie', 'Mayotte' ] } }
 \end{verbatim}
 
 Autres possibilités\,: \texttt{\$nin}, \texttt{\$all}, \texttt{\$exist}
 
 \begin{verbatim}
-db.patients.find( { prenom: { \$nin: ['aaron', 'adam', 'adeline' ] } } )
+{ "nom": { $nin: ['Bretagne', 'Normandie', 'Mayotte' ] } }
 \end{verbatim}
 
 \vfill
 
 \begin{noteblock}
-Les agrégations existent, mis c'est très compliqué
+Les agrégations existent, mais c'est très compliqué
 \end{noteblock}
 \end{frame}
-
-
 
 
 \begin{frame}[fragile]
@@ -184,10 +152,33 @@ Il faut les effectuer du \alert{côté client}.
 
 \vfill
 
-\figSlideWithSize{jointure-serveur-client}{7cm}
+\figSlideWithSize{jointure-serveur-client}{10cm}
 
 \vfill
 
 En règle générale, il faut programme côté applicatif tout ce qu'on a perdu de SQL
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{À vous de jouer}
+
+Reproduisez les requêtes précédentes sur la collection des régions.
+
+\vfill 
+Sur la collection des cas
+\begin{redbullet}
+  \item Tous les cas d'embolie pulmonaire
+\end{redbullet}
+\vfill
+
+
+Sur la collection des patients
+
+\begin{redbullet}
+  \item Les pathologies des patients aaron, adam et 'adeline'
+\end{redbullet}
+\vfill
+
 \end{frame}
 
