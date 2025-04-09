@@ -95,4 +95,4 @@ Hybride
 =====
 
   S1: restaurants / notations
-  S2: 
+  S2: tickets caisse
