@@ -1,4 +1,54 @@
 
+\begin{frame}
+\frametitle{Conception d'un schéma}
+
+\alert{Cassandra ne propose pas de jointure}. C'est du NoSQL après tout.
+
+\vfill
+
+Il est donc préférable de \alert{regrouper} les données le plus possible dans des lignes
+(notion de document autonome, déjà vue).
+
+\vfill
+
+
+Au pire, on peut représenter les mêmes données sous plusieurs formes.
+
+\begin{redbullet}
+  \item Tous les patients, avec leurs pathologies.
+  \item Toutes les pathologies, avec les occurrences de cas
+\end{redbullet}
+
+
+\vfill
+
+Le regroupement a aussi des inconvénients (redondance, difficulté d'accès aux
+données ``profondes''). 
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Imbrication de structures}
+
+C'est le principe de dénormalisation\,: on regroupe 
+les données le plus possible dans des lignes pour éviter les jointures.
+
+\vfill
+
+Une valeur d'attribut  peut correspondre\,:
+\begin{redbullet}
+	\item à un ensemble de valeurs (non ordonnées)\,: \textbf{SET} 
+	\item à une liste de valeurs\,: \textbf{LIST}
+	\item à un dictionnaire (objet)\,: \textbf{MAP} 
+	\item à une instance d'un type utilisateur
+\end{redbullet}
+
+\vfill
+
+Les ensembles doivent rester de taille raisonnable
+\end{frame}
+
+
 \begin{frame} \frametitle{Le langage CQL}
 
 Cassandra propose un langage, nommé CQL, inspiré de SQL, 

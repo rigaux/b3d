@@ -117,25 +117,28 @@ find({"nom":  /Nor/})
 
 
 
-Par intervalle:
+\begin{redbullet}
+  \item Par intervalle:
 
 \begin{smallverbatim}
 find({"depts.code": {$gte: "50", $lte: "52"}})
 \end{smallverbatim}
 
 
-Quelques clauses ensemblistes 
+ \item Quelques clauses ensemblistes 
 
 \begin{verbatim}
 { "nom": { $in: ['Bretagne', 'Normandie', 'Mayotte' ] } }
 \end{verbatim}
 
+\item
 Autres possibilités\,: \texttt{\$nin}, \texttt{\$all}, \texttt{\$exist}
 
 \begin{verbatim}
 { "nom": { $nin: ['Bretagne', 'Normandie', 'Mayotte' ] } }
 \end{verbatim}
 
+\end{redbullet}
 \vfill
 
 \begin{noteblock}
@@ -165,18 +168,22 @@ En règle générale, il faut programme côté applicatif tout ce qu'on a perdu 
 
 Reproduisez les requêtes précédentes sur la collection des régions.
 
-\vfill 
-Sur la collection des cas
-\begin{redbullet}
-  \item Tous les cas d'embolie pulmonaire
-\end{redbullet}
 \vfill
-
 
 Sur la collection des patients
 
 \begin{redbullet}
   \item Les pathologies des patients aaron, adam et 'adeline'
+  \item Les patients souffrant de diabète
+  \item etc.
+\end{redbullet}
+\vfill
+
+Sur la collection des cas
+\begin{redbullet}
+  \item Tous les cas d'embolie pulmonaire
+  \item Toutes les pathologies du département de votre choix
+  \item etc.
 \end{redbullet}
 \vfill
 

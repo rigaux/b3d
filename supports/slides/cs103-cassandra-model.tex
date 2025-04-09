@@ -28,65 +28,14 @@ Ressource complémentaire\,: http://b3d.bdpedia.fr/cassandra.html
 
 
 \begin{frame}
-\frametitle{Modèle = relationnel + types complexes}
-
-Cassandra gère des \alert{bases} (\textit{keyspaces}), contenant des \alert{tables} (a.k.a.
-\textit{column families}).
-
-\vfill
-
-Une table contient des \alert{lignes} (\textit{rows}) constituées de \alert{valeurs simples}
-ou \alert{complexes}.
-
-\vfill
-
-\alert{Perspective A}: c'est du relationnel étendu en rompant la première règle de normalisation (type atomique).
-
-\vfill
-
-\alert{Perspective B}: chaque ligne est un document structuré au sens où nous l'avons vu jusqu'ici.
-
-\vfill
-
-\begin{remblock}{Attention}
-Vocabulaire confus et parfois déroutant: \textit{columns}, \textit{column families}, etc.
-\end{remblock}
-
-\end{frame}
-
-
-\begin{frame}
-\frametitle{Paires et documents}
-
-La structure de base est la paire (clé, valeur)
-
-\begin{redbullet}
- \item Clé\,: un identifiant
- \item Valeur\,:  atomique (entier, chaîne de caractères), ou complexe (dictionnaire, ensemble, liste)
-\end{redbullet}
-
-\vfill
-
-Une ligne (\textit{row}, document) est un identifiant (\textit{row key}) associé à un ensemble de paires (clé, valeur).
-
-\vfill
-
-Les lignes sont \alert{typées} par un schéma, y compris les données imbriquées.
-
-\vfill
-
-Cassandra n'autorise pas (au moins avec CQL) l'insertion de données ne respectant pas le schéma.
-
-\vfill
-
-\alert{Quelques aspects ignorés ici}, le versionnement notamment.
-\end{frame}
-
-
-\begin{frame}
 \frametitle{Tables et base de données}
 
-Une \alert{table} (anciennement \textit{column family}) est un ensemble de \textit{rows} conformes
+
+Une \alert{base} est un ensemble de tables. On l'appelle \textit{keyspace}. Explication? Plus tard.
+
+\vfill
+
+Une \alert{table} est un ensemble de \textit{rows} conformes
 au schéma de la table.
 
 \vfill
@@ -96,37 +45,20 @@ la valeur est un type construit (objet ou ensemble).
 \vfill
 
 
-Une \alert{base} est un ensemble de tables. On l'appelle \textit{keyspace}. Explication? Plus tard.
+
+Une ligne (\textit{row}) est un identifiant (\textit{row key}) associé à un ensemble de paires (clé, valeur).
+
+\vfill
+
+\alert{Perspective A}: c'est du relationnel étendu en rompant la première règle de normalisation (type atomique).
+
+\vfill
+
+\alert{Perspective B}: chaque ligne est un document structuré au sens où nous l'avons vu jusqu'ici.
 
 \end{frame}
 
 
-\begin{frame}
-\frametitle{Conception d'un schéma}
-
-\alert{Cassandra ne propose pas de jointure}. C'est du NoSQL après tout.
-
-\vfill
-
-Il est donc préférable de \alert{regrouper} les données le plus possible dans des lignes
-(notion de document autonome, déjà vue).
-
-\vfill
-
-
-Au pire, on peut représenter les mêmes données sous plusieurs formes.
-
-\begin{redbullet}
-  \item Tous les patients, avec leurs pathologies.
-  \item Toutes les pathologies, avec les occurrences de cas
-\end{redbullet}
-
-
-\vfill
-
-Le regroupement a aussi des inconvénients (redondance, difficulté d'accès aux
-données ``profondes''). 
-\end{frame}
 
 \section{Session découverte\,!}
 
@@ -215,28 +147,6 @@ Deux solutions :
 
 
 \begin{frame}[fragile]
-\frametitle{Imbrication de structures}
-
-C'est le principe de dénormalisation\,: on regroupe 
-les données le plus possible dans des lignes pour éviter les jointures.
-
-\vfill
-
-Une valeur d'attribut  peut correspondre\,:
-\begin{redbullet}
-	\item à un ensemble de valeurs (non ordonnées)\,: \textbf{SET} 
-	\item à une liste de valeurs\,: \textbf{LIST}
-	\item à un dictionnaire\,: \textbf{MAP} 
-	\item à un nuplet\,: \textbf{TUPLE} 
-	\item à une instance d'un type utilisateur
-\end{redbullet}
-
-\vfill
-
-Les ensembles doivent rester de taille raisonnable
-\end{frame}
-
-\begin{frame}[fragile]
 \frametitle{Imbrication\,: la région dans les départements}
 
 Création d'un type
@@ -274,8 +184,11 @@ insert into Departement JSON '{
 		"id" : "uh6",
 		"code": "43",
 		"nom": "Haute-Loire",
-		"region": {"id": "uin", "nom": "Auvergne-Rhône-Alpes"}
-		}' 
+		"region": {
+		     "id": "uin", 
+		    "nom": "Auvergne-Rhône-Alpes"
+		 }
+	}' 
 \end{minted}
 
 \end{frame}
@@ -327,15 +240,113 @@ insert into Region JSON '{
 \end{frame}
 
 
+
+\begin{frame}[fragile] \frametitle{Premiers pas avec CQL}
+
+Sélectionnons tous les départements.
+
+\begin{minted}{sql}
+select  * from departement;
+\end{minted}
+
+\vfill
+
+Ou seulement les 20 premiers.
+\begin{minted}{sql}
+select  * from departement limit 20;
+\end{minted}
+
+\vfill
+Retour en JSON
+\begin{minted}{sql}
+select JSON * from departement;
+\end{minted}
+
+\vfill
+Accédons à un objet imbriqué.
+\begin{minted}{sql}
+select nom, region.nom from departement;
+\end{minted}
+
+\vfill
+En revanche, on ne peut pas accéder aux éléments d'un ensemble.
+\begin{minted}{sql}
+select nom, departements.nom from region;
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile] \frametitle{La clause \texttt{where}}
+
+Sélectionnons un film.
+
+\begin{minted}{sql}
+select  *  from region where id='iuv';
+\end{minted}
+
+Ou plusieurs
+
+\begin{minted}{sql}
+select  * from region 
+    where id in ('iuv', 'r44', 'x45');
+\end{minted}
+ 
+Et si ce n'est pas la clé\,?
+
+\begin{minted}{sql}
+select  * from departement where nom='Loire' ;
+\end{minted}
+
+\begin{verbatim}
+Unable to execute CQL script. Cannot execute this query 
+as it might involve data
+filtering and thus may have unpredictable performance. 
+\end{verbatim}
+
+Essayons de comprendre.
+\end{frame}
+
+
+%%%%%%%%%%
+\begin{frame}[fragile] \frametitle{Restrictions sur les requêtes}
+
+Toute recherche sur des critères autres qu'un préfixe de la clé entraîne un parcours
+séquentiel
+
+\vfill
+
+Cassandra est conçu pour de très grandes bases de données, et le rejet 
+de ces requêtes séquentielles est une précaution. 
+
+\vfill
+
+Principe: Cassandra limite les requêtes à celles dont le coût est proportionnel à la 
+taille du résultat.
+
+\vfill
+
+On peut outrepasser avec la clause \texttt{allow filtering}.
+\begin{minted}{sql}
+select  * from departeme,nt 
+     where nom='Loire' allow filtering;
+\end{minted}
+
+
+\end{frame}
+
 \begin{frame}[fragile]
 \frametitle{À retenir}
 
 \begin{redbullet}
    \item Cassandra propose un modèle relationnel étendu, basé sur la capacité à imbriquer
      des types complexes dans la définition d'un schéma
-   \item  Cassandra a choisi d'imposer un typage fort: toute insertion doit être conforme au schéma;
    \item L'imbrication des constructeurs de type
    rend le modèle comparable aux documents structurés JSON ou XML.
+   \item CQL est un pseudo-sql très limité : pas de jointure ou de capacité
+       à interroger les structures imbriquées
+   \item Le langage est conçu  pour accéder \alert{efficacement} à de très grosses
+      bases, mais avec de très fortes limitations sur les requêtes
+   \item Réciproquement, il faut concevoir le schéma pour tirer parti
+   de ces principes\,: ce sera l'étape suivante
 \end{redbullet}
 
 \end{frame}
