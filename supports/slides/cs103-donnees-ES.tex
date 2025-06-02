@@ -1,0 +1,149 @@
+
+
+\begin{frame}{ElasticSearch est une serveur REST}
+
+ElasticSearch a été conçu comme un serveur qui suit les règles
+du WEb.
+
+\begin{redbullet}
+
+  \item Il est constitué de \alert{ressources}.
+
+    Une ressource est une entité fournissant des services et communiquant
+    par message.
+    
+   
+   \item Les ressources sont identifiées et accessibles à des \alert{URL}.
+   
+   \url{https://www.example.com:9200/chemin/vers/doc?nom=b3d&type=json\#fragment}
+
+
+   \item Les messages sont codés selon un \alert{protocole}, HTTP.
+   
+
+   \item Un ``message'' est une enveloppe dont le contenu est un \alert{document}.
+   
+   Souvent le document est en HTML,  mais cela peut être un \alert{document structuré}
+   comme JSON.
+
+\end{redbullet}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{L'architecture REST}
+
+REST = une définition de services Web basée sur les standards du Web.
+
+\begin{redbullet}
+  \item on s'adresse à des ressources qui fournissent des services;
+  \item les messages sont échangés avec HTTP, et sont (le plus souvent) \alert{structurés} en XML ou JSON;
+  \item les documents structurés fournis par une ressource sont (le plus souvent)
+     produits \alert{à la volée} (par \alert{calcul}: distinction entre service et ressource statique).
+\end{redbullet}
+
+Très répandu! Excellent moyen de récupérer des informations directement exploitables
+par une machine (pas comme HTML).
+\end{frame}
+
+\begin{frame}{Ressources et opérations}
+
+
+\figSlideWithSize{REST}{12cm}
+
+\vfill
+
+Quatre opérations (celles de HTTP).
+\begin{description}
+  \item[\texttt{GET}] \alert{lit} (la représentation d')une ressource.
+  \item[\texttt{PUT}] \alert{crée} une nouvelle ressource (ou, plus flexible: la remplace).
+  \item[\texttt{POST}] envoie un message (\alert{demande de service}) à une ressource.
+  \item[\texttt{DELETE}] \alert{détruit} une ressource.
+\end{description}
+ 
+\end{frame}
+
+
+
+\begin{frame}[fragile]{Les services ElasticSearch}
+
+ElasticSearch parle avec nous en HTTP ! C'est un service REST
+qui échange des documents JSON avec nous. Essayez url{https://localhost:9200}
+
+\vfill
+
+Après connexion, vous devriez obtenir un beau message JSON en retour.
+
+\vfill 
+\centerline{\figSlideWithSize{elasticvue-rest.png}{9cm}}
+
+\vfill 
+Plus complet\,: les fenêtres d'ElastiVue.
+
+\end{frame}
+
+
+\begin{frame}{Application\,: la création d'un index}
+
+On envoie un \texttt{PUT} à \url{https:/localhost:9200/films}
+
+\vfill 
+
+\centerline{\figSlideWithSize{es-create-index-films.png}{10cm}}
+
+\vfill
+
+Le serveur répond avec un message d'acquittement en JSON.
+
+\end{frame}
+
+
+
+\begin{frame}{Création de documents}
+
+On envoie un \texttt{PUT} à \url{https:/localhost:9200/films/_doc/<id>}
+
+\vfill 
+
+\centerline{\figSlideWithSize{es-create-doc-films.png}{10cm}}
+
+\vfill
+
+Saurez-vous comment supprimer ce document\,?
+
+\end{frame}
+
+
+\begin{frame}{Chargeons un  jeu de données}
+
+Récupérez \texttt{films\_esearch.json}
+sur  {http://deptfod.cnam.fr/bd/tp/datasets/}. 
+
+\vfill 
+
+Envoyez un POST à l’URL \url{https://localhost:9200/\_bulk/} avec le contenu.
+\vfill
+
+\centerline{\figSlideWithSize{es-load-films.png}{10cm}}
+
+\end{frame}
+
+
+
+\begin{frame}{À vous de jouer}
+
+\vfill 
+
+Reproduisez les commandes d'insertion et créez la base films.
+
+\vfill
+
+Faites la même chose pour la base des cas.
+
+\vfill
+
+Amusez-vous ensuite avec ElasticVue à inspecter les index et leur contenu.
+
+\end{frame}
+
+

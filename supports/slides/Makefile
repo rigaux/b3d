@@ -222,6 +222,14 @@ cs103-install-ES:
 	pdflatex   -shell-escape "\newcommand\titreDiapos{Elastic Search: installation}\newcommand\inputFile{cs103-install-ES}\input{cs103}"
 	mv cs103.pdf  ../../../CS103/diapos/cs103-install-ES.pdf
 	make clean
+cs103-donnees-ES: 
+	pdflatex   -shell-escape "\newcommand\titreDiapos{Elastic Search: chargement de donn\'ees}\newcommand\inputFile{cs103-donnees-ES}\input{cs103}"
+	mv cs103.pdf  ../../../CS103/diapos/cs103-donnees-ES.pdf
+	make clean
+cs103-boolq-ES: 
+	pdflatex   -shell-escape "\newcommand\titreDiapos{Elastic Search: recherches bool\'eennes}\newcommand\inputFile{cs103-boolq-ES}\input{cs103}"
+	mv cs103.pdf  ../../../CS103/diapos/cs103-boolq-ES.pdf
+	make clean
 
 all:	prescours.pdf
 

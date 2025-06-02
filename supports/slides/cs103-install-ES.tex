@@ -63,11 +63,11 @@ client web peut s'adresser au serveur web à l'adresse 163.12.9.10:80.
 
 \begin{frame}{Illustration}
 
-Voici un exemple de système distribué.
+Voici un exemple de système distribué géré par Docker.
 
 \vfill
 
-\figSlideWithSize{Serveurs}{10cm}
+\figSlideWithSize{Serveurs}{12cm}
 
 \end{frame}
 
@@ -102,23 +102,24 @@ Une image s'installe très facilement. C'est une sorte de moule pour créer
 
 \begin{frame}{Comment communiquer avec un conteneur ?}
 
-J'ai lancé un conteneur MySQL. Mon serveur tourne, sur le port 3306, \alert{dans le conteneur}.
+J'ai lancé un conteneur ElasticSearch. Mon serveur tourne, sur le port 
+9200, \alert{dans le conteneur}.
 
 \vfill
 
-\alert{Question:} comment mon client MySQL peut-il communiquer avec ce serveur?
+\alert{Question:} comment peut-on communiquer avec ce serveur?
 
 \vfill
 
 \alert{Réponse}: \emph{il faut associer un port de la machine Docker avec le port 
-3306 du conteneur} (\textit{port forwarding}).
+9200 du conteneur} (\textit{port forwarding}).
 
 \vfill
 
 Par exemple, 
 \begin{redbullet}
- \item je vais associer  le port 6603 de la machine Docker avec le port 3306 du conteneur \texttt{serveur-mysql}
- \item je vais associer le port 6604 de la machine Docker avec le port 3306 du conteneur \texttt{autre-serveur}
+ \item je vais associer  le port 9200 de la machine Docker avec le port 9200 du conteneur \texttt{elastic1}
+ \item je vais associer le port 9201 de la machine Docker avec le port 9200 du conteneur \texttt{elastic2}
 \end{redbullet}
 
 
@@ -126,22 +127,66 @@ Par exemple,
 
 \begin{frame}{Installons Docker}
 
-Rendez-vous sur \url{https://docker.com}, créez un compte 
-et récupérez l'application
-\textit{Docker desktop}. Lancez-la
+Rendez-vous sur \url{https://docker.com}
 
-\vill
+\vfill
 
-\figSlideWithSize{docker-dashboard.jpg}{9cm}
+\begin{redbullet}
+	\item Créez un compte 
+	\item Récupérez l'application \textit{Docker desktop}. Lancez-la
+\end{redbullet}
+
+\vfill
+
+\figSlideWithSize{docker-dashboard.jpg}{8cm}
 
 \end{frame}
 
 
-\begin{frame}{Lançons un serveur (conteneur) ElasticSearch}
+\begin{frame}[fragile]{Lançons un serveur (conteneur) ElasticSearch}
 
+
+Ouvrez un terminal et lancez la commande suivante:
+
+\begin{minted}{bash}
+docker run -d --name es1 -p 9200:9200  elasticsearch:8.13.0
+\end{minted}
+
+\vfil
+\begin{redbullet}
+	\item On demande à instancier la version 8.13 d'Elastic Search  
+	\item Le nom du conteneur est \texttt{es1}
+	\item Le port 9200 du conteneur est associé au port 9200 de l'hôte
+	\item Le processus s'exécute en détaché 
+\end{redbullet}
 
 \end{frame}
 
+
+\begin{frame}[fragile]{Vérifier que le conteneur est bien actif}
+
+Lancez le \textit{Docker desktop} et consultez la liste des conteneurs.
+
+\vfill
+
+\figSlideWithSize{docker-avec-es1}{11cm}
+\end{frame}
+
+
+
+\begin{frame}[fragile]{Il reste à créer un compte}
+
+On crée un compte \texttt{elastic} avec la commande suivante:
+
+
+\begin{minted}{bash}
+docker exec -it es1 /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic
+\end{minted}
+
+\vfill
+
+Il nes reste plus qu'à se connecter...
+\end{frame}
 
 \begin{frame}{Il nous faut un client}
 
@@ -150,7 +195,11 @@ cliente. Nous allons utiliser ElasticVue (\url{https://elasticvue.com/})
 
 \vfill
 
-\figSlideWithSize{elasticvue.png}{9cm}
+Installez l'application et connectez-vous au serveur sur le port 9200 
+(\url{https://localhost:9200})
+\vfill
+
+\figSlideWithSize{elasticvue.png}{11cm}
 
 \end{frame}
 
