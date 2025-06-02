@@ -1,0 +1,166 @@
+
+\begin{frame}[fragile]{Séance du 3 juin 2025}
+
+Nous allons étudier de manière complète les phases
+d'une mise en œuvre d'Elastic Search. Installation, chargement de données,
+interrogation et passage à l'échelle.
+
+\vfill
+
+Pour l'installation, deux possibilités\,:
+
+\vfill 
+
+\begin{redbullet}
+  \item Créer un compte d'essai sur \url{https://cloud.elastic.co/}. Facile, mais 
+     pas de possibilité de tester les fonctions multi-serveur
+  \item Installer localement avec Docker\,: très utile et instructif
+\end{redbullet}
+
+\vfill
+
+Dans ce qui suit\,: description de la seconde solution (recommandée).
+
+\end{frame}
+
+\begin{frame}[fragile]{Lançons-nous avec Docker}
+
+En bref\,: Docker nous permet d'installer localement, avec
+très peu de ressources, des serveurs virtuels (ou \alert{conteneurs}).
+
+
+\vfill 
+En créant plusieurs serveurs du même type (par exemple ElasticSearch) et
+en les faisant communiquer on obtient un \alert{système distribué}.
+
+\vfill 
+Pour une introduction détaillée, voir \url{http://b3d.bdpedia.fr/docker.html}
+
+\end{frame}
+
+
+
+\begin{frame}{Système distribué: rappels}
+
+\begin{redbullet}
+  \item  un \alert{serveur machine} est un ordinateur, tournant sous un système d'exploitation,
+    et connecté en permanence au réseau via des ports; il a une IP (adresse internet)
+  \item   un \alert{serveur logiciel} est un processus exécuté en tâche de fond d'un serveur machine qui
+    communique avec des \alert{clients (logiciels)} via un port particulier.
+  \item Une \alert{machine virtuelle} est un programme qui simule, sur une machine hôte,
+     un autre ordinateur.
+   \item Un \alert{client} (logiciel) est un programme qui communique avec un serveur (logiciel)
+\end{redbullet}
+    
+\begin{defblock}{Exemple}
+Un serveur web est un processus (Apache par exemple) qui communique sur le
+port 80 d'un serveur machine. Si ce serveur machine a pour IP 163.12.9.10, alors tout
+client web peut s'adresser au serveur web à l'adresse 163.12.9.10:80.
+\end{defblock}
+
+\end{frame}
+
+
+\begin{frame}{Illustration}
+
+Voici un exemple de système distribué.
+
+\vfill
+
+\figSlideWithSize{Serveurs}{10cm}
+
+\end{frame}
+
+\begin{frame}{Docker}
+
+Docker permet de créer des \alert{conteneurs}, des machines virtuelles extrêmement légères.
+\vfill
+
+\figSlideWithSize{schema-docker}{9cm}
+
+\vfill
+
+Existe sous Linux, ainsi que MacOS et Windows.
+\end{frame}
+
+
+\begin{frame}{Les images}
+
+Image = système pré-configuré, prêt à l'emploi pour un service particulier (par exemple un serveur
+MySQL, ou MongoDB).
+
+\vfill
+
+\figSlideWithSize{images-docker}{8cm}
+
+\vfill
+Une image s'installe très facilement. C'est une sorte de moule pour créer
+(``instancier'')  des conteneurs.
+
+\end{frame}
+
+
+\begin{frame}{Comment communiquer avec un conteneur ?}
+
+J'ai lancé un conteneur MySQL. Mon serveur tourne, sur le port 3306, \alert{dans le conteneur}.
+
+\vfill
+
+\alert{Question:} comment mon client MySQL peut-il communiquer avec ce serveur?
+
+\vfill
+
+\alert{Réponse}: \emph{il faut associer un port de la machine Docker avec le port 
+3306 du conteneur} (\textit{port forwarding}).
+
+\vfill
+
+Par exemple, 
+\begin{redbullet}
+ \item je vais associer  le port 6603 de la machine Docker avec le port 3306 du conteneur \texttt{serveur-mysql}
+ \item je vais associer le port 6604 de la machine Docker avec le port 3306 du conteneur \texttt{autre-serveur}
+\end{redbullet}
+
+
+\end{frame}
+
+\begin{frame}{Installons Docker}
+
+Rendez-vous sur \url{https://docker.com}, créez un compte 
+et récupérez l'application
+\textit{Docker desktop}. Lancez-la
+
+\vill
+
+\figSlideWithSize{docker-dashboard.jpg}{9cm}
+
+\end{frame}
+
+
+\begin{frame}{Lançons un serveur (conteneur) ElasticSearch}
+
+
+\end{frame}
+
+
+\begin{frame}{Il nous faut un client}
+
+Pour communiquer avec le serveur, il nous faut une application
+cliente. Nous allons utiliser ElasticVue (\url{https://elasticvue.com/})
+
+\vfill
+
+\figSlideWithSize{elasticvue.png}{9cm}
+
+\end{frame}
+
+
+
+
+\begin{frame}{La création d'un index}
+
+
+\figSlideWithSize{es-create-index.png}{8cm}
+\end{frame}
+
+

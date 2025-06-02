@@ -213,7 +213,15 @@ cs103-cql:
 	pdflatex   -shell-escape "\newcommand\titreDiapos{Cassandra et le langage CQL}\newcommand\inputFile{cs103-cql}\input{cs103}"
 	mv cs103.pdf ../../../CS103/diapos/cs103-cql.pdf
 	make clean
+cs103cql: 
+	pdflatex   -shell-escape cs103cql.tex
+	mv cs103cql.pdf ../../../CS103/diapos/cs103cql.pdf
+	make clean
 
+cs103-install-ES: 
+	pdflatex   -shell-escape "\newcommand\titreDiapos{Elastic Search: installation}\newcommand\inputFile{cs103-install-ES}\input{cs103}"
+	mv cs103.pdf  ../../../CS103/diapos/cs103-install-ES.pdf
+	make clean
 
 all:	prescours.pdf
 
