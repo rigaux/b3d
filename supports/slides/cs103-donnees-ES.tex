@@ -33,7 +33,7 @@ du WEb.
 \begin{frame}[fragile]
 \frametitle{L'architecture REST}
 
-REST = une définition de services Web basée sur les standards du Web.
+REST = une définition de services basée sur les standards du Web.
 
 \begin{redbullet}
   \item on s'adresse à des ressources qui fournissent des services;
@@ -65,14 +65,11 @@ Quatre opérations (celles de HTTP).
 
 
 
-\begin{frame}[fragile]{Les services ElasticSearch}
+\begin{frame}[fragile]{ElasticSearch parle avec nous en HTTP !}
 
-ElasticSearch parle avec nous en HTTP ! C'est un service REST
-qui échange des documents JSON avec nous. Essayez url{https://localhost:9200}
-
-\vfill
-
-Après connexion, vous devriez obtenir un beau message JSON en retour.
+Avec votre navigateur, ouvrez l'URL de votre serveur.
+Après connexion, vous devriez obtenir un beau message 
+JSON en retour.
 
 \vfill 
 \centerline{\figSlideWithSize{elasticvue-rest.png}{9cm}}
@@ -85,7 +82,7 @@ Plus complet\,: les fenêtres d'ElastiVue.
 
 \begin{frame}{Application\,: la création d'un index}
 
-On envoie un \texttt{PUT} à \url{https:/localhost:9200/films}
+On envoie un \texttt{PUT} à \url{votre_url/films}
 
 \vfill 
 
@@ -101,7 +98,7 @@ Le serveur répond avec un message d'acquittement en JSON.
 
 \begin{frame}{Création de documents}
 
-On envoie un \texttt{PUT} à \url{https:/localhost:9200/films/_doc/<id>}
+On envoie un \texttt{PUT} à \url{votre_url/films/_doc/<id>}
 
 \vfill 
 
@@ -121,7 +118,7 @@ sur  {http://deptfod.cnam.fr/bd/tp/datasets/}.
 
 \vfill 
 
-Envoyez un POST à l’URL \url{https://localhost:9200/\_bulk/} avec le contenu.
+Envoyez un POST à l’URL \url{votre_url/\_bulk/} avec le contenu.
 \vfill
 
 \centerline{\figSlideWithSize{es-load-films.png}{10cm}}

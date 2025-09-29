@@ -1,58 +1,41 @@
-Les dates indiquent la fin d'acquisition du chapitre indiqué
+Le cours se déroule en mode asyncrhone: vous pouvez suivre les visios, 
+lire le cours, faire les exercices et les quiz quand vous le souhaitez. 
+Il est TRES fortement recommandé de travailler régulièrement en suivant 
+le plan d'avancement proposé.
 
-Lundi 12 février: Chapitre Docker
+Des visios sont planifiées pour répondre aux questions, étudier 
+la solution des exercices et corriger les devoirs. Elles seront planifiées 
+le mardi soir à 18h30.
 
-PARTIE 1
-Vendredi 16 février: modélisation de documents structurés (chapitre 3, S1 et S2)
+30 septembre : visio de présentation du cours
 
-Visio le mardi 20 février
+PREMIERE PARTIE
 
-Vendredi 1er mars: interrogation de bases structurées (chapitre 4)
+7 octobre: fin du chapitre sur Docker
 
-Rendu du premier devoir le 7 mars
+21 octobre: fin du chapitre modélisation de documents structurés
 
-Visio le jeudi 7 mars 
+26 octobre: remise du premier devoir
 
-Vendredi 15 mars : Map Reduce (chapitre 5) 
+28 octobre: visio et correction des exercices du premier chapitre
 
-Visio le mardi 19 mars
+SECONDE PARTIE
+31 octobre: fin du chapitre sur la recherche exacte
 
-PARTIE 2
-Vendredi 29 mars: introduction RI, chapitre 8
+7 novembre: fin du chapitre sur Cassandra
 
-Rendu du second devoir le 31 mars
+14 novembre: fin du chapitre sur la recherche approchée
 
-Visio le mardi 2 avril
+18 novembre: remise du second devoir
 
-Vendredi 5 avril : indexation documents, chapitre 9
+18 novembre: visio sur la recherche exacte et approchée, exercices
 
-Mardi 16 avril: recherche avec classement, chapitre 10
+TROISIEME PARTIE
 
-Visio le mardi 16 avril
+9 décembre: fin du chapitre sur le traitement pas lot
+9 décembre: visio sur le traitement par lot
+19 décembre: remise du troisième devoir
 
-Partie 3
-Mardi 23 avril:   Cloud, chapitre 13
-
-Mardi 30 avril:   Réplication, chapitre 14
-
-Rendu du troisième devoir le 30 avril
-
-Visio le mardi 30 avril
-
-Mardi 14 mai:   Partitionnement, chapitre 15
-
-Visio le mardi 14 mai
-
-Partie 4
-Mardi 21 mai:  Hadoop, chapitre 16
-
-Mardi 28 mai  Spark, chapitre 17
-
-Visio le mardi 28 mai
-
-Mardi 11 juin  Flink, chapitre 18
-
-Rendu du quatrième devoir le 31 mai
-
-Visio le mardi 11 juin
-
+QUATRIEME DEVOIR
+9 janvier: fin du chapitre sur le partitionnement
+13 janvier: visio sur les systèmes distribués

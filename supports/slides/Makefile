@@ -219,7 +219,7 @@ cs103cql:
 	make clean
 
 cs103-install-ES: 
-	pdflatex   -shell-escape "\newcommand\titreDiapos{Elastic Search: installation}\newcommand\inputFile{cs103-install-ES}\input{cs103}"
+	pdflatex   --shell-escape "\newcommand\titreDiapos{Elastic Search: installation}\newcommand\inputFile{cs103-install-ES}\input{cs103}"
 	mv cs103.pdf  ../../../CS103/diapos/cs103-install-ES.pdf
 	make clean
 cs103-donnees-ES: 

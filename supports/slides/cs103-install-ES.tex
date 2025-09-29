@@ -7,21 +7,39 @@ interrogation et passage à l'échelle.
 
 \vfill
 
-Pour l'installation, deux possibilités\,:
+Pour l'installation, plusieurs possibilités\,:
 
 \vfill 
 
 \begin{redbullet}
   \item Créer un compte d'essai sur \url{https://cloud.elastic.co/}. Facile, mais 
      pas de possibilité de tester les fonctions multi-serveur
+  \item Installer directement le code ElasticSearch (compliqué)
   \item Installer localement avec Docker\,: très utile et instructif
 \end{redbullet}
 
 \vfill
 
-Dans ce qui suit\,: description de la seconde solution (recommandée).
+Recommandation\,: commencer par la première solution (plus sûr) puis
+essayez une des autres si vous êtes motivés.
 
 \end{frame}
+
+
+\begin{frame}[fragile]{Création d'un serveur dans le cloud ElasticSearch}
+
+Rendez-vous sur \url{https://cloud.elastic.co/} et créez un compte.
+
+\vfill
+
+Créez un index \texttt{films}, notez l'URL et la clé d'accès.
+
+\vfill
+
+\figSlideWithSize{cloud-elastic}{10cm}
+
+\end{frame}
+
 
 \begin{frame}[fragile]{Lançons-nous avec Docker}
 
@@ -63,31 +81,19 @@ client web peut s'adresser au serveur web à l'adresse 163.12.9.10:80.
 
 \begin{frame}{Illustration}
 
-Voici un exemple de système distribué géré par Docker.
+Avec Docker, les machines virtuelles sont des \alert{conteneurs}.
 
 \vfill
 
-\figSlideWithSize{Serveurs}{12cm}
+\figSlideWithSize{Serveurs}{11cm}
 
-\end{frame}
-
-\begin{frame}{Docker}
-
-Docker permet de créer des \alert{conteneurs}, des machines virtuelles extrêmement légères.
-\vfill
-
-\figSlideWithSize{schema-docker}{9cm}
-
-\vfill
-
-Existe sous Linux, ainsi que MacOS et Windows.
 \end{frame}
 
 
 \begin{frame}{Les images}
 
 Image = système pré-configuré, prêt à l'emploi pour un service particulier (par exemple un serveur
-MySQL, ou MongoDB).
+MySQL, ou ElasticSearch).
 
 \vfill
 
@@ -103,7 +109,7 @@ Une image s'installe très facilement. C'est une sorte de moule pour créer
 \begin{frame}{Comment communiquer avec un conteneur ?}
 
 J'ai lancé un conteneur ElasticSearch. Mon serveur tourne, sur le port 
-9200, \alert{dans le conteneur}.
+9200, \alert{dans le conteneur}, qui a sa propre adresse Internet.
 
 \vfill
 
@@ -111,15 +117,15 @@ J'ai lancé un conteneur ElasticSearch. Mon serveur tourne, sur le port
 
 \vfill
 
-\alert{Réponse}: \emph{il faut associer un port de la machine Docker avec le port 
+\alert{Réponse}: \emph{il faut associer un port de la machine hôte avec le port 
 9200 du conteneur} (\textit{port forwarding}).
 
 \vfill
 
 Par exemple, 
 \begin{redbullet}
- \item je vais associer  le port 9200 de la machine Docker avec le port 9200 du conteneur \texttt{elastic1}
- \item je vais associer le port 9201 de la machine Docker avec le port 9200 du conteneur \texttt{elastic2}
+ \item j'associe  le port 9200 de la machine hôte avec le port 9200 du conteneur \texttt{elastic1}
+ \item j'associe  le port 9201 de la machine hôte avec le port 9200 du conteneur \texttt{elastic2}
 \end{redbullet}
 
 
@@ -133,12 +139,12 @@ Rendez-vous sur \url{https://docker.com}
 
 \begin{redbullet}
 	\item Créez un compte 
-	\item Récupérez l'application \textit{Docker desktop}. Lancez-la
+	\item Récupérez l'application \textit{Docker desktop} poiur votre système et lancez-la
 \end{redbullet}
 
 \vfill
 
-\figSlideWithSize{docker-dashboard.jpg}{8cm}
+\centerline{\figSlideWithSize{docker-dashboard.jpg}{8cm}}
 
 \end{frame}
 
@@ -180,7 +186,8 @@ On crée un compte \texttt{elastic} avec la commande suivante:
 
 
 \begin{minted}{bash}
-docker exec -it es1 /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic
+docker exec -it es1 \
+    /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic
 \end{minted}
 
 \vfill
@@ -188,28 +195,17 @@ docker exec -it es1 /usr/share/elasticsearch/bin/elasticsearch-reset-password -u
 Il nes reste plus qu'à se connecter...
 \end{frame}
 
-\begin{frame}{Il nous faut un client}
+\begin{frame}{Le serveur est prêt\,? Il nous faut un client}
 
-Pour communiquer avec le serveur, il nous faut une application
-cliente. Nous allons utiliser ElasticVue (\url{https://elasticvue.com/})
+Nous allons utiliser ElasticVue (\url{https://elasticvue.com/})
 
 \vfill
 
-Installez l'application et connectez-vous au serveur sur le port 9200 
-(\url{https://localhost:9200})
+Installez l'application et connectez-vous au serveur avec l'URL et l'authentification.
+
 \vfill
 
-\figSlideWithSize{elasticvue.png}{11cm}
+\centerline{\figSlideWithSize{elasticvue.png}{10cm}}
 
 \end{frame}
-
-
-
-
-\begin{frame}{La création d'un index}
-
-
-\figSlideWithSize{es-create-index.png}{8cm}
-\end{frame}
-
 

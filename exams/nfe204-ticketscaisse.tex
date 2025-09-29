@@ -48,6 +48,7 @@
   \end{center}
  \end{figure*}
 }
+
 \newcommand{\figTex}[2]{%
   \begin{figure*}[hbt]
  \centerline{\input{#1.pstex_t}}
@@ -255,6 +256,21 @@ On vous demande d'expliquer quelques-uns des principes du \textit{consistent has
    \item Quelle est l'utilité de la notion de n{\oe}ud virtuel?
 \end{enumerate}
 
+\begin{solution}
+
+	\begin{enumerate}
+	   \item Chaque serveur est responsable d'un secteur sur l'anneau. L'identifiant
+	       d'un document est haché et la valeur de hachafe détermine donc le serveur d'accueil.
+		   
+	  \item Le structure d'anneau évite d'avoir à gérer le cas des extrêmités d'une structure linéaire. 
+	  \item Comme expliqué en cours, on ne peut pas modifier la fonction de hachage. Autant donc
+	      choisir dès le départ une fonction maximale et immuable. La règle
+		   d'affectation sur l'anneau fournit l'adaptation au nombre de serveurs.
+	   \item Les n{\oe}uds virtuels améliorent la distribution en tendant vers
+	     une nombre moyen de document sur chaque serveur
+	\end{enumerate}
+
+\end{solution}
 \section*{Quatrième partie : questions de cours (2 pts)}
 
  Pourquoi faut-il stocker les paires intermédiaires sur disque dans un processus

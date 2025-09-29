@@ -11,8 +11,8 @@
                baselinestretch=.9,
                framesep=2mm]{bash}
 https://localhost:9200/films/_search?q=Rome
-http://localhost:9200/films/_search?q=Rome,Paris
-http://localhost:9200/films/_search?q=1994
+https://localhost:9200/films/_search?q=Rome,Paris
+https://localhost:9200/films/_search?q=1994
 # utilisable dans l'interface ElasticVue, onglet Rest
 \end{minted}
 
@@ -24,11 +24,6 @@ http://localhost:9200/films/_search?q=1994
 {
   "took" : 1,
   "timed_out" : false,
-  "_shards" : {
-    "total" : 1,
-    "successful" : 1,
-    "failed" : 0
-  },
   "hits" : {
     "total" : 1,
     "max_score" : 0.558217,
@@ -37,11 +32,11 @@ http://localhost:9200/films/_search?q=1994
       "_type" : "movies",
       "_id" : "movie:2",
       "_score" : 0.558217,
-      "_source":{ "title": "romz, città aperta", "year": 1946, 
+      "_source":{ "title": "Roma, città aperta", "year": 1946, 
                   "genre": "Drama",
                    "summary": "... ", 
                    "country": "Italy", 
-                   "director": "R. Rosselini", 
+                   "director": "R. Rossellini", 
 				   }
     } ]
   }
@@ -53,28 +48,30 @@ http://localhost:9200/films/_search?q=1994
 
 \begin{frame}[fragile]{Termes}
 
+Requêtes booléennes\,: les bases.
+
   \begin{redbullet}
-    \item Notion de base : le {\bf terme}
-    \item c'est un mot au sens usuel
-    \item ou une séquence de mots entre apostrophes
+    \item Notion de base : le {\bf terme}.  C'est un mot au sens usuel, 
+         ou une séquence de mots entre apostrophes
   \end{redbullet}
 \smallskip
 On peut interroger un index avec :
 \begin{minted}[frame=lines, baselinestretch=.9, fontsize=\footnotesize, framesep=2mm]{sql}
-Neo apprend
+Neo has proved
 \end{minted}
 Puis :
 \begin{minted}[frame=lines, baselinestretch=.9, fontsize=\footnotesize, framesep=2mm]{sql}
-  "Neo apprend"
+  "Neo has proved"
 \end{minted}
 \vfill
 \begin{blocgauche}
-  Première recherche : documents avec ``Neo'', ``apprend'' ou les deux
+  Première recherche : documents avec ``Neo'', ``has'', "proved", ou les trois
 \end{blocgauche}
 
 \end{frame}
 
 \begin{frame}[fragile]{Termes (suite)}
+Recherche dans des champs spécifiques.
   \begin{redbullet}
     \item la recherche d'un terme s'effectue toujours sur un champ. 
 \item La syntaxe complète pour associer le champ et le terme est:
@@ -85,20 +82,20 @@ Puis :
   champ:terme
 \end{minted}
 \item si non précisé, c'est le champ par défaut qui est utilisé
-\item pratique courante : concaténer toutes les chaînes de caractères en un
-  champ ``\_all'' général, défini par défaut
+\item toutes les chaînes de caractères sont concaténées dans
+  le champ ``\_all'',
 \item Nos requêtes deviennent :
 \begin{minted}[baselinestretch=.9,
                fontsize=\footnotesize,
                framesep=2mm]{sql}
 
-               _all:Neo _all:apprend
+               _all:Neo _all:has _all:proved
 \end{minted}
 \item et 
 \begin{minted}[baselinestretch=.9,
                fontsize=\footnotesize,
                framesep=2mm]{sql}
-               _all:"Neo apprend"
+               _all:"Neo has proved"
 \end{minted}
   \end{redbullet}
 \end{frame}
@@ -115,9 +112,11 @@ soumis à des transformations spécifiées dans le schéma.
                framesep=2mm]{sql}
               _all:"Neo APPREND"
 \end{minted}
-\item  Les transformations appliquées à la requête ET au texte indexé doivent être 
-   cohérentes : si les termes sont transformés en majuscules, et le texte indexé en minuscules,
-   on n'aura jamais de résultat!
+
+\item Un \alert{analyseur} doit être associé à un index
+   pour indiquer quelles transformations effectuer;
+   
+\item  Voir la section sur l'analyse de documents dans \url{http://b3d.bdpedia.fr/rech-approchee.html}
   \end{redbullet}
 \end{frame}
 
@@ -183,13 +182,13 @@ On fournit un document décrivant la requête en la \textit{postant}
 \vfill
 
 \begin{minted}[ baselinestretch=0.9]{bash}
-	{
-    	"query": {
-      		"match": {
-        		"title": "Star Wars"
-      		}
-  		}
-   	}
+{
+    "query": {
+      	"match": {
+        	"title": "Star Wars"
+      	}
+  	}
+}
 \end{minted}
 
 \vfill
@@ -205,15 +204,15 @@ On peut ajouter des spécifications dans la requête.
 \vfill
 
 \begin{minted}[ baselinestretch=0.9]{bash}
-	{
-    	"query": {
-      		"match": {
-        		"title": "Star Wars"
-      		}
-  		},
-  		"fields": ["title"],
-  		"_source": false
-   	}
+{
+    "query": {
+      	"match": {
+        	"title": "Star Wars"
+      	}
+  	},
+  	"fields": ["title"],
+  	"_source": false
+}
 \end{minted}
 
 \end{frame}
@@ -221,17 +220,17 @@ On peut ajouter des spécifications dans la requête.
 \begin{frame}[fragile]{Effectuer des recherches approchées}
 
 \begin{minted}[ baselinestretch=0.9]{bash}
-	{
-	  "query": {
-	     "fuzzy": {
-      		"title": {
-        		"value": "matrice"
-    	  	}
-    	  }
-  		},
-  	 "fields": ["title"],
-	 "_source": false
-	}
+{
+  "query": {
+	  "fuzzy": {
+      	"title": {
+        	"value": "matrice"
+    	}
+    }
+  },
+  "fields": ["title"],
+  "_source": false
+}
 \end{minted}
 
 \end{frame}
@@ -240,15 +239,15 @@ On peut ajouter des spécifications dans la requête.
 \begin{frame}[fragile]{Recherches par intervalle}
 
 \begin{minted}[ baselinestretch=0.9]{bash}
-	{
-  		"query": {
-		    "range": {
-		      "year": {"gte": 2010, "lte": 2020}
-    		}
-  		},
-  		"fields": ["title", "year"],
-  		"_source": false
-	}
+{
+  "query": {
+	"range": {
+	"year": {"gte": 2010, "lte": 2020}
+    }
+  },
+  "fields": ["title", "year"],
+  "_source": false
+}
 \end{minted}
 
 \end{frame}
@@ -257,41 +256,10 @@ On peut ajouter des spécifications dans la requête.
 
 
 
-%\begin{frame}[fragile]{Opérateur $+$, classement}
-  %\begin{redbullet}
-    %\item préfixe d'un nom de champ, il indique que la valeur du champ {\bf doit}
-      %être égale au terme
-    %\item il existe également un opérateur $-$, équivalent au \variable{NOT}
-    %\item recherche des documents dont la popularité est 6 (obligatoire) et qui peuvent
-%être produits par Dell ou un autre constructeur 
-%\begin{minted}[frame=lines,
-               %baselinestretch=.9,
-               %fontsize=\footnotesize,
-               %framesep=2mm]{sql}
-    %%+popularity:6  manu:Dell
-%\end{minted}
-%\item différence avec ce qui précède : le {\bf classement} du moteur
-%\item illustre la différence entre recherche d'information et interrogation
-  %de bases de données
-  %\end{redbullet}
-  %\bigskip
-  %Interpréter un classement est parfois délicat :\\
-%\begin{minted}[frame=lines,
-               %baselinestretch=.9,
-               %fontsize=\footnotesize,
-               %framesep=2mm]{sql}
-    %%+popularity:6  cat:electronics
-
-    %%+popularity:6  -manu:Dell
-
-%\end{minted}
-%\end{frame}
+\begin{frame}[fragile]{Bilan}
 
 
-\begin{frame}[fragile]{En conclusion}
-
-
-Ce qui précère constitue l'essentiel des opérations d'interrogation avec un moteur
+On a vu l'essentiel des opérations d'interrogation avec un moteur
 de recherche.
 
   \begin{redbullet}
@@ -312,6 +280,25 @@ de recherche.
 
 \vfill
 
-Comme ça marche? Voir la suite...
+Comme ça marche? Voir \url{http://b3d.bdpedia.fr/rech-approchee.html}
+\end{frame}
+
+
+
+\begin{frame}[fragile]{À vous de jouer}
+
+Reproduisez les requêtes ci-dessus sur votre base, en  
+introduisant des variantes, ou en inventant les vôtres.
+
+\vfill
+
+Interrogation sur l'index des cas\,:
+
+  \begin{redbullet}
+    \item Rechercher les cas de diabète (ou toute autre pathologie)
+    \item Toutes les pathologies dans l'Aude
+    \item Les cas de myopathie chez les femmes
+    \item Les diabètes en 2021 
+  \end{redbullet}
 \end{frame}
 
