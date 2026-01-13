@@ -96,3 +96,8 @@ Hybride
 
   S1: restaurants / notations
   S2: tickets caisse
+
+25-26
+=====
+
+  S1: journalistes / articles /plateformes

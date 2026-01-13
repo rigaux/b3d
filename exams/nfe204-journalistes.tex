@@ -77,15 +77,16 @@
 \parindent=0pt           
                              
 \usepackage{url}
+\usepackage{minted}
 
 \newtheorem{Exercice}{Definition}
 
 
 \begin{document}
 
-\title{Sujet d'examen UE NFE204 - Session 2}
-\author{Année universitaire 2024-2025}
-\date{Examen session hybride\,: 15 avril 2025}
+\title{Sujet d'examen UE NFE204 - Session 1}
+\author{Année universitaire 2025-2026}
+\date{Examen session 1\,: 27 janvier 2026}
 
 \maketitle
 
@@ -102,18 +103,24 @@ Ce sujet contient \pageref{LastPage} pages.\\
 
 \section*{Première partie : modélisation NoSQL (8 pts)}
 
-Dans le monde d'après, il n'y a plus de presse, de quotidiens ou de magazines. Des journalistes
-indépendants, payés au caractère, écrivent des articles et les proposent à des plateformes de diffusion.
-Ces journalistes sont (faiblement) rémunérés en fonction du nombre de personnes qui lisent
-l'article sur ces plateformes.
+Nous sommes en 2030, les attaques répétées contre
+la presse indépendante ont fini par atteindre leur but\,: 
+il n'y a plus de presse, de quotidiens ou de magazines. Il
+ne reste que des articles engendrés par IA et 
+quelques journalistes
+indépendants, payés au caractère, 
+qui écrivent des articles et les proposent à des plateformes de diffusion.
+Ces journalistes sont (faiblement) rémunérés en fonction du nombre 
+de personnes qui lisent
+leur article sur ces plateformes.
 
 Posons-nous quelques questions sur le fonctionnement
-de cette presse ubérisée. Un modèle UML très sommaire est donné dans la figure\,\ref{exam-21-presseuber}. Les journalistes
+de cette presse ubérisée. Un modèle UML très sommaire est 
+donné dans la figure\,\ref{exam-21-presseuber}. Les journalistes
 publient des articles, et ces articles sont diffusés par des  plateformes (plusieurs plateformes 
 si possible, qui elles-mêmes publient beaucoup d'articles).
 
 \fig{presseuber}{Modèle (sommaire) de la diffusion d'articles ubérisés}
-
 
 \vspace*{0.2cm}
 
@@ -125,8 +132,8 @@ un tout petit échantillon.
 \begin{tabular}{l|p{6cm}|l}
 \cle{ref} &  titre & année \\
 \hline
-ju21 & Alerte aux gilets jaunes & 2018 \\
-ju798 & Aura-t-on  des vaccins pour Noël & 2021 \\
+ju21 & D. Trump propose de racheter la Corse & 2028 \\
+ju798 & Les vaccins nuisent à la santé & 2030 \\
 \hline
 \end{tabular}
 
@@ -193,21 +200,21 @@ ju21  & pj6 \\
 
 \begin{solution}
     \begin{small}
-    \begin{verbatim}
+    \begin{minted}{json}
       {"_id": "pr",
          "nom" : "P. Rigaux",
          "articles": [
-           {"titre": "Alerte aux gilets jaunes", 
-            "année": 2018
+           {"titre": "D. Trump propose de racheter la Corse", 
+            "année": 2028
             "plateformes": ["Béru", "Vautour"]
             },
-           {"titre": "Aura-t-on  des vaccins pour Noël", 
-             "année": 2021
+           {"titre": "Les vaccins nuisent à la santé", 
+             "année": 2030
             "plateformes": ["Vautour"],
              }
            ]
         }
-    \end{verbatim}
+    \end{minted}
     \end{small}
 \end{solution}
 
@@ -219,21 +226,21 @@ ju21  & pj6 \\
 
 \begin{solution}
     \begin{small}
-    \begin{verbatim}
+    \begin{minted}{json}
       {"_id": "pj6",
          "nom" : "Vautour",
          "articles": [
-           {"titre": "Alerte aux gilets jaunes", 
-            "année": 2018
+           {"titre": "D. Trump propose de racheter la Corse", 
+            "année": 2028
             "auteurs": ["N. Travers", "P. Rigaux", "R. Fournier-S'niehotta"]
             },
-           {"titre": "Aura-t-on  des vaccins pour Noël", 
-             "année": 2021
+           {"titre": "Les vaccins nuisent à la santé", 
+             "année": 2030
             "auteurs": ["P.Rigaux"],
              }
            ]
         }
-    \end{verbatim}
+    \end{minted}
     \end{small}
 \end{solution}
 
@@ -247,7 +254,7 @@ ju21  & pj6 \\
       accéder aux plateformes dont le nom constitue la clé de regroupement dans la phase de Reduce. 
 
     \begin{small}
-    \begin{verbatim}
+        \begin{minted}{javascript}
       function mapAuteurVersPlateforme (doc) {
         // Première boucle sur les articles
         for article in doc.articles {
@@ -260,21 +267,21 @@ ju21  & pj6 \\
           }
          } 
        }
-    \end{verbatim}
+    \end{minted}
     \end{small}
     
     Pour le Reduce: on reçoit, pour chaque plateforme, la liste des articles avec leurs auteurs. 
     Il suffit de regrouper les articles par titre pour obtenir leurs auteurs.
     
         \begin{small}
-    \begin{verbatim}
+    \begin{minted}{javascript}
       function reduceAuteurVersPlateforme (plateforme, [listeArticles]) {
          // On va s'épargner le petit algo de regroupement des auteurs sur le titre
          les_articles = groupement_auteurs_par_titre (listeArticles)
          // On a tout ce qu'il faut
          return ({"nom": platforme, "articles": les_articles} )
        }
-    \end{verbatim}
+    \end{minted}
     \end{small}
     
 \end{solution}
@@ -288,23 +295,23 @@ en pseudo-code, au pire en langage naturel en étant le plus précis possible.
     Pig latin sous forme de trois collections. La première collection est celle
     des articles avec des documents du type\,:
     \begin{small}
-    \begin{verbatim}
-      {"ref" : "ju21", "titre": "Alerte aux gilets jaunes", "année": 2018}
-    \end{verbatim}
+     \begin{minted}{json}
+{"ref" : "ju21", "titre": "D. Trump propose de racheter la Corse", "année": 2028}
+    \end{minted}
     \end{small}
     La collection des auteurs. Exemples\,:
     \begin{small}
-        \begin{verbatim}
-      {"nom" : "P. Rigaux", "refArticle": "ju21"}
-      {"nom" : "P. Rigaux", "refArticle": "ju798"}
-    \end{verbatim}
+        \begin{minted}{json}
+{"nom" : "P. Rigaux", "refArticle": "ju21"}
+{"nom" : "P. Rigaux", "refArticle": "ju798"}
+    \end{minted}
     \end{small}
     Et enfin la collection des diffusions. Exemples\,:
     \begin{small}
-     \begin{verbatim}
-      {"plateforme" : "Béru", "refArticle": "ju21"}
-      {"plateforme" : "Vautour", "refArticle": "ju798"}
-    \end{verbatim}
+     \begin{minted}{json}
+{"plateforme" : "Béru", "refArticle": "ju21"}
+{"plateforme" : "Vautour", "refArticle": "ju798"}
+    \end{minted}
     \end{small}
      
     On veut obtenir, à partir 
@@ -313,16 +320,16 @@ en pseudo-code, au pire en langage naturel en étant le plus précis possible.
 
     
     \begin{small}
-    \begin{verbatim}
-      {"ref": "ju21",
-         "titre" : "Alerte aux gilets jaunes",
-         "année": 2018,
-       "auteurs": [
+    \begin{minted}{json}
+{"ref": "ju21",
+ "titre" : "D. Trump propose de racheter la Corse",
+ "année": 2028,
+ "auteurs": [
             ],
-         "plateformes": [
+ "plateformes": [
          ]
-       }
-    \end{verbatim}
+}
+    \end{minted}
     \end{small}
     
     
@@ -360,7 +367,7 @@ Clairement, il en faut deux.
     \end{enumerate}
 \end{enumerate}
 
-
+\begin{comment}
 \section*{Deuxième partie : flux (4 pts)}
 
 Chaque fois que quelqu'un lit un article sur une plateforme, un 
@@ -416,9 +423,9 @@ senv.execute("")
 Il y a un sous-flux par article, ce qui permet un large parallélisme à priori.
 \end{solution}
 \end{enumerate}
+\end{comment}
 
-
-\section*{Troisième partie : recherche d'information (6 pts)}
+\section*{Deuxième partie : recherche d'information (6 pts)}
 
 
 Voici un échantillon du flux de nouvelles sur les éléctions régionales. 
@@ -514,15 +521,56 @@ car plus spécifique au besoin exprimé par la requête.
   \end{enumerate}
 
 
+  \section{Troisième partie\,: comprendre Cassandra (4 pts)}
+
+  On veut proposer un schéma Cassandra pour explorer cette base. 
+  Rappelons d'abord ce qu'est une clé composite en Cassandra\,: 
+  \textit{A compound primary key consists of the partition key and the clustering key. The partition key determines 
+  which node stores the data. Rows 
+  for a partition key are stored in order based on the clustering key.} 
+
+  On crée la table Article avec la commande suivante\,:
+\begin{minted}{sql}
+  create table Article (id_plateforme text,
+                        id_article text,
+                         auteur frozen<Personne>,
+                         contenu text,
+                         primary key (id_plateforme, id_article));
+  \end{minted}
+
+Commentez chacune des affirmations suivantes, indiquez si elles
+sont vraies ou fausses et pourquoi.
+
+  \begin{enumerate}
+	\item tous les articles d'une plateforme sont sur le même serveur
+    \item tous les articles d'un auteur sont sur le même serveur
+	\item il n'y a pas de duplication d'un article, même s'il
+	    a été publié par plus d'une plateforme
+    \item Accéder aux articles d'une plateforme peut s'effectuer
+	    par un parcours séquentiel sur un seul serveur
+  \end{enumerate}  
+  
+
+  \begin{solution}
+  \begin{enumerate}
+    \item Oui puisque les articles d'une plateforme ont la même clé de partitionnement.
+     \item Non, il n'y a aucun regroupement des articles d'un même auteur
+     \item Si, il y a duplication d'un article autant de fois qu'il a été publié
+     \item Oui !
+  \end{enumerate} 
+\end{solution}
+
 \section*{Quatrième partie\,: systèmes distribués (3 pts)}
 
 
 \begin{enumerate}
 
-  \item Que signifie, pour  une structure de partitionnement, être \emph{dynamique}. Avons-nous
+  \item Que signifie, pour  une structure de partitionnement, être \emph{dynamique}. Avez-vous
      étudié un système où le partitionnement n'était pas dynamique\,?
    
-   \item Quel est le principe de la reprise sur panne dans Spark?\,
+	 \item Quel est le principe de la reprise sur panne dans MapReduce?\,
+
+	    \item Quel est le principe de la reprise sur panne dans Spark?\,
    
    \item Un groupe de serveurs en mode maître-esclave comprend 5 n{\oe}uds. Suite à une fragmentation
 du réseau, le maître se retrouve  avec un seul esclave.  Expliquez ce qui se passe alors.
