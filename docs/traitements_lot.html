@@ -1,0 +1,1587 @@
+
+<!DOCTYPE html>
+
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
+    <title>Traitements par lot &#8212; Bases de données documentaires et distribuées v&lt;release&gt; - Cours CNAM NFE204</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/agogo.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/translations.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Recherche" href="search.html" />
+    <link rel="next" title="Pig : Travaux pratiques" href="pigtp.html" />
+    <link rel="prev" title="ElasticSearch - Travaux pratiques" href="es_tp.html" /> 
+  </head><body>
+    <div class="header-wrapper">
+      <div class="header">
+        <div class="headertitle"><a
+          href="index.html">Traitements par lot</a></div>
+        <div class="rel">
+          <a href="es_tp.html" title="ElasticSearch - Travaux pratiques"
+             accesskey="P">précédent</a><font color="white"> |</font>
+          <a href="pigtp.html" title="Pig : Travaux pratiques"
+             accesskey="N">suivant</a><font color="white"> |</font>
+          <a href="genindex.html" title="Index général"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+<script type="text/javascript" src="_static/dynsite.js"></script>
+
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="traitements-par-lot">
+<span id="chap-mapreduce"></span><h1>Traitements par lot<a class="headerlink" href="#traitements-par-lot" title="Lien permanent vers ce titre">¶</a></h1>
+<p>Nous avons étudié jusqu’à présent les recherches, exactes ou approchées,
+permettant de retrouver des informations en temps réel, ou du moins
+avec un délai de réponse compatible avec une utilisation interactive.
+Un autre scénario pour la gestion de très grandes collections est celui
+d’un <em>traitement par lot</em> qui consiste à extraire des informations
+à partir d’un sous-ensemble important de la collection voire
+même de la collection entière. C’est le cas par exemple
+pour la construction d’indicateurs statistiques, pour
+l’apprentissage de modèles IA, ou la production d’une collection
+dérivée, typiquement un index.</p>
+<p>Pour ce type de scénario on ne s’attend pas à des temps de réponses
+de quelques secondes, au vu de la taille des données considérées. Les
+temps de parcours et de calcul peuvent prendre des minutes, des heures ou
+même des jours. Les problématiques sont plutôt
+de contrôler le temps d’exécution en parallélisant les calculs,
+d’une part, et de s’assurer de la terminaison de ces calculs même
+si des pannes surviennent, d’autre part.</p>
+<p>Nous étudions dans ce chapitre la première problématique  avec les
+modèles de  <em>chaîne de traitement</em> (par traduction de « <em>data processing pipelines</em> »
+ou, simplement, <em>workflow</em>).
+Le principe général est de soumettre tous les documents  d’une collection
+à une séquence d’opérateurs, comme par exemple:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>un <em>filtrage</em>, en ne gardant le document que s’il satisfait certains critères;</p></li>
+<li><p>une <em>restructuration</em>, en changeant la forme du document;</p></li>
+<li><p>une <em>annotation</em>, par ajout au document de propriétés calculées;</p></li>
+<li><p>un <em>regroupement</em> avec d’autres documents sur certains critères;</p></li>
+<li><p>des <em>opérations d’agrégation</em> sur des groupes de documents.</p></li>
+</ul>
+</div></blockquote>
+<p>Les opérateurs qui nous intéressent sont dits <em>opérateurs de second ordre</em>.
+Contrairement aux opérateurs classiques qui s’appliquent directement à des données, un
+opérateur de second ordre prend des fonctions en paramètre et applique
+ces fonctions à des données au cours d’un traitement immuable
+(par exemple un parcours séquentiel). Pour le traitement
+de données massives, on s’intéresse plus particulièrement
+aux opérateurs <em>parallélisables</em> qui permettent une
+forme d’industrialisation des calculs en les distribuant
+sur plusieurs machines.</p>
+<p>Nous allons développer longuement ces notions un peu complexes. Pour
+commencer nous présentons deux des opérateurs qui sont à l’origine
+des systèmes de traitement de données massives, Map et Reduce. Nous
+introduirons ensuite d’autres opérateurs avec un langage
+simple d’utilisation, Pig latin. Les futurs chapitres viseront
+à expliquer la distribution des données et des calculs
+en vue d’obtenir une parallélisation efficace, ce que
+nous résumerons avec une étude de Spark, sans doute le principal
+système distribué à l’heure actuelle.</p>
+<p>Nous nous en tenons donc pour l’instant
+(à l’exception d’une présentation intuitive
+dans la première session) au contexte centralisé (un seul serveur),
+ce qui permet de se familiariser avec les concepts et la pratique dans un cadre simple.</p>
+<section id="s1-mapreduce-demystifie">
+<h2>S1: MapReduce démystifié<a class="headerlink" href="#s1-mapreduce-demystifie" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="admonition-supports-complementaires admonition">
+<p class="admonition-title">Supports complémentaires:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="http://b3d.bdpedia.fr/files/slmapreduce.pdf">Présentation: MapReduce expliqué avec les mains</a></p></li>
+<li><p><a class="reference external" href="https://mediaserver.lecnam.net/permalink/v125f35a35eefhqfv1so/">Vidéo présentant MapReduce</a></p></li>
+</ul>
+</div>
+<p>Commençons par expliquer que MapReduce, en tant que modèle de calcul, ce n’est pas grand chose!
+Cette section propose une découverte « avec les mains », en étudiant comment cuisiner quelques
+recettes  simples avec un robot MapReduce. La fin de la section  récapitule en termes
+plus informatiques.</p>
+<section id="un-jus-de-pomme-mapreduce">
+<h3>Un jus de pomme MapReduce<a class="headerlink" href="#un-jus-de-pomme-mapreduce" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Ecartons-nous de l’informatique pour quelques moments. Cela nous laisse un peu
+de temps pour faire un bon jus de pomme. Vous savez faire du jus de pomme? C’est simple:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>l’épluchage: il faut éplucher les pommes une par une;</p></li>
+<li><p>le pressage: on met toutes les pommes dans un pressoir, et on récupère le jus.</p></li>
+</ul>
+</div></blockquote>
+<p>Le processus est résumé sur la <a class="reference internal" href="#juspommemr"><span class="std std-numref">Fig. 40</span></a>.
+Observons le cuisinier. Il a un tas de pomme à gauche, les prend une par une, épluche
+chaque pomme et place la pomme épluchée dans un tas à droite. Quand toutes les pommes
+sont épluchées (et pas avant!), on peut commencer
+la seconde phase.</p>
+<figure class="align-center" id="id3">
+<span id="juspommemr"></span><a class="reference internal image-reference" href="_images/juspommeMR.png"><img alt="_images/juspommeMR.png" src="_images/juspommeMR.png" style="width: 90%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 40 </span><span class="caption-text">Les deux phases de la confection de jus de pomme</span><a class="headerlink" href="#id3" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>Comme notre but est de
+commencer à le  formaliser en un modèle que nous appellerons à la fin <em>MapReduce</em>,
+nous distinguons précisément la frontière entre les deux phases, et les tâches
+effectuées de chaque côté.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>À gauche, nous avons donc <em>l’atelier de transformation</em>: il consiste en un agent, l’éplucheur,
+qui prend une pomme dans son panier à gauche, produit une pomme épluchée dans un second panier à droite,
+et répète la même action jusqu’à ce que le panier de gauche soit vide.</p></li>
+<li><p>À droite nous avons <em>l’atelier d’assemblage</em>: on lui confie un tas de pommes épluchées
+et il produit du jus de pomme.</p></li>
+</ul>
+</div></blockquote>
+<p>Nous pouvons déjà tirer deux leçons sur les caractéristiques essentielles de notre
+processus élémentaire. La première porte sur l’atelier de transformation qui applique
+une opération individuelle à chaque  produit.</p>
+<div class="admonition-lecon-1-l-atelier-de-transformation-est-centre-sur-les-pommes admonition">
+<p class="admonition-title">Leçon 1: l’atelier de transformation est centré sur les pommes</p>
+<p>Dans l’atelier de transformation, les pommes sont épluchées <em>individuellement</em> et
+<em>dans n’importe quel ordre</em>.</p>
+</div>
+<p>L’éplucheur ne sait pas combien de pommes il a à éplucher, il se contente de piocher dans
+le panier tant que ce dernier n’est pas vide. De même, il ne sait pas
+ce que deviennent les pommes épluchées, il se contente de les transmettre
+au processus général.</p>
+<p>La seconde leçon porte sur l’atelier d’assemblage qui, au contraire, applique
+une transformation aux produits <em>regroupés</em>: ici, des tas de pommes.</p>
+<div class="admonition-lecon-2-l-atelier-d-assemblage-est-centre-sur-les-tas-de-pommes admonition">
+<p class="admonition-title">Leçon 2: l’atelier d’assemblage est centré sur les tas de pommes</p>
+<p>Dans l’atelier d’assemblage, on applique des transformations
+à des <em>ensembles</em> de pommes.</p>
+</div>
+<p>Tout celà est assez élémentaire, voyons si nous pouvons faire mieux en
+introduisant une première variante. Au lieu de cuire des pommes entières, on préfère les
+couper au préalable en quartiers.  La phase d’épluchage devient une phase
+d’épluchage/découpage.</p>
+<p>Cela ne change pas grand chose, comme le montre la  <a class="reference internal" href="#id1"><span class="std std-numref">Fig. 41</span></a>. Au lieu d’avoir deux tas
+identiques à gauche et à droite avec des pommes, le cuisinier a un tas avec <em>p</em> pommes
+à gauche et un autre tas avec <em>4p</em> quartiers de pommes à droite.</p>
+<figure class="align-center" id="id4">
+<span id="id1"></span><a class="reference internal image-reference" href="_images/juspommeMR+.png"><img alt="_images/juspommeMR+.png" src="_images/juspommeMR+.png" style="width: 80%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 41 </span><span class="caption-text">Avec des quartiers de pomme</span><a class="headerlink" href="#id4" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>Cela nous permet quand même de tirer une troisième leçon.</p>
+<div class="admonition-lecon-3-la-transformation-peut-modifer-le-nombre-et-la-nature-des-produits admonition">
+<p class="admonition-title">Leçon 3: la transformation peut modifer le nombre et la nature des produits</p>
+<p>La première phase n’est pas limitée à une
+transformation un pour un des produits consommés.
+Elle peut prendre en entrée des produits d’une certaine nature (des pommes), sortir
+des produits d’une autre nature (des quartiers de pomme épluchées), et il peut n’y
+avoir aucun rapport fixe entre le nombre de produits en sortie et le nombre de produits en
+entrées (on peut jeter des pommes pourries, couper une  petite pomme
+en 4 ou en 6, une grosse pomme en 8, etc.)</p>
+</div>
+<p>Nous avons notre premier processus MapReduce, et nous avons identifié
+ses caractéristiques principales. Il devient possible de montrer comment passer à
+grande échelle dans la production de jus de pomme,
+sans changer le processus.</p>
+</section>
+<section id="beaucoup-de-jus-de-pomme">
+<h3>Beaucoup de jus de pomme<a class="headerlink" href="#beaucoup-de-jus-de-pomme" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Votre jus de pomme  est très bon et vous devez en produire beaucoup: une seule personne ne suffit
+plus à la tâche. Heureusement la méthode employée se généralise facilement à une brigade
+de <em>n</em> éplucheurs.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>répartissez votre tas de pommes en <em>n</em> sous-tas, affectés chacun à un éplucheur;</p></li>
+<li><p>chaque éplucheur effectue la tâche d’épluchage/découpage comme précédemment;</p></li>
+<li><p>regroupez les quartiers de pomme et pressez-les.</p></li>
+</ul>
+</div></blockquote>
+<p>Il se peut qu’un pressoir ne suffise plus: dans ce cas affectez <em>c</em> pressoirs
+et répartissez équitablement les quartiers dans chacun. Petit inconvénient: vous obtenez
+plusieurs fûts de jus de pomme, un par pressoir, avec une qualité
+éventuellement variable. Ce n’est sans doute pas très grave.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Notez que cela ne marche que grâce aux caractéristiques identifiées
+par la leçon N° 1 ci-dessus. Si l’ordre d’épluchage était important par exemple,
+ce ne serait pas si simple car il faudrait faire attention à ce que l’on confie
+à chaque éplucheur;
+<em>idem</em> si l’épluchage d’une pomme dépendait de l’épluchage des autres.</p>
+</div>
+<p>La  <a class="reference internal" href="#bigjuspommemr"><span class="std std-numref">Fig. 42</span></a> montre la nouvelle organisation de vos deux ateliers.
+Dans l’atelier de transformation, vous avez <em>n</em> éplucheurs qui, chacun, font
+<em>exactement</em> la même chose qu’avant: ils produisent des tas de quartiers de pomme.
+Dans l’atelier d’assemblage, vous avez <em>r</em> pressoirs: un au minimum, 2, 3 ou plus
+selon les besoins. Attention: il n’y aucune raison d’imposer comme
+contrainte que le nombre de pressoirs soit égal au nombre de éplucheurs. Vous
+pourriez avoir un très gros pressoir qui suffit à occuper 10 éplucheurs.</p>
+<figure class="align-center" id="id5">
+<span id="bigjuspommemr"></span><a class="reference internal image-reference" href="_images/BigjuspommeMR.png"><img alt="_images/BigjuspommeMR.png" src="_images/BigjuspommeMR.png" style="width: 80%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 42 </span><span class="caption-text">Parallélisation de la production de jus de pomme</span><a class="headerlink" href="#id5" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p><em>Vous avez parallélisé votre production de jus de pomme.</em>  Remarque essentielle:
+vous n’avez pas besoin de recruter des éplucheurs  avec des compétences supérieures à celles
+de votre atelier artisanal du début. Chaque éplucheur épluche ses pommes et n’a
+pas besoin de se soucier de ce que font les autres, à quel rythme ils travaillent,
+etc. Vous n’avez pas non plus besoin d’un matériel nouveau
+et radicalement plus cher. En d’autres termes vous avez défini un processus
+qui passe sans douleur à un stade <strong>industriel</strong> où seulent comptent l’organisation
+et l’affecation de ressources, pas l’augmetation des compétences.</p>
+<p><em>Vous pouvez même prétendre que la rentabilité économique est préservée</em>.
+Si un éplucheur épluche 50 Kgs de pomme par jour,
+10 éplucheurs (avec le matériel correspondant) produiront 500 Kgs par jour!
+C’est aussi une question de matériel à
+affecter au processus: il est clair que si vous n’avez qu’un seul économe (le couteau
+qui sert à éplucher)  ça ne marche pas. Mais si
+la production de jus de pomme est rentable avec un éplucheur, elle le sera aussi pour 10
+avec le matériel correspondant. Nous dirons que le processus est <em>scalable</em>,
+et cela vaut une quatrième leçon.</p>
+<div class="admonition-lecon-4-parallelisation-et-scalabilite-lineaire admonition">
+<p class="admonition-title">Leçon 4: parallélisation et scalabilité (linéaire)</p>
+<p>La production de jus de pomme est parallélisable et proportionnelle aux ressources
+(humaines et matérielles) affectées.</p>
+</div>
+<p>Votre processus a une seconde caractéristique importante (qui résulte
+de la remarque déjà faire que les éplucheurs sont indépendants
+les uns des autres). Si un éplucheur éternue
+à répétition sur son tas de pomme, s’il épluche mal ou si les quartiers de pomme à
+la fin de l’épluchage tombent par terre, cela ne remet pas en cause l’ensemble de la production
+mais seulement la petite partie qui lui était affectée. Il suffit de recommencer
+cette partie-là. De même, si un pressoir est mal réglé, cela n’affecte pas
+le jus de pomme  préparé dans les autres et les dégâts restent <em>locaux</em>.</p>
+<div class="admonition-lecon-5-le-processus-est-robuste admonition">
+<p class="admonition-title">Leçon 5: le processus est robuste</p>
+<p>Une défaillance affectant la production de jus de pomme n’a qu’un effet <em>local</em>
+et ne remet pas en cause <em>l’ensemble</em> de la production.</p>
+</div>
+<p>Les leçons 4 et 5 sont les deux propriétés essentielles de MapReduce,
+modèle de traitement qui se prête bien à la distribution des tâches.
+Si on pense en terme de puissance ou d’expressivité, cela reste
+quand même très limité. Peut-on faire mieux que du jus de pomme?
+Oui, en adoptant la petite généralisation suivante.</p>
+</section>
+<section id="jus-de-fruits-mapreduce">
+<h3>Jus de fruits MapReduce<a class="headerlink" href="#jus-de-fruits-mapreduce" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Pourquoi se limiter au jus de pomme? Si vous avez une brigade d’éplucheurs
+de premier plan et des pressoirs efficaces, vous pouvez aussi envisager
+de produire du jus d’orange, du jus d’ananas, et ainsi de suite.
+Le processus consistant en une double phase de transformation <em>individuelle</em>
+des ingrédients, puis d’élaboration collective convient tout à fait,
+à une adaptation près: comme on ne peut pas presser ensemble des oranges
+et les pommes, <em>il faut ajouter une étape initiale de tri/regroupement</em> dans l’atelier
+d’assemblage.</p>
+<p>En revanche,  pendant la première phase, on peut soumettre un tas
+indifférencé de pommes/oranges/ananas à un même éplucheur.
+L’absence de spécialisation garantit ici une meilleure utilisation de votre brigade,
+une meilleure adaptation aux commandes, une meilleure réactivité aux incidents (pannes,
+blessures, cf. exercices).</p>
+<figure class="align-center" id="id6">
+<span id="jusfruits"></span><a class="reference internal image-reference" href="_images/jusfruits.png"><img alt="_images/jusfruits.png" src="_images/jusfruits.png" style="width: 80%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 43 </span><span class="caption-text">Production de jus de fruits en parallèle</span><a class="headerlink" href="#id6" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>La  <a class="reference internal" href="#jusfruits"><span class="std std-numref">Fig. 43</span></a> montre une configuration de vos ateliers de production
+de jus de fruit, avec 4 ateliers de transformation, et 1 atelier d’assemblage.</p>
+<p>Résumons: chaque éplucheur a à sa gauche un tas de  fruits (pommes, oranges, ananas).
+Il épluche chaque ingrédient, un par un, et les transmet à l’atelier d’assemblage.
+Cet atelier d’assemblage comporte maintenant une trieuse qui envoie chaque fruit
+vers un tas homogène, transmis ensuite
+à un pressoir dédié. <em>Le processus reste parallélisable, avec les
+mêmes propriétés de scalabilité que précedemment.</em> Nous avons simplement besoin
+d’une opération supplémentaire.</p>
+<p>Une question non triviale en générale est celle du critère de tri et de regroupement.
+Dans le cas des pommes, oranges et ananas, on peut supposer que l’opérateur
+fait facilement la distinction visuellement. Pour des cas plus subtils (vous distinguez
+une variété de pomme <em>Reinette</em> d’une <em>Jonagold</em>?) il nous faut une méthode plus robuste.
+Les produits fournis par l’atelier d’assemblage doivent  être <em>étiquetés</em> au préalable
+par l’opérateur de l’atelier de transformation.</p>
+<div class="admonition-lecon-6-phase-de-tri-regroupement-etiquetage admonition">
+<p class="admonition-title">Leçon 6: phase de tri / regroupement, étiquetage</p>
+<p>Si les produits doivent être traitées par catégorie, il faut ajouter une
+phase de tri / regroupement au début de l’atelier d’assemblage. Le tri
+s’appuie sur une <em>étiquette</em> associée à chaque produit en entrée, indiquant
+le groupe d’appartenance.</p>
+</div>
+<p>Et finalement, comment faire si nous mettons en place <em>plusieurs</em> ateliers
+d’assemblage? Deux choix sont possibles:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><em>spécialiser</em> chaque atelier à une ou plusieurs catégories de fruits;</p></li>
+<li><p><em>ne pas spécialiser</em> les ateliers, et simplement répliquer l’organisation
+de la  <a class="reference internal" href="#jusfruits"><span class="std std-numref">Fig. 43</span></a> où un atelier d’assemblage sait presser
+tous les types de fruits.</p></li>
+</ul>
+</div></blockquote>
+<p>Les deux choix se défendent sans doute (cf. exercices), mais dans le modèle
+MapReduce, c’est la spécialisation (choix 1) qui s’impose, pour des raisons
+qui tiennent aux propriétés des méthodes d’agrégation de données, pas toujours
+aussi simple que de mélanger deux jus d’oranges.</p>
+<p>Dans une configuration avec plusieurs ateliers d’assemblage, chacun est
+donc spécialisé pour traiter une ou plusieurs catégories. Bien entendu, il faut
+s’assurer que chaque catégorie est prise en charge par un atelier. C’est le rôle
+d’une nouvelle machine, le <em>répartiteur</em>, illustré par la  <a class="reference internal" href="#id2"><span class="std std-numref">Fig. 44</span></a>.
+Nous avons deux ateliers d’assemblage, le premier prenant en charge les
+pommes et les oranges, et le second les ananas.</p>
+<figure class="align-center" id="id7">
+<span id="id2"></span><a class="reference internal image-reference" href="_images/jusfruits+.png"><img alt="_images/jusfruits+.png" src="_images/jusfruits+.png" style="width: 80%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 44 </span><span class="caption-text">Production en parallèle, avec répartition vers des ateliers d’assemblage spécialisés</span><a class="headerlink" href="#id7" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>C’est fini!
+Cette fois nous avons une métaphore complète d’un processus MapReduce dans un contexte Cloud/Big Data.
+Tirons une dernière leçon avant de le reformuler en termes abstraits/informatiques.</p>
+<div class="admonition-lecon-7-repartition-vers-les-ateliers-d-assemblage admonition">
+<p class="admonition-title">Leçon 7: répartition vers les ateliers d’assemblage</p>
+<p>Si nous avons plusieurs ateliers d’assemblage, il faut mettre en place
+une opération de répartition qui envoie chaque type de fruit vers
+l’atelier spécialisé. Cette opération doit garantir que chaque type
+de fruit a son atelier.</p>
+</div>
+<p>On peut envisager de nombreuses variantes qui ne remettent pas en cause le modèle
+global d’exécution et de traitement. Une réflexion sur ces variantes est proposée en exercice.</p>
+</section>
+<section id="le-modele-mapreduce">
+<h3>Le modèle MapReduce<a class="headerlink" href="#le-modele-mapreduce" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Il est temps de prendre un peu de hauteur (?) pour caractériser le modèle MapReduce
+en termes informatiques.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Pour l’instant, nous nous concentrons uniquement
+sur la compréhension de ce que <em>spécifie</em> un traitement MapReduce,
+et pas sur la manière dont ce traitement est <em>exécuté</em>. Nous savons
+par ce qui précède qu’il est possible de le paralléliser,
+mais il est également tout à fait autorisé de l’exécuter
+sur une seule machine en deux étapes. C’est le scénario que nous adoptons
+pour l’instant, jusqu’au moment où nous
+aborderons les calculs distribués.</p>
+</div>
+<p>Le principe de MapReduce est ancien et provient de la programmation fonctionnelle. Il se résume
+ainsi: étant donné une collection <em>d’items</em>, on applique à chaque item
+un processus de transformation
+individuelle (phase dite « de Map ») qui produit des <em>valeurs intermédiaires</em>
+étiquetées. Ces valeurs
+intermédiaires sont regroupées par étiquette et soumises à une
+fonction d’assemblage (on parlera plus volontiers d’agrégation en informatique) appliquée
+à chaque groupe  (phase dite « de Reduce »). La phase de Map correspond à notre atelier de transformation,
+la phase de Reduce
+à notre atelier d’assemblage.</p>
+<p>Reprenons le modèle dans le détail.</p>
+<div class="admonition-notion-d-item-en-entree-document admonition">
+<p class="admonition-title">Notion d’item en entrée (document)</p>
+<p>Un <em>item d’entrée</em> est une valeur quelconque apte à être soumise à la fonction
+de transformation. Dans tout ce qui suit, nos items d’entrée seront des <em>documents
+structurés</em>.</p>
+</div>
+<p>Dans notre exemple culinaire, les items d’entrées sont les fruits « bruts »: pommes, oranges, ananas,
+etc. La transformation appliquée aux items est représentée par une fonction de Map.</p>
+<div class="admonition-notion-de-fonction-de-map admonition">
+<p class="admonition-title">Notion de fonction de Map</p>
+<p>La fonction de Map, notée <span class="math notranslate nohighlight">\(F_{map}\)</span> est appliquée à chaque
+item de la collection, et produit zéro, une ou plusieurs
+valeurs dites « intermédiaires »,  placées dans un <em>accumulateur</em>.</p>
+</div>
+<p>Dans notre exemple, <span class="math notranslate nohighlight">\(F_{map}\)</span> est l’épluchage. Pour un même fruit, on produit
+plusieurs valeurs (les quartiers), voire aucune si le fruit est pourri.
+L’accumulateur est le tas à droite du cuisinier.</p>
+<p>Il est souvent nécessaire de  <em>partitionner</em> les valeurs produites
+par le <em>map</em> en plusieurs groupes. Il suffit de modifier la fonction
+<span class="math notranslate nohighlight">\(F_{map}\)</span> pour qu’elle émette non plus une valeur, mais
+associe chaque valeur au groupe auquel  elle appartient.
+<span class="math notranslate nohighlight">\(F_{map}\)</span> produit, pour chaque item,
+une paire <em>(k, v)</em>, où <em>k</em> est l’identifiant du groupe et
+<em>v</em> la valeur à placer dans le groupe. L’identifiant du groupe
+est déterminé à partir de l’item traité (c’est ce que nous avons informellement appelé « étiquette » dans la
+présentation de l’exemple.)</p>
+<p>Dans le modèle
+MapReduce, on appelle <em>paire intermédiaire</em>  les données
+produites par la phase de Map.</p>
+<div class="admonition-notion-de-paire-intermediaire admonition">
+<p class="admonition-title">Notion de paire intermédiaire</p>
+<p>Une paire intermédiaire est produite par la fonction de Map;
+elle est de la forme <em>(k, v)</em> où    <em>k</em> est l’identifiant (ou <em>clé</em>) d’un groupe
+et <em>v</em> la valeur extraite de l’item d’entrée par <span class="math notranslate nohighlight">\(F_{map}\)</span>.</p>
+</div>
+<p>Pour notre exemple culinaire, il y a trois groupes, et donc
+trois identifiants possibles:  <code class="docutils literal notranslate"><span class="pre">pomme</span></code>, <code class="docutils literal notranslate"><span class="pre">orange</span></code>, <code class="docutils literal notranslate"><span class="pre">ananas</span></code>.</p>
+<p>À l’issue de la phase de Map, on dispose donc d’un ensemble de paires
+intermédiaires. Chaque paire étant caractérisée par l’identifiant d’un
+groupe, on peut constituer les groupes par regroupement sur la
+valeur de l’identifiant. On obtient des <em>groupes intermédiaires</em>.</p>
+<div class="admonition-notion-de-groupe-intermediaire admonition">
+<p class="admonition-title">Notion de groupe intermédiaire</p>
+<p>Un <em>groupe intermédiaire</em> est l’ensemble des valeurs intermédiaires associées
+à une même valeur de clé.</p>
+</div>
+<p>Nous aurons donc le groupe des quartiers de pomme, le groupe des quartiers
+d’orange, et le groupe des rondelles d’ananas. On entre alors dans
+la seconde phase, dite de Reduce. La transformation appliquée à chaque
+groupe est définie par la fonction de Reduce.</p>
+<div class="admonition-notion-de-fonction-de-reduce admonition">
+<p class="admonition-title">Notion de fonction de Reduce</p>
+<p>La fonction de  Reduce, notée <span class="math notranslate nohighlight">\(F_{red}\)</span>, est appliquée à chaque
+groupe intermédiaire et produit une valeur finale. L’ensemble
+des valeurs finales (une pour chaque groupe) constitue le résultat
+du traitement MapReduce.</p>
+</div>
+<p>Résumons avec la  <a class="reference internal" href="#mapreduce-mongo"><span class="std std-numref">Fig. 45</span></a>, et plaçons-nous
+maintenant dans le cadre de nos bases documentaires. Nous avons
+une collection de documents <span class="math notranslate nohighlight">\(d_1, d_2, \cdots, d_n\)</span>. La fonction
+<span class="math notranslate nohighlight">\(F_{map}\)</span> produit des paires intermédiaires sous la
+forme de documents <span class="math notranslate nohighlight">\(d^j_i\)</span>,
+dont l’identifiant (<span class="math notranslate nohighlight">\(j\)</span>) désigne le groupe d’appartenance.
+Notez les doubles flêches: un  document en entrée peut engendrer plusieurs
+documents en sortie du <em>map</em>. <span class="math notranslate nohighlight">\(F_{map}\)</span>
+place chaque <span class="math notranslate nohighlight">\(d^j_i\)</span> dans un groupe <span class="math notranslate nohighlight">\(G_j, j \in [1, k]\)</span>. Quand
+la phase de <em>map</em> est terminée (et pas avant!), on peut passer
+à la phase de <em>reduce</em> qui applique successivement <span class="math notranslate nohighlight">\(F_{red}\)</span>
+aux documents de chaque groupe. On obtient, pour chaque groupe,
+une valeur (un document de manière générale) <span class="math notranslate nohighlight">\(v_j\)</span>.</p>
+<figure class="align-center" id="id8">
+<span id="mapreduce-mongo"></span><a class="reference internal image-reference" href="_images/mapreduce-mongo.png"><img alt="_images/mapreduce-mongo.png" src="_images/mapreduce-mongo.png" style="width: 80%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 45 </span><span class="caption-text">MapReduce (en centralisé)</span><a class="headerlink" href="#id8" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>Voici pour la théorie. En complément, notons dès maintenant
+que ce mécanisme a quelques propriétés intéressantes:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>il est <em>générique</em> et s’applique à de nombreux problèmes,</p></li>
+<li><p>il se <em>parallélise</em> très facilement;</p></li>
+<li><p>il est assez tolérant aux pannes dans une contexte distribué.</p></li>
+</ul>
+</div></blockquote>
+<p>La première propriété doit être fortement relativisée: on ne fait quand
+même pas grand chose, en termes d’algorithmique, avec MapReduce et
+il ne faut <em>surtout</em> par surestimer  la capacité de ce modèle de calcul
+à prendre en charge des traitements complexes.</p>
+<p>Cette limitation est compensée
+par la parallélisation et la tolérance aux pannes.
+Pour ces derniers aspects,
+il est important que chaque document soit traité <em>indépendamment</em> du contexte. Concrètement,
+l’application de <span class="math notranslate nohighlight">\(F_{map}\)</span> à un document <em>d</em> doit donner un résultat qui
+ne dépend ni de la position de <em>d</em> dans la collection, ni de ce qui s’est passé
+avant ou après dans la chaîne de traitement, ni de la machine ou du système, etc.
+En pratique, cela signifie que
+la fonction <span class="math notranslate nohighlight">\(F_{map}\)</span> ne conserve pas un <em>état</em> qui pourrait varier et influer
+sur le résultat produit quand elle est appliquée à <em>d</em>.</p>
+<p>Si cette propriété n’était
+pas respectée, on ne pourrait pas paralléliser et conserver un résultat invariant.
+Si <span class="math notranslate nohighlight">\(F_{map}\)</span> dépendait par exemple du système d’exploitation, de l’heure,
+ou de n’importe quelle variable extérieure au document traité (un <em>état</em>),
+l’exécution en parallèle aboutirait à des résultats non déterministes.</p>
+</section>
+<section id="concevoir-un-traitement-mapreduce">
+<h3>Concevoir un traitement MapReduce<a class="headerlink" href="#concevoir-un-traitement-mapreduce" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Quelques conseils pour finir sur la conception d’un traitement MapReduce. En un mot:
+c’est très simple, à condition de se poser les bonnes questions et de faire preuve
+d’un minimum de rigueur.</p>
+<section id="les-questions-a-se-poser">
+<h4>Les questions à se poser<a class="headerlink" href="#les-questions-a-se-poser" title="Lien permanent vers ce titre">¶</a></h4>
+<p>Questions pour la phase de Map:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Il faut être clair sur la nature des documents que l’on traite en entrée. D’où viennent-ils,
+quelle est leur structure? Un traitement MapReduce s’applique à un flux de documents, on
+ne peut rien faire si on ne sait pas en quoi ils consistent.</p></li>
+<li><p>Quels sont les groupes que je veux constituer? Combien y en a-t-il? Comment les
+identifier (valeur de clé identifiant un groupe, l’étiquette)? Comment déterminer
+le ou les étiquettes d’un ou de plusieurs groupes dans un document en entrée?</p></li>
+<li><p>Quelles sont les valeurs intermédiaires que je veux produire à partir d’un document et
+placer dans des groupes? Comment les produire à partir d’un document?</p></li>
+</ul>
+</div></blockquote>
+<p>Ces questions sont nécessaires (et pratiquement suffisantes) pour savoir ce que doit faire
+la fonction de Map. Pour la fonction de Reduce, c’est encore plus simple:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Quelle est la nature de l’agrégation qui va prendre un groupe et produire une valeur finale?</p></li>
+</ul>
+</div></blockquote>
+<p>Et c’est tout, il reste à traduire en termes de programmation.</p>
+</section>
+<section id="un-peu-de-rigueur">
+<h4>Un peu de rigueur<a class="headerlink" href="#un-peu-de-rigueur" title="Lien permanent vers ce titre">¶</a></h4>
+<p>Un traitement MapReduce se spécifie sous la forme de deux fonctions</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>La fonction de Map prend <em>toujours</em> en entrée <em>un</em> (un seul) document;
+elle produit <em>toujours</em> des paires <em>(k, v)</em> où <em>k</em> est l’étiquette (la clé) du groupe
+et <em>v</em> la valeur intermédiaire.</p></li>
+<li><p>La fonction de Reduce prend <em>toujours</em> en entrée une paire <em>(k, list(v))</em>,
+où <em>k</em> est l’étiquette (la clé) du groupe
+et <em>list(v)</em> la liste des valeurs du groupe.</p></li>
+</ul>
+</div></blockquote>
+<p>Spécifier un traitement, c’est donc <em>toujours</em> définir deux fonctions avec les caractéristiques
+ci-dessus. Le corps de chaque fonction doit indiquer, respectivement:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>comment on produit des paires <em>(k, v)</em> à partir d’un document (fonction de Map, transformation);</p></li>
+<li><p>comment on on produit une valeur agrégée <em>V</em> à partir d’une paire <em>(k, list(v))</em>.</p></li>
+</ul>
+</div></blockquote>
+<p>Pratiques, réflechissez, vérifiez que vous avez bien compris!</p>
+</section>
+</section>
+<section id="quiz">
+<h3>Quiz<a class="headerlink" href="#quiz" title="Lien permanent vers ce titre">¶</a></h3>
+<div class="reauthoring_embedded_quiz" id="mapreduceA-1"><form class="reauthoring_embedded_quiz_questions"><p>Quelle est l’affirmation <em>fausse</em> parmi celles ci-dessous</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img>  Pour un item en entrée, l’atelier de transformation produit exactement un item en sortie</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  Pour un item en entrée, l’atelier de transformation peut ne produire aucun  item en sortie</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Pour un item en entrée, l’atelier de transformation peut produire plusieurs items en sortie</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="mapreduceA-2"><form class="reauthoring_embedded_quiz_questions"><p>Quelle est l’affirmation <em>correcte</em> parmi celles ci-dessous</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  L’atelier de transformation produit toujours en sortie des items d’une nature (d’un type) différente de ceux en entrée</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  L’atelier de transformation produit en sortie des items de même nature que ceux en entrée</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> La nature (le type) des items en sortie est indépendant de celle des items en entrée</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="mapreduceA-3"><form class="reauthoring_embedded_quiz_questions"><p>Quand commence l’atelier d’assemblage ?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  Quand l’atelier de transformation a produit assez d’items pour que ça en vaille la peine</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img>  Quand l’atelier de transformation a terminé</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> L’assemblage est effectué en continu</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="mapreduceA-4"><form class="reauthoring_embedded_quiz_questions"><p>Quelle propriété permet de paralléliser la production ?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img>  Aucune coordination n’est nécessaire: il suffit d’ajouter des ateliers, toujours
+identiques, en fonction des besoins</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  Chaque atelier se sert dans une corbeille d’entrée commune: on est sûr que chaque item sera traité par l’un deux</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Tous les ateliers travaillent au même rythme: cela garantit que les
+transformations termineront en même temps</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="mapreduceA-5"><form class="reauthoring_embedded_quiz_questions"><p>Quelle propriété permet de garantir que le processus va toujours finir ?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  Si un atelier est fiable, tous le seront  puisqu’ils sont tous identiques</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img>  L’échec éventuel d’un atelier n’affecte pas les autres: il suffit de recommencer la tâche locale</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Chaque item en entrée est traité par plusieurs ateliers: on a la garantie presque totale que l’un deux va réussir
+la transformation</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="mapreduceA-6"><form class="reauthoring_embedded_quiz_questions"><p>Quelle extension au processus de base permet d’effectuer des regroupements ?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  Les items produits par la transformation sont placés dans des conteneurs de taille fixe: chaque
+conteneur correspond à un groupe</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  L’atelier d’assemblage analyse les items reçus et les répartit en groupe en fonction de leurs caractéristiques</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Les items produits par la transformation sont étiquetés: chaque étiquette correspond à un groupe</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Les items en entrée sont répartis sur les ateliers de transformation en fonction de leur type: chaque atelier
+produit un groupe</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="mapreduceA-7"><form class="reauthoring_embedded_quiz_questions"><p>Quel est le rôle des ateliers d’assemblage dans le regroupement ?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  Chaque atelier peut recevoir n’importe quel groupe</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  Chaque atelier peut recevoir des items de n’importe quel groupe, et en renvoie certains 0 d’autres ateliers</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Chaque atelier ne reçoit que des items  d’un ou plusieurs groupes déterminés</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="mapreduceA-8"><form class="reauthoring_embedded_quiz_questions"><p>Qu’est-ce qu’une <em>valeur intermédiaire</em> ?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  Une valeur extraite d’un document en entrée</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img>  Une valeur produite par une fonction de Map</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Une valeur conservée en mémoire entre deux appels à la fonction de Map</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="mapreduceA-9"><form class="reauthoring_embedded_quiz_questions"><p>Qu’est-ce qu’une <em>paire intermédiaire</em> ?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img>  Une valeur intermédiaire et son étiquette (sa clé)</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  Une paire de valeurs intermédiaires</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Une paire constituée d’un item en entrée et de sa valeur transformée</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="mapreduceA-10"><form class="reauthoring_embedded_quiz_questions"><p>Comment caractériser la fonction de Map ?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  Elle prend en entrée un ensemble de documents et produit une paire clé-valeur</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img>  Elle prend en entrée un  document et produit des paires clé-valeur</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  Elle prend en entrée un  document et produit une valeur intermédiaire</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div></section>
+</section>
+<section id="s2-mapreduce-et-couchdb">
+<h2>S2: MapReduce et CouchDB<a class="headerlink" href="#s2-mapreduce-et-couchdb" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="admonition-supports-complementaires admonition">
+<p class="admonition-title">Supports complémentaires</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://mediaserver.lecnam.net/permalink/v125f35a3aec3j2k2g8x/">Vidéo présentant la programmation MapReduce avec CouchDB</a></p></li>
+</ul>
+</div>
+<p>CouchDB propose  un moteur d’exécution MapReduce, avec des fonctions javascript,
+mais dans un but un peu particulier: celui de créer des collections structurées
+dérivées par application d’un traitement MapReduce à une collection stockée. De
+telles collections sont appelées <em>vues</em> dans CouchDB. Leur contenu  est matérialisé
+et maintenu incrémentalement.</p>
+<p>Cette section introduit la notion de vue CouchDB, mais se concentre surtout sur la
+définition des fonctions de Map et de Reduce qui est rendue très facile grâce
+à l’interface graphique de CouchDB. Vous devriez avoir importé la collection des
+films dans CouchDB dans une base de données <em>movies</em>. C’est celle que nous utilisons,
+comme d’habitude, pour les exemples.</p>
+<section id="la-notion-de-vue-dans-couchdb">
+<h3>La notion de vue dans CouchDB<a class="headerlink" href="#la-notion-de-vue-dans-couchdb" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Comme dans beaucoup de systèmes NoSQL, une collection CouchDB
+n’a pas de schéma et les documents peuvent donc avoir n’importe
+quelle structure, ce qui ne va pas sans soulever des problèmes
+potentiels pour les applications. CouchDB répond à ce problème
+de deux manières: par des fonctions dites de validation, et par la
+possibilité de créer des <em>vues</em>.</p>
+<p>Une vue dans CouchDB est une collection dont les éléments ont
+la forme (clé, document). Ces éléments sont <em>calculés</em> par un
+traitement MapReduce, stockés (on parle donc de matérialisation,
+contrairement à ce qui se fait en relationnel), et maintenus
+en phase avec la collection de départ. Les vues permettent de
+structurer et d’organiser un contenu.</p>
+<p>La définition d’une vue est stockée dans CouchDB sous la forme
+de documents JSON dits « documents de conception » (<em>design documents</em>).
+Pour tester une nouvelle définition, on peut aussi créer des vues
+temporaires: c’est ce qui nous intéresse directement, car nous allons
+pouvoir tester le MapReduce de CouchDB grâce à l’interface de définition
+de ces vues temporaires</p>
+<p>Accédez à l’interface d’administration de CouchDB à l’URL <code class="docutils literal notranslate"><span class="pre">_utils</span></code>,
+puis choisissez la base des films (que vous devez avoir chargé
+en expérimentant Docker). Vous devriez avoir l’affichage de la
+<a class="reference internal" href="#couch-films"><span class="std std-numref">Fig. 46</span></a>.</p>
+<figure class="align-center" id="id9">
+<span id="couch-films"></span><a class="reference internal image-reference" href="_images/couch-films.png"><img alt="_images/couch-films.png" src="_images/couch-films.png" style="width: 80%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 46 </span><span class="caption-text">La collections <em>films</em> vues par l’interface de CouchDB</span><a class="headerlink" href="#id9" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>Dans le menu de gauche, choissisez l’option « New view » dans le menu « Design documents ». Dans
+le menu déroulant « Reduce », choisissez l’option « Custom » pour indiquer
+que vous souhaitez définir votre propre fonction de Reduce.</p>
+<p>On obtient un formulaire avec deux fenêtres pour, respectivement, les fonctions
+de Map et de Reduce (<a class="reference internal" href="#couch-view"><span class="std std-numref">Fig. 47</span></a>).</p>
+<figure class="align-center" id="id10">
+<span id="couch-view"></span><a class="reference internal image-reference" href="_images/couch-view.png"><img alt="_images/couch-view.png" src="_images/couch-view.png" style="width: 80%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 47 </span><span class="caption-text">Définition des vues temporaires.</span><a class="headerlink" href="#id10" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>Avant de passer aux fonctions MapReduce, donnez un nom à votre vue
+dans le champ en haut à droite.</p>
+</section>
+<section id="les-fonctions-map-et-reduce">
+<h3>Les fonctions Map et Reduce<a class="headerlink" href="#les-fonctions-map-et-reduce" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Avec CouchDB, la fonction de Map est obligatoire, contrairement à la fonction de Reduce.
+La fonction Map par défaut ne fait rien d’autre qu’émettre les documents de la base,
+avec une clé <code class="docutils literal notranslate"><span class="pre">null</span></code>.</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">function</span><span class="p">(</span><span class="nx">doc</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">emit</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="nx">doc</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Toute fonction de Map prend un document en entrée, et appelle la fonction
+<code class="docutils literal notranslate"><span class="pre">emit</span></code> pour produire des clés intermédiaires.
+Produisons une première fonction de Map qui produit une vue dont
+la clé est le titre du document, et la valeur le metteur en scène.</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">function</span><span class="p">(</span><span class="nx">doc</span><span class="p">)</span>
+<span class="p">{</span>
+   <span class="nx">emit</span><span class="p">(</span><span class="nx">doc</span><span class="p">.</span><span class="nx">title</span><span class="p">,</span> <span class="nx">doc</span><span class="p">.</span><span class="nx">director</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>À vous de tester. Vous devriez (en actionnant le bouton « Create and build index ») obtenir l’affichage
+de la <a class="reference internal" href="#couch-runview"><span class="std std-numref">Fig. 48</span></a>.</p>
+<figure class="align-center" id="id11">
+<span id="couch-runview"></span><a class="reference internal image-reference" href="_images/couch-reduce.png"><img alt="_images/couch-reduce.png" src="_images/couch-reduce.png" style="width: 80%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 48 </span><span class="caption-text">Définition et test d’une vue</span><a class="headerlink" href="#id11" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Pour être sûr d’activer la fonction de Reduce, cochez la case
+« Reduce » dans l’interface de CouchDB. Cette case se trouve dans la fenêtre des options
+(montrée sur la <a class="reference internal" href="#couch-runview"><span class="std std-numref">Fig. 48</span></a>).</p>
+</div>
+<p>Un deuxième exemple: la vue produit la liste des acteurs (c’est la clé),
+chacun associé au film dans lequel il joue (c’est la valeur). C’est un cas
+où la fonction de Map émet plusieurs paires intermédiaires.</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span> <span class="kd">function</span><span class="p">(</span><span class="nx">doc</span><span class="p">)</span>
+ <span class="p">{</span>
+   <span class="k">for</span>  <span class="p">(</span><span class="nx">i</span> <span class="o">=</span> <span class="mf">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">doc</span><span class="p">.</span><span class="nx">actors</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">emit</span><span class="p">({</span><span class="s2">&quot;prénom&quot;</span><span class="o">:</span> <span class="nx">doc</span><span class="p">.</span><span class="nx">actors</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">first_name</span><span class="p">,</span> <span class="s2">&quot;nom&quot;</span><span class="o">:</span> <span class="nx">doc</span><span class="p">.</span><span class="nx">actors</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">last_name</span><span class="p">},</span> <span class="nx">doc</span><span class="p">.</span><span class="nx">title</span><span class="p">)</span> <span class="p">;</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>On peut remarquer que la clé peut être un document composite. À vous de tester
+cette nouvelle vue. Vous remarquerez sans doute que les documents de la vue sont
+<em>triés</em> sur la clé. C’est un effect indirect de l’organisation sous forme d’arbre-B,
+qui repose sur l’ordre des clés indexées. Pour MapReduce, le fait que les
+paires intermédiaires soient triées facilite les regroupements sur la clé
+puisque les documents à regrouper sont consécutifs dans la liste.</p>
+<p>Vérifiez: cherchez dans la liste des documents de la vue Bruce Willis par exemple
+(ou Adam Driver qui est plus près de la première page).
+Vous remarquerez qu’il apparaît pour chaque film dans lequel il joue un rôle,
+et que toutes ces occurrences sont en séquence dans la liste. Pour effectuer
+ce regroupement, on applique une fonction de Reduce. La voici:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">function</span> <span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">values</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">values</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>À vous de continuer en expérimentant l’interface et en étudiant le résultat intermédiaire
+(sans appliquer de fonction Reduce) puis le résultat final.</p>
+</section>
+<section id="mise-en-pratique">
+<h3>Mise en pratique<a class="headerlink" href="#mise-en-pratique" title="Lien permanent vers ce titre">¶</a></h3>
+<div class="admonition-exercice-mep-s2-1-quelques-programmes-mapreduce-a-produire admonition" id="mep-s2-1">
+<p class="admonition-title">Exercice <a class="reference internal" href="#mep-s2-1">MEP-S2-1</a>: quelques programmes MapReduce à produire</p>
+<p>Outre les commandes de découverte de CouchDB décrites précédemment, voici quelques programmes à produire</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Donnez, pour chaque année, le nombre de films parus cette année-là. Puis donnez
+pour chaque année la liste des titres de ces films.</p></li>
+<li><p>Donnez, pour chaque metteur en scène, la liste des films qu’il a réalisés.</p></li>
+</ul>
+</div></blockquote>
+</div>
+</section>
+</section>
+<section id="s3-specification-de-traitements-distribues-avec-pig">
+<h2>S3: Spécification de traitements distribués avec Pig<a class="headerlink" href="#s3-specification-de-traitements-distribues-avec-pig" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="admonition-supports-complementaires admonition">
+<p class="admonition-title">Supports complémentaires</p>
+<ul class="simple">
+<li><p><a class="reference external" href="http://b3d.bdpedia.fr/files/slpig.pdf">Diapositives: Le langage Pig latin</a></p></li>
+<li><p><a class="reference external" href="https://mediaserver.lecnam.net/permalink/v125f35a4214383v9nvp/">Vidéo de la session Pig latin</a></p></li>
+</ul>
+</div>
+<p>MapReduce est  un système initialement orienté vers les développeurs qui doivent concevoir et
+implanter la composition de plusieurs <em>jobs</em> pour des algorithmes
+complexes qui ne peuvent s’exécuter en une seule phase. Cette caractéristique
+rend les systèmes MapReduce difficilement accessibles
+à des non-programmeurs. De plus, disposer seulement de deux opérateurs
+assez rudimentaires n’est pas très satisfaisant pour des traitements complexes.</p>
+<p>Très tôt après l’apparition des premières versions de systèmes MapReduce
+comme Hadoop sont apparus des propositions visant
+d’une part à définir  des langages de plus haut niveau permettant de spécifier
+des opérations complexes sur les données en limitant la programmation,
+et d’autre d’étendre la collection des opérateurs disponibles.
+L’initiative est souvent
+venue de communautés familières des bases de données et désirant retrouver
+la simplicité et la « déclarativité » du langage SQL, transposées dans
+le domaine des chaînes de traitements pour données massives.</p>
+<p>Avant d’étudier un système complet avec Spark,
+nous commençons ici avec le langage Pig latin, une des premières tentatives
+du genre, une des plus simples, et surtout l’une des plus représentatives
+des opérateurs de manipulation de données qu’il est possible d’exécuter
+sous forme de chaînes de traitement conservant la scalabilité et la
+gestion des pannes.</p>
+<p>Pig latin (initialement développé par un laboratoire Yahoo!) est
+un projet Apache disponible à <a class="reference external" href="http://pig.apache.org">http://pig.apache.org</a>. Il n’évolue
+plus depuis longtemps mais la version finale est suffisante
+pour tester l’effet des opérateurs. Vous avez (au moins) deux possibilités
+pour l’installation.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Utilisez la machine Docker <a class="reference external" href="https://hub.docker.com/r/hakanserce/apache-pig/">https://hub.docker.com/r/hakanserce/apache-pig/</a></p></li>
+<li><p>Ou récupérez la dernière version sous la forme d’une archive compressée et
+décompressez-la quelque part, dans un répertoire que nous appellerons <code class="docutils literal notranslate"><span class="pre">pigdir</span></code>.</p></li>
+</ul>
+</div></blockquote>
+<p>Nous utiliserons directement l’interpréteur de scripts (nommé <code class="docutils literal notranslate"><span class="pre">grunt</span></code>) qui se lance avec:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>&lt;pigdir&gt;/bin/pig -x <span class="nb">local</span>
+</pre></div>
+</div>
+<p>L’option <code class="docutils literal notranslate"><span class="pre">local</span></code> indique que l’on teste les scripts en local, ce qui permet
+de les mettre au point sur de petits jeux de données avant de passer à une exécution distribuée à grande échelle
+dans un <em>framework</em> MapReduce.</p>
+<p>Cet interpréteur affiche beaucoup de messages, ce qui devient rapidement désagréable. Pour s’en débarasser,
+créer un fichier <code class="docutils literal notranslate"><span class="pre">nolog.conf</span></code> avec la ligne:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">log4j</span><span class="o">.</span><span class="n">rootLogger</span><span class="o">=</span><span class="n">fatal</span>
+</pre></div>
+</div>
+<p>Et lancez Pig en indiquant que la configuration des <em>log</em> est dans ce fichier:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>&lt;pigdir&gt;/bin/pig -x <span class="nb">local</span> -4 nolog.conf
+</pre></div>
+</div>
+<section id="une-session-illustrative">
+<h3>Une session illustrative<a class="headerlink" href="#une-session-illustrative" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Pig applique des <em>opérateurs</em> à des <em>flots de données semi-structurées</em>. Le flot
+initial (en entrée) est constituée par lecture d’une source de données
+quelconque contenant des documents qu’il faut structurer selon le modèle
+de Pig, à peu de choses près comparable à ce que proposent XML ou JSON.</p>
+<p>Dans un contexte réel, il faut implanter un chargeur de données depuis
+la source. Nous allons nous contenter de prendre un des formats par
+défaut, soit un fichier texte dont chaque ligne représente un document, et
+dont les champs sont séparés par des tabulations. Nos documents
+sont des entrées bibliographiques d’articles scientifiques
+que vous pouvez récupérer à <a class="reference external" href="http://b3d.bdpedia.fr/files/journal-small.txt">http://b3d.bdpedia.fr/files/journal-small.txt</a>.
+En voici un échantillon.</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="mf">2005</span>    <span class="nx">VLDB</span> <span class="nx">J</span><span class="p">.</span> <span class="nx">Model</span><span class="o">-</span><span class="nx">based</span> <span class="nx">approximate</span> <span class="nx">querying</span> <span class="k">in</span> <span class="nx">sensor</span> <span class="nx">networks</span><span class="p">.</span>
+<span class="mf">1997</span>    <span class="nx">VLDB</span> <span class="nx">J</span><span class="p">.</span> <span class="nx">Dictionary</span><span class="o">-</span><span class="nx">Based</span> <span class="nx">Order</span><span class="o">-</span><span class="nx">Preserving</span> <span class="nb">String</span> <span class="nx">Compression</span><span class="p">.</span>
+<span class="mf">2003</span>        <span class="nx">SIGMOD</span> <span class="nx">Record</span>   <span class="nx">Time</span> <span class="nx">management</span> <span class="k">for</span> <span class="k">new</span> <span class="nx">faculty</span><span class="p">.</span>
+<span class="mf">2001</span>    <span class="nx">VLDB</span> <span class="nx">J</span><span class="p">.</span> <span class="nx">E</span><span class="o">-</span><span class="nx">Services</span> <span class="o">-</span> <span class="nx">Guest</span> <span class="nx">editorial</span><span class="p">.</span>
+<span class="mf">2003</span>        <span class="nx">SIGMOD</span> <span class="nx">Record</span>   <span class="nx">Exposing</span> <span class="nx">undergraduate</span> <span class="nx">students</span> <span class="nx">to</span> <span class="nx">system</span> <span class="nx">internals</span><span class="p">.</span>
+<span class="mf">1998</span>    <span class="nx">VLDB</span> <span class="nx">J</span><span class="p">.</span> <span class="nx">Integrating</span> <span class="nx">Reliable</span> <span class="nx">Memory</span> <span class="k">in</span> <span class="nx">Databases</span><span class="p">.</span>
+<span class="mf">1996</span>    <span class="nx">VLDB</span> <span class="nx">J</span><span class="p">.</span> <span class="nx">Query</span> <span class="nx">Processing</span> <span class="nx">and</span> <span class="nx">Optimization</span> <span class="k">in</span> <span class="nx">Oracle</span> <span class="nx">Rdb</span>
+<span class="mf">1996</span>    <span class="nx">VLDB</span> <span class="nx">J</span><span class="p">.</span> <span class="nx">A</span> <span class="nx">Complete</span> <span class="nx">Temporal</span> <span class="nx">Relational</span> <span class="nx">Algebra</span><span class="p">.</span>
+<span class="mf">1994</span>        <span class="nx">SIGMOD</span> <span class="nx">Record</span>   <span class="nx">Data</span> <span class="nx">Modelling</span> <span class="k">in</span> <span class="nx">the</span> <span class="nx">Large</span><span class="p">.</span>
+<span class="mf">2002</span>        <span class="nx">SIGMOD</span> <span class="nx">Record</span>   <span class="nx">Data</span> <span class="nx">Mining</span><span class="o">:</span> <span class="nx">Concepts</span> <span class="nx">and</span> <span class="nx">Techniques</span> <span class="o">-</span> <span class="nx">Book</span> <span class="nx">Review</span><span class="p">.</span>
+<span class="p">...</span>
+</pre></div>
+</div>
+<p>Voici à titre d’exemple introductif un programme Pig complet qui
+calcule le nombre moyen de publications par an dans la revue SIGMOD Record.</p>
+<div class="highlight-pig notranslate"><div class="highlight"><pre><span></span><span class="c">-- Chargement des documents de journal-small.txt</span>
+articles <span class="o">=</span> <span class="k">load</span> <span class="s">&#39;journal-small.txt&#39;</span>
+    <span class="k">as</span> <span class="p">(</span>year: <span class="kt">chararray</span><span class="o">,</span> journal:<span class="kt">chararray</span><span class="o">,</span> title: <span class="kt">chararray</span><span class="p">)</span> <span class="p">;</span>
+sr_articles <span class="o">=</span> <span class="k">filter</span> articles <span class="k">BY</span> journal==<span class="s">&#39;SIGMOD Record&#39;</span><span class="p">;</span>
+year_groups <span class="o">=</span> <span class="k">group</span> sr_articles <span class="k">by</span> year;
+count_by_year <span class="o">=</span> <span class="k">foreach</span> year_groups <span class="k">generate</span> <span class="k">group</span><span class="o">,</span> <span class="nb">COUNT</span><span class="p">(</span>sr_articles.title<span class="p">);</span>
+<span class="k">dump</span> count_by_year;
+</pre></div>
+</div>
+<p>Quand on l’exécute sur notre fichier-exemple, on obtient le résultat suivant:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="mi">1977</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">1981</span><span class="p">,</span><span class="mi">7</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">1982</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">1983</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">1986</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>Un programme Pig est essentiellement une séquence d’opérations, chacune prenant
+en entrée une collection de documents (les collections sont nommées <em>bag</em>
+dans Pig latin, et les documents sont nommés <em>tuple</em>) et produisant en sortie une autre collection. La séquence définit
+une chaîne de traitements transformant progressivement les documents.</p>
+<figure class="align-center" id="id12">
+<span id="pig-workflow"></span><a class="reference internal image-reference" href="_images/pig-workflow.png"><img alt="_images/pig-workflow.png" src="_images/pig-workflow.png" style="width: 80%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 49 </span><span class="caption-text">Un exemple de  <em>workflow</em> (chaîne de traitements) avec Pig</span><a class="headerlink" href="#id12" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>Il est intéressant de décomposer, étape par étape, cette chaîne de traitement pour inspecter
+les collections intermédiaires produites par chaque opérateur.</p>
+<p><strong>Chargement</strong>. L’opérateur <code class="docutils literal notranslate"><span class="pre">load</span></code> crée une collection initiale
+<code class="docutils literal notranslate"><span class="pre">articles</span></code> par chargement du fichier.  On indique le <em>schéma</em>
+de cette collection pour interpréter le contenu de chaque ligne.
+Les deux commandes suivantes permettent d’inspecter respectivement le
+schéma d’une collection et un échantillon de son contenu.</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">grunt</span><span class="o">&gt;</span> <span class="nx">describe</span> <span class="nx">articles</span><span class="p">;</span>
+<span class="nx">articles</span><span class="o">:</span> <span class="p">{</span><span class="nx">year</span><span class="o">:</span> <span class="nx">chararray</span><span class="p">,</span><span class="nx">journal</span><span class="o">:</span> <span class="nx">chararray</span><span class="p">,</span><span class="nx">title</span><span class="o">:</span> <span class="nx">chararray</span><span class="p">}</span>
+
+<span class="nx">grunt</span><span class="o">&gt;</span> <span class="nx">illustrate</span> <span class="nx">articles</span><span class="p">;</span>
+<span class="o">---------------------------------------------------------------------------</span>
+<span class="o">|</span> <span class="nx">articles</span> <span class="o">|</span> <span class="nx">year</span><span class="o">:</span> <span class="nx">chararray</span> <span class="o">|</span> <span class="nx">journal</span><span class="o">:</span> <span class="nx">chararray</span> <span class="o">|</span> <span class="nx">title</span><span class="o">:</span> <span class="nx">chararray</span>      <span class="o">|</span>
+<span class="o">---------------------------------------------------------------------------</span>
+<span class="o">|</span>          <span class="o">|</span> <span class="mf">2003</span>            <span class="o">|</span> <span class="nx">SIGMOD</span> <span class="nx">Record</span>      <span class="o">|</span> <span class="nx">Call</span> <span class="k">for</span> <span class="nx">Book</span> <span class="nx">Reviews</span><span class="p">.</span><span class="o">|</span>
+<span class="o">---------------------------------------------------------------------------</span>
+</pre></div>
+</div>
+<p>Pour l’instant, nous sommes dans un contexte simple où une collection
+peut être vue comme une table relationnelle. Chaque ligne/document
+ne contient que des données élémentaires.</p>
+<p><strong>Filtrage</strong>.
+L’opération de filtrage avec <code class="docutils literal notranslate"><span class="pre">filter</span></code> opère comme une clause <code class="docutils literal notranslate"><span class="pre">where</span></code> en SQL. On peut exprimer
+avec Pig des combinaisons Booléennes de critères sur les attributs des documents. Dans
+notre exemple le critère porte sur le titre du journal.</p>
+<p><strong>Regroupement</strong>. On regroupe maintenant les tuples/documents par année
+avec la commande <code class="docutils literal notranslate"><span class="pre">group</span> <span class="pre">by</span></code>. À chaque année on associe donc
+l’ensemble des articles parus cette année-là, sous la forme d’un
+ensemble imbriqué.  Examinons la représentation de Pig:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">grunt</span><span class="o">&gt;</span> <span class="nx">year_groups</span> <span class="o">=</span> <span class="nx">GROUP</span> <span class="nx">sr_articles</span> <span class="nx">BY</span> <span class="nx">year</span><span class="p">;</span>
+
+<span class="nx">grunt</span><span class="o">&gt;</span> <span class="nx">describe</span> <span class="nx">year_groups</span><span class="p">;</span>
+  <span class="nx">year_groups</span><span class="o">:</span> <span class="p">{</span><span class="nx">group</span><span class="o">:</span> <span class="nx">chararray</span><span class="p">,</span>
+    <span class="nx">sr_articles</span><span class="o">:</span> <span class="p">{</span><span class="nx">year</span><span class="o">:</span> <span class="nx">chararray</span><span class="p">,</span><span class="nx">journal</span><span class="o">:</span> <span class="nx">chararray</span><span class="p">,</span><span class="nx">title</span><span class="o">:</span><span class="nx">chararray</span><span class="p">}}</span>
+
+<span class="nx">grunt</span><span class="o">&gt;</span> <span class="nx">illustrate</span> <span class="nx">year_groups</span><span class="p">;</span>
+ <span class="nx">group</span><span class="o">:</span> <span class="mf">1990</span>
+ <span class="nx">sr_articles</span><span class="o">:</span>
+  <span class="p">{</span>
+   <span class="p">(</span><span class="mf">1990</span><span class="p">,</span> <span class="nx">SIGMOD</span> <span class="nx">Record</span><span class="p">,</span> <span class="nx">An</span> <span class="nx">SQL</span><span class="o">-</span><span class="nx">Based</span> <span class="nx">Query</span> <span class="nx">Language</span> <span class="nx">For</span> <span class="nx">Networks</span> <span class="k">of</span> <span class="nx">Relations</span><span class="p">.),</span>
+   <span class="p">(</span><span class="mf">1990</span><span class="p">,</span> <span class="nx">SIGMOD</span> <span class="nx">Record</span><span class="p">,</span> <span class="nx">New</span> <span class="nx">Hope</span> <span class="nx">on</span> <span class="nx">Data</span> <span class="nx">Models</span> <span class="nx">and</span> <span class="nx">Types</span><span class="p">.)</span>
+  <span class="p">}</span>
+</pre></div>
+</div>
+<p>Le schéma de la collection <code class="docutils literal notranslate"><span class="pre">year_group</span></code>, obtenu avec <code class="docutils literal notranslate"><span class="pre">describe</span></code>,  comprend donc un attribut nommé <code class="docutils literal notranslate"><span class="pre">group</span></code>
+correspondant à la valeur de la clé de regroupement (ici, l’année) et une collection
+imbriquée nommée d’après la collection-source du regroupement (ici, <code class="docutils literal notranslate"><span class="pre">sr_articles</span></code>)
+et contenant tous les documents partageant la même valeur pour la clé de regroupement.</p>
+<p>L’extrait de la collection obtenu avec <code class="docutils literal notranslate"><span class="pre">illustrate</span></code> montre le cas de l’année 1990.</p>
+<p>À la syntaxe près, nous sommes dans le domaine familier des documents semi-structurés.
+Si on compare avec JSON par exemple, les objets sont notés par des parenthèses et
+pas par des accolades, et les ensembles par des accolades et pas par des crochets.
+Une différence plus essentielle avec une approche semi-structurée de type JSON ou XML
+est que le schéma est <em>distinct</em> de la représentation des
+documents: à partir d’une collection dont le schéma est connu, l’interpréteur de Pig
+infère le schéma des collections calculées par les opérateurs. Il n’est donc pas nécessaire
+d’inclure le schéma avec le contenu de chaque document.</p>
+<p>Le modèle de données de Pig comprend trois types de valeurs:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Les <em>valeurs atomiques</em> (chaînes de caractères, entiers, etc.).</p></li>
+<li><p>Les <em>collections</em> (<em>bags</em> pour Pig) dont les valeurs peuvent être hétérogènes.</p></li>
+<li><p>Les  <em>documents</em> (<em>tuples</em> pour Pig), équivalent des objets en JSON: des ensembles de paires (clé, valeur).</p></li>
+</ul>
+</div></blockquote>
+<p>On peut construire des structures arbitrairement complexes par imbrication de ces différents types.
+Comme dans tout modèle semi-structuré, il existe très peu de contraintes
+sur le contenu et la structure. Dans une même collection peuvent ainsi
+cohabiter des documents de structure très différente.</p>
+<p><strong>Application de fonctions</strong>. Souvenez-vous
+de la notion <em>d’opérateur de second ordre</em>: ils
+prennent en argument des fonctions à appliquer
+à une collection. Ces fonctions servent à annoter, restructurer ou enrichir le
+contenu des documents passant
+dans le flux. Ici, la collection finale <code class="docutils literal notranslate"><span class="pre">avg_nb</span></code> est obtenue en appliquant une fonction standard <code class="docutils literal notranslate"><span class="pre">count()</span></code>.
+Dans le cas général, on applique des fonctions applicatives intégrées au contexte d’exécution Pig:
+<em>ces fonctions utilisateurs</em> (User Defined Functions ou UDF)
+sont appliquées par les opérateurs de second ordre d’un langage comme Pig
+à de grandes collections, en mode distribué, et avec gestion
+des pannes.</p>
+</section>
+<section id="les-operateurs">
+<h3>Les opérateurs<a class="headerlink" href="#les-operateurs" title="Lien permanent vers ce titre">¶</a></h3>
+<p>La table ci-dessous donne la liste des principaux
+opérateurs du langage Pig. Tous s’appliquent à une ou deux collections
+en entrée et produisent une collection en sortie.</p>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 67%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Opérateur</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">foreach</span></code></p></td>
+<td><p>Applique une expression à chaque document de la collection</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">filter</span></code></p></td>
+<td><p>Filtre les documents de la collection</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">order</span></code></p></td>
+<td><p>Ordonne la collection</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">distinct</span></code></p></td>
+<td><p>Elimine lse doublons</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cogroup</span></code></p></td>
+<td><p>Associe deux groupes partageant une clé</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cross</span></code></p></td>
+<td><p>Produit cartésien de deux collections</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">join</span></code></p></td>
+<td><p>Jointure de deux collections</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">union</span></code></p></td>
+<td><p>Union de deux collections</p></td>
+</tr>
+</tbody>
+</table>
+<p>Voici quelques exemples pour illustrer les aspects essentiels du langage,
+basés sur le fichier <a class="reference external" href="http://b3d.bdpedia.fr/files/webdam-books.txt">http://b3d.bdpedia.fr/files/webdam-books.txt</a>. Chaque
+ligne contient l’année de parution d’un livre, le titre et un auteur.</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="mf">1995</span>        <span class="nx">Foundations</span> <span class="k">of</span> <span class="nx">Databases</span> <span class="nx">Abiteboul</span>
+<span class="mf">1995</span>        <span class="nx">Foundations</span> <span class="k">of</span> <span class="nx">Databases</span> <span class="nx">Hull</span>
+<span class="mf">1995</span>        <span class="nx">Foundations</span> <span class="k">of</span> <span class="nx">Databases</span> <span class="nx">Vianu</span>
+<span class="mf">2012</span>        <span class="nx">Web</span> <span class="nx">Data</span> <span class="nx">Management</span> <span class="nx">Abiteboul</span>
+<span class="mf">2012</span>    <span class="nx">Web</span> <span class="nx">Data</span> <span class="nx">Management</span> <span class="nx">Manolescu</span>
+<span class="mf">2012</span>        <span class="nx">Web</span> <span class="nx">Data</span> <span class="nx">Management</span> <span class="nx">Rigaux</span>
+<span class="mf">2012</span>        <span class="nx">Web</span> <span class="nx">Data</span> <span class="nx">Management</span> <span class="nx">Rousset</span>
+<span class="mf">2012</span>        <span class="nx">Web</span> <span class="nx">Data</span> <span class="nx">Management</span> <span class="nx">Senellart</span>
+</pre></div>
+</div>
+<p>Le premier exemple ci-dessous montre une combinaison de <code class="docutils literal notranslate"><span class="pre">group</span></code>
+et de <code class="docutils literal notranslate"><span class="pre">foreach</span></code> permettant d’obtenir une collection avec un document
+par livre et un ensemble imbriqué contenant la liste des auteurs.</p>
+<div class="highlight-pig notranslate"><div class="highlight"><pre><span></span><span class="c">-- Chargement de la collection</span>
+books <span class="o">=</span> <span class="k">load</span> <span class="s">&#39;webdam-books.txt&#39;</span>
+    <span class="k">as</span> <span class="p">(</span>year: <span class="kt">int</span><span class="o">,</span> title: <span class="kt">chararray</span><span class="o">,</span> author: <span class="kt">chararray</span><span class="p">)</span> <span class="p">;</span>
+group_auth <span class="o">=</span> <span class="k">group</span> books <span class="k">by</span> title;
+authors <span class="o">=</span> <span class="k">foreach</span> group_auth <span class="k">generate</span> <span class="k">group</span><span class="o">,</span> books.author;
+<span class="k">dump</span> authors;
+</pre></div>
+</div>
+<p>L’opérateur <code class="docutils literal notranslate"><span class="pre">foreach</span></code>  applique une expression aux attributs de chaque
+document. Encore une fois, <em>Pig est conçu pour que ces expressions puissent contenir
+des fonctions externes</em>, ou UDF (<em>User Defined Functions</em>), ce qui permet d’appliquer n’importe quel type
+d’extraction ou d’annotation.</p>
+<p>L’ensemble résultat est le suivant:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="nx">Foundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span>
+   <span class="p">{(</span><span class="nx">Abiteboul</span><span class="p">),(</span><span class="nx">Hull</span><span class="p">),(</span><span class="nx">Vianu</span><span class="p">)})</span>
+<span class="p">(</span><span class="nx">Web</span> <span class="nx">Data</span> <span class="nx">Management</span><span class="p">,</span>
+   <span class="p">{(</span><span class="nx">Abiteboul</span><span class="p">),(</span><span class="nx">Manolescu</span><span class="p">),(</span><span class="nx">Rigaux</span><span class="p">),(</span><span class="nx">Rousset</span><span class="p">),(</span><span class="nx">Senellart</span><span class="p">)})</span>
+</pre></div>
+</div>
+<p>L’opérateur <code class="docutils literal notranslate"><span class="pre">flatten</span></code> sert à « aplatir » un ensemble imbriqué.</p>
+<div class="highlight-pig notranslate"><div class="highlight"><pre><span></span><span class="c">-- On prend la collection group_auth et on l&#39;aplatit</span>
+flattened <span class="o">=</span> <span class="k">foreach</span> group_auth <span class="k">generate</span> <span class="k">group</span> <span class="o">,</span><span class="k">flatten</span><span class="p">(</span>books.author<span class="p">);</span>
+</pre></div>
+</div>
+<p>On obtient:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="nx">Foundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Abiteboul</span><span class="p">)</span>
+<span class="p">(</span><span class="nx">Foundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Hull</span><span class="p">)</span>
+<span class="p">(</span><span class="nx">Foundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Vianu</span><span class="p">)</span>
+<span class="p">(</span><span class="nx">Web</span> <span class="nx">Data</span> <span class="nx">Management</span><span class="p">,</span><span class="nx">Abiteboul</span><span class="p">)</span>
+<span class="p">(</span><span class="nx">Web</span> <span class="nx">Data</span> <span class="nx">Management</span><span class="p">,</span><span class="nx">Manolescu</span><span class="p">)</span>
+<span class="p">(</span><span class="nx">Web</span> <span class="nx">Data</span> <span class="nx">Management</span><span class="p">,</span><span class="nx">Rigaux</span><span class="p">)</span>
+<span class="p">(</span><span class="nx">Web</span> <span class="nx">Data</span> <span class="nx">Management</span><span class="p">,</span><span class="nx">Rousset</span><span class="p">)</span>
+<span class="p">(</span><span class="nx">Web</span> <span class="nx">Data</span> <span class="nx">Management</span><span class="p">,</span><span class="nx">Senellart</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>L’opérateur <code class="docutils literal notranslate"><span class="pre">cogroup</span></code> prend deux collections en entrée, crée pour chacune
+des groupes partageant une même valeur de clé, et associe les groupes
+des deux collections qui partagent la même clé. C’est un peu compliqué en apparence;
+regardons la  <a class="reference internal" href="#pig-cogroup"><span class="std std-numref">Fig. 50</span></a>. Nous avons une collection A avec
+des documents <em>d</em> dont la clé de regroupement vaut a ou b, et une collection
+B avec des documents <em>d”</em>. Le <code class="docutils literal notranslate"><span class="pre">cogroup</span></code> commence par rassembler,
+séparément dans A et B, les documents partageant la même valeur de clé.
+Puis, dans une seconde phase, les groupes de documents provenant des deux
+collections sont assemblés, toujours sur la valeur partagée de la clé.</p>
+<figure class="align-center" id="id13">
+<span id="pig-cogroup"></span><a class="reference internal image-reference" href="_images/pig-cogroup.png"><img alt="_images/pig-cogroup.png" src="_images/pig-cogroup.png" style="width: 100%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 50 </span><span class="caption-text">L’opérateur <code class="docutils literal notranslate"><span class="pre">cogroup</span></code> de Pig.</span><a class="headerlink" href="#id13" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>Prenons une seconde
+collection, contenant des éditeurs (fichier <a class="reference external" href="http://b3d.bdpedia.fr/files/webdam-publishers.txt">http://b3d.bdpedia.fr/files/webdam-publishers.txt</a>):</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">Fundations</span> <span class="k">of</span> <span class="nx">Databases</span>     <span class="nx">Addison</span><span class="o">-</span><span class="nx">Wesley</span>  <span class="nx">USA</span>
+<span class="nx">Fundations</span> <span class="k">of</span> <span class="nx">Databases</span>     <span class="nx">Vuibert</span> <span class="nx">France</span>
+<span class="nx">Web</span> <span class="nx">Data</span> <span class="nx">Management</span>         <span class="nx">Cambridge</span> <span class="nx">University</span> <span class="nx">Press</span>      <span class="nx">USA</span>
+</pre></div>
+</div>
+<p>On peut associer les auteurs et les éditeurs de chaque livre
+de la manière suivante.</p>
+<div class="highlight-pig notranslate"><div class="highlight"><pre><span></span><span class="c">--- Chargement de la collection</span>
+publishers <span class="o">=</span> <span class="k">load</span> <span class="s">&#39;webdam-publishers.txt&#39;</span>
+  <span class="k">as</span> <span class="p">(</span>title: <span class="kt">chararray</span><span class="o">,</span> publisher: <span class="kt">chararray</span><span class="p">)</span> <span class="p">;</span>
+cogrouped <span class="o">=</span> <span class="nb">cogroup</span> flattened <span class="k">by</span> <span class="k">group</span><span class="o">,</span> publishers <span class="k">by</span> title;
+</pre></div>
+</div>
+<p>Le résultat (restreint au premier livre) est le suivant.</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="nx">Foundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span>
+  <span class="p">{</span> <span class="p">(</span><span class="nx">Foundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Abiteboul</span><span class="p">),</span>
+    <span class="p">(</span><span class="nx">Foundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Hull</span><span class="p">),</span>
+    <span class="p">(</span><span class="nx">Foundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Vianu</span><span class="p">)</span>
+  <span class="p">},</span>
+  <span class="p">{(</span><span class="nx">Foundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Addison</span><span class="o">-</span><span class="nx">Wesley</span><span class="p">),</span>
+   <span class="p">(</span><span class="nx">Foundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Vuibert</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Je vous laisse exécuter la commande par vous-même pour prendre connaissance du document complet.
+Il contient un document pour chaque livre avec trois attributs.
+Le premier est la valeur de la clé de regroupement (le titre du livre). Le
+second est l’ensemble des documents de la première collection
+correspondant à la clé, le troisième l’ensemble des documents de la
+seconde collection correspondant à la clé.</p>
+<p>Il s’agit d’une forme de jointure qui regroupe, en un seul document, tous
+les documents des deux collections en entrée qui peuvent être appariés. On peut
+aussi exprimer la jointure ainsi:</p>
+<div class="highlight-pig notranslate"><div class="highlight"><pre><span></span><span class="c">-- Jointure entre la collection &#39;flattened&#39; et  &#39;publishers&#39;</span>
+joined <span class="o">=</span> <span class="k">join</span> flattened <span class="k">by</span> <span class="k">group</span><span class="o">,</span> publishers <span class="k">by</span> title;
+</pre></div>
+</div>
+<p>On obtient cependant une structure différente de celle du <code class="docutils literal notranslate"><span class="pre">cogroup</span></code>, tout
+à fait semblable à celle d’une jointure avec SQL, dans laquelle les informations
+ont été « aplaties ».</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="nx">Foundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Abiteboul</span><span class="p">,</span><span class="nx">Fundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Addison</span><span class="o">-</span><span class="nx">Wesley</span><span class="p">)</span>
+<span class="p">(</span><span class="nx">Foundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Abiteboul</span><span class="p">,</span><span class="nx">Fundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Vuibert</span><span class="p">)</span>
+<span class="p">(</span><span class="nx">Foundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Hull</span><span class="p">,</span><span class="nx">Fundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Addison</span><span class="o">-</span><span class="nx">Wesley</span><span class="p">)</span>
+<span class="p">(</span><span class="nx">Foundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Hull</span><span class="p">,</span><span class="nx">Fundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Vuibert</span><span class="p">)</span>
+<span class="p">(</span><span class="nx">Foundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Vianu</span><span class="p">,</span><span class="nx">Fundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Addison</span><span class="o">-</span><span class="nx">Wesley</span><span class="p">)</span>
+<span class="p">(</span><span class="nx">Foundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Vianu</span><span class="p">,</span><span class="nx">Fundations</span> <span class="k">of</span> <span class="nx">Databases</span><span class="p">,</span><span class="nx">Vuibert</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>La comparaison entre <code class="docutils literal notranslate"><span class="pre">cogroup</span></code> et <code class="docutils literal notranslate"><span class="pre">join</span></code> montre
+la flexibilité apportée par un modèle semi-structuré
+et sa capacité à représenter des ensembles imbriqués. Une jointure
+relationnelle doit produire des tuples « plats », sans imbrication, alors
+que le <code class="docutils literal notranslate"><span class="pre">cogroup</span></code> autorise la production d’un état intermédiaire
+où toutes les données liées sont associées dans un même document,
+ce qui peut être très utile dans un contexte analytique.</p>
+<p>Voici un dernier exemple montrant comment associer à chaque
+livre le nombre de ses auteurs.</p>
+<div class="highlight-pig notranslate"><div class="highlight"><pre><span></span>books <span class="o">=</span> <span class="k">load</span> <span class="s">&#39;webdam-books.txt&#39;</span>
+    <span class="k">as</span> <span class="p">(</span>year: <span class="kt">int</span><span class="o">,</span> title: <span class="kt">chararray</span><span class="o">,</span> author: <span class="kt">chararray</span><span class="p">)</span> <span class="p">;</span>
+group_auth <span class="o">=</span> <span class="k">group</span> books <span class="k">by</span> title;
+authors <span class="o">=</span> <span class="k">foreach</span> group_auth <span class="k">generate</span> <span class="k">group</span><span class="o">,</span> <span class="nb">COUNT</span><span class="p">(</span>books.author<span class="p">);</span>
+<span class="k">dump</span> authors;
+</pre></div>
+</div>
+</section>
+</section>
+<section id="exercices">
+<h2>Exercices<a class="headerlink" href="#exercices" title="Lien permanent vers ce titre">¶</a></h2>
+<p>Commençons par un exercice-type commenté.</p>
+<div class="admonition-exercice-ex-exo-type-exercice-type-mapreduce admonition" id="ex-exo-type">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-exo-type">Ex-Exo-type</a>: exercice-type MapReduce</p>
+<p><strong>Enoncé</strong>.</p>
+<p>L’énoncé est le suivant (il provient d’un examen des annales). Un système d’observation spatiale capte
+des signaux en provenance de planètes situées dans de lointaines galaxies.  Ces signaux sont stockés dans une
+collection <em>Signaux</em> de la forme  <em>(idPlanète, date, contenu)</em>.</p>
+<p><em>Le but est de déterminer si ces signaux peuvent être émis par une intelligence extra-terrestre</em>.
+Pour cela les scientifiques ont mis au point les fonctions suivantes:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p><em>Fonction de structure</em>: <span class="math notranslate nohighlight">\(f_S(c): Bool\)</span>, prend un contenu en entrée, et renvoie  <code class="docutils literal notranslate"><span class="pre">true</span></code>
+si le contenu présente une certaine structure, <code class="docutils literal notranslate"><span class="pre">false</span></code> sinon.</p></li>
+<li><p><em>Fonction de détecteur d’Aliens</em>: <span class="math notranslate nohighlight">\(f_D(&lt;c&gt;): real\)</span>, prend une liste de contenus
+<em>structurés</em> en entrée, et renvoie un indicateur entre 0 et 1 indiquant la probabilité que ces contenus
+soient écrits en  langage extra-terrrestre, et donc la <em>présence d’Aliens</em>!</p></li>
+</ol>
+</div></blockquote>
+<p>Bien entendu, il y a beaucoup de signaux: c’est du Big Data. Le but est de produire
+une spécification MapReduce
+qui  produit, pour chaque planète, l’indicateur de présence d’Aliens
+par analyse des contenus provenant de la planète.</p>
+<p><strong>Correction</strong>.</p>
+<p>D’abord il faut se mettre en tête la forme des documents de la collection. En JSON ça ressemblerait à ça:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;idPlanète&quot;</span> <span class="p">:</span> <span class="s2">&quot;Moebius 756&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;date&quot;</span><span class="p">:</span> <span class="s2">&quot;24/02/2067&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;contenu&quot;</span><span class="p">:</span> <span class="s2">&quot;Xioinpoi &lt;ubnnio 3980nklkn&quot;</span>
+  <span class="p">}</span>
+</pre></div>
+</div>
+<p>Nous savons que la fonction de Map reçoit un document de ce type, et doit émettre
+0, 1 ou plusieurs paires clé-valeur. <em>La première question à se poser c’est: quels sont
+les groupes que je dois constituer</em> et quelle est la clé (« l’étiquette ») qui
+caractérise ces groupes. Rappelons que MapReduce c’est avant tout un moyen
+de regrouper des données (ou des quartiers de pomme, ou  d’ananas, etc.).</p>
+<p>Ici on a un groupe par planète. La clé du groupe est évidemment l’identifiant
+de la planète. Le squelette de notre fonction de Map est donc:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">function</span> <span class="nx">fMap</span><span class="p">(</span><span class="nx">doc</span><span class="p">)</span> <span class="p">{</span>
+     <span class="nx">emit</span><span class="p">(</span><span class="nx">doc</span><span class="p">.</span><span class="nx">idPlanète</span><span class="p">,</span> <span class="nx">qqChose</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Ici c’est écrit en Javascript mais n’importe quel pseudo-code équivalent (ou du Java, ou du Scala, ou
+même du PHP…) fait l’affaire.</p>
+<p>Quelle est la valeur à émettre? Ici il faut penser que la fonction de Reduce recevra une liste
+de ces valeurs et devra produire une valeur agrégée. Dans notre énoncé la valeur agrégée est
+un indicateur de présence d’Aliens, et cet indicateur est produit sur une liste
+de contenus structurés.</p>
+<p>La fonction de Map doit donc émettre un contenu structuré. Comme tous ne le sont pas,
+on va appliquer la fonction <span class="math notranslate nohighlight">\(f_S(c): Bool\)</span> (si elle est citée dans l’énoncé, c’est qu’elle
+sert à quelque chose). Ce qui donne</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">function</span> <span class="nx">fMap</span><span class="p">(</span><span class="nx">doc</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">fS</span><span class="p">(</span><span class="nx">doc</span><span class="p">.</span><span class="nx">contenu</span><span class="p">)</span> <span class="o">==</span> <span class="nx">True</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">emit</span><span class="p">(</span><span class="nx">doc</span><span class="p">.</span><span class="nx">idPlanète</span><span class="p">,</span> <span class="nx">doc</span><span class="p">.</span><span class="nx">contenu</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Notez bien que la fonction ne peut et ne doit accéder qu’aux informations du document (sauf
+cas de variables globale qui serait précisée).</p>
+<p>Il ne reste plus qu’à écrire la fonction de Reduce. Elle reçoit <em>toujours</em>
+la clé d’un groupe et la liste des valeurs affectées à ce groupe. C’est l’occasion d’utiliser la seconde
+fonction de l’énoncé:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span>    <span class="kd">function</span> <span class="nx">fReduce</span><span class="p">(</span><span class="nx">idPlanète</span><span class="p">,</span> <span class="nx">contenusStruct</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="p">(</span><span class="nx">idPlanète</span><span class="p">,</span> <span class="nx">fD</span><span class="p">(</span><span class="nx">contenusStruct</span><span class="p">))</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>C’est tout (pour cette fois). L’exemple est assez trivial, mais les mêmes principes
+s’appliquent toujours.</p>
+</div>
+<div class="admonition-exercice-ex-s1-1-production-de-jus-de-fruits-les-variantes admonition" id="ex-s1-1">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-s1-1">Ex-S1-1</a>: production de jus de fruits: les variantes</p>
+<p>Proposons des variantes à notre processus de production de jus de fruit
+tel qu’il est résumé par la  <a class="reference internal" href="#id2"><span class="std std-numref">Fig. 44</span></a>. Pour chaque variante envisagée
+réfléchissez à ses avantages / inconvénients et exposez vos arguments.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>peut-on trier les fruits à la fin de l’atelier de transformation, plutôt
+qu’au début de l’atelier d’assemblage?</p></li>
+<li><p>et si on triait les fruits <em>avant</em> de les soumettre à l’atelier de
+transformation?</p></li>
+<li><p>dans l’atelier d’assemblage, peut-on avoir un seul pressoir, ou faut-il
+autant de pressoirs que de types de fruits?</p></li>
+<li><p>peut-on toujours se contenter d’un seul atelier d’assemblage?</p></li>
+<li><p>discuter de la spécialisation des ateliers d’assemblage: MapReduce
+affecte chaque groupe à un seul atelier; pourrait-on
+produire du jus d’orange dans chaque atelier? Avantages?
+Inconvénients?</p></li>
+</ul>
+</div></blockquote>
+<div class="admonition-correction admonition">
+<p class="admonition-title">Correction</p>
+<ul class="simple">
+<li><p>On peut trier à la fin de la transformation, mais ça ne suffit
+pas: il faut également fusionner les listes triées provenant
+d’ateliers de transformation distinct avant l’assemblage. Il
+est beaucoup plus efficace de fusionner des listes triées
+que des listes non triées, donc on peut considérer que c’est
+une option à considérer.</p></li>
+<li><p>Rien ne dit que l’atelier de transformation va produire des fruits
+en sortie, même s’il en a en entrée. Donc ça ne sert à rien de trier
+(sauf cas particulier).</p></li>
+<li><p>On peut avoir plusieurs pressoirs. En fait, en général on
+ne peut pas prévoir le nombre de groupes, et donc
+le nombre de pressoirs. Un même tâche effectue donc
+plusieurs assemblages, en séquence.</p></li>
+<li><p>Oui, on peut toujours se contenter, fonctionnellement, d’un
+seul atelier d’assemblage. Il faut prendre garde à ce que
+ça ne devienne pas un goulot d’étranglement.</p></li>
+<li><p>Dans un contexte de gestion de données, il est impératif
+d’agréger tous les documents d’un même groupe ensemble. Beaucoup
+de calcul statistiques ne sont pas additifs (la somme des
+moyennes et la moyenne des sommes diffèrent) et on ne peut donc
+pas manipuler des agrégations partielles.</p></li>
+</ul>
+</div>
+</div>
+<div class="admonition-exercice-ex-s1-2-commencons-a-parler-informatique admonition" id="ex-s1-2">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-s1-2">Ex-S1-2</a>: commençons à parler informatique</p>
+<p>Vous avez un ensemble de documents textuels, et vous voulez connaître la fréquence
+d’utilisation de chaque mot. Si, par exemple, le mot « confiture » apparaît 1 fois
+dans le document A, deux fois dans le document B et 1 fois dans le document C,
+vous voulez obtenir (confiture, 4).</p>
+<p>Quel est le processus Map Reduce qui prend en entrée les documents et fournit en sortie
+les paires (mot, fréquence)?  Décrivez-le avec des petits dessins si vous voulez.</p>
+<p>NB : ce genre de calcul est à la base de nombreux algorithmes d’analyse, et sert
+par exemple à construire des moteurs de recherche.</p>
+<div class="admonition-correction admonition">
+<p class="admonition-title">Correction</p>
+<p>Supposons que le format des documents est le suivant</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;texte&quot;</span> <span class="p">:</span> <span class="s2">&quot;Bla farine bla confiture bla sucre bla confiture ...&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Il faut découper chaque texte en mots, associés à leur nombre d’occurrences
+dans le texte. Par exemple, (confiture, 2) si le mot apparaît deux fois. L’important
+est de comprendre que le critère de regroupement (l’étiquette) est le mot. Pour chaque
+mot on « émet » la paire (mot, nbOccurrences).</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">function</span> <span class="nx">fonctionMap</span> <span class="p">(</span><span class="nx">doc</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="c1">// On parcourt les mots du texte</span>
+  <span class="k">for</span> <span class="p">(</span><span class="nx">mot</span> <span class="k">in</span> <span class="nx">doc</span><span class="p">.</span><span class="nx">texte</span><span class="p">)</span> <span class="p">{</span>
+     <span class="nx">emit</span> <span class="p">(</span><span class="nx">mot</span><span class="p">,</span> <span class="mf">1</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>À noter: on émet plusieurs paires (clé, valeur) par document, autant qu’il y a de mots
+dans le document. Pour un même mot <em>m</em>, on émettra donc autant de fois <em>(m, 1)</em>
+qu’il y a d’occurrences de <em>m</em>.</p>
+<p>Noter aussi que dans une spécification de haut niveau, on n’a pas besoin d’indiquer
+comment on découpe un texte en mot. Ca se fera au moment de l’implantation.</p>
+<p>La phase d’agrégation se charge de cumuler les
+occurrences d’un même mot sur l’ensemble des documents.</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">function</span> <span class="nx">fonctionReduce</span> <span class="p">(</span><span class="nx">mot</span><span class="p">,</span> <span class="nx">occurrences</span><span class="p">)</span>
+<span class="p">{</span>
+   <span class="k">return</span> <span class="p">(</span><span class="nx">mot</span><span class="p">,</span> <span class="nx">count</span> <span class="p">(</span><span class="nx">occurrences</span><span class="p">))</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="admonition-exercice-ex-s1-3-continuons-l-examen-du-16-juin-2016 admonition" id="ex-s1-3">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-s1-3">Ex-S1-3</a>: continuons l’examen du 16 juin 2016</p>
+<p>Reprenons les documents représentant les inscriptions des étudiants à des UEs. Voici deux exemples.</p>
+<blockquote>
+<div><div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;_id&quot;</span><span class="o">:</span> <span class="mf">978</span><span class="p">,</span>
+  <span class="s2">&quot;nom&quot;</span><span class="o">:</span> <span class="s2">&quot;Jean Dujardin&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;UE&quot;</span><span class="o">:</span> <span class="p">[{</span><span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="s2">&quot;ue:11&quot;</span><span class="p">,</span> <span class="s2">&quot;titre&quot;</span><span class="o">:</span> <span class="s2">&quot;Java&quot;</span><span class="p">,</span> <span class="s2">&quot;note&quot;</span><span class="o">:</span> <span class="mf">12</span><span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="s2">&quot;ue:27&quot;</span><span class="p">,</span> <span class="s2">&quot;titre&quot;</span><span class="o">:</span> <span class="s2">&quot;Bases de données&quot;</span><span class="p">,</span> <span class="s2">&quot;note&quot;</span><span class="o">:</span> <span class="mf">17</span><span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="s2">&quot;ue:37&quot;</span><span class="p">,</span>  <span class="s2">&quot;titre&quot;</span><span class="o">:</span> <span class="s2">&quot;Réseaux&quot;</span><span class="p">,</span> <span class="s2">&quot;note&quot;</span><span class="o">:</span> <span class="mf">14</span><span class="p">}</span>
+        <span class="p">]</span>
+<span class="p">}</span>
+
+<span class="p">{</span>
+  <span class="s2">&quot;_id&quot;</span><span class="o">:</span> <span class="mf">476</span><span class="p">,</span>
+   <span class="s2">&quot;nom&quot;</span><span class="o">:</span> <span class="s2">&quot;Vanessa Paradis&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;UE&quot;</span><span class="o">:</span> <span class="p">[{</span><span class="s2">&quot;id&quot;</span><span class="o">:</span>  <span class="s2">&quot;ue:13&quot;</span><span class="p">,</span>  <span class="s2">&quot;titre&quot;</span><span class="o">:</span> <span class="s2">&quot;Méthodologie&quot;</span><span class="p">,</span> <span class="s2">&quot;note&quot;</span><span class="o">:</span> <span class="mf">17</span><span class="p">,</span>
+          <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="s2">&quot;ue:27&quot;</span><span class="p">,</span>  <span class="s2">&quot;titre&quot;</span><span class="o">:</span> <span class="s2">&quot;Bases de données&quot;</span><span class="p">,</span> <span class="s2">&quot;note&quot;</span><span class="o">:</span> <span class="mf">10</span><span class="p">},</span>
+          <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="o">:</span>  <span class="s2">&quot;ue:76&quot;</span><span class="p">,</span>   <span class="s2">&quot;titre&quot;</span><span class="o">:</span> <span class="s2">&quot;Conduite projet&quot;</span><span class="p">,</span> <span class="s2">&quot;note&quot;</span><span class="o">:</span> <span class="mf">11</span><span class="p">}</span>
+         <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Spécifiez le calcul du nombre d’étudiants par UE, en MapReduce,
+en prenant en entrée des documents construits sur le modèle ci-dessus.</p>
+<div class="admonition-correction admonition">
+<p class="admonition-title">Correction</p>
+<blockquote>
+<div><p>Une fonction de Map produit des paires (clé, valeur). La première
+question à se poser c’est: quelle est la clé que je choisis de produire?
+Rappelons que la clé est une sorte d’étiquette que l’on pose sur
+chaque valeur et qui va permettre de les regrouper.</p>
+<p>Ici, on veut regrouper par UE pour pouvoir compter tous les étudiants inscrits.
+On va donc émettre une paire intermédiaire pour chaque UE mentionnée dans
+un document en entrée. Voici le pseudo-code.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> fonctionMap <span class="o">(</span><span class="nv">$doc</span><span class="o">)</span> <span class="c1"># doc est un document centré étudiant</span>
+<span class="o">{</span>
+  <span class="c1"># On parcourt les UEs du tableau UEs</span>
+  <span class="k">for</span>    <span class="o">[</span><span class="nv">$ue</span> <span class="k">in</span> <span class="nv">$doc</span>.UE<span class="o">]</span> <span class="k">do</span>
+     emit <span class="o">(</span><span class="nv">$ue</span>.id, <span class="nv">$doc</span>.nom<span class="o">)</span>
+  <span class="k">done</span>
+ <span class="o">}</span>
+</pre></div>
+</div>
+<p>Quand on traite le premier document de notre exemple, on obtient donc
+trois paires intermédiaires:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;ue:11&quot;</span><span class="p">,</span> <span class="s2">&quot;Jean Dujardin&quot;</span><span class="p">}</span>
+<span class="p">{</span><span class="s2">&quot;ue:27&quot;</span><span class="p">,</span> <span class="s2">&quot;Jean Dujardin&quot;</span><span class="p">}</span>
+<span class="p">{</span><span class="s2">&quot;ue:37&quot;</span><span class="p">,</span> <span class="s2">&quot;Jean Dujardin&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Et quand on traite le second document, on obtient:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;ue:13&quot;</span><span class="p">,</span> <span class="s2">&quot;Vanessa Paradis&quot;</span><span class="p">}</span>
+<span class="p">{</span><span class="s2">&quot;ue:27&quot;</span><span class="p">,</span> <span class="s2">&quot;Vanessa Paradis&quot;</span><span class="p">}</span>
+<span class="p">{</span><span class="s2">&quot;ue:76&quot;</span><span class="p">,</span> <span class="s2">&quot;Vanessa Paradis&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Toutes ces paires sont alors transmises à « l’atelier d’assemblage » qui
+les regroupe sur la clé. Voici la liste des groupes (un par UE).</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;ue:11&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;Jean Dujardin&quot;</span><span class="p">]}</span>
+<span class="p">{</span><span class="s2">&quot;ue:13&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;Vanessa Paradis&quot;</span><span class="p">]}</span>
+<span class="p">{</span><span class="s2">&quot;ue:27&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;Jean Dujardin&quot;</span><span class="p">,</span> <span class="s2">&quot;Vanessa Paradis&quot;</span><span class="p">]}</span>
+<span class="p">{</span><span class="s2">&quot;ue:37&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;Jean Dujardin&quot;</span><span class="p">]}</span>
+<span class="p">{</span><span class="s2">&quot;ue:76&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;Vanessa Paradis&quot;</span><span class="p">]}</span>
+</pre></div>
+</div>
+<p>Il reste à appliquer la fonction de Reduce à chaque groupe.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> fonctionReduce <span class="o">(</span><span class="nv">$clé</span>, <span class="nv">$tableau</span><span class="o">)</span>
+<span class="o">{</span>
+  <span class="k">return</span> <span class="o">(</span><span class="nv">$clé</span>, count<span class="o">(</span><span class="nv">$tableau</span><span class="o">)</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>Et voilà.</p>
+</div>
+</div></blockquote>
+</div>
+<div class="admonition-exercice-ex-s1-4-algebre-lineaire-distribuee admonition" id="ex-s1-4">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-s1-4">Ex-S1-4</a>:  algèbre linéaire distribuée</p>
+<blockquote>
+<div><p>Nous disposons d’une matrice <em>M</em> de dimension <span class="math notranslate nohighlight">\(N \times N\)</span>
+représentant les liens entres les <span class="math notranslate nohighlight">\(N\)</span>  pages du Web, chaque lien étant
+qualifié par un facteur d’importance (ou « poids »). La matrice est représentée par une
+collection <span class="math notranslate nohighlight">\(C\)</span>  dans laquelle chaque document est de la forme
+{« id »: &amp;23, « lig »: <em>i</em>, « col »: <em>j</em>, « poids »: <span class="math notranslate nohighlight">\(m_{ij}\)</span>}, et
+représente un lien entre la page <span class="math notranslate nohighlight">\(P_i\)</span> et la page <span class="math notranslate nohighlight">\(P_j\)</span> de poids <span class="math notranslate nohighlight">\(m_{ij}\)</span></p>
+<p>Exemple: voici une matrice <span class="math notranslate nohighlight">\(M\)</span> avec <span class="math notranslate nohighlight">\(N=4\)</span>. La première cellule de la
+seconde ligne est donc représentée par
+un document {« id »: &amp;t5x, « lig »: 2, « col »: 1, « poids »: 7}</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}M= \left[ {\begin{array}{cccc}
+ 1 &amp; 2  &amp; 3 &amp; 4 \\
+ 7 &amp; 6 &amp; 5 &amp; 4 \\
+ 6 &amp; 7  &amp; 8 &amp; 9 \\
+  3 &amp; 3  &amp; 3 &amp; 3 \\
+ \end{array} } \right]\end{split}\]</div>
+<p><strong>Questions</strong></p>
+<blockquote>
+<div><ul>
+<li><p>Chaque ligne <span class="math notranslate nohighlight">\(L_i\)</span> de <span class="math notranslate nohighlight">\(M\)</span> peut être vue comme un vecteur décrivant la page <span class="math notranslate nohighlight">\(P_i\)</span>. Spécifiez le
+traitement MapReduce qui calcule la norme de ces vecteurs à partir des documents de la collection <span class="math notranslate nohighlight">\(C\)</span>
+(rappel: la norme d’un vecteur <span class="math notranslate nohighlight">\(V(x_1, x_2, \cdots, x_n)\)</span> est <span class="math notranslate nohighlight">\(\sqrt{x_1^2 + x_2^2 + \cdots + x_n^2}\)</span>).</p></li>
+<li><p>Nous voulons calculer le produit de la matrice avec un vecteur <span class="math notranslate nohighlight">\(V(v_1, v_2, \cdots v_N)\)</span> de dimension <span class="math notranslate nohighlight">\(N\)</span>.
+Le résultat est un autre vecteur <span class="math notranslate nohighlight">\(W\)</span> tel que:</p>
+<div class="math notranslate nohighlight">
+\[w_i = \Sigma_{j=1}^N  m_{ij} \times v_j\]</div>
+<p>On suppose pour le moment que <span class="math notranslate nohighlight">\(V\)</span> tient en mémoire RAM
+et est accessible comme variable statique par toutes les fonctions de Map ou de Reduce.
+Spécifiez le traitement MapReduce qui implante ce calcul.</p>
+</li>
+</ul>
+</div></blockquote>
+</div></blockquote>
+<div class="admonition-correction admonition">
+<p class="admonition-title">Correction</p>
+<blockquote>
+<div><p>On connaît le format des documents. Le critère de regroupement est l’identifiant de la ligne.
+La valeur à émettre est le carré du poids</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">function</span> <span class="nx">fonctionMap</span> <span class="p">(</span><span class="nx">doc</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="nx">emit</span> <span class="p">(</span><span class="nx">doc</span><span class="p">.</span><span class="nx">lig</span><span class="p">,</span> <span class="nx">doc</span><span class="p">.</span><span class="nx">poids</span> <span class="o">*</span> <span class="nx">doc</span><span class="p">.</span><span class="nx">poids</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>La fonction de Reduce recevra donc les carrés des poids d’une même ligne. Il restera
+à les cumuler pour obtenir la norme.</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">function</span> <span class="nx">fonctionReduce</span> <span class="p">(</span><span class="nx">lig</span><span class="p">,</span> <span class="nx">listePoids</span><span class="p">)</span>
+<span class="p">{</span>
+   <span class="k">return</span> <span class="p">(</span><span class="nx">lig</span><span class="p">,</span> <span class="nx">sqrt</span> <span class="p">(</span><span class="nx">sum</span> <span class="p">(</span><span class="nx">listePoids</span><span class="p">)))</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>Le produit de la matrice et du vecteur est presque identique.  La fonction de Map multiplie
+chaque poids d’une ligne de la matrice par la coordonnées correspondante du vecteur <span class="math notranslate nohighlight">\(V\)</span>
+(supposé accessible comme variable globale).</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">function</span> <span class="nx">fonctionMap</span> <span class="p">(</span><span class="nx">doc</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="nx">emit</span> <span class="p">(</span><span class="nx">doc</span><span class="p">.</span><span class="nx">lig</span><span class="p">,</span> <span class="nx">doc</span><span class="p">.</span><span class="nx">poids</span> <span class="o">*</span> <span class="nx">V</span><span class="p">[</span><span class="nx">doc</span><span class="p">.</span><span class="nx">col</span><span class="p">])</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>La fonction de Reduce est la même qu’auparavant.</p>
+</div>
+</div>
+<div class="admonition-exercice-ex-s1-5-un-peu-plus-difficile admonition" id="ex-s1-5">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-s1-5">Ex-S1-5</a>: un peu plus difficile</p>
+<p>On considère des documents représentant des articles ou ouvrages de recherche, avec la liste de leurs auteurs. Voici le
+format d’après un exemple.</p>
+<blockquote>
+<div><div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;Book&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Bases de données distribuées&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;year&quot;</span><span class="p">:</span> <span class="mi">2020</span><span class="p">,</span>
+  <span class="nt">&quot;publisher&quot;</span><span class="p">:</span> <span class="s2">&quot;Cnam&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;authors&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;R. Fournier-S&#39;niehotta&quot;</span><span class="p">,</span> <span class="s2">&quot;P. Rigaux&quot;</span><span class="p">,</span> <span class="s2">&quot;N. Travers&quot;</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>On veut calculer, pour chaque trio d’auteurs (x, y, z), le nombre d’articles que
+ces trois auteurs ont co-signés. Précisions: si les auteurs d’un article sont un sur-ensemble
+de (x, y, z) (par ex. (x, u, v, y, w, z)) ça compte pour 1. L’ordre des auteurs
+ne compte pas: (z, y, x) est considéré comme une occurrence.</p>
+<p>Comment faire ce calcul en MapReduce?</p>
+<p>NB: le résultat est appelé <em>support</em> de (x,y,z), et c’est une mesure utilisée, entre autres,
+dans la découverte de règles d’association.</p>
+<div class="admonition-correction admonition">
+<p class="admonition-title">Correction</p>
+<p>Pour chaque publication, on prend la liste des auteurs, et on en extrait
+toutes les combinaisons possibles de 3 auteurs distincts. S’il y a 5 auteurs par
+exemple, il y a <span class="math notranslate nohighlight">\((5 \times 4 \times 3) / (3 \times 2)\)</span> combinaisons possibles (révisez votre
+combinatoire si nécessaire).</p>
+<p>Pour chaque combinaison <em>C</em>, il faut émettre la paire (<em>C</em>, 1). Le regroupement se fera
+sur la combinaison, et la somme des 1 donnera le nombre d’occurrences sur l’ensemble
+de la collection. Encore une fois, c’est le choix de la clé qui est essentiel.</p>
+</div>
+</div>
+<div class="admonition-exercice-ex-s1-6-classons-les-fruits admonition" id="ex-s1-6">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-s1-6">Ex-S1-6</a>: classons les fruits</p>
+<p>On reçoit d’un fournisseur une livraison de fruits (pommes, ananas, oranges, etc). On décide d’effectuer un
+test qualité en leur donnant 0 ou 1 pour les critères suivants (trop mûr, tâché, déformé, etc).</p>
+<p>Pour chaque espèce de fruit, on veut calculer la proportion de fruits trop mûrs. Comment faire avec MapReduce?</p>
+<p>On veut faire le même calcul pour tous les critères. Comment faire?</p>
+<p>NB: ce genre d’indicateur permet de construire des classeurs pour reconnaitre automatiquement l’espèce d’un fruit
+(enfin, pour produire un indicateur de probabilité d’appartenance à une espèce à une classe, avec choix
+de la classe la plus probable).</p>
+<div class="admonition-correction admonition">
+<p class="admonition-title">Correction</p>
+<p>Pour chaque fruit, on émet (espèce, 1) ou (espèce, 0) selon que le fruit est trop mûr ou pas.
+Ensuite, la phase d’agrégation regroupe les paires pour la même espèce,
+et on calcule la fraction du nombre de 1 sur le nombre total du groupe.</p>
+<p>Si on a trois critères, on émet (espèce, [i, j, k]) en généralisant le principe.</p>
+</div>
+</div>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+            <div>        
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Licence Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">
+  Ce cours</span> de <a xmlns:cc="http://creativecommons.org/ns#" href="http://www.bdpedia.fr" property="cc:attributionName" rel="cc:attributionURL">Philippe Rigaux</a> est mis à disposition selon les termes de la <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">licence Creative Commons Attribution - Pas d’Utilisation Commerciale - Partage dans les Mêmes Conditions 4.0 International</a>.
+</div>
+        <hr/>
+          <h3>Table Of Contents</h3>
+          <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docker.html">Préliminaires: Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docstruct.html">Modélisation de bases NoSQL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rech-exacte.html">Recherche exacte</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cassandra.html">Etude de cas: Cassandra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cassandra_tp.html">Cassandra - Travaux Pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rech-approchee.html">Recherche approchée</a></li>
+<li class="toctree-l1"><a class="reference internal" href="es_tp.html">ElasticSearch - Travaux pratiques</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Traitements par lot</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#s1-mapreduce-demystifie">S1: MapReduce démystifié</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#un-jus-de-pomme-mapreduce">Un jus de pomme MapReduce</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#beaucoup-de-jus-de-pomme">Beaucoup de jus de pomme</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#jus-de-fruits-mapreduce">Jus de fruits MapReduce</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#le-modele-mapreduce">Le modèle MapReduce</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#concevoir-un-traitement-mapreduce">Concevoir un traitement MapReduce</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#les-questions-a-se-poser">Les questions à se poser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#un-peu-de-rigueur">Un peu de rigueur</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#quiz">Quiz</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#s2-mapreduce-et-couchdb">S2: MapReduce et CouchDB</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#la-notion-de-vue-dans-couchdb">La notion de vue dans CouchDB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#les-fonctions-map-et-reduce">Les fonctions Map et Reduce</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mise-en-pratique">Mise en pratique</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#s3-specification-de-traitements-distribues-avec-pig">S3: Spécification de traitements distribués avec Pig</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#une-session-illustrative">Une session illustrative</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#les-operateurs">Les opérateurs</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#exercices">Exercices</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pigtp.html">Pig : Travaux pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cloud.html">Le <em>cloud</em>, une nouvelle machine de calcul</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replication.html">Systèmes NoSQL: la réplication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sharding.html">Systèmes NoSQL: le partitionnement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spark.html">Etude de cas: Apache Spark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="annales.html">Annales des examens</a></li>
+</ul>
+
+          <h3 style="margin-top: 1.5em;">Recherche</h3>
+          <form class="search" action="search.html" method="get">
+            <input type="text" name="q" />
+            <input type="submit" value="Go" />
+            <input type="hidden" name="check_keywords" value="yes" />
+            <input type="hidden" name="area" value="default" />
+          </form>
+          <p class="searchtip" style="font-size: 90%">
+      Saisissez un ou plusieurs mots-clés.
+          </p>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <a href="es_tp.html" title="ElasticSearch - Travaux pratiques"
+             >précédent</a> |
+          <a href="pigtp.html" title="Pig : Travaux pratiques"
+             >suivant</a> |
+          <a href="genindex.html" title="Index général"
+             >index</a>
+        </div>
+
+        <div class="right">
+        <a href="index.html">Traitements par lot</a><br/>
+          
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2014-2025, Nicolas Travers, Raphaël Fournier S&#39;niehotta et Philippe Rigaux.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>

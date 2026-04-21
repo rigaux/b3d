@@ -1,0 +1,2064 @@
+.. _chap-introri:
+   
+###################
+Recherche approchée
+###################
+
+.. admonition:: Supports complémentaires:
+
+     * Un cours complet en ligne (en anglais) et accompagné d'un ouvrage de
+       référence : http://www-nlp.stanford.edu/IR-book/. *Certaines parties du
+       cours empruntent des exemples à ce livre*.
+
+*********************************************
+S1: introduction à la recherche d'information
+*********************************************
+
+.. admonition:: Supports complémentaires:
+
+	* `Présentation: Introduction à la recherche d'information <http://b3d.bdpedia.fr/files/slri-intro-principes.pdf>`_
+	* `Vidéo de la session Introduction RI - principes <https://mediaserver.lecnam.net/permalink/v125f5947d4c11yianvt/>`_
+
+Qu'est ce que la recherche d'information
+========================================
+
+La *Recherche d'Information* (RI, *Information Retrieval, IR* en anglais)
+consiste à trouver des *documents* peu ou faiblement structurés, dans une grande
+*collection*, en fonction d'un *besoin d'information*. Le domaine d'application
+le plus connu est celui de la recherche "plein texte". Étant donné une
+collection de documents constitués essentiellement de texte, comment trouver les
+plus pertinents en fonction d'un besoin exprimé par quelques mots-clés? La RI
+développe des *modèles* pour interpréter les documents d'une part, le besoin
+d'information d'autre part, en vue de faire correspondre les deux, mais aussi
+des *techniques* pour calculer des réponses rapidement même en présence de
+collections très volumineuses. Enfin, des systèmes (appelés "moteurs de
+recherches") fournissent des solutions sophistiquées prêtes à l'emploi.
+
+La RI a pris une très grande importance, en raison notamment de l'émergence
+de vastes sources de documents que l'on peut agréger et exploiter (le Web bien
+sûr, mais aussi les systèmes d'information d'entreprise). Les techniques
+utilisées ont également beaucoup progressé, avec des  résultats spectaculaires.
+La RI est maintenant omniprésente dans beaucoup d'environnements informatiques, 
+et notamment:
+
+  * la recherche sur le Web, utilisée quotidiennement par des milliards d'utilisateurs;
+  * la recherche de messages dans votre boîte mail;
+  * la recherche de fichiers sur votre ordinateur (*Spotlight*);
+  * la recherche de documents dans une base documentaire, publique ou privée.
+
+Ce chapitre introduit ces différents aspects en se concentrant sur la recherche
+d'information appliquée à des collections de documents structurés, comprenant
+des parties textuelles importantes.
+
+Précision et  rappel
+====================
+
+Comme le montre la définition assez imprécise donnée en préambule, la recherche
+d'information se donne un objectif à la fois ambitieux et relativement vague.
+Cela s'explique en partie par le contexte d'utilisation de ces systèmes. Avec
+une base de données classique, on connaît le schéma des données, leur
+organisation générale, avec des contraintes qui garantissent qu'elles ont une
+certaine régularité. En RI, les données, ou "documents", sont souvent
+hétérogènes, de provenances diverses, présentent des irrégularités et des
+variations dues à l'absence de contrainte et de validation au moment de leur
+création. De plus, un système de RI est souvent utilisé par des utilisateurs
+non-experts. À la difficulté d'interpréter le contenu des documents et de le
+décrire s'ajoute celle de comprendre le "besoin", exprimé souvent de manière
+très partielle.
+
+
+D'une certaine manière, la RI vise essentiellement à prendre en compte ces
+difficultés pour proposer des réponses les plus pertinentes possibles. La notion
+de *pertinence* est centrale ici: un document est pertinent s'il satisfait le
+besoin exprimé. Quand on utilise SQL, on considère que la réponse est toujours
+exacte car définie de manière mathématique (en fonction de l'état de la base).  En
+RI, on ne peut jamais considérer qu'un résultat, constitué d'un ensemble de
+documents, est exact, mais on mesure son *degré de pertinence* (c'est-à-dire les
+erreurs du système de recherche) en distinguant:
+
+  - les **faux positifs**: ce sont les documents *non pertinents* inclus dans le
+    résultat; ils ont été sélectionnés à tort. En anglais, on parle de *false
+    positive*.
+
+  - les **faux négatifs**: ce sont les documents *pertinents* qui *ne sont pas*
+    inclus dans le résultat. En anglais, on parle de *false negative*.
+
+Les documents *pertinents* inclus dans le résultat sont appelés les **vrais
+positifs**, les documents *non pertinents* non inclus dans le résultat sont
+appelés les **vrais négatifs**. On le voit à ce qui vient d'être dit : on
+emploie le terme *positif* pour désigner ce qui a été ramené dans le résultat de
+recherche. À l'inverse, les documents qui sont *négatifs* ont été laissés de
+côté par le moteur de recherche au moment de faire correspondre des documents
+avec un besoin d'information. Et l'on désigne par *vrai* ce qui a été bien
+classé (dans le résultat ou hors du résultat). 
+
+Deux indicateurs formels, basés sur ces notions, sont couramment employés 
+pour mesurer la qualité d'un système de RI. 
+
+.. admonition:: La précision
+
+   La *précision* mesure la proportion des vrais positifs dans le résultat *r*.
+   Si on note respectivement :math:`t_p(r)` et :math:`f_p(r)` le nombre de vrais
+   et de faux positifs dans *r* (de taille :math:`|r|`), alors
+   
+   .. math:: \text{précision} = \frac{t_p(r)}{t_p(r) + f_p(r)} =  \frac{t_p(r)}{|r|}
+
+   Une précision de 1 correspond à l'absence totale de faux positifs. Une
+   précision nulle indique un résultat ne contenant aucun document pertinent.
+   
+.. admonition:: Le rappel
+
+   Le rappel mesure la proportion des documents pertinents qui sont inclus dans le résultat. Si on note :math:`f_n(r)` le
+   nombre de documents faussement négatifs, alors le rappel est:
+   
+   .. math:: \frac{t_p(r)}{t_p(r) + f_n(r)}
+
+   Un rappel de 1 signifie que tous les documents pertinents apparaissent dans le résultat.  Un rappel
+   de 0 signifie qu'il n'y a aucun document pertinent dans le résultat.
+   
+La  :numref:`truefalsepositivenegative` illustre (en anglais) ces concepts
+pour bien distinguer les ensembles dont on parle pour chaque requête de
+recherche et les mesures associées.
+
+.. _truefalsepositivenegative:
+.. figure:: ../figures/fauxpositifs.png
+      :width: 70%
+      :align: center
+   
+      Vrai, faux, positifs, négatifs.
+
+Ces deux indicateurs sont très difficiles à optimiser simultanément. Pour
+augmenter le rappel, il suffit d'ajouter plus de documents dans le résultat, au
+détriment de la précision. À l'extrême, un résultat qui contient *toute* la
+collection interrogée a un rappel de 1, et une précision qui tend vers 0.
+Inversement, si on fait le choix de ne garder dans le résultat que les documents
+dont on est sûr de la pertinence, la précision s'améliore mais on augmente le
+risque de faux négatifs (c'est-à-dire de ne pas garder des documents
+pertinents), et donc d'un rappel dégradé.
+
+L'évaluation d'un système de RI est une tâche complexe et fragile car elle repose
+sur des enquêtes impliquant des utilisateurs. Reportez-vous à l'ouvrage de
+référence cité au début du chapitre (et au matériel de cours associé) pour en
+savoir plus.
+
+
+La recherche plein texte
+========================
+
+Commençons par étudier une méthode simple de recherche pour trouver des
+documents répondant à une recherche dite "plein texte" constituée d'un ensemble
+de mots-clés.  On va donner à cette recherche une définition assez restrictive
+pour l'instant: il s'agit de trouver tous les documents contenant *tous* les
+mots-clés. Prenons pour exemple l'ensemble (modeste) de documents ci-dessous.
+  
+  
+
+.. _Exemple-S1-1:
+.. admonition:: Exemple  `Exemple-S1-1`_: des petits documents pour comprendre
+ 
+     * :math:`d_1`: ``Le loup est dans la bergerie.``
+     * :math:`d_2`: ``Le loup et le trois petits cochons``
+     * :math:`d_3`: ``Les moutons sont dans la bergerie.``
+     * :math:`d_4`:  ``Spider Cochon, Spider Cochon, il peut marcher au plafond.``
+     * :math:`d_5`: ``Un loup a mangé un mouton, les autres loups sont restés dans la bergerie.``
+     * :math:`d_6`:  ``Il y a trois moutons dans le pré, et un mouton dans la gueule du loup.``
+     * :math:`d_7`: ``Le cochon est à 12 le Kg, le mouton à  10 E/Kg``
+     * :math:`d_8`: ``Les trois petits loups et le grand méchant cochon``
+ 
+Et ainsi de suite. Supposons que l'on recherche **tous les documents parlant de
+loups, de moutons mais pas de bergerie** (c'est le besoin).  Une solution simple
+consiste à parcourir tous les documents et à tester la présence des mots-clés.
+Ce n'est pas  très satisfaisant car:
+
+  * c'est potentiellement long, pas sur notre exemple bien sûr, mais en présence d'un ensemble volumineux de documents;
+  * le critère "pas de bergerie" n'est pas facile à traiter;
+  * les autres types de recherche ("le mot 'loup' doit être *près* du mot 'mouton'") sont
+    difficiles;
+  * *quid* si je veux *classer* par pertinence les documents trouvés?
+
+On peut faire mieux en créant une structure compacte sur laquelle peuvent
+s'effectuer les opérations de recherche. Les données sont organisées dans une
+matrice (dite d'incidence) qui représente l'occurrence (ou  non) de chaque mot
+dans chaque document. On peut, au choix, représenter les mots en colonnes et les
+documents en ligne, ou l'inverse. La première solution semble plus naturelle
+(chaque fois que j'insère un nouveau document, j'ajoute une ligne dans la
+matrice). Nous verrons plus loin que la seconde représentation, appelée *matrice
+inversée*, est en fait beaucoup plus appropriée pour une recherche efficace.
+
+.. admonition:: Terme, vocabulaire.
+
+   Nous utilisons progressivement la notion de *terme* (*token* en anglais) qui
+   est un peu différente de celle de "mot". Le  *vocabulaire*, parfois appelé
+   *dictionnaire*, est l'ensemble des termes sur lesquels on peut poser une
+   requête. Ces notions seront développées plus loin.
+ 
+Commençons par montrer une matrice d'incidence avec les documents en ligne. On
+se limite au vocabulaire suivant: {"loup", "mouton", "cochon", "bergerie",
+"pré", "gueule"}. 
+
+ .. _loups:
+ .. list-table:: La matrice d'incidence
+        :widths: 15 10 10 10 10 10 10
+        :header-rows: 1
+
+        * - 
+          - loup
+          - mouton
+          - cochon
+          - bergerie
+          - pré
+          - gueule
+        * - :math:`d_1`
+          - 1
+          - 0
+          - 0
+          - 1
+          - 0
+          - 0
+        * - :math:`d_2`
+          - 1
+          - 0
+          - 1
+          - 0
+          - 0
+          - 0
+        * - :math:`d_3`
+          - 0
+          - 1
+          - 0
+          - 1
+          - 0
+          - 0
+        * - :math:`d_4`
+          - 0
+          - 0
+          - 1
+          - 0
+          - 0
+          - 0
+        * - :math:`d_5`
+          - 1
+          - 1
+          - 0
+          - 1
+          - 0
+          - 0
+        * - :math:`d_6`
+          - 1
+          - 1
+          - 0
+          - 0
+          - 1
+          - 1
+        * - :math:`d_7`
+          - 0
+          - 1
+          - 1
+          - 0
+          - 0
+          - 0
+        * - :math:`d_8`
+          - 1
+          - 0
+          - 1
+          - 0
+          - 0
+          - 0
+     
+Cette structure est parfois utilisée dans les bases de données sous le nom
+*d'index bitmap*. Elle permet de répondre à notre besoin de la manière suivante :
+
+- On prend les *vecteurs d'incidence* de chaque terme contenu dans la requête,
+  soit les colonnes dans notre représentation :
+
+  * Loup:      11001101
+  * Mouton:    00101110
+  * Bergerie:    01010011
+
+- On fait un ``et`` (`logique
+  <https://fr.wikipedia.org/wiki/Conjonction_logique>`_)  sur les vecteurs de
+  `Loup` et `Mouton` et on obtient 00001100
+
+- Puis on fait un ``et`` du résultat avec le *complément* du vecteur de
+  `Bergerie` (01010111)
+
+- On obtient 00000100, d'où on déduit que la réponse est limitée au document
+  :math:`d_6`, puisque la 6e position est la seule où il y a un '1'.
+
+Les index inversés
+==================
+
+Si on imagine maintenant des données à grande échelle, on s'aperçoit que cette
+approche un peu naïve soulève quelques problèmes.  Posons par exemple les
+hypothèses suivantes:
+
+ * Un million de documents, mille mots chacun en moyenne (ordre de grandeur
+   d'une encyclopédie en ligne bien connue)
+ * Disons 6 octets par mot, soit 6 Go (pas très gros en fait!)
+ * Disons 500 000 termes *distincts* (ordre de grandeur du nombre de mots dans
+   une langue comme l'anglais)
+
+La matrice a 1 000 000 de lignes, 500 000 colonnes, donc :math:`500 \times 10^9`
+bits, soit 62 GO. Elle ne tient pas en mémoire de nombreuses machines, ce qui va
+beaucoup compliquer les choses.... Comment faire mieux?
+
+Une première remarque est que nous avons besoin des vecteurs pour les *termes*
+(mots) pour effectuer des opérations logiques (``and``, ``or``, ``not``) et il
+est donc préférable *d'inverser* la matrice pour disposer les termes en ligne
+(la représentation est une question de convention: ce qui est important c'est
+qu'au niveau de la structure de données, le vecteur d'incidence associé à un
+*terme* soit stocké contigument en mémoire et donc accessible simplement et
+rapidement). On obtient la structure de la  :numref:`inverted-index-bool`
+pour notre petit ensemble de documents.
+
+.. _inverted-index-bool:
+.. figure:: ../figures/inverted-index-bool.png
+      :width: 40%
+      :align: center
+   
+      Inversion de la matrice
+      
+Seconde remarque:  la matrice d'incidence est *creuse*. En effet, sur chaque
+ligne, il y a au plus 1000 "1" (cas extrême où tous les termes du document sont
+distincts). Donc, dans l'ensemble de la matrice, il n'y a au plus que
+:math:`10^9` positions avec des 1, soit un sur 500. Il est donc tout à fait
+inutile de représenter les cellules avec des 0. On obtient une structure appelée
+*index inversé* qui est essentiellement l'ensemble des lignes de la matrice
+d'incidence, dans laquelle on ne représente que les cellules correspondant à *au
+moins* une occurrence du terme (en ligne) dans le document (en colonne).
+
+.. important:: Comme on ne représente plus l'ensemble des colonnes pour chaque ligne, il faut indiquer,
+   pour chaque cellule, à quelle colonne elle correspond.  Pour cela, on place dans
+   les cellules *l'identifiant* du document (*docId*). **De plus chaque liste est
+   triée sur l'identifiant du document**.
+   
+La  :numref:`inverted-index`   montre un exemple d'index inversé pour trois
+termes, pour une collection importante de documents consacrés à nos animaux
+familiers. À chaque terme est associé une liste inverse.
+
+.. _inverted-index:
+.. figure:: ../figures/inverted-index.png
+      :width: 50%
+      :align: center
+   
+      Un index inversé
+      
+On parle donc de cochon dans les documents 2, 31, 54 et 101 (notez que les
+documents sont ordonnés — très important). Il est clair que la taille des
+listes inverses varie en fonction de la fréquence d'un terme dans la collection.
+
+La structure d'index inversé est utilisée dans *tous*  les moteurs de recherche.
+Elle présente d'excellentes propriétés pour une recherche efficace, avec en
+particulier des possibilités importantes de compression des listes associées à
+chaque terme.
+
+.. admonition:: **Vocabulaire** 
+
+   Le *dictionnaire* (*dictionary*) est l'ensemble
+   des termes de l'index inversé; le *répertoire* est la structure qui
+   associe chaque terme à l'adresse de la liste inversée (*posting list*) associée au terme.
+   Enfin on ne parle plus de cellule (la matrice a disparu) mais *d'entrée* pour
+   désigner un élément d'une liste inverse.
+   
+En principe, le répertoire est toujours en mémoire, ce qui permet de trouver
+très rapidement les listes impliquées dans la recherche.  Les listes inverses
+sont, autant que possible, en mémoire, sinon elles sont compressées et stockées
+dans des fichiers (contigus) sur le disque.
+
+Opérations de recherche
+=======================
+
+Étant donné cette structure, recherchons les documents parlant de loup et de
+mouton. On ne peut plus faire un ``et`` sur des tableaux de bits de taille fixe
+puisque nous avons maintenant des listes de taille variable. L'algorithme
+employé est une *fusion* ("*merge*") de liste triées. C'est une technique très
+efficace qui consiste à parcourir en parallèle et séquentiellement des listes,
+en une seule fois. Le parcours unique est permis par le tri des listes sur un
+même critère (l'identifiant du document).
+
+La  :numref:`loup-et-mouton-full` montre comment on traite la requête ``loup
+et mouton``. On maintient deux curseurs, positionnés au départ au début de
+chaque liste. L'algorithme compare les valeurs des docId contenues dans les
+cellules pointées par les deux curseurs. On compare ces deux valeurs, puis:
+
+   - (choix A) si elles sont égales, on a trouvé un document: on
+     place son identifiant dans le résultat, à gauche; *on avance les deux curseurs d'un cran*
+   - (choix B) sinon, on avance le curseur pointant sur la cellule dont la valeur est la
+     plus petite, jusqu'à atteindre ou dépasser la valeur la plus grande. 
+
+.. _loup-et-mouton-full:
+.. figure:: ../figures/loup-et-mouton-full.png
+      :width: 100%
+      :align: center
+   
+      Parcours linéaire pour la fusion de listes triées
+
+La  :numref:`loup-et-mouton-full` se lit de gauche à droite, de haut en bas.  
+On applique tout d'abord deux fois le choix A: les documents 1 et 2 parlent
+de loup et de mouton. À la troisième étape, le curseur du haut (loup) pointe
+sur le document 3, le pointeur du bas (mouton) sur le document 4. On applique
+le choix B en déplaçant le curseur du haut jusqu'à la valeur 4. 
+
+Et ainsi de suite.  Il est clair *qu'un seul parcours suffit*. La recherche est
+linéaire, et l'efficacité est garantie par un parcours séquentiel d'une
+structure (la liste) très compacte. De plus, il n'est pas nécessaire d'attendre
+la fin du parcours de toutes les listes pour commencer à obtenir le résultat.
+L'algorithme est résumé ci-dessous.
+
+.. code-block:: php
+
+   // Fusion de deux listes l1 et l2
+   function Intersect($l1, $l2)
+   {
+     $résultat = [];
+     // Début de la fusion des listes
+     while ($l1 != null and $l2 != null) {
+       if ($l1.docId == $l2.docId) {
+         // On a trouvé un document contenant les deux termes
+         $résultat += $l1.docId;
+         // Avançons sur les deux listes
+         $l1 = $l1.next; $l2 = $l2.next;    
+       }
+       else if ($l1.docId < $l2.docId) {
+         // Avançons sur l1
+         $l1 = $l1.next;
+       }
+       else {
+          // Avançons sur l2
+         $l2 = $l2.next;       
+       }
+     }
+   }
+
+   
+C'est l'algorithme de base de la recherche d'information. Dans la version
+présentée ici, on satisfait des requêtes dites *booléennes*: l'appartenance d'un
+document au résultat est binaire, et il n'y a aucun classement par pertinence.
+
+À partir de cette technique élémentaire, on peut commencer à raffiner, pour
+aboutir aux techniques sophistiquées visant à capturer au mieux le besoin de
+l'utilisateur, à trouver les documents qui satisfont ce besoin et à les classer
+par pertinence. Pour en arriver là, tout un ensemble d'étapes que nous avons
+ignorées dans la présentation abrégée qui précède sont nécessaires. Nous les
+reprenons dans ce qui suit.
+
+Quiz
+====
+
+.. eqt:: ri-intro-1
+
+    **Cherchez l'erreur!**  Quelle propriété parmi les suivantes ne vous semble pas s'appliquer à la recherche d'information?
+   
+    A) :eqt:`I`  On évalue la proximité entre le besoin exprimé et les documents du système
+    #) :eqt:`C`  On cherche des documents de structure similaire à celui donné par la requête
+    #) :eqt:`I`  On cherche des documents de contenu similaire à celui donné par la requête
+    #) :eqt:`I`  On cherche les paires de documents proches les uns des autres
+
+
+.. eqt:: ri-intro-2
+
+    Quel est le rappel si la recherche ramène tous les documents?
+    
+    A) :eqt:`C` Le rappel est maximal, donc 1
+    #) :eqt:`I` Le rappel est minimal, donc 0
+    #) :eqt:`I` Le rappel est le rapport entre le nombre de documents pertinents et la taille de la collection
+     
+
+.. eqt:: ri-intro-3
+
+    Quelle est la précision si la recherche ramène tous les documents?
+    
+    A) :eqt:`I` La précision est maximale, donc 1
+    #) :eqt:`I` La précision est minimale, donc 0
+    #) :eqt:`C` La précision est le rapport entre le nombre de documents pertinents et la taille de la collection
+
+.. eqt:: ri-intro-4
+
+    Quel est le rappel si la recherche ne ramène aucun document?
+    
+    A) :eqt:`I` Le rappel est maximal, donc 1
+    #) :eqt:`C` Le rappel est minimal, donc 0
+    #) :eqt:`I` Le rappel est le rapport entre le nombre de documents pertinents et la taille de la collection
+
+.. eqt:: ri-intro-5
+
+    Quelle est la précision si la recherche ne ramène aucun document?
+    
+    A) :eqt:`I` La précision est maximale, donc 1
+    #) :eqt:`I` La précision est minimale, donc 0
+    #) :eqt:`C` La précision est indéfinie
+
+
+.. eqt:: ri-intro-6
+
+    Si je souhaite minimiser le nombre de faux positifs dans ma réponse, je dois favoriser
+    
+    A) :eqt:`I` Le rappel
+    #) :eqt:`C` La précision 
+    #)  :eqt:`I` Le rapport rappel / précision
+    #)  :eqt:`I` Le rapport  précision / rappel
+
+.. eqt:: ri-intro-7
+
+    Si je souhaite minimiser le nombre de faux négatifs dans ma réponse, je dois favoriser
+    
+    A) :eqt:`C` Le rappel
+    #) :eqt:`I` La précision 
+
+.. eqt:: ri-intro-8
+
+    Qu'est-ce qu'une matrice (ou un index) inversé?
+    
+    A) :eqt:`I` C'est une structure dans laquelle on a remplacé les 0 par des 1 et réciproquement, pour
+       faciliter les calculs
+    #) :eqt:`I`  C'est une structure où les documents sont  en ligne et les token en colonne
+    #) :eqt:`C`  C'est une structure où les documents sont  en colonne et les token en ligne
+
+.. eqt:: ri-intro-9
+
+    Qu'est-ce que le répertoire dans un index inversé?
+    
+    A) :eqt:`I` C'est l'espace où l'on stocke les listes inversées
+    #) :eqt:`I`  C'est la liste des termes indexés
+    #) :eqt:`C`  C'est un tableau qui associe un terme et une liste
+
+
+.. eqt:: ri-intro-10
+
+    Quel est le coût d'une recherche avec un index inversé?
+    
+    A) :eqt:`I` Proportionnel à la taille de la collection 
+    #) :eqt:`C`  Proportionnel à la taille des listes correspondant aux mots cherchés
+    #) :eqt:`I`  Proportionnel au nombre de termes de la requête
+
+
+.. eqt:: ri-intro-11
+
+    Par rapport à la définition de la recherche d'information, quel énoncé ci-dessous 
+    sur la recherche booléenne vous semble correct ?
+    
+    A) :eqt:`I` Ce n'est pas de la RI car on traite des documents structurés
+    #) :eqt:`C`  Ce n'est pas de la RI car il n'y a pas d'estimation de la pertinence  
+    #) :eqt:`I`  Ce n'est pas de la RI car il n'y a ni faux négatif ni faux positif.
+
+
+
+**************************
+S2: L'analyse de documents 
+**************************
+
+.. admonition:: Supports complémentaires:
+
+    * `Présentation: Recherche d'information - analyse de documents <http://b3d.bdpedia.fr/files/slri-indexation-analyse.pdf>`_
+    * `Vidéo : Pré-traitement des documents  textuels  <https://mediaserver.lecnam.net/permalink/v125f5947d4batpxkr93/>`_  
+  
+En présence d'un document textuel un tant soit peu complexe, on ne peut pas se
+contenter de découper plus ou moins arbitrairement en mots sans se poser
+quelques questions et appliquer un pré-traitement du texte. Les effets de ce
+pré-traitement doivent être compris et maîtrisés: ils influent directement sur
+la précision et le rappel. Quelques exemples simples pour s'en convaincre:
+
+ - si on cherche les documents contenant le mot "loup", on s'attend généralement
+   à trouver ceux contenant "loups", "Loup", "louve"; il faut donc, quand on
+   conserve un document dans Elasticsearch, qu'il soit en mesure de mettre ces
+   différentes formes dans *le même index inversé*;
+   
+ - si on ne normalise pas (on conserve les majuscules et les pluriels), on va dégrader
+   le rappel, puisqu'un utilisateur saisissant le mot-clef "loup" ne trouvera
+   pas les documents dans lesquels ce terme apparaît *seulement* sous la forme "Loup" ou "loups";
+   
+ - on le comprend immédiatement avec le cas de "loup / louve", il faut une
+   connaissance experte de la langue pour décider que "louve" et "loup" doivent
+   être associés, ce qui requiert une transformation qui dépend de la langue et
+   nécessite une analyse approfondie du contenu;
+
+ - inversement, si on normalise (retrait des accents, par exemple) "cote",
+   "côte", "côté", on va unifier des mots dont le sens est différent, et on va
+   diminuer la précision.
+
+En fonction des caractéristiques des documents traités, des utilisateurs de
+notre système de recherche, il faudra trouver un bon équilibre, aucune solution
+n'étant parfaite. C'est de l'art et du réglage... 
+
+L'analyse se compose de plusieurs phases: 
+
+  * *Tokenization*: découpage du texte en "termes".
+  * *Normalisation*: identification de toutes les variantes d'écritures d'un
+    même terme et choix d'une règle de normalisation (que faire des majuscules? acronymes? apostrophes? accents?).     
+  * *Stemming* ("racinisation"): rendre la racine des mots pour éviter le biais des 
+    variations autour d'un même sens (auditer, auditeur, audition, etc.)
+  * *Stop words* ("mots vides"), comment éliminer les mots très courants qui ne rendent
+    pas compte de la signification propre du document?
+
+Ce qui suit est une brève introduction, essentiellement destinée à comprendre
+les outils prêts à l'emploi que nous utiliserons ensuite. Remarquons en
+particulier que les étapes ci-dessus sont parfois décomposées en sous-étapes
+plus fines avec des algorithmes spécifiques (par exemple, un pour les accents,
+un autre pour les majuscules). L'ordre que nous donnons ci-dessus est un exemple, 
+il peut y avoir de légères variations. Enfin, notez bien que **le texte
+transformé dans une étape sert de texte d'entrée à la transformation suivante**
+(nous y reviendrons dans la partie pratique).
+
+Tokenisation et normalisation
+=============================
+
+Un *tokenizer* prend en entrée un texte (une chaîne de caractères) et produit
+une séquence de *tokens*. Il effectue donc un traitement purement lexical,
+consistant typiquement à éliminer les espaces blancs, la ponctuation, les
+liaisons, etc., et à identifier les "mots". Des transformations peuvent
+également intervenir (suppression des accents par exemple, ou normalisation des
+acronymes - U.S.A. devient USA). 
+
+La tokenization est très fortement dépendante de la langue. La première chose à
+faire est d'identifier cette dernière. En première approche on peut examiner le
+jeu de caractères (:numref:`characters`).
+
+.. _characters:
+.. figure:: ../figures/characters.png
+      :width: 10%
+      :align: center
+   
+      Quelques jeux de caractères ... exotiques
+      
+Il s'agit respectivement du: Coréen, Japonais, Maldives, Malte, Islandais. 
+Ce n'est évidemment pas suffisant pour distinguer des langues utilisant le
+même jeu de caractères. Une extension simple est d'identifier
+les *séquences de caractères fréquents*, (*n*-grams).
+Des bibliothèques fonctionnelles font ça très bien (e.g., Tika, http://tika.apache.org)
+
+Une fois la langue identifiée, on divise le texte en *tokens* ("mots"). 
+Ce n'est pas du tout aussi facile qu'on le dirait!
+
+  * Dans certaines langues (Chinois, Japonais), les mots  *ne sont pas* séparés par des espaces.
+  * Certaines langues s'écrivent de droite à gauche, de haut en bas.
+  * Que faire (et de manière *cohérente*) des acronymes, élisions, nombres, unités, URL, email, etc.
+  * Que faire des *mots composés*: les séparer en *tokens* ou les regrouper en un seul? Par exemple:
+  
+    - Anglais: *hostname*, *host-name* et *host name*, ...
+    - Français: Le Mans, aujourd'hui, pomme de terre, ...
+    - Allemand: *Levensversicherungsgesellschaftsangestellter* (employé d’une société d’assurance vie).
+
+Pour les majuscules et la ponctuation, une solution simple est de 
+normaliser systématiquement (minuscules, pas de ponctuation). Ce qui
+donnerait le résultat suivant pour notre petit jeu de données.
+
+     * :math:`d_1`: ``le loup est dans la bergerie``
+     * :math:`d_2`: ``le loup et les trois petits cochons``
+     * :math:`d_3`: ``les moutons sont dans la bergerie``
+     * :math:`d_4`:  ``spider cochon spider cochon il peut marcher au plafond``
+     * :math:`d_5`: ``un loup a mangé un mouton les autres loups sont restés dans la bergerie``
+     * :math:`d_6`:  ``il y a trois moutons dans le pré et un mouton dans la gueule du loup``
+     * :math:`d_7`: ``le cochon est à 12 euros le kilo le mouton à  10 euros kilo``
+     * :math:`d_8`: ``les trois petits loups et le grand méchant cochon``
+
+Stemming (racine), lemmatisation
+================================
+
+La racinisation consiste à *confondre* toutes les formes d'un même mot, ou de 
+mots apparentés, en une seule *racine*. Le  *stemming morphologique*
+retire les pluriels, marque de genre, conjugaisons, modes, etc. 
+Le *stemming lexical* fond les termes proches lexicalement: 
+"politique, politicien, police (?)" ou   "université, universel, univers (?)".
+Ici, le choix influe clairement sur la précision et le rappel (plus d'unification
+favorise le rappel au détriment de la précision).
+
+La racinisation 
+est très dépendante de la langue et peut nécessiter une analyse linguistique
+complexe.  En anglais, *geese* est le pluriel de *goose*, *mice* de *mouse*; 
+les formes   masculin / féminin en français n'ont parfois rien à voir ("loup / louve")
+mais aussi ("cheval / jument": parle-t-on de la même chose?) Quelques
+exemples célèbres montrent les difficultés d'interprétation:
+
+ * "Les poules du couvent couvent": où est le verbe, où est le substantif?
+ * "La petite brise la glace":  idem.
+
+Voici un résultat possible de la racinisation pour nos documents.
+
+     * :math:`d_1`: ``le loup etre dans la bergerie``
+     * :math:`d_2`: ``le loup et les trois petit cochon``
+     * :math:`d_3`: ``les mouton etre dans la bergerie``
+     * :math:`d_4`:  ``spider cochon spider cochon il pouvoir marcher au plafond``
+     * :math:`d_5`: ``un loup avoir manger un mouton les autre loup etre rester dans la bergerie``
+     * :math:`d_6`:  ``il y avoir trois mouton dans le pre et un mouton dans la gueule du loup``
+     * :math:`d_7`: ``le cochon etre a 12 euro le kilo le mouton a 10 euro kilo``
+     * :math:`d_8`: ``les trois petit loup et le grand mechant cochon``
+
+Il existe des procédures spécialisées pour chaque langue. En anglais,
+l'algorithme `Snowball <http://snowballstem.org/>`_ de Martin Porter fait
+référence et est toujours développé aujourd'hui. Il a connu des déclinaisons
+dans de nombreuses langues, dont le français, par un travail collaboratif. 
+
+Mots vides et autres filtres
+============================
+
+Un des filtres les plus courants consiste
+à retire les mots porteurs d'une information faible
+("*stop words*" ou "mots vides")  afin de limiter le stockage.
+
+  * Les articles: *le*, *le*, *ce*, etc.
+  * Les verbes "fonctionnels": *être*, *avoir*, *faire*, etc.
+  * Les conjonctions: *et*, *ou*, etc.
+  * et ainsi de suite. 
+  
+Le choix est délicat car, d'une part, ne pas supprimer
+les mots vides augmente l'espace de stockage nécessaire (et ce d'autant
+plus que la liste associée à un mot très fréquent est très longue),
+d'autre part les éliminer peut diminuer la pertinence des 
+recherches  ("pomme de terre", "Let it be", "Stade de France").
+
+Parmi les autres filtres, citons en vrac: 
+
+  * *Majuscules / minuscules*. On peut tout mettre en minuscules, mais
+    on perd alors la distinction nom propre / nom commu,, par exemple Lyonnaise des Eaux, Société Générale, Windows, etc.
+  * *Acronymes*.
+    CAT = *cat* ou *Caterpillar Inc.*?  M.A.A.F ou MAAF ou Mutuelle ... ?
+  * *Dates, chiffres*.
+    Monday 24, August, 1572 -- 24/08/1572 -- 24 août 1572;
+    10000 ou 10,000.00 ou 10,000.00
+
+Dans tous les cas, les même règles de transformation s'appliquent aux documents 
+ET à la requête. Voici, au final, pour chaque document la liste
+des *tokens* après application de quelques règles simples.
+
+     * :math:`d_1`: ``loup etre bergerie``
+     * :math:`d_2`: ``loup trois petit cochon``
+     * :math:`d_3`: ``mouton etre bergerie``
+     * :math:`d_4`:  ``spider cochon spider cochon pouvoir marcher plafond``
+     * :math:`d_5`: ``loup avoir manger  mouton autre loup etre rester bergerie``
+     * :math:`d_6`:  ``avoir trois mouton pre mouton gueule loup``
+     * :math:`d_7`: ``cochon etre douze euro kilo mouton dix euro kilo``
+     * :math:`d_8`: ``trois petit loup grand mechant cochon``
+
+Quiz
+====
+
+.. eqt:: ri-analysedoc-1
+
+    Qu'est-ce que la tokenisation?
+   
+    A) :eqt:`I`  C'est l'élimination de toute ponctuation
+    #) :eqt:`C`  C'est le découpage d'un texte en unités lexicales
+    #) :eqt:`I` C'est l'extraction des termes d'un dictionnaire présents dans un texte
+
+.. eqt:: ri-analysedoc-2
+
+    Quelle opération ci-dessous ne relèvent pas de la stemmisation?
+   
+    A) :eqt:`C`  Rassembler tous les synonymes en un seul terme
+    #) :eqt:`I`  Supprimer toutes les formes plurielles
+    #) :eqt:`I`  Ramener tous les verbes à la forme infinitive
+    
+  
+*****************************
+S3: recherche avec classement
+*****************************
+
+Supports complémentaires:
+
+  * `Présentation: Recherche avec classement <http://b3d.bdpedia.fr/files/slri-ranking-rankedsearch.pdf>`_
+  * `Vidéo de la session "Principes de la recherche avec classement" <https://mediaserver.lecnam.net/permalink/v125f35a3b0b7my7jokt/>`_  
+
+Le mode d'interrogation classique en base de données consiste à
+exprimer des critères de recherche et à produire en sortie les
+données qui satisfont *exactement* ces critères. En d'autres termes,
+dans le cas d'une base documentaire, on peut déterminer qu'un document
+est ou n'est pas dans le résultat. Cette décision univoque correspond
+au modèle de requêtes Booléennes présenté précécemment.
+ 
+Notions de base: espace métrique, distance et similarité
+========================================================
+
+Dans le cas typique
+d'un document textuel, il est illusoire de vouloir effectuer une recherche
+exacte en tentant de produire comme critère  la chaîne de caractères
+complète du document, voire même une sous-chaîne. 
+La même remarque s'applique
+à des objets complexes ou multimédia (images, vidéos, etc.). La logique est alors
+plutôt d'interpréter la requête comme un *besoin*, et d'identifier les
+documents les plus "proches" du besoin.
+En recherche d'information (*RI*), on raisonne donc plutôt en terme
+de *pertinence* pour décider si un document fait ou non partie du résultat d'une recherche.  
+La formalisation de ces notions
+de besoin et de pertinence est au centre des méthodes de RI.
+
+En particulier, la formalisation de la pertinence consiste à en donner une
+expression *quantitative*. Pour cela, l'approche classique consiste
+
+  * à définir un espace métrique *E* doté d'une fonction de *distance* :math:`m_E`, 
+  * à définir une fonction :math:`f` de l'espace des documents vers *E*; cette fonction s'applique également
+    à la requête *q*, vue comme un document;
+  * enfin, on mesure la pertinence (ou *similarité*) entre
+    deux documents :math:`d_1` et :math:`d_2` comme l'inverse de la distance entre :math:`f(d_1)`
+    et :math:`f(d_2)`.
+    
+    .. math:: 
+        
+          sim(d, q) = \frac{1}{m_E(f(d_1), f(d_2))} 
+
+On obtient une mesure de la similarité, ou *score*, mesurant la proximité de deux documents
+(ou, plus précisément, des vecteurs représentant ces documents). Il reste à interpréter
+la requête :math:`q` comme un document et à évaluer :math:`sim(f(d), f(q))` pour chaque document *d*
+afin d'évaluer la pertinence d'un document vis-à-vis du besoin
+exprimé par la requête.
+
+Avec cette approche, contrairement aux requêtes Booléennes, on ne peut souvent plus dire 
+de manière stricte qu'un document *d* n'appartient 
+pas au résultat d'une recherche. Il est plus correct de dire que *d* est plus ou
+moins *pertinent*. Cela rend les résultats beaucoup plus riches, et offre à l'utilisateur 
+la possibilité d'éviter le "tout ou rien" de l'approche Booléenne.
+
+.. note:: Reportez-vous au chapitre :ref:`chap-introri` pour une discussion
+   introductive sur les notions de faux et vrais positifs, de rappel et de précision.
+   
+
+La contrepartie de cette flexibilité est l'abondance des candidats potentiels
+et la nécessité de les *classer* en fonction de leur pertinence/score. Le rôle d'un
+moteur de recherche consiste donc (conceptuellement), pour chaque requête *q*, 
+à calculer le score :math:`s_i = sim(q, d_i)` pour chaque document :math:`d_i` 
+de la collection, à trier tous les documents par ordre décroissant des scores
+et à présenter ce classement à l'utilisateur. 
+
+.. important:: Il faut ajouter une contrainte de temps: le résultat doit être 
+   disponible en quelques dizièmes de secondes, même dans le cas de collections
+   comprenant des millions, des centaines de millions ou des milliards de documents (cas du Web).
+   La performance de la recherche s'appuie sur les structures d'index inversés
+   et des optimisations fines qui dépassent le cadre de ce cours: 
+   reportez-vous, par exemple, au livre en ligne mentionné en début de chapitre.
+   
+En pratique, le calcul du score pour *tous* les documents n'est bien sûr pas
+faisable (ni souhaitable d'ailleurs), et le moteur de recherche dispose de structures
+de données qui vont lui permettre de déterminer rapidement les 
+documents ayant le meilleur score. Ces documents (disons les 10 ou 20 premiers, typiquement)
+sont présentés à l'utilisateur, et le reste de la liste est calculé à la demande 
+si besoin est. Dans le cas d'une interface interactive (et si le classement
+est réellement pertinent vis-à-vis du besoin), il est rare qu'un utilisateur aille au-delà de la seconde,
+voire même de la première page.
+
+**Vocabulaire**. En résumé, voici les points à retenir.
+
+  #. on effectue des calculs dans un espace métrique, le plus souvent un espace vectoriel;
+  #. pour chaque document, on produit un objet de l'espace métrique, appelé *descripteur*,
+     qui a le plus souvent la forme d'un *vecteur* (*features vector*);
+  #. on applique le même traitement à la requête *q* pour obtenir un descripteur :math:`v_q`;
+  #. le *score* est une mesure de la pertinence d'un document :math:`d_i` par rapport au
+     *besoin* exprimé par la requête *q*; 
+  #. le calcul du score s'appuie sur la mesure de la *distance* entre le descripteur de :math:`d_i` 
+     et celui de *q*.
+
+Ces principes étant posés, voyons une application concrète (quoique simplifiée
+pour l'instant, et peu satisfaisante en pratique) au cas de la recherche plein texte.
+
+Application à la recherche plein texte
+======================================
+
+.. important:: La méthode présentée ci-dessous n'est qu'une première approche, 
+   à la fois très simplifiée et présentant de sévères défauts
+   par rapport à la méthode générale que nous présenterons ensuite. 
+
+Pour commencer, on suppose
+connu l'ensemble :math:`V=\{t_1, t_2, \cdots, t_n\}` de tous les termes utilisables pour la rédaction d'un
+document et on définit *E* comme l'espace de tous les vecteurs
+constitués de *n* coordonnées valant soit 0, soit 1 (soit,
+en notation mathématique, :math:`E = \{0, 1\}^{n}`). Ce sont nos descripteurs.
+
+Par exemple, on considère que le vocabulaire est {"papa", "maman", "gateau", "chocolat", "haut", "bas"}. 
+Nos vecteurs sont donc constitués de 6 coordonnées valant soit 0, soit 1. Il faut alors
+définir la fonction :math:`f` qui associe un document *d* à son descripteur (vecteur) :math:`v = f(d)`.
+Voici cette définition: 
+
+.. math::
+
+      v[i] = \left\{
+                \begin{array}{ll}
+                  1 \text{ si $d$ contient le terme $t_i$}\\
+                  0 \text{ sinon}
+                \end{array}
+              \right.
+
+
+C'est exactement la représentation que nous avons adoptée jusqu'à présent. À chaque
+document on associe une séquence (un vecteur) de 1 ou de 0 selon que le terme :math:`t_i`
+est présent ou non dans le document. 
+
+Prenons un premier exemple. Le document :math:`d_{maman}`::
+
+   "maman est en haut, qui fait du gateau"
+   
+sera représenté par le descripteur/vecteur :math:`[0, 1, 1, 0, 1, 0]`. Je vous laisse
+calculer le vecteur de ce second document :math:`d_{papa}`::
+
+  "papa est en bas, qui fait du chocolat"
+ 
+.. note:: Remarquez que l'on choisit délibérément d'ignorer certains mots considérés
+   comme peu représentatifs du contenu du document. Ce sont les *stop words* (mots
+   inutiles) comme "est", "en", "qui", "fait", etc. 
+
+.. note:: Remarquez également que *l'ordre des mots* dans le document est ignoré
+  par cette représentation qui considère un texte comme un "sac de mots" (*bag of words*).
+  Si on prend un document contenant les deux phrases ci-dessus, on ne sait
+  plus distinguer si papa est en haut ou en bas, ou si maman
+  fait du gateau ou du chocolat.
+   
+Maintenant, contrairement à la recherche Booléenne
+dans laquelle on vérifiait que, pour chaque terme requis, la position correspondante dans le vecteur
+d'un document était à 1, on va appliquer une fonction de distance sur les vecteurs
+afin d'obtenir une valeur entre 0 et 1 mesurant la pertinence.
+Un candidat naturel est la distance Euclidienne dont nous rappelons la définition,
+pour deux vecteurs :math:`v_1` et :math:`v_2`.
+
+.. math:: 
+
+    E(v_1, v_2) = \sqrt{(v_1^1 - v^1_2)^2 + (v^2_1 - v^2_2)^2 + \cdots + (v_1^n - v^n_2)^2}
+
+Et la similarité est l'inverse de la distance.
+
+.. math::
+
+      sim(v_1, v_2) = \left\{
+                \begin{array}{ll}
+                  \infty \text{ si $v^i_1=v^i_2$ pour tout $i$ }\\
+                  \frac{1}{E(v_1, v_2)}  \text{ sinon}
+                \end{array}
+              \right.
+
+On obtient une mesure de la similarité, ou *score*, mesurant la proximité de deux documents
+(ou, plus précisément, des vecteurs représentant ces documents). 
+
+Il reste à interpréter
+la requête comme un document et à évaluer :math:`sim(f(d), f(q))` pour chaque document *d*
+et la requête *q* pour évaluer la pertinence d'un document vis-à-vis du besoin
+exprimé par la requête. La requête *q* par exemple::
+
+   "maman haut chocolat"
+
+est donc transformée en un vecteur :math:`v_q = [0, 1, 0, 1, 1, 0]`. Pour le document
+:math:`d_{maman}`, on obtient un score
+de :math:`sim (v_q, d_{maman}) = \frac{1}{\sqrt{2}}`.  À vous de calculer
+:math:`sim (v_q, d_{papa})` et de vérifier que ce score est moins elevé, ce qui correspond
+à notre intuition. Notez quand même:
+
+  - que "chocolat", un des mots-clés de *q*, n'apparaît pas dans le document :math:`d_{maman}`, malgré tout classé en tête;
+  - qu'un seul terme est commun entre :math:`d_{papa}` et *q*, et que le document est quand même (bien) classé;
+  - qu'un document comme "``bébé mange sa soupe``" obtiendrait un score non nul (lequel?) et serait donc lui aussi
+    classé (si on ne met pas de borne à la valeur du score).
+
+Une différence concrète très sensible (illustrée ci-dessus) avec les requêtes Booléennes
+est qu'il n'est pas nécessaire
+qu'un document contienne *tous* les termes de la requête pour que son score soit
+différent de 0. 
+
+Les limites de l'approche présentée jusqu'ici sont explorées dans des
+exercices. La méthode beaucoup plus robuste détaillée dans la prochaine section
+montrera aussi, par contraste, coment des facteurs comme la taille des documents,
+la taille du vocabulaire, le nombre d'occurrences d'un terme dans un document
+et la rareté de ce terme influent sur la précision du classement.
+
+Quiz
+====
+
+.. eqt:: ri-rank1-1
+
+    Quelle est la différence entre un espace métrique (EM) et un espace vectoriel (EV)?
+   
+    A) :eqt:`I` Les données d'un EM sont ordonnées, contraitrement aux vecteurs
+    #) :eqt:`I` Il existe une fonction de distance dans un EM, et pas dans un EV
+    #) :eqt:`C` Un EV est un type particulier d'espace métrique
+
+.. eqt:: ri-rank1-12
+
+    Laquelle de ces propriétés n'est pas nécessaire pour une distance
+   
+    A) :eqt:`I` La symétrie
+    #) :eqt:`I` L'inégalité triangulaire
+    #) :eqt:`C` La valeur est comprise entre 0 et 1
+    #) :eqt:`I` La distance est nulle ssi les deux objets sont les mêmes
+
+
+.. eqt:: ri-rank1-2
+
+    Quelle explication de la notion de "bag of words" vous semble la bonne.
+   
+    A) :eqt:`I` Chaque texte est représenté par un sous-ensemble de ses mots, c'est le "sac"
+    #) :eqt:`C` Le texte est considéré comme un ensemble de mots sans ordre, comme
+       s'ils étaient dans un "sac"
+    #) :eqt:`I` Les textes sont projetés dans un espace vectoriel appelé "sac de mots".
+
+.. eqt:: ri-rank1-3
+
+    Pourquoi est-il plus correct de parler de distance entre les représentations des documents
+    que de distance entre les documents eux-mêmes?
+   
+    A) :eqt:`C` Parce qu'il peut y avoir plusieurs représentations possibles d'un même
+       document, ce qui peut influer sur la distance
+    #) :eqt:`I` Parce que la distance naturelle entre deux documents textuels est trop coûteuse
+       à calculer
+    #) :eqt:`I` Parce que cela permet d'appliquer une même distance à des documents multimédia
+       quelconques: images, vidéos, etc.
+
+
+.. eqt:: ri-rank1-4
+
+    Comment est interprétée une requête *q* ?
+   
+    A) :eqt:`I` C'est une séquence d'opérations à appliquer à la collection
+    #) :eqt:`I` C'est une spécification de critères de recherche filtrant la collection
+    #) :eqt:`C` C'est un document de même type que ceux de la collection
+    #) :eqt:`I` C'est une sous-chaîne des documents textuels de la collection
+   
+
+.. eqt:: ri-rank1-5
+
+    Qu'est-ce qui détermine le classement du résultat?
+   
+    A) :eqt:`I` On calcule toutes les distances entre chaque paire de documents, et on trie.
+    #) :eqt:`C` On calcule la distance par rapport à un document de référence: la requête
+    #) :eqt:`I` Les documents qui contiennent le plus de termes sont classés en premier
+
+.. eqt:: ri-rank1-6
+
+    Qu'est-ce qu'un *stop word*
+   
+    A) :eqt:`I` On exclut les documents qui contiennent ce mot
+    #) :eqt:`C` C'est un mot courant qui n'informe pas sur le document
+    #) :eqt:`I` C'est un mot qui déclenche l'arrêt de la recherche quand il est rencontré
+
+.. eqt:: ri-rank1-7
+
+    Un document doit contenir tous les mots de la requête pour être pertinent
+   
+    A) :eqt:`I` Vrai
+    #) :eqt:`C` Faux
+
+.. eqt:: ri-rank1-8
+
+    Quelle propriété de la distance euclidienne est vraie?
+   
+    A) :eqt:`I` On ne prend en compte que les 1
+    #) :eqt:`I` On ne prend en compte que les 0
+    #) :eqt:`C` On prend en compte toutes les coordonnées des vecteurs
+    #) :eqt:`I` On prend en compte les coordonnées du vecteur décrivant la requête
+
+
+**************************
+S4: recherche plein  texte
+**************************
+
+Supports complémentaires:
+
+  * `Présentation: Recherche plein texte <http://b3d.bdpedia.fr/files/slri-ranking-fulltextsearch.pdf>`_
+  * `Vidéo de la session classement dans la recherche plein texte <https://mediaserver.lecnam.net/permalink/v125f35a3b0588uwz8x9/>`_  
+
+
+Nous reprenons maintenant un approche plus solide pour la recherche plein texte,
+qui pour l'essentiel s'appuie sur les principes précédents, mais corrige les
+gros inconvénients que vous avez dû découvrir en complétant les exercices.
+
+La méthode présentée dans ce qui suit est maintenant bien établie et utilisée, 
+à quelques raffinements près, comme approche de base par tous les moteurs de recherche.
+Résumons (une nouvelle fois):
+
+  * les documents (textuels) sont vus comme des *sacs de mots*, l'ordre entre les mots étant
+    ignoré; on ne fera pas de différence entre un document qui dit que le mouton est
+    dans la gueule du loup et un autre qui prétend  que le loup est dans la gueule du mouton (?);
+  * quand on parle de "mots", il faut bien comprendre: les termes obtenus par application
+    d'un processus de simplification / normalisation lexicale déjà étudié;
+  * un descripteur est associé à chaque document, dans un espace doté d'une fonction
+    de distance qui permet d'estimer la similarité entre deux documents;
+  * enfin, la *requête* elle-même est vue comme un document, et placée donc dans le même espace;
+    on considère donc ici les requêtes exprimées comme une liste de mots, sans aucune construction 
+    syntaxique complémentaire.
+    
+Ceci posé, nous nous concentrons sur la fonction de similarité. 
+
+.. note:: "mot" et "terme" sont utilisés comme des synonymes à partir de maintenant. 
+
+Le poids des mots
+=================
+
+Dans l'approche très simplifiée présentée ci-dessus, nous avons traité les mots uniformément,
+selon une approche Booléenne: 1 si le mot est présent dans le document, 0 sinon.
+
+Pour obtenir des résultats de meilleure qualité, on va prendre en compte
+les degrés de pertinence et d'information portés par un terme, selon deux principes:
+
+  #. plus un terme est présent dans un document, plus il est représentatif du contenu du document;
+  #. moins un terme est présent dans une collection, et plus une occurrence de terme est significative.
+  
+De plus, on va tenter d'éliminer le biais lié à la longueur variable
+des documents. Il est clair que plus un document est long, et plus il contiendra
+de mots et de répétitions d'un même mot. Si on n'introduit pas un élément correctif, 
+la longueur des documents a donc un impact fort sur le résultat d'une recherche et
+d'un classement, ce qui n'est pas forcément souhaitable.
+
+En tenant compte de ces facteurs, on aboutit à affecter un *poids* 
+à chaque mot dans un document, et à représenter ce dernier comme un vecteur
+de paires *(mot, poids)*, ce qui peut être considéré comme une représentation compacte 
+du contenu du document.  La méthode devenue classique pour déterminer le poids est 
+de combiner la *fréquence des termes* et la *fréquence inverse (des termes) dans
+les documents*, ce que l'on abrège par *tf* (*term frequency*)
+et *idf* (*inverse document frequency*).
+
+La fréquence des termes
+-----------------------
+
+La *fréquence d'un terme t* dans un document *d* est le nombre d'occurrences de
+*t* dans *d*.
+
+.. math::
+
+    \mathrm{tf}(t,d)= n_{t,d}
+
+où :math:`n_{t,d}` est le nombre d'occurrences de *t'* dans *d*. On
+représente donc un document par la liste des termes associés à leur fréquence. Si
+on prend une collection de documents, dans laquelle certains termes apparaissent
+dans plusieurs documents (ce qui est le cas normal), on peut représenter
+les *tf* par une matrice semblable à la matrice d'incidence déjà vue
+dans la cas Booléen. Celle ci-dessous correspond à une collection de trois documents,
+avec un vocabulaire constitué de 4 termes.
+
+.. csv-table:: 
+   :header: terme, d1, d2, d3
+   :widths: 10, 10, 10, 10
+             
+   "voiture", 27, 15, 24
+   "marais", 3, 20, 0
+   "serpent", 0, 25, 29
+   "baleine", 14, 0, 17
+   "`total`", `44`, `60`, `70`
+
+Normalisation des *tf*
+----------------------
+
+Il y a donc 44 termes dans le document *d1*, 60 dans le *d2* et 70 dans le *d3*. Il est clair qu'il est difficile
+de comparer dans l'absolu des fréquences de terme pour des documents de longueur très différentes, car
+la probabilité qu'un terme apparaisse souvent augment avec la taille du document.
+
+Pour s'affranchir de l'effet induit par la taille (qui amènerait à classer systématiquement en tête les
+documents longs), on *normalise* donc les valeurs des *tf*. Une méthode simple est, par exemple,
+de diviser chaque *tf* par le nombre total de termes dans le document, ce qui donnerait la
+matrice suivante:
+
+.. csv-table:: 
+   :header: terme, d1, d2, d3
+   :widths: 10, 10, 10, 10
+             
+   "voiture", 27/44, 15/60, 24/70
+   "marais", 3/44, 20/60, 0
+   "serpent", 0, 25/60, 29/70
+   "baleine", 14/44, 0, 17/70
+
+Un calcul un peu plus sophistiqué consiste à considérer l'ensemble une colonne de la matrice
+d'incidence comme un vecteur dans un espace multidimensionel. Dans notre exemple l'espace
+est de dimension 4, chaque axe correspondant à l'un des termes. Le vecteur de *d1*
+est (27, 3, 0, 14), celui de *d2* (15,20, 25,0), etc.
+Pour normaliser ces vecteurs, on va diviser leurs coordonnées par leur norme euclidienne.
+Rappel: la norme d'un vecteur :math:`v = (x_1, x_2, \cdots, x_n)` est
+
+.. math::
+         
+            ||v|| = \sqrt{x_1^2 + x_2^2 + \cdots + x_n^2} 
+
+La norme du vecteur *d1* est donc:
+
+.. math::
+         
+            \sqrt{27^2 + 3^2 + 14^2} =  30,56
+
+Celle de *d2*:
+
+.. math::
+         
+            \sqrt{15^2 + 20^2 + 25^2} =  35,35
+
+
+Celle de *d3*:
+
+.. math::
+         
+            \sqrt{24^2 + 29^2 + 17^2} =  41,3
+
+On voit que le résultat est assez différent de la simple somme des *tf*. L'interprétation 
+des descripteurs de documents comme des vecteurs est à la base d'un calcul de similarité
+basé sur les cosinus, que nous détaillons ci-dessous.
+
+
+La fréquence inverse dans les documents
+---------------------------------------
+
+La fréquence inverse d'un terme dans les documents (*inverse document
+frequency*, ou *idf*) mesure l'importance d'un terme par rapport à une
+collection *D* de documents. Un terme qui apparaît rarement peut être considéré
+comme plus caractéristique d'un document qu'un autre, très commun. On retrouve
+l'idée des mots inutiles, avec un raffinement consistant à mesurer le degré
+d'utilité. 
+
+L'idf d'un terme *t*  est obtenu en divisant le nombre total de documents par
+le nombre de documents contenant au moins une occurrence de *t*. De plus, on prend
+le logarithme de cette fraction pour conserver cette valeur dans un intervalle
+comparable à celui du *tf*. 
+
+
+.. math::
+
+    \mathrm{idf}(t)=\log\frac{|D|}{\left|\left\{d' \in D\,|\,n_{t,d'}>0\right\}\right|}
+ 
+Notez que si on ne prenait pas le logarithme, la valeur de l'idf pourrait
+devenir très grande, et rendrait négligeable l'autre composante du poids d'un
+terme. La base du logarithme est 10 en général, mais quelle que soit la base,
+vous noterez que l'idf est nul dans le cas d'un terme apparaissant dans *tous*
+les documents (c'est clair? sinon réfléchissez!).
+
+Reprenons notre matrice ci-dessus en supposant que la collection se limite
+aux trois documents. Alors
+
+  - l'idf de "voiture" est 0, car il apparaît dans tous les documents. Intuitivement, "voiture"
+    est (pour la collection étudiée) tellement courant qu'il n'apporte rien comme critère de recherche.
+  - l'idf de "marais", "serpent" et "baleine"   est :math:`log(3/2)`
+
+Dans un cas plus réaliste, un terme qui apparaît 100 fois dans une collection d'un million de documents aura
+un idf de :math:`log_{10}(1000000/100) = log_{10}(10000) = 4` (en base 10). Un terme qui n'apparaît
+que 10 fois aura un idf de :math:`log_{10}(1000000/10) = log_{10}(100000) = 5`. Une valeur d'idf plus élevée
+indique le terme est relativement plus important car plus rare.
+  
+ 
+Le poids tf.idf
+---------------
+
+On peut combiner le tf (normalisé ou non) et l'idf pour obtenir le poids tf.idf d'un terme *t* dans un document.
+C'est simplement le produit des deux valeurs précédentes:
+
+.. math::
+
+    \mathop{\mathrm{tf{.}idf}}(t,d)= n_{t,d}\cdot \log\frac{|D|}{\left|\left\{d'\in D\,|\,n_{t,d'}>0\right\}\right|}
+    
+À chaque document *d* nous associons un vecteur :math:`v_d` dont chaque composante :math:`v_d[i]`
+contient le tf.idf du terme :math:`t_i` pour *d*. 
+
+Si le tf n'est pas normalisé,  les valeurs des tf.idf 
+seront d'autant plus élevées que le document est long. En terme de stockage (et pour anticiper un peu sur la
+structure des index inversés), il est préférable de stocker 
+
+  - l'idf à part, dans une structure indexée par le terme, 
+  - la norme des vecteurs à part, dans une structure indexéee par les documents
+  - et enfin de placer dans chaque cellule la valeur du tf.
+  
+On peut alors effectuer le produit tf.idf et la division par la norme au moment du calcul de la distance. 
+
+La similarité cosinus
+=====================
+
+Nous avons donc des vecteurs représentant les documents. La requête
+est elle aussi représentée par un vecteur  dans lequel les coefficients 
+des mots sont à 1.  Comment calculer la distance entre ces vecteurs?
+Si on prend comme mesure la norme de la différence entre deux vecteurs comme nous l'avons fait 
+initialement, des anomalies sévères apparaissent car deux documents peuvent avoir des 
+contenus semblables mais des tailles très différentes. La distance Euclidienne n'est donc
+pas un bon candidat. 
+
+On pourrait mesure la distance euclidienne entre les vecteurs normalisés. 
+Une mesure plus adaptée en pratique  est la *similarité cosinus*. Commençons par quelques rappels,
+en commençant par la formule du *produit scalaire* de deux vecteurs.
+
+.. math::
+
+    v_1 . v_2  = ||v_1|| \times ||v_2|| \times cos \theta = \sum_{i=1}^n v_1[i] \times v_2[i]
+    
+où :math:`\theta` désigne l'angle entre les deux vecteurs et :math:`||v||` la norme d'un vecteur 
+*v* (sa longueur Euclidienne). 
+
+On en déduit donc que le cosinus de l'angle entre deux vecteurs satisfait:
+
+.. math::
+
+    cos { } \theta  = \frac{\sum_{i=1}^n v_1[i] \times v_2[i]}{||v_1|| \times ||v_2||}
+
+Quel est l'intérêt de prendre ce cosinus comme mesure de similarité? L'idée est que l'on compare
+la *direction* de deux vecteurs, indépendamment de leurs longueurs. La  :numref:`CosineSim`
+montre la représentation des vecteurs pour nos documents de l'exercice `Ex-S3-1`_. Les
+vecteurs en ligne pleine sont les vecteurs unitaires, normalisés, les lignes pointillées
+montrant les vecteurs complets. Pour des raisons d'illustration,
+l'espace est réduit à deux dimensions correspondant  aux deux termes, "loup" et "bergerie".
+Il faut imaginer un espace vectoriel de dimension *n*, *n* étant le nombre
+de termes dans la collection, et donc potentiellement très grand.
+
+
+.. _CosineSim:
+.. figure:: ../figures/CosineSim.png
+      :width: 60%
+      :align: center
+   
+      Illustration de la similarité cosinus
+     
+
+Les documents (B) et (D) contiennent respectivement une occurrence de "bergerie" et une de "loup":
+ils sont alignés avec les axes respectifs. 
+
+Le  document (A) contient une occurrence de "loup" 
+et une de "bergerie" et fait donc un angle de 45 degrés avec l'abcisse: le cosinus de cet angle,
+égal à :math:`\sqrt{2}/2`, représente la similarité entre A et B. 
+
+En ce qui concerne C, 
+"loup" est mentionné deux fois et "bergerie" une, d'où un angle plus important avec l'abcisse. 
+      
+Le fait d'avoir comme dénominateur
+dans la formule le produit des normes revient à normaliser le calcul en ne considérant que des
+vecteurs de longueur unitaire.  La mesure satisfait aussi des conditions satisfaisantes
+intuitivement:
+
+  - l'angle entre deux vecteurs de même direction est 0, le cosinus vaut 1;
+  - l'angle entre deux vecteurs orthogonaux, donc "indépendants" (aucun terme en commun),
+    est 90 degrés, le cosinus vaut 0;
+  - toutes les autres valeurs possibles (dans la mesure où les coefficients de nos vecteurs sont
+    positifs) varient continuement entre 0 et 1 avec la variation de l'angle entre 0 et 90 degrés.
+
+Dernier atout: la similarité cosinus est très simple à calculer, et très rapide pour des vecteurs
+comprenant de nombreuses composantes à 0, ce qui est le cas pour la représentation des documents.
+    
+.. note:: 
+
+          La similarité cosinus n'est pas une distance au sens strict du terme (l'inégalité triangulaire
+          n'est pas respectée), mais ses propriétés en font un excellent candidat.
+
+Passons à la pratique sur notre exemple de trois documents représentés par la matrice
+donnée précédemment. On va ignorer l'idf pour faire simple, et se contenter de prendre en compte
+le tf.
+
+Commençons par une requête simplissime: "voiture". Cette requête est représentée dans l'espace
+de dimension 4 de notre vocabulaire par le vecteur (1, 0, 0, 0), dont la norme est 1.
+On pourrait croire qu'il suffit de prendre le classement des *tf*
+du terme concerné, sans se lancer dans des calculs compliqués, auquel cas
+*d1* arriverait en tête juste devant *d3*. *Erreur!* Ce qui compte ce n'est pas
+la fréquence d'un terme, mais sa proportion par rapport aux autres. Il faut appliquer le
+calcul cosinus rigoureusement.
+
+Calculons donc les cosinus. Pour d1, le cosinus vaut est le produit scalaire des
+vecteurs (27, 3, 0, 14) et (1, 0, 0, 0), divisé par le produit de la norme de ces deux vecteurs: 
+
+.. math::
+   
+     \frac{27 \times 1 + 3 \times 0 + 0 \times 0 + 14 \times 0}{1  \times 30,56} = 0,88
+ 
+Pour les autres documents:
+
+     * Pour d2, le cosinus vaut : :math:`\frac{15 + 0 + 0 + 0}{1 \times 35,35} = 0,424`
+     * Pour d3, le cosinus vaut : :math:`\frac{24 + 0 +0 +0}{1,41 \times 41,3} = 0,58`
+
+Le classement est d1, d3, d2, et on voit que *d1* l'emporte assez nettement sur *d3* alors que
+le nombre d'occurrences du terme "voiture" est à peu près le même dans les deux cas. Explication:
+*d1* parle *essentiellement* de voiture, le second terme le plus important, "baleine", ayant moins
+d'occurrences. Dans *d3* au contraire, "serpent" est le terme principal, "voiture" arrivant en second.
+Le document *d1* est donc plus pertinent pour la requête et doit être classé en premier.
+
+Prenons un second exemple, "voiture" et "baleine". Remarquons d'abord que les coefficients de la requête sont (1, 0, 0, 1) et
+sa norme :math:`\sqrt{1+1} = 1,41`. Voici les calculs cosinus:
+    
+             * Pour d1, le cosinus vaut : :math:`\frac{27 + 14}{1,41 \times 30,56} = 0,95`
+             * Pour d2, le cosinus vaut : :math:`\frac{15 + 0}{1,41 \times 35,35} = 0,30`
+             * Pour d3, le cosinus vaut : :math:`\frac{24 + 17}{1,41 \times 41,3} = 0,70`
+
+L'ordre est donc d1, d3, d2. Le document d3 présente un meilleur équilibre 
+entre les composantes ``voiture`` et  ``baleine``, mais, contrairement
+à d1, il a une autre composante forte pour ``serpent``
+ce qui diminue sa similarité.
+
+Quiz
+====
+
+.. eqt:: ri-tfidf-1
+
+    Pourquoi un terme est-il considéré comme important pour un document?
+   
+    A) :eqt:`I` Parce qu'il est rare dans le document
+    #) :eqt:`C` Parce qu'il est rare dans la collection
+    #) :eqt:`I` Parce qu'il est fréquent dans la collection et rare dans le document
+    #) :eqt:`I` Parce qu'il est rare dans la collection et fréquent dans le document
+
+
+.. eqt:: ri-tfidf-1a
+
+    Je soumets une requête :math:`t_1 t_2 \cdots t_n`. Quel est le tf de chaque terme
+    dans le vecteur représentant cette requête?
+   
+    A) :eqt:`I`  :math:`\frac{1}{n}`
+    #) :eqt:`C`  1
+    #) :eqt:`I`  :math:`\frac{1}{\sqrt{n}}`
+
+.. eqt:: ri-tfidf-1b
+
+    La normalisation de ce vecteur-requête est elle
+    importante pour le classement ?
+   
+    A) :eqt:`C` Non puisque cela revient à multiplier tous les rangs par une constante positive, et
+       ne change donc pas l'ordre.
+    #) :eqt:`I` Oui car c'est la condition pour permettre le calcul du cosinus
+    #) :eqt:`I` Non car la normalisation n'a de sens que pour les documents, pas pour la requête
+
+.. eqt:: ri-tfidf-1c
+
+    Dans la figure :numref:`euclidiandistance`, qu'obtient-on en projetant un vecteur sur l'axe d'un terme *t* ?
+   
+    A) :eqt:`I` La norme du vecteur multipliée par le cosinus
+    #) :eqt:`I` L'idf du terme *t*
+    #) :eqt:`I` Le tf du terme *t*
+    #) :eqt:`C` Le tf.idf du terme *t*
+
+    .. _euclidiandistance:
+    .. figure:: ../figures/euclidiandistance.png
+       :width: 50%
+       :align: center
+
+       Vecteurs dans un espace Euclidien
+
+.. eqt:: ri-tfidf-2
+
+    On exprime une requête avec un seul terme. Est-ce que l'idf du terme a une importance pour
+    le classement?
+   
+    A) :eqt:`C` Non puisque cela ne change pas la direction du vecteur
+    #) :eqt:`I` Oui car cela change sa norme
+    #) :eqt:`I` Non car son idf est forcément égal à 1 dans ce cas
+
+
+.. eqt:: ri-tfidf-3
+
+    Quel est le but de la normalisation ?
+   
+    A) :eqt:`C` Unifier la taille des vecteurs décrivant les documents
+    #) :eqt:`I` Effacer les écarts entre les fréquences de termes dans un document
+    #) :eqt:`I` Utiliser une même représentation pour tous les documents
+
+
+.. eqt:: ri-tfidf-4
+
+    Comment caractériser un mot qui n'a aucun intérêt pour une recherche?
+   
+    A) :eqt:`I` C'est un mot dont l'idf vaut 1
+    #) :eqt:`C` C'est un mot dont l'idf vaut 0
+    #) :eqt:`I` C'est un mot qui n'apparaît que dans un seul document
+
+
+.. eqt:: ri-tfidf-41
+
+    Quelle propriété est vraie pour le calcul de la similarité cosinus entre deux documents
+   
+    A) :eqt:`I` On doit prendre en compte toutes les coordonnées des vecteurs
+    #) :eqt:`C` On ne prend en compte que les paires de coordonnées non nulles
+    #) :eqt:`I` On ne prend en compte que les paires dont une coordonnée est non nulle
+    #) :eqt:`I`  On ne prend en compte que les paires de coordonnées (0,0) 
+
+.. eqt:: ri-tfidf-5
+
+    Deux documents de même longueur contiennent tous les deux le même nombre
+    d'occurrences d'un terme *t*. Que peut-on en déduire sur le classement
+    de ces documents si je fais une recherche avec l'unique terme *t*?
+
+    A) :eqt:`I` Ils seront tous les deux classés en tête avec une valeur cosinus de 1
+    #) :eqt:`I` Leur classement sera le même, mais pas forcément en tête
+    #) :eqt:`C` Leur classement dépend, pour chacun, des co-occurrences avec d'autres termes
+       différents de *t*
+
+
+.. eqt:: ri-tfidf-6
+
+    Je soumets une requête composée de deux termes: :math:`t_1`  et :math:`t_2`, qui ont le même idf. Chaque document
+    contient soit :math:`t_1`, soit :math:`t_2`, une seule fois,  et jamais les deux ensemble. Quel
+    sera le résultat?
+
+    A) :eqt:`I` Ils seront tous les deux classés en tête avec une valeur cosinus de 1
+    #) :eqt:`I` Leur classement sera le même, mais pas forcément en tête
+    #) :eqt:`C` Les documents sont classés selon leur taille
+
+*********
+Exercices
+*********
+
+
+.. _Ex-S1-1:
+.. admonition:: Exercice `Ex-S1-1`_: précision et rappel, calculons
+
+   Voici une matrice donnant les faux positifs et faux négatifs, vrais positifs et vrais négatifs
+   pour une recherche.
+   
+   .. _conmat:
+   .. list-table:: Table de contingence
+        :widths: 15 10 10
+        :header-rows: 1
+
+        * - 
+          - Pertinent
+          - Non pertinent
+        * - Ramené (positif)
+          - 50
+          - 10
+        * - Non ramené (négatif)
+          - 30
+          - 120
+
+   Quelques questions:
+    
+     * Donnez la précision et le rappel.
+     * Quelle méthode stupide donne toujours un rappel maximal?
+     * Quelles sont les valeurs possibles pour la précision si je tire un seul document au hasard?
+     * Si j'effectue un tirage aléatoire, que penser de l'évolution de la précision et du rappel
+       en fonction de la taille du tirage ? 
+  
+   .. ifconfig:: introri in ('public')
+
+      .. admonition:: Correction
+  
+         * Précision: 50 / 60
+         * Rappel: 50 / 80
+         * Ramener tous les documents
+         * La précision est soit 1, soit 0.
+         * Avec un tirage aléatoire, la relation entre espérance du rappel (plus précisément de 
+           l'espérance du rappel) et 
+           nombre de résultats est monotone croissante. La proportion pertinents / non pertinents 
+           reste constante en espérance. Evidemment, plus l'échantillon est restreint, plus 
+           cette hypothèse se fragilise, avec donc une variance qui augmente. 
+
+.. _Ex-S1-2:
+.. admonition:: Exercice `Ex-S1-2`_: précision et rappel, réfléchissons.
+
+   Soit un système qui affiche systématiquement 20 documents, ni plus ni moins, pour toutes les recherches. Indiquez
+   quel est la précision et le rappel dans les cas suivants:
+
+    * Mon besoin de recherche correspond à un document unique de la collection, il est affiché parmi les 20.
+    * Ma base contient 100 documents, je veux tous les obtenir, le système m'en renvoie 20.
+    * Je fais une recherche dont je sais qu'elle devrait me ramener 30 documents. Parmi les
+      20 que renvoie le système, je n'en retrouve que 10 parmi ceux attendus.
+          
+   .. ifconfig:: introri in ('public')
+
+      .. admonition:: Correction
+  
+          * p = 1/20, r = 1/1 = 1
+          * p = 20/20 = 1 ; r = 20/100 = 0.2
+          * p = 10/20 = 0.5 ; r = 10/30 = 1/3
+
+.. _Ex-S1-3:
+.. admonition:: Exercice `Ex-S1-3`_: proposons une autre mesure
+  
+   Voici une autre mesure de qualité, que nous appellerons *exactitude* comme traduction de *accuracy* (exactitude). 
+   Elle se définit comme la fraction du résultat qui est correcte (en comptant les
+   vrais positifs et vrais négatifs comme corrects). Donc, 
+
+   .. math::
+
+        accuracy = \frac{t_n + t_p}{t_n + t_p + f_n + f_p}.
+
+   Où *p* et *n* désignent les négatifs et positifs, *t* et *f* les vrais et faux, respectivement.
+   
+   Cette mesure ne convient pas en recherche d'information. Pourquoi? Imaginez un système où seule une infime
+   partie des documents sont pertinents, quelle que soit la recherche. 
+   
+     - Quelle serait l'exactitude dans ce cas?
+     - Quelle méthode simple et stupide donnerait une exactitude proche de la perfection?
+   
+   .. ifconfig:: introri in ('public')
+
+      .. admonition:: Correction
+  
+          * L'exactitude tend vers 1
+          * Il suffit de renvoyer un résultat vide, quelle que soit la requête.
+ 
+.. _Ex-S1-4:      
+.. admonition:: Exercice `Ex-S1-4`_: matrice d'incidence
+
+   Faire un fichier Excel (ou l'équivalent) qui calcule la taille d'une
+   collection, la taille de la matrice d'incidence, et la densité de 1 dans
+   cette matrice, en fonction des paramètres suivants :
+      
+      * *n*, le nombre de documents,
+      * *d*, le nombre de termes distincts,
+      * *m*, le nombre moyen de mots dans un document,
+      * *w*, la taille moyenne d'un mot (en octets).
+
+.. _Ex-S1-5:
+..  admonition:: Exercice `Ex-S1-5`_: algorithme de négation
+
+    On sait faire une fusion pour une recherche de type ET. La recherche
+    de type OU est évidente (?). Montrer qu'un
+    algorithme similaire existe pour une recherche de type NOT ("les documents
+    qui parlent de loup mais pas de mouton").
+
+
+.. _Ex-S3-1:
+.. admonition:: Exercice `Ex-S3-1`_: premiers pas vers la recherche plein texte
+
+   Voici quelques documents textuels (brefs!).
+   
+     * A: ``Le loup est dans la bergerie.``
+     * B: ``Les moutons sont dans la bergerie.``
+     * C: ``Un loup a mangé un mouton, les autres loups sont restés dans la bergerie.``
+     * D:  ``Il y a trois moutons dans le pré, et un mouton dans la gueule du loup.``
+       
+   Prenons le vocabulaire suivant: {"loup", "mouton", "bergerie", "pré", "gueule"}. 
+   
+     * Construisez la fonction qui associe chaque document à un vecteur dans :math:`\{0, 1\}^{5}`. Vous pouvez
+       représenter cette fonction sous forme d'une matrice d'incidence.
+     * Calculer le score de chaque document par la distance Euclidienne
+       pour les recherches suivantes, et en déduire le classsement:
+     
+       - :math:`q_1`. "loup et pré"
+       - :math:`q_2`. "loup et mouton"
+       - :math:`q_3`. "bergerie"
+       - :math:`q_4`. "gueule du loup"
+  
+.. ifconfig:: rankingS1 in ('public')
+
+   .. admonition:: Correction
+  
+      Les vecteurs des documents
+      
+        - :math:`v(A) = [1, 0, 1, 0, 0]`
+        - :math:`v(B) = [0, 1, 1, 0, 0]`
+        - :math:`v(C) = [1, 1, 1, 0, 0]`
+        - :math:`v(D) = [1, 1, 0, 1, 1]`
+        
+      Les vecteurs des requêtes
+      
+        - :math:`v(q_1) = [1, 0, 0, 1, 0]`
+        - :math:`v(q_2) = [1, 1, 0, 0, 0]`
+        - :math:`v(q_3) = [0, 0, 1, 0, 0]`
+        - :math:`v(q_4) = [1, 0, 0, 0, 1]`
+        
+      En ce qui concerne les requêtes:
+      
+        - :math:`E(q_1, A) = \sqrt{2}; E(q_1, B) = \sqrt{4}; E(q_1, C) = \sqrt{3}; E(q_1, D) = \sqrt{2}`.  A et D sont les plus pertinents,
+          suivi de C  et enfin B. Notez que A de contient pas le mot "pré". Pourquoi
+          obtient-il le même score que D?
+        - :math:`E(q_2, A) = \sqrt{2}; E(q_2, B) = \sqrt{2}; E(q_2, C) = \sqrt{1}; E(q_2, D) = \sqrt{2}`. 
+        - :math:`E(q_3, A) = \sqrt{1}; E(q_3, B) = \sqrt{1}; E(q_3, C) = \sqrt{2}; E(q_3, D) = \sqrt{5}`.
+        - :math:`E(q_4, A) = \sqrt{2}; E(q_4, B) = \sqrt{4}; E(q_4, C) = \sqrt{3}; E(q_4, D) = \sqrt{2}`. C'est
+          donc D qui l'emporte, mais à égalité avec A, ce ne correspond pas vraiment à l'intuition.
+
+
+.. _ftsdistanceapp:
+.. _Ex-S3-2:
+.. admonition:: Exercice `Ex-S3-2`_:  à propos de la fonction de distance
+
+   Supposons que l'on prenne comme distance non pas la distance Euclidienne mais le carré
+   de cette distance. Est-ce que cela change le classement? Qu'est-ce que cela vous inspire?
+   
+.. ifconfig:: rankingS1 in ('public')
+
+   .. admonition:: Correction
+  
+      On peut effectuer un calcul *simplifié* de la distance, tant que l'ordre est respecté. Ce
+      qui nous intéresse en fait, ce n'est pas le score proprement dit, mais l'ordre des scores. 
+
+
+.. _ftsbaddistance:
+.. _Ex-S3-3:
+.. admonition:: Exercice `Ex-S3-3`_:  critique de la distance Euclidienne
+
+   La  distance que nous avons utilisée mesure la *différence* entre la requête
+   et un document, par comparaison des termes un à un. Cela induit des inconvénients
+   qu'il est assez facile de mettre en évidence. 
+   
+   Supposons maintenant que le vocabulaire a une taille très grande. On fait une recherche avec 1 mot-clé.
+   
+     - quel est le score pour un document qui ne contient 99 termes et pas ce mot-clé?
+     - quel est le score pour un document qui contient 101 termes *et* le mot-clé? 
+
+   Conclusion? Le classement obtenu sera-t-il satisfaisant? Trouvez un cas où un document est bien classé
+   même s'il ne contient pas le mot-clé !
+   
+.. ifconfig:: rankingS1 in ('public')
+
+   .. admonition:: Correction
+  
+      Distance de :math:`\sqrt{100}=10` dans le premier cas; de :math:`\sqrt{100}` dans le second également. Ils seront classés au même niveau,
+      ce qui ne va pas du tout!   
+      
+      Un document avec 50 termes sera mieux classé
+      que n'importe quel document de 100 termes contenant ou non le mot-clé. Cela nous met sur
+      la piste de ce qui ne va pas: la mesure que nous utilisons est fortement dépendante de la
+      taille du document, au détriment de sa pertinence.
+
+.. _ftsuniform:
+.. _Ex-S3-4:
+.. admonition:: Exercice `Ex-S3-4`_:  critique de l'hypothèse d'uniformité des termes
+
+   Enfin, dans notre approche très simplifiée, tous les termes ont la même importance. Calculez
+   le classement pour la requête:
+   
+      - :math:`q_5`. "bergerie et gueule"
+ 
+   et tentez d'expliquer le résultat. Est-il satisfaisant? Quel est le biais (pensez au raisonnement
+   sur la longueur du document dans l'exercice précédent).
+
+.. ifconfig:: rankingS1 in ('public')
+
+   .. admonition:: Correction
+  
+      Vecteur de la requête: :math:`v(q_5) =  [0, 0, 1, 0, 1]]`
+      
+      Calcul des classements:
+      
+       - :math:`E(q_5, A) = \sqrt{2}; E(q_5, B) = \sqrt{2}; E(q_5, C) = \sqrt{3}; E(q_2, D) = \sqrt{4}`. 
+       
+     Tous les documents sont mieux classés que D, alors que "gueule" est un terme plus discriminant.       
+
+
+
+.. _Ex-S4-1:
+.. admonition:: Exercice `Ex-S4-1`_: à propos de la requête
+
+     Je soumets une requête :math:`t_1, t_2, \cdots, t_n`. 
+     Quel est le poids de chaque terme dans le vecteur représentant cette requête? 
+     La normalisation de ce vecteur est elle importante pour le classement (justifier)?
+
+
+.. _Ex-S4-2:
+.. admonition:: Exercice `Ex-S4-2`_: encore des voitures, des serpents et des baleines
+
+   Reprenons notre exemple des documents *d1*, *d2* et *d3*, 
+   calculez le classement pour les requêtes suivantes:
+   
+     - serpent
+     - voiture et serpent
+   
+.. _Ex-S4-3:
+.. admonition:: Exercice `Ex-S4-3`_: pesons le loup, le mouton et la bergerie
+
+   Nous reprenons nos documents de l'exemple `Ex-S3-1`_. Le 
+   vocabulaire est toujours le suivant: {"loup", "mouton", "bergerie", "pré", "gueule"}. 
+
+     
+      - Donnez, pour chaque document, le tf de chaque terme.
+      - Donnez les idf des termes (ne pas prendre le logarithme, pour simplifier).
+      - En déduire la matrice d'incidence montrant  l'idf pour chaque
+        terme, le nombre de termes pour chaque document,  et le tf pour chaque cellule.
+                
+.. ifconfig:: rankingS2 in ('public')
+
+      .. admonition:: Correction
+  
+         Fréquence des termes par document (tf).
+         
+          - Document A: loup (1), bergerie (1)
+          - Document B: mouton (1), bergerie (1)
+          - Document C: loup (2), mouton (1), bergerie (1)
+          - Document D: loup (1), mouton (2), pré (1), gueule (1)
+          
+         Fréquence inverse des termes dans les documents (idf): loup  (4/3), 
+         mouton (4/3), bergerie (4/3), pré (4), gueule (4).
+       
+         .. _loups2:
+         .. list-table:: La matrice d'incidence
+            :widths: 15 10 10 10 10 10
+            :header-rows: 1
+
+            * - 
+              - loup (4/3)
+              - mouton (4/3)
+              - bergerie (4/3)
+              - pré (4)
+              - gueule (4)
+            * - A 
+              - 1
+              - 0
+              - 1
+              - 0
+              - 0
+            * - B
+              - 0
+              - 1
+              - 1
+              - 0
+              - 0
+            * - C 
+              - 2
+              - 1
+              - 1
+              - 0
+              - 0
+            * - D
+              - 1
+              - 2
+              - 0
+              - 1
+              - 1
+
+.. _Ex-S4-4:
+.. admonition:: Exercice `Ex-S4-4`_: interrogeons et classons
+
+   Reprendre les requêtes suivantes:    
+      
+       - :math:`q_1`. "loup et pré"
+       - :math:`q_2`. "loup et mouton"
+       - :math:`q_3`. "bergerie"
+       - :math:`q_4`. "gueule du loup"
+   
+   et calculer le classement avec la distance cosinus, en ne prenant en compte
+   que le vecteur des tf. 
+ 
+    .. ifconfig:: rankingS2 in ('public')
+
+      .. admonition:: Correction
+   
+          #. Les normes: 
+           
+             - A: :math:`\sqrt{1+ 1} = \sqrt{2}`
+             - B: :math:`\sqrt{1 + 1} = \sqrt{2}`
+             - C: :math:`\sqrt{2^2 + 1 +  1} = \sqrt{6}`         
+             - D: :math:`\sqrt{2^2 + 1 +  1 + 1} = \sqrt{7}`     
+             
+         #. Classement (on ne normalise pas la requête car cela n'influe pas sur le classement,
+            et du coup on a des cosinus supérieurs à 1): 
+
+             - loup et pré:
+             
+                  * A: :math:`\frac{1 + 0 + 0 + 0 +0}{\sqrt{2}} = 0,707`
+                  * B: :math:`\frac{0}{\sqrt{2}} = 0`
+                  * C: :math:`\frac{2 + 0 + 0 + 0 +0}{\sqrt{6}} = 0,816`
+                  * D: :math:`\frac{1 + 0 + 0 + 1 +0}{\sqrt{7}} = 0,755`
+               Seul D contient les deux termes, *mais* il
+               en contient aussi beaucoup d'autres. Il est donc
+               dominé par C, qui parle fortement de loup mais par
+               de pré, et contient (un peu) moins de termes. 
+               A est bien classé, même s'il ne contient
+               pas "pré", car (intuitivement)à il parle de "loup"
+               de manière forte, ne contenant que très peu de termes.
+ 
+             - loup et mouton:
+                 * A: :math:`\frac{1 + 0 + 0 + 0 +0}{\sqrt{2}} = 0,707`
+                 * B: :math:`\frac{0 + 1 + 0 + 0 +0}{\sqrt{2}} = 0,707`
+                 * C: :math:`\frac{2 + 1 + 0 + 0 +0}{\sqrt{6}} = 1,22`
+                 * D: :math:`\frac{1 + 2 + 0 + 0 +0}{\sqrt{7}} = 1,13`
+                C et D sont à peu près à égalité, comme on peut le
+                prévoir intuitivement: ils parlent des deux 
+                termes  de manière un peu déséquilibrée,
+                par rapport à la requête. C l'emporte car sa norme est
+                plus petite, il est donc plus "concentré" sur 
+                les termes de la requête.
+ 
+              - bergerie:
+                  * A: :math:`\frac{1}{\sqrt{2}}  = 0,707`
+                  * B: :math:`\frac{1}{\sqrt{2}}  = 0,707`
+                  * C: :math:`\frac{1}{\sqrt{6}} = 0,4`
+                  * D: :math:`\frac{0}{\sqrt{7}}`
+                A et B arrivent à égalité: il parlent tous les deux
+                une fois de bergerie, et contiennent exactement 
+                un autre terme.
+              - gueule du loup:
+                  * A: :math:`\frac{1 + 0 + 0 + 0 +0}{\sqrt{2}} = 0,707`
+                  * B: :math:`\frac{0}{\sqrt{2}} = 0`
+                  * C: :math:`\frac{2 + 0 + 0 + 0 +0}{\sqrt{6}} = 0,816`
+                  * D: :math:`\frac{1 + 0 + 0 + 0 +1}{\sqrt{7}} = 0,75`
+                Même analyse que pour la première requête
+
+.. _Ex-S4-5:
+.. admonition:: Exercice `Ex-S4-5`_: comparons les loups et les moutons
+
+     - Reprenez une nouvelle fois  les documents de l'exercice  `Ex-S1-1`_. Vous devriez
+       avoir la matrice des tf.idf calculée dans l'exercice `Ex-S4-3`_.
+      
+        - classez les documents B, C, D par similarité cosinus décroissante 
+          avec A;
+        - calculez la similarité cosinus entre chaque paire de documents; peut-on
+          identifier 2 groupes évidents? 
+   
+   
+.. _Ex-S4-6:
+.. admonition:: Exercice `Ex-S4-6`_ : un exemple complet
+
+   Voici trois recettes.
+   
+    - Panna cotta (pc):  Mettre la crème, le sucre et la vanille dans une casserole et faire frémir. Ajouter 
+      les 3 feuilles de gélatine préalablement  trempées dans l'eau froide. Bien remuer 
+      et verser la crème dans des coupelles. Laisser refroidir quelques heures.
+    - Crème brulée (cb): Faire bouillir le lait, ajouter la crème et le sucre hors du feu. Ajouter les 
+      jaunes d'œufs, mettre au four au bain marie et laisser cuire doucement 
+      à 180C environ 10 minutes. Laisser refroidir puis mettre dessus du sucre roux et le 
+      brûler avec un petit chalumeau.
+    - Mousse au chocolat (mc): Faire ramollir le chocolat dans une terrine. Incorporer les jaunes et le sucre.
+      Puis, battre les blancs en neige ferme et les ajouter délicatement au 
+      mélange à l'aide d'une spatule. Mettre au frais 1 heure ou 2 minimum.
+   
+   À vous de jouer pour la création de l'index et les calculs de classement.
+   
+     - On prend pour vocabulaire  les mots suivants : crème, sucre, œuf, gélatine. Tous
+       les autres mots sont ignorés.
+       Donnez la matrice d'incidence avec l'idf de chaque terme, et le tf de chaque paire (terme, document).
+     - Donnez les normes de vecteurs représentant chaque document.  
+     - Donner les résultats classés par combinaison tf (on ignore l'idf) pour les requêtes suivantes 
+       
+          - crème et sucre
+          - crème et œuf
+          - œuf et gélatine
+
+     - Même chose mais en tenant compte de l'idf (sans appliquer le logarithme).
+             
+     - Commentez le résultat de la dernière requête. Est-il correct intuitivement? Que penser de l'indexation
+       du terme 'œuf', est-elle réprésentative du contenu des recettes?
+
+ 
+   .. ifconfig:: rankingS2 in ('public')
+
+      .. admonition:: Correction
+   
+         #. Matrice d'incidence
+
+            Crème apparaît dans 2 documents sur 3, idf=3/2;  sucre dans 3 sur 3 (idf=1),         
+            œuf dans 1 sur 3 (idf=3) comme gélatine. On obtient:
+            
+           .. csv-table:: 
+                 :header: " ", pc, cb, mc
+                 :widths: 10, 10, 10, 10
+             
+                 "crème (3/2)", "2", "1", "0"
+                 "sucre (1)", "1", "2", 1
+                 "œuf (3)", 0, 1, 0
+                 "gélatine (3)", 1, 0, 0
+
+         #. Les normes: 
+           
+             - pc: :math:`\sqrt{2^2 + 1+ 1} = \sqrt{6}`
+             - cb: :math:`\sqrt{1 + 2^2 + 1} = \sqrt{6}`
+             - mc: :math:`\sqrt{1} = 1`
+                          
+         #. Classement (on ne normalise pas la requête car cela n'influe pas sur le classement,
+            et du coup on a des cosinus supérieurs à 1): 
+
+             - crème et sucre:
+             
+                  * pc: :math:`\frac{2+ 1}{\sqrt{6}}`
+                  * cb: :math:`\frac{1 + 2}{\sqrt{6}}`
+                  * mc: :math:`\frac{1}{1}`
+ 
+             - crème et œuf: 
+             
+                  * pc: :math:`\frac{2}{\sqrt{6}}`
+                  * cb: :math:`\frac{1 + 1}{\sqrt{6}}`
+                  * mc: :math:`\frac{0}{1}`
+             
+             - œuf et gélatine: 
+             
+                  * pc: :math:`\frac{1}{\sqrt{6}}`
+                  * cb: :math:`\frac{1}{\sqrt{6}}`
+                  * mc: :math:`\frac{0}{1}`
+
+         #. Etudions maintenant l'impact de l'idf. En prenant le logarithme, on obtient:
+         
+              - :math:`idf(\text{crème}) = log(1.5) = 0,176`
+              - :math:`idf(\text{sucre}) = log(1) = 0`
+              - :math:`idf(\text{œuf}) = log(3) = 0,477`
+              - :math:`idf(\text{gélatine}) = log(3) = 0,477`
+              
+            On remarque que l'IDF de 'sucre' vaut zéro, ce qui revient à dire que ce terme
+            ne sert à rien dans une requête. Cela reflête le fait que 'sucre' apparaît
+            dans *tous* les documents et que son pouvoir de discrimination est nul.
+            
+            Ce qui nous donne la matrice des tf.idf suivante:
+            
+            .. csv-table:: 
+                 :header: " ", pc, cb, mc
+                 :widths: 10, 10, 10, 10
+             
+                 "crème", "0,352", "0,176", "0"
+                 "sucre", "0", "0", 0
+                 "œuf", 0, "0,477", 0
+                 "gélatine", "0,477", 0, 0
+
+
+            Un inconvénient immédiat apparaît: le document ``mc`` a tous ses coefficients
+            à zéro et n'apparaîtra dans aucun résultat, même pour les requêtes sur le sucre.
+            Pour pallier ce défaut, on peut prendre pour l'idf non pas le log mais :math:`1+log`.
+            Celà fait partie des très nombreux petits réglages qui font la qualité d'un moteur de recherche.
+
+            Les normes des vecteurs:
+             
+               - pc: :math:`\sqrt{0,352^2 +  0,477^2} = 0,593`
+               - cb: :math:`\sqrt{0,176^2 + 0,477^2} = 0,508`               
+             
+            La requête "œuf et gélatine" est représentée par le vecteur (0,477, 0,477). La similarité
+            cosinus (toujours en ignorant la norme de la requête qui est constante et ne change 
+            pas le classement)  est donc:
+             
+                  * pc: :math:`\frac{0,477^2}{0,593}`
+                  * cb: :math:`\frac{0,477^2}{0,508}`
+            
+            C'est donc la crème brulée qui l'emporte. Pourquoi? Parce que le terme
+            "œuf" commun entre la requête et le document est prépondérant dans la représentation
+            vectorielle de ce dernier.
+            En prenant en compte l'idf, il semble en effet que le document ``cb`` parle essentiellement
+            d'œuf, alors que le document ``pc`` parle à peu près à parts égales d'œuf et de crème.
+            Le document le plus spécifiquement liée à la requête vient donc en premier.
+            
+            La pauvre mousse au chocolat n'apparaît pas dans le résultat, 
+            alors qu'il faut vraiment des œufs pour la préparer.
+
+         #. Interprétation: clairement, il faut des œufs dans la mousse au chocolat, mais le mot 'œuf'
+            lui-même n'apparaît pas, ce qui fausse les résultats. Le tf est à 0 pour le document mc, 
+            et l'idf de 'œuf' est surévalué (parce que le nombre de documents lui-même est 
+            ridiculement petit).
+            
+            Notre moteur de recherche souffre donc des limitations d'une approche purement lexicale
+            basée uniquement sur le tf.idf. Il mérite donc des améliorations, la plus séduiasante
+            étant la consrtruction de réseaux de termes de type *word to vec* pour tenter d'identifier 
+            les concepts à apparier, plutôt que les termes.
+
+.. _Ex-S4-7:
+.. admonition:: Exercice `Ex-S4-7`_: et si on calculait autrement?
+
+   Chaque document est représenté comme un vecteur dans un espace *n*-dimensionnel.
+   avec des coefficients *normalisés* tf.idf.   
+                 
+        .. _euclidianSim:
+    
+     .. figure:: ../figures/EuclidianSim.png       
+        :width: 50%
+        :align: center
+   
+        Calcul basé sur la distance Euclidienne
+                 
+    Revenons à notre idée initiale de calculer la similarité basée sur la distance Euclidienne entre
+    les deux points A et B: 
+    
+    .. math:: 
+
+       E(A, B) = \sqrt{(a_1 - b_1)^2 + (a_2 - b_2)^2 + \cdots + (a_n - b_n)^2}
+                 
+    La figure :numref:`EuclidianSim` montre la distance Euclidienne, et la distance cosinus 
+    entre les deux points A et B. Montrez qu'un classement par ordre décroissant
+    de la similarité cosinus et identique au classement par ordre croissant de
+    la distance Euclidienne! (Aide: montrez que la distance augmente quand le cosinus
+    diminue. Un peu de Pythagore peut aider).     
+
+
+   .. ifconfig:: rankingS2 in ('public')
+
+      .. admonition:: Correction
+   
+         Notons que: OBC et CBA sont deux triangles rectangles, par définition
+         du cosinus comme projection orthogonale. Par ailleurs, on ne considère pour les calculs
+         de similarité que les points situés dans le quadrant des coordonnées positives, et le cosinus
+         est donc une valeur positive entre 0 et 1. 
+         
+         Enfin, on sait que A et B sont sur le cercle trigonométrique. Donc:
+         
+           - :math:`|| OB || = 1`     
+           - :math:`||OA || = 1 = ||OC || + || CA ||`  
+
+         C'est parti pour Pythagore, comme au collège. Nous avons:
+         
+            - :math:`|| AB ||^2 = || BC ||^2 + ||AC ||^2`  
+            - :math:`|| OB ||^2 = 1 = || OC ||^2 + ||BC ||^2`, et donc :math:`||BC ||^2 = 1 - || OC ||^2`
+
+         Ce qui nous donne:
+         
+            - :math:`|| AB ||^2 = 1 - || OC ||^2 + ||AC ||^2  = 1 - || OC ||^2 + (1- ||OC ||)^2` 
+            - :math:`|| AB ||^2 = 2  (1 - || OC ||)` 
+         
+         
+         AB est la distance euclidienne, OC la distance cosinus comprise entre 0 et 1. 
+         L'une augmente (de 0 à :math:`\sqrt{2}`) quand l'autre diminue (de 1 à 0). C.Q.F.D.
+         
+         La distance cosinus est plus efficace à  calculer car il suffit de considérer
+         les indices des deux vecteurs pour lesquels les coordonnéess
+         sont toutes les deux non nulles, alors
+         que pour la distance euclidienne on doit prendre en compte ceux pour lesquelles
+         *au moins* une des coordonnées est non nulle.
+         

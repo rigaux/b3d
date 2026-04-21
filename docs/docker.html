@@ -1,0 +1,1081 @@
+
+<!DOCTYPE html>
+
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
+    <title>Préliminaires: Docker &#8212; Bases de données documentaires et distribuées v&lt;release&gt; - Cours CNAM NFE204</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/agogo.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/translations.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Recherche" href="search.html" />
+    <link rel="next" title="Modélisation de bases NoSQL" href="docstruct.html" />
+    <link rel="prev" title="Introduction" href="intro.html" /> 
+  </head><body>
+    <div class="header-wrapper">
+      <div class="header">
+        <div class="headertitle"><a
+          href="index.html">Préliminaires: Docker</a></div>
+        <div class="rel">
+          <a href="intro.html" title="Introduction"
+             accesskey="P">précédent</a><font color="white"> |</font>
+          <a href="docstruct.html" title="Modélisation de bases NoSQL"
+             accesskey="N">suivant</a><font color="white"> |</font>
+          <a href="genindex.html" title="Index général"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+<script type="text/javascript" src="_static/dynsite.js"></script>
+
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="preliminaires-docker">
+<span id="chap-docker"></span><h1>Préliminaires: Docker<a class="headerlink" href="#preliminaires-docker" title="Lien permanent vers ce titre">¶</a></h1>
+<div class="admonition-supports-complementaires admonition">
+<p class="admonition-title">Supports complémentaires</p>
+<ul class="simple">
+<li><p><a class="reference external" href="http://b3d.bdpedia.fr/files/sldocker.pdf">Diapositives: introduction à Docker</a></p></li>
+<li><p><a class="reference external" href="https://mediaserver.lecnam.net/permalink/v125f359515b1gu2y6e0/">Vidéo de la session consacrée à Docker</a></p></li>
+</ul>
+</div>
+<p>La plupart des systèmes étudiés dans ce cours peuvent s’installer et s’exécuter
+avec l’environnement <em>Docker</em> (<a class="reference external" href="http://www.docker.com">http://www.docker.com</a>). Docker permet
+d’émuler un système distribué de serveurs.</p>
+<p>Un <em>serveur</em> est une entité
+qui fournit un service (!). Concrètement:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>un <em>serveur (machine)</em> est un ordinateur, tournant sous un système d’exploitation,
+et connecté en permanence au réseau via des <em>ports</em>; un serveur machine est
+identifiable sur le réseau par son adresse IP.</p></li>
+<li><p>un <em>serveur (logiciel)</em>, ou <em>service</em>, est un processus exécuté en tâche de fond d’un serveur machine qui
+communique avec des <em>clients (logiciels)</em> via un port particulier.</p></li>
+<li><p>un <em>système distribué</em> est constitué de plusieurs services qui communiquent les uns
+avec les autres ; ces services peuvent ou non être répartis sur plusieurs serveurs-machine.</p></li>
+<li><p>un <em>client (logiciel)</em> est un programme qui communique avec un service;</p></li>
+<li><p>une <em>machine virtuelle</em> est un programme qui simule, sur une machine hôte,
+un autre ordinateur.</p></li>
+</ul>
+</div></blockquote>
+<div class="admonition-exemple admonition">
+<p class="admonition-title">Exemple.</p>
+<p>Un serveur web est un processus (Apache par exemple) qui communique sur le
+port 80 d’un serveur machine. Si ce serveur machine a pour IP 163.12.9.10, alors tout
+client web (Firefox par exemple) peut s’adresser au serveur web à l’adresse 163.12.9.10:80.</p>
+</div>
+<p>La  <a class="reference internal" href="#serveurs"><span class="std std-numref">Fig. 1</span></a> illustre ces concepts de base, que nous utiliserons maintenant
+intensivement sans plus d’explication. Elle montre dans une machine physique (le
+« système hôte ») deux machines virtuelles. Chacune de ces machines dispose
+d’une adresse IP qui lui est propre, et propose des services en écoute sur certains ports.
+Un serveur MongoDB est présent par exemple sur chacune des deux machines, en écoute
+sur le port par défaut 27017, la différentiation  des serveurs se faisant donc dans
+ce cas par l’adresse IP du serveur qui les héberge.</p>
+<p>Inversement, on peut avoir deux serveurs identiques sur une
+même machine, mais sur des ports différents. C’est ce qu’illustre
+la présence de deux serveurs ElasticSearch sur la seconde machine virtuelle,
+sur les ports respectifs 9200 et 9201.</p>
+<figure class="align-center" id="id1">
+<span id="serveurs"></span><img alt="_images/Serveurs.jpg" src="_images/Serveurs.jpg" />
+<figcaption>
+<p><span class="caption-number">Fig. 1 </span><span class="caption-text">Un exemple de système distribué, avec serveurs virtuels et clients</span><a class="headerlink" href="#id1" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>Avant de donner
+quelques explications plus élaborées, il vous suffit de considérer que Docker permet d’installer
+et d’exécuter très facilement, sur votre ordinateur personnel, et avec
+une consommation de ressources (mémoire et disque) très faible, ce que nous appellerons
+pour l’instant des « pseudos-serveurs » en attendant d’être plus précis.
+Docker offre deux très grands avantages.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>il propose des pseudo-serveurs pré-configurés, prêts à l’emploi (les « images »),
+qui s’installent en quelques clics;</p></li>
+<li><p>il est tout aussi facile d’installer <em>plusieurs</em> pseudos-serveurs communiquant
+les uns avec les autres et d’obtenir donc un système distribué complet, sur
+un simple portable (doté d’une puissance raisonnable).</p></li>
+</ul>
+</div></blockquote>
+<p>Docker permet de transformer un simple ordinateur personnel en <em>data center</em>! Bien entendu, il n’en a
+pas la puissance mais pour tester et expérimenter, c’est extrêmement pratique.</p>
+<p><strong>Installation</strong>: Docker existe sous tous les systèmes, dont Windows. Pour Windows et Mac OS, un installateur
+<em>Docker Desktop</em>
+est fourni à <a class="reference external" href="https://www.docker.com/products/docker-desktop">https://www.docker.com/products/docker-desktop</a>. Il contient tous les composants nécessaires
+à l’utilisation de Docker.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Merci de me signaler des compléments qui seraient utiles à intégrer dans le présent
+document, pour les environnements différents de Mac OS X, et notamment Windows.</p>
+</div>
+<section id="introduction-a-docker">
+<h2>Introduction à Docker<a class="headerlink" href="#introduction-a-docker" title="Lien permanent vers ce titre">¶</a></h2>
+<p>Essayons de comprendre ce qu’est Docker avant d’aller plus loin. Vous connaissez
+peut-être déjà la notion de <em>machine virtuelle</em> (VM). Elle consiste à simuler
+par un composant logiciel, sur une machine physique,  un ordinateur
+auquel on alloue une partie des ressources (mémoire, CPU). Partant
+d’une machine dotée par exemple de 4 disques et 256 GO de mémoire, on
+peut créer 4 VMs indépendantes avec chacune 1 disque et 64 GO de RAM. Ces
+VMs peuvent être totalement différentes les unes des autres. On peut en avoir
+une sous le système Windows, une autre sous le système Linux, etc.</p>
+<p>L’intérêt des VMs est principalement la souplesse et l’optimisation
+de l’utilisation des ressources matérielles. L’organisation en VMs
+rend plus facile la réaffectation, le changement du dimensionnement,
+et améliore le taux d’utilisation des dispositifs physiques (disque, mémoire,
+réseau, etc.).</p>
+<p>Les VMs ont aussi l’inconvénient d’être assez gourmandes en ressource, puisqu’il
+faut, à chaque fois, faire tourner un système d’exploitation complet, avec tout
+ce que cela implique, en terme d’emprise mémoire notamment.</p>
+<p>Docker propose une solution beaucoup plus légère, basée sur la capacité
+du système Linux (généralisée à Mac OS et Windows) à créer des espaces isolés auxquels on affecte une partie
+des ressources de la machine-hôte. Ces espaces, ou <em>containers</em> partitionnent
+en quelque sorte le système-hôte en sous-systèmes étanches, au sein desquels
+le nommage (des processus, des utilisateurs, des ports réseaux) est purement local.
+On peut par exemple faire tourner un processus <em>apache</em> sur le port 80
+dans le conteneur A, un autre processus <em>apache</em> sur le port 80 dans le conteneur B,
+sans conflit ni confusion.
+Tous les nommages sont en quelque sorte interprétés par rapport à un container donné (notion
+<em>d’espace de nom</em>).</p>
+<p><em>Les conteneurs sont beaucoup plus légers en consommation de ressources que
+les VMs, puisqu’ils s’exécutent au sein d’un unique système d’exploitation</em>. Docker
+exploite cette spécificité pour proposer un mode de virtualisation
+(que nous avons appelé « pseudo-serveur » en préambule) léger et flexible.</p>
+<section id="docker-et-ses-conteneurs">
+<h3>Docker et ses conteneurs<a class="headerlink" href="#docker-et-ses-conteneurs" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Docker (ou, très précisément, le <em>docker engine</em>) est un
+programme qui va nous permettre de créer des conteneurs  et d’y installer
+des environnements prêts à l’emploi, les <em>images</em>.
+Un peu de vocabulaire: dans tout ce qui suit,</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Le <em>système hôte</em> est le système d’exploitation principal gérant votre machine ;
+c’est par exemple Windows, ou Mac OS.</p></li>
+<li><p><em>Docker engine</em> ou <em>moteur docker</em>  est le programme qui gère les conteneurs.</p></li>
+<li><p>Un <em>conteneur</em> est une partie autonome du système hôte, se comportant comme une
+machine indépendante.</p></li>
+<li><p>Le <em>client Docker</em> est l’utilitaire  grâce auquel on transmet au moteur
+les commandes de gestion de ces conteneurs.
+Il peut s’agir soit de la ligne de commande (<em>Docker CLI</em>) ou du <em>dashboard</em>
+intégré au <em>Docker desktop</em>.</p></li>
+</ul>
+</div></blockquote>
+<figure class="align-center" id="id2">
+<span id="schema-docker"></span><img alt="_images/schema-docker.png" src="_images/schema-docker.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 2 </span><span class="caption-text">Le système hôte, le <em>docker engine</em> et les conteneurs</span><a class="headerlink" href="#id2" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="les-images-docker">
+<h3>Les images Docker<a class="headerlink" href="#les-images-docker" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Un conteneur Docker peut donc être vu comme un sous-système  autonome, mobilisant
+très peu de ressources car l’essentiel des tâches système est délégué au système
+dans lequel il est instancié. On dispose donc virtuellement d’un moyen
+de multiplier à peu de frais des pseudo-machines dans lesquelles on pourait installer
+« à la main » des logiciels divers et variés.</p>
+<p>Docker va un peu plus loin en proposant des installations pré-configurées, empaquetées
+de manière à pouvoir être placées très facilement dans un conteneur. On les appelle
+des <em>images</em>. On peut ainsi trouver des images avec pré-configuration de serveurs de
+données (Oracle, Postgres, MySQL), serveurs Web (Apache, njinx), serveurs NoSQL
+(mongodb, cassandra), moteurs de recherche (ElasticSearch, Solr). L’installation
+d’une image se fait très simplement, et soulage considérablement des tâches parfois
+pénibles d’installation directe.</p>
+<figure class="align-center" id="id3">
+<span id="images-docker"></span><img alt="_images/images-docker.png" src="_images/images-docker.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 3 </span><span class="caption-text">Les images docker, constituant un pseudo système distribué</span><a class="headerlink" href="#id3" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>Une image se place dans un conteneur. On peut placer la même image dans plusieurs
+conteneurs et obtenir ainsi un système distribué. Examinons la
+<a class="reference internal" href="#images-docker"><span class="std std-numref">Fig. 3</span></a> montrant une configuration complète.
+Nous avons tous les composants à l’œuvre, essayons de bien comprendre.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Le système hôte exécute le <em>Docker Engine</em>, un processus qui gère les images
+et instancie les conteneurs.</p></li>
+<li><p>Docker a téléchargé (nous verrons comment plus tard) les images
+de plusieurs systèmes de gestion de données: MySQL, MongoDB (un système
+NoSQL que nous étudierons), et Cassandra.</p></li>
+<li><p>Ces images ont été <em>instanciées</em> dans des conteneurs A, B et C. L’instanciation
+consiste à installer l’image dans le conteneur et à l’exécuter. Nous avons
+donc deux conteneurs avec l’image MySQL, et un troisième avec l’image Cassandra.</p></li>
+</ul>
+</div></blockquote>
+<p>Chacun de ces conteneurs dispose de sa propre adresse IP. En supposant que
+les ports par défaut sont utilisés, le premier serveur MySQL
+est donc accessible à l’adresse IPb, sur le port 3306, le second
+à l’adresse IPc, sur le même port.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Le <em>docker engine</em> implante un système automatique
+de « renvoi » qui « publie » le service d’un conteneur sur
+le port correspondant du système hôte. Le premier
+conteneur MySQL par exemple est <em>aussi</em> accessible sur le port 3306
+de la machine hôte. Pour le second, ce n’est pas possible car le port
+est déjà occupé, et il faut donc configurer manuellement ce renvoi:
+nous verrons comment le faire.</p>
+</div>
+<p>L’ensemble constitue donc un système distribué virtuel, le tout s’exécutant
+sur la machine-hôte
+et gérable très facilement grâce aux utilitaires Docker. Nous avons par exemple dans
+chaque conteneur un serveur MySQL. Maintenant, on peut se connecter à ces serveurs
+à partir de la machine-hôte avec une application cliente (par exemple phpMyAdmin)
+et tester le système distribué, ce que nous ferons tout au long du cours.</p>
+<p>On peut instancier l’image de MongoDB dans 4 conteneurs et obtenir un <em>cluster</em> MongoDB
+en quelques minutes.  Evidemment, les performances globales ne dépasseront pas celle
+de l’unique machine hébergeant Docker. Mais pour du développement ou de l’expérimentation,
+c’est suffisant, et le gain en temps d’installation est considérable.</p>
+<p>En résumé: avec Docker, on dispose d’une boîte à outils pour émuler des environnements
+complexes avec une très grande facilité.</p>
+</section>
+</section>
+<section id="docker-en-pratique">
+<h2>Docker en pratique<a class="headerlink" href="#docker-en-pratique" title="Lien permanent vers ce titre">¶</a></h2>
+<p>Dans ce qui suit, je vais illustrer les commandes avec l’utilitaire de commandes en ligne
+en prenant l’exemple de ma machine Mac OS X. Ce
+ne doit pas être fondamentalement différent sous les autres environnements.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Vous préférerez sans doute à juste titre utiliser un outil graphique comme le
+<em>Docker desktop</em>, décrit dans la prochaine section, mais avoir un aperçu de commandes transmises par ce dernier est toujours utile
+pour comprendre ce qui se passe.</p>
+</div>
+<section id="lancement-du-docker-desktop-mac-os-windows">
+<h3>Lancement du Docker Desktop (Mac OS, Windows)<a class="headerlink" href="#lancement-du-docker-desktop-mac-os-windows" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Sous Mac OS ou Windows, vous disposez du <em>Docker Desktop</em> qui vous permet de
+lancer la machine virtuelle et
+d’obtenir une interface graphique pour gérer votre <em>docker engine</em>.
+La <a class="reference internal" href="#docker-desktop"><span class="std std-numref">Fig. 4</span></a> montre
+la fenêtre des paramètres.</p>
+<figure class="align-center" id="id4">
+<span id="docker-desktop"></span><a class="reference internal image-reference" href="_images/docker-desktop.png"><img alt="_images/docker-desktop.png" src="_images/docker-desktop.png" style="width: 70%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 4 </span><span class="caption-text">Le site d’hébergement des images Docker.</span><a class="headerlink" href="#id4" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>Pour communiquer avec le moteur Docker, on peut
+utiliser un programme client en ligne de commande nommé simplement <code class="docutils literal notranslate"><span class="pre">docker</span></code>.
+L’image la plus simple est un <em>Hello world</em>, on l’instancie avec la commande suivante:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run hello-world
+</pre></div>
+</div>
+<p>Le <code class="docutils literal notranslate"><span class="pre">run</span></code> est la commande d’instanciation d’une nouvelle image dans un conteneur Docker. Voici
+ce que vous devriez obtenir à la première exécution.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run hello-world
+
+   Unable to find image <span class="s1">&#39;hello-world:latest&#39;</span> locally
+   latest: Pulling from library/hello-world
+   4276590986f6: Pull <span class="nb">complete</span>
+   Status: Downloaded newer image <span class="k">for</span> hello-world:latest
+
+   Hello from Docker!
+</pre></div>
+</div>
+<p>Décryptons à nouveau. La machine Docker a cherché dans son répertoire local pour savoir si l’image
+<code class="docutils literal notranslate"><span class="pre">hello-world</span></code> était déjà téléchargée. Ici, comme c’est notre première exécution, ce n’est pas le
+cas (message <code class="docutils literal notranslate"><span class="pre">Unable</span> <span class="pre">to</span> <span class="pre">find</span> <span class="pre">image</span> <span class="pre">locally</span></code>). Docker va donc télécharger l’image et l’instancier.
+Le message <code class="docutils literal notranslate"><span class="pre">Hello</span> <span class="pre">from</span> <span class="pre">Docker.</span></code> s’affiche, et c’est tout.</p>
+<p>L’utilité est plus que limitée, mais cela montre à toute petite
+échelle le fonctionnement général: on choisit une image, on applique <code class="docutils literal notranslate"><span class="pre">run</span></code> et Docker se charge du reste.</p>
+<p>La liste des images est disponible avec la commande:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker images
+</pre></div>
+</div>
+<p>Voici le type d’affichage obtenu:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>REPOSITORY               TAG                 IMAGE ID            CREATED             SIZE
+docker101tutorial        latest              be967614122c        4 days ago          27.3MB
+mysql                    latest              e1d7dc9731da        12 days ago         544MB
+python                   alpine              0f03316d4a27        13 days ago         42.7MB
+nginx                    alpine              6f715d38cfe0        5 weeks ago         22.1MB
+docker/getting-started   latest              1f32459ef038        2 months ago        26.8MB
+hello-world              latest              bf756fb1ae65        8 months ago        13.3kB
+</pre></div>
+</div>
+<p>Une image est instanciée dans un conteneur avec la commande <code class="docutils literal notranslate"><span class="pre">run</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run --name <span class="s1">&#39;nom-conteneur&#39;</span> &lt;options&gt;
+</pre></div>
+</div>
+<p>Les options dépendent de l’image: voir les sections suivantes pour des exemples.
+La liste des conteneurs est disponible avec la commande:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker ps -a
+</pre></div>
+</div>
+<p>L’option <code class="docutils literal notranslate"><span class="pre">-a</span></code>  permet de voir tous les conteneurs, quel que soit leur statut (en arrêt, ou
+en cours d’exécution). On obtient l’affichage suivant:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>CONTAINER ID  IMAGE         COMMAND                  CREATED         STATUS                      PORTS  NAMES
+d1c2291dc9f9  mysql:latest  &quot;docker-entrypoint.s…&quot;   16 minutes ago  Exited (1) 9 minutes ago           mysql
+ec5215871db3  hello-world   &quot;/hello&quot;                 19 minutes ago  Exited (0) 19 minutes ago          relaxed_mendeleev
+</pre></div>
+</div>
+<p>Notez le premier champ, <code class="docutils literal notranslate"><span class="pre">CONTAINER</span> <span class="pre">ID</span></code> qui nous indique l’identifiant par
+lequel on peut transmettre des
+instructions au conteneur. Voici les plus utiles, en supposant que le conteneur est <code class="docutils literal notranslate"><span class="pre">d1c2291dc9f9</span></code>.
+Tout d’abord on peut
+l’arrêter  avec la commande <code class="docutils literal notranslate"><span class="pre">stop</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker stop d1c2291dc9f9
+</pre></div>
+</div>
+<p>Arrêter un conteneur ne signifie pas qu’il n’existe plus, mais qu’il n’est plus actif.
+On peut le relancer avec la commande <code class="docutils literal notranslate"><span class="pre">start</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker start mon-conteneur
+</pre></div>
+</div>
+<p>Pour le supprimer, c’est la commande <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">rm</span></code>. Pour inspecter la configuration système/réseau d’un conteneur,
+Docker fournit la
+commande <code class="docutils literal notranslate"><span class="pre">inspect</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker inspect mon-conteneur
+</pre></div>
+</div>
+<p>On obtient un large document JSON. Parmi toutes les informations données,
+l’adresse IP du coneneur est particulièrement intéressante. On l’obtient avec</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>docker inspect &lt;container id&gt; | grep &quot;IPAddress&quot;
+</pre></div>
+</div>
+</section>
+<section id="installons-des-serveurs-web">
+<h3>Installons des serveurs Web<a class="headerlink" href="#installons-des-serveurs-web" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Testons Docker avec un des services les plus simples qui soient: un serveur web,
+Apache.
+La démarche générale pour une installation
+consiste à chercher l’image qui vous convient sur le site <a class="reference external" href="https://hub.docker.com">https://hub.docker.com</a> qui donne
+accès au catalogue des images Docker fournies par la communauté des utilisateurs.</p>
+<p>Faites une recherche avec le mot-clé « httpd » (correspondant aux images
+du serveur web Apache). Comme on pouvait s’y attendre, de nombreuses images
+sont disponibles.
+La plus standard s’appelle tout simplement <code class="docutils literal notranslate"><span class="pre">httpd</span></code> (<a class="reference internal" href="#docker-httpd"><span class="std std-numref">Fig. 5</span></a>).</p>
+<figure class="align-center" id="id5">
+<span id="docker-httpd"></span><a class="reference internal image-reference" href="_images/docker-httpd.png"><img alt="_images/docker-httpd.png" src="_images/docker-httpd.png" style="width: 70%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 5 </span><span class="caption-text">Les images de serveurs Apache.</span><a class="headerlink" href="#id5" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>Choisissez une image, et cliquez sur le bouton <code class="docutils literal notranslate"><span class="pre">Details</span></code>  pour
+connaître les options d’installation. En prenant
+l’image standard, on obtient la page de documentation illustrée par
+la  <a class="reference internal" href="#docker-httpd-install"><span class="std std-numref">Fig. 6</span></a></p>
+<figure class="align-center" id="id6">
+<span id="docker-httpd-install"></span><a class="reference internal image-reference" href="_images/docker-httpd-install.png"><img alt="_images/docker-httpd-install.png" src="_images/docker-httpd-install.png" style="width: 70%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 6 </span><span class="caption-text">Documentation d’installation de l’image <code class="docutils literal notranslate"><span class="pre">httpd</span></code></span><a class="headerlink" href="#id6" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>Vous avez deviné ce qui reste à faire. Installez l’image dans un conteneur sur votre machine avec
+la commande suivante:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run --name serveur-web1 --detach httpd:latest
+</pre></div>
+</div>
+<p>Voici les options choisies:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> est le nom du conteneur: il peut remplacer l’id du conteneur quand on veut l’arrêter / le relancer, etc.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--detach</span></code>  (ou <code class="docutils literal notranslate"><span class="pre">-d</span></code>) indique que le conteneur
+est lancé en tâche de fond, ce qui évite de bloquer le terminal</p></li>
+<li><p>on indique enfin l’image à utiliser, ainsi que la version: prenez <code class="docutils literal notranslate"><span class="pre">latest</span></code> (ou ne précisez rien)
+sauf si  vous avez de bonnes raisons de faire autrement.</p></li>
+</ul>
+</div></blockquote>
+<p>La première fois, l’image doit être téléchargée, ce qui peut prendre un certain temps. Par la suite, le
+lancement du conteneur instanciant l’image est quasi instantané.</p>
+<p>C’est tout! Vous avez installé et lancé un serveur web. Vous pouvez le vérifier avec
+la commande suivante qui donne la liste des conteneurs en cours d’exécution.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker ps
+</pre></div>
+</div>
+<p>Vous devriez obtenir le résultat suivant. Notez le port sur lequel
+opn peut communiquer avec le service <em>sur le conteneur</em>, et le nom
+du conteneur.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>CONTAINER ID  IMAGE        COMMAND            CREATED        STATUS        PORTS   NAMES
+d02a690e0253  httpd:latest &quot;httpd-foreground&quot; 3 minutes ago  Up 3 minutes  80/tcp  serveur-web1
+</pre></div>
+</div>
+<p>Le serveur web est donc accessible sur le port 80 du conteneur. Pour y accéder
+il faut donc connaître l’adresse IP de ce dernier (c’est possile: voir ci-dessous).
+Il existe une possibilité plus pratique:  <em>renvoyer</em> le port du conteneur
+vers  la machine-hôte.
+Docker fournit un mécanisme dit <em>de publication</em> pour indiquer sur quel
+port se met en écoute un conteneur. On spécifie simplement avec l’option
+<code class="docutils literal notranslate"><span class="pre">--publish</span></code> (ou <code class="docutils literal notranslate"><span class="pre">-p</span></code>) comment on associe un port du conteneur à un port du
+système hôte. Exemple:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run --name serveur-web2 --publish <span class="m">81</span>:80 --detach httpd:latest
+</pre></div>
+</div>
+<p>Ou plus simplement</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run --name serveur-web2 -p <span class="m">81</span>:80  -d httpd
+</pre></div>
+</div>
+<p>L’option <code class="docutils literal notranslate"><span class="pre">-p</span></code> indique que le port 80 du conteneur est renvoyé sur le port 81
+de la machine hôte.</p>
+</section>
+<section id="le-tableau-de-bord-dashboard">
+<h3>Le tableau de bord (dashboard)<a class="headerlink" href="#le-tableau-de-bord-dashboard" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Plusieurs environnements graphiques existent pour interagir avec Docker.
+Le tableau  de bord
+(<em>dashboard</em>) est l’interface « officielle » fournie avec l’outil <em>Docker desktop</em>,
+mais vous pouvez en tester d’autre si vous le souhaitez.
+En voici deux qui semblent intéressants.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Portainer disponible à <a class="reference external" href="https://www.portainer.io/">https://www.portainer.io/</a></p></li>
+<li><p>DockStation disponible <a class="reference external" href="https://dockstation.io/">https://dockstation.io/</a></p></li>
+</ul>
+</div></blockquote>
+<p>Le <em>dashboard</em>  facilite la gestion des conteneurs
+et des images et fournit un tableau de bord sur le système
+distribué virtuel
+(<a class="reference internal" href="#dashboard"><span class="std std-numref">Fig. 7</span></a>).</p>
+<figure class="align-center" id="id7">
+<span id="dashboard"></span><a class="reference internal image-reference" href="_images/docker-dashboard.jpg"><img alt="_images/docker-dashboard.jpg" src="_images/docker-dashboard.jpg" style="width: 70%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 7 </span><span class="caption-text">Le tableau de bord Docker</span><a class="headerlink" href="#id7" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>En cliquant sur le nom de l’un des conteneurs disponibles, on dispose de toutes les options
+associées.
+Un paramètre important est le renvoi du port de l’image instanciée dans le conteneur
+vers un port  de la machine Docker. Ce renvoi permet
+d’accéder avec une application de la machine-hôte à l’instance de l’image comme
+si elle s’exécutait directement dans la machine Docker. Reportez-vous à
+la section précédente pour des explications complémentaires sur l’option <code class="docutils literal notranslate"><span class="pre">--publish</span></code>.</p>
+</section>
+<section id="un-serveur-c-est-bien-mais-ou-est-le-client">
+<h3>Un serveur c’est bien, mais où est le client?<a class="headerlink" href="#un-serveur-c-est-bien-mais-ou-est-le-client" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Une fois que l’on a installé des services dans des conteneurs, il faut
+disposer de programmes clients pour pouvoir dialoguer avec eux. Ces programmes
+clients sont en général à installer directement sur la machine hôte.</p>
+<p>Dans le cas d’un serveur web, ou en général de tout service qui communique
+selon le protocole HTTP, un navigateur web fait parfaitement l’affaire.
+Avec votre navigateur préféré, essayer d’accéder aux adresses <a class="reference external" href="http://localhost:80">http://localhost:80</a>
+et <a class="reference external" href="http://localhost:81">http://localhost:81</a>: les services web Docker que vous venez d’installer
+devraient répondre par un message basique mais réconfortant.</p>
+<figure class="align-center" id="id8">
+<span id="docker-httpd-client"></span><a class="reference internal image-reference" href="_images/docker-httpd-client.png"><img alt="_images/docker-httpd-client.png" src="_images/docker-httpd-client.png" style="width: 70%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 8 </span><span class="caption-text">Accès au service avec le nom du serveur et le port</span><a class="headerlink" href="#id8" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>Ouf! Prenez le temps de bien comprendre, car une fois ces mécanismes assimilés,
+nous serons libérés de tout souci pour créer nos systèmes distribués et
+les expérimenter par la suite. Et je vous rassure: l’ensemble est
+géré de manière plus conviviale avec le <em>dashboard</em> (ce qui ne dispense pas de comprendre
+ce qui se passe).</p>
+</section>
+</section>
+<section id="nos-systemes-nosql">
+<h2>Nos systèmes NoSQL<a class="headerlink" href="#nos-systemes-nosql" title="Lien permanent vers ce titre">¶</a></h2>
+<p>Dans la suite de ce cours, nous seront amenés à expérimenter quelques systèmes
+NoSQL. J’en ai sélectionné un petit nombre, sur des critères de popularité,
+de représentativité des techniques étudiés, de variété. Tout ont en commun
+de s’installer facilement avec Docker et de disposer d’une interface cliente
+gratuite et raisonnablement simple.</p>
+<p>Dans ce qui suit nous installons successivement CouchDB, MongoDB, Cassandra
+et ElasticSearch avec Docker. Pour chaque système nous installons également
+une application cliente, et nous chargeons un (petit) jeu de données que
+je fournis sur le site  <a class="reference external" href="https://deptfod.cnam.fr/bd/tp/datasets/">https://deptfod.cnam.fr/bd/tp/datasets/</a>. Vous êtes
+invités à effectuer ces installations sur votre machine, de manière
+à être prêts aux expérimentations qui suivront.</p>
+<section id="couchdb">
+<h3>CouchDB<a class="headerlink" href="#couchdb" title="Lien permanent vers ce titre">¶</a></h3>
+<p>CouchDB est un système NoSQL qui gère des collections de documents JSON.
+Vous pouvez installer CouchDB sur votre machine avec Docker, en exposant
+le port 5984 sur
+la machine hôte. Voici la commande d’installation.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run  -d --name my-couchdb -e <span class="nv">COUCHDB_USER</span><span class="o">=</span>admin <span class="se">\</span>
+    -e <span class="nv">COUCHDB_PASSWORD</span><span class="o">=</span>admin -p <span class="m">5984</span>:5984 couchdb:latest
+</pre></div>
+</div>
+<p>Dans ce qui suit, on suppose que le serveur est accessible
+à l’adresse <a class="reference external" href="http://localhost:5984">http://localhost:5984</a>.</p>
+<p>CouchDB
+est essentiellement un serveur Web étendu à la gestion de documents JSON. Comme tout
+serveur Web, il parle le HTTP, et on peut donc y accéder avec un navigateur
+qui fait office de client! Pour des interactions HTTP plus complexes, nous
+utilliserons également l’utilitaire cURL en ligne de commande.
+S’il n’est pas déjà installé dans votre environnement (toutes plateformes), il est fortement conseillé
+de le faire dès maintenant: le site de référence est <a class="reference external" href="http://curl.haxx.se/">http://curl.haxx.se/</a>.</p>
+<p>Une première requête HTTP
+permet de vérifier la disponibilité de ce serveur. Entrez l’adresse suivante
+dans le navigateur: <a class="reference external" href="http://admin:admin&#64;localhost:5984">http://admin:admin&#64;localhost:5984</a>. Vous devriez obtenir
+un document similaire au suivant:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="nt">&quot;couchdb&quot;</span><span class="p">:</span> <span class="s2">&quot;Welcome&quot;</span><span class="p">,</span>
+<span class="nt">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;3.3.3&quot;</span><span class="p">,</span>
+<span class="nt">&quot;git_sha&quot;</span><span class="p">:</span> <span class="s2">&quot;40afbcfc7&quot;</span><span class="p">,</span>
+<span class="nt">&quot;uuid&quot;</span><span class="p">:</span> <span class="s2">&quot;0f4f4743bf65f3c4cd61caf3e789c559&quot;</span><span class="p">,</span>
+<span class="nt">&quot;vendor&quot;</span><span class="p">:</span> <span class="p">{</span><span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;The Apache Software Foundation&quot;</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Vous pouvez obtenir le même résultat avec <code class="docutils literal notranslate"><span class="pre">cURL</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -X GET http://admin:admin@localhost:5984
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Vous noterez qu’il faut indiquer dans l’URL le compte
+d’accès (admin/admin) juste avant le nom du serveur.</p>
+</div>
+<p>Un serveur CouchDB gère un ensemble de bases de données. Créer une nouvelle base se traduit,
+par la création d’une nouvelle ressource avec une requête HTTP <code class="docutils literal notranslate"><span class="pre">PUT</span></code>).
+Voici  donc la commande
+avec cURL pour créer une base <code class="docutils literal notranslate"><span class="pre">films</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -X PUT http://admin:admin@localhost:5984/films
+<span class="o">{</span><span class="s2">&quot;ok&quot;</span>:true<span class="o">}</span>
+</pre></div>
+</div>
+<p>Maintenant que la base est créée, et on peut obtenir sa représentation
+avec une requête <code class="docutils literal notranslate"><span class="pre">GET</span></code> (navigateur ou <code class="docutils literal notranslate"><span class="pre">cURL</span></code>).</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -X GET http://admin:admin@localhost:5984/films
+</pre></div>
+</div>
+<p>Cette requête renvoie un document JSON décrivant la nouvelle base.</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;update_seq&quot;</span><span class="o">:</span><span class="s2">&quot;0-g1AAAADfeJz6t&quot;</span><span class="p">,</span>
+ <span class="s2">&quot;db_name&quot;</span><span class="o">:</span><span class="s2">&quot;films&quot;</span><span class="p">,</span>
+ <span class="s2">&quot;sizes&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;file&quot;</span><span class="o">:</span><span class="mf">17028</span><span class="p">,</span><span class="s2">&quot;external&quot;</span><span class="o">:</span><span class="mf">0</span><span class="p">,</span><span class="s2">&quot;active&quot;</span><span class="o">:</span><span class="mf">0</span><span class="p">},</span>
+ <span class="s2">&quot;purge_seq&quot;</span><span class="o">:</span><span class="mf">0</span><span class="p">,</span>
+ <span class="s2">&quot;other&quot;</span><span class="o">:</span><span class="p">{</span><span class="s2">&quot;data_size&quot;</span><span class="o">:</span><span class="mf">0</span><span class="p">},</span>
+ <span class="s2">&quot;doc_del_count&quot;</span><span class="o">:</span><span class="mf">0</span><span class="p">,</span>
+ <span class="s2">&quot;doc_count&quot;</span><span class="o">:</span><span class="mf">0</span><span class="p">,</span>
+ <span class="s2">&quot;disk_size&quot;</span><span class="o">:</span><span class="mf">17028</span><span class="p">,</span>
+ <span class="s2">&quot;disk_format_version&quot;</span><span class="o">:</span><span class="mf">6</span><span class="p">,</span>
+ <span class="s2">&quot;compact_running&quot;</span><span class="o">:</span><span class="kc">false</span><span class="p">,</span>
+ <span class="s2">&quot;instance_start_time&quot;</span><span class="o">:</span><span class="s2">&quot;0&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Pour finir, nous allons insérer dans notre base CouchDB un ensemble
+de documents JSON représentant des films.  Récupérez sur le site
+<a class="reference external" href="http://deptfod.cnam.fr/bd/tp/datasets/">http://deptfod.cnam.fr/bd/tp/datasets/</a> le fichier <code class="docutils literal notranslate"><span class="pre">films_couchdb.json</span></code>
+au format spécifique d’insertion CouchDB. Il a la forme suivante
+(nous reparlerons de JSON bientôt):</p>
+<blockquote>
+<div><div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span> <span class="p">{</span><span class="s2">&quot;docs&quot;</span><span class="o">:</span>
+  <span class="p">[</span>
+   <span class="p">{</span>
+    <span class="s2">&quot;_id&quot;</span><span class="o">:</span> <span class="s2">&quot;movie:1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;Vertigo&quot;</span><span class="p">,</span>
+    <span class="p">...</span>
+   <span class="p">},</span>
+   <span class="p">{</span>
+    <span class="s2">&quot;_id&quot;</span><span class="o">:</span> <span class="s2">&quot;movie:2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;Alien&quot;</span><span class="p">,</span>
+    <span class="p">...</span>
+   <span class="p">}</span>
+  <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>La commande d’insertion est alors la suivante:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -X POST  http://admin:admin@localhost:5984/films/_bulk_docs <span class="se">\</span>
+     -d @films_couchdb.json -H <span class="s2">&quot;Content-Type: application/json&quot;</span>
+</pre></div>
+</div>
+<p>CouchDB fournit également une interface graphique intégrée
+disponible à l’URL relative <code class="docutils literal notranslate"><span class="pre">_utils</span></code> (donc à l’adresse
+complète <a class="reference external" href="http://localhost:5984/_utils">http://localhost:5984/_utils</a> dans notre cas). La
+<a class="reference internal" href="#couch-fauxton"><span class="std std-numref">Fig. 9</span></a> montre l’aspect de cette interface graphique, très pratique,
+avec la base que nous venons de créer.</p>
+<figure class="align-center" id="id9">
+<span id="couch-fauxton"></span><a class="reference internal image-reference" href="_images/fauxton.png"><img alt="_images/fauxton.png" src="_images/fauxton.png" style="width: 80%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 9 </span><span class="caption-text">L’interface graphique (Fauxton) de CouchDB</span><a class="headerlink" href="#id9" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="cassandra">
+<h3>Cassandra<a class="headerlink" href="#cassandra" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Cassandra est un système de gestion de données à grande échelle conçu à l’origine (2007) par les ingénieurs de Facebook
+pour répondre à des problématiques liées au stockage
+et à l’utilisation de gros volumes de données. La communauté s’est
+tellement investie dans le projet Cassandra que, au final,  ce dernier a complètement divergé
+de sa version originale. Facebook s’est alors résolu à accepter que le projet - en l’état -
+ne correspondait plus précisément à leurs besoins, et que reprendre le développement à leur compte
+ne rimerait à rien tant l’architecture avait évolué. Cassandra est donc resté porté par l’Apache Incubator.
+Aujourd’hui, c’est la société Datastax qui assure la distribution et le support de Cassandra
+qui reste un projet Open Source de la fondation Apache.</p>
+<p>L’installation d’un conteneur Cassandra avec Docker se fait avec la commande suivante:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run --name mon-cassandra -p <span class="m">3000</span>:9042  -d cassandra:latest
+</pre></div>
+</div>
+<p>On communique avec Cassandra via un langage, CQL, dont les
+commandes doivent être transmises au port 9042 du conteneur. Dans l’instruction
+ci-dessus, ce port est renvoyé sur le
+port 3000 du système hôte avec l’option <code class="docutils literal notranslate"><span class="pre">-p</span></code>.</p>
+<p>Il vous faut un client sur la machine hôte.
+Des clients graphiques existent. Datastax propose des outils, dont
+le Datastax Studio qui est assez agréable à utiliser mais dont
+l’installation est lourde. Un « petit » utilitare graphique
+assez complet <em>DbVisualizer</em>, disponible en version
+gratuite à l’adresse <a class="reference external" href="https://www.dbvis.com/">https://www.dbvis.com/</a>.  Il permet classiquement
+de créer des connexions, d’inspecter un schéma et de transmettre des
+requêtes.</p>
+<p>DbVisualizer peut être utilisé avec beaucoup de bases de données. Selon le système choisi,
+il faut télécharger des connecteurs spécifiques (<em>drivers</em>). Cela se fait
+de manière assez intuitive via DbVis lui-même. Dans le cas de Cassandra,
+il faut prendre le <em>driver</em> <code class="docutils literal notranslate"><span class="pre">Cassandra</span> <span class="pre">DataStax</span></code>.</p>
+<figure class="align-center" id="id10">
+<span id="dbvis"></span><a class="reference internal image-reference" href="_images/dbvis.png"><img alt="_images/dbvis.png" src="_images/dbvis.png" style="width: 80%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 10 </span><span class="caption-text">Le client <em>DbVisualizer</em>  accédant à Cassandra</span><a class="headerlink" href="#id10" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>La  <a class="reference internal" href="#dbvis"><span class="std std-numref">Fig. 10</span></a>  montre l’interface, après création d’un <em>keyspace</em>,
+de tables et de données. Le <em>keyspace</em> est le nom que Cassandra donne à une base de données.
+Sous DbVisualizer, les <em>keyspaces</em> apparaissent à gauche de la
+fenêtre principale (voir figure  <a class="reference internal" href="#dbvis"><span class="std std-numref">Fig. 10</span></a>). Un clic bouton droit
+permet d’ouvrir un formulaire de création d’un <em>keyspace</em>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Cassandra est fait pour fonctionner dans un environnement distribué. Pour créer
+un <em>keyspace</em>,  il faut donc   préciser la stratégie de réplication à adopter. Nous verrons plus en détail
+après comment tout ceci fonctionne.</p>
+</div>
+<p>Cassandra est assez proche en apparence d’un système relationnel, avec
+création de tables, et insertion dans ces tables.
+Cassandra va au-delà de la norme relationnelle en permettant des données
+<em>dénormalisées</em> dans lesquelles certaines valeurs sont complexes (dictionnaires,
+ensembles, etc.).
+Il nous faut au préalable définir le <em>type</em> <code class="docutils literal notranslate"><span class="pre">artist</span></code> de la manière suivante:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">create</span> <span class="k">type</span> <span class="n">artist</span> <span class="p">(</span><span class="n">id</span> <span class="nb">text</span><span class="p">,</span>
+                    <span class="n">last_name</span> <span class="nb">text</span><span class="p">,</span>
+                    <span class="n">first_name</span> <span class="nb">text</span><span class="p">,</span>
+                    <span class="n">birth_date</span> <span class="nb">int</span><span class="p">,</span>
+                    <span class="k">role</span> <span class="nb">text</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>On crée alors une table utilisant ce type: le metteur en scène est une
+instance du type <code class="docutils literal notranslate"><span class="pre">artist</span></code>, les acteurs un ensemble d’instance. Cela
+donne le schéma suivant</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">create</span> <span class="k">table</span> <span class="n">movies</span> <span class="p">(</span><span class="n">id</span> <span class="nb">text</span><span class="p">,</span>
+              <span class="n">title</span> <span class="nb">text</span><span class="p">,</span>
+              <span class="k">year</span> <span class="nb">int</span><span class="p">,</span>
+              <span class="n">genre</span> <span class="nb">text</span><span class="p">,</span>
+              <span class="n">country</span> <span class="nb">text</span><span class="p">,</span>
+              <span class="n">director</span> <span class="n">frozen</span><span class="o">&lt;</span><span class="n">artist</span><span class="o">&gt;</span><span class="p">,</span>
+              <span class="n">actors</span> <span class="k">set</span><span class="o">&lt;</span> <span class="n">frozen</span><span class="o">&lt;</span><span class="n">artist</span><span class="o">&gt;&gt;</span><span class="p">,</span>
+           <span class="k">primary</span> <span class="k">key</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span> <span class="p">);</span>
+</pre></div>
+</div>
+<p>Cela  correspond
+en JSON à la structure suivante:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">insert</span> <span class="k">into</span> <span class="n">movies</span> <span class="n">JSON</span> <span class="s1">&#39;{</span>
+<span class="s1">        &quot;id&quot;: &quot;movie:11&quot;,</span>
+<span class="s1">        &quot;title&quot;: &quot;Star Wars&quot;,</span>
+<span class="s1">        &quot;year&quot;: 1977,</span>
+<span class="s1">        &quot;genre&quot;: &quot;Adventure&quot;,</span>
+<span class="s1">        &quot;country&quot;: &quot;US&quot;,</span>
+<span class="s1">        &quot;director&quot;: {</span>
+<span class="s1">                &quot;id&quot;: &quot;artist:1&quot;,</span>
+<span class="s1">                &quot;last_name&quot;: &quot;Lucas&quot;,</span>
+<span class="s1">                &quot;first_name&quot;: &quot;George&quot;,</span>
+<span class="s1">                &quot;birth_date&quot;: 1944</span>
+<span class="s1">        },</span>
+<span class="s1">        &quot;actors&quot;: [</span>
+<span class="s1">                {</span>
+<span class="s1">                        &quot;last_name&quot;: &quot;Hamill&quot;,</span>
+<span class="s1">                        &quot;first_name&quot;: &quot;Mark&quot;,</span>
+<span class="s1">                        &quot;birth_date&quot;: 1951</span>
+<span class="s1">                },</span>
+<span class="s1">                {</span>
+<span class="s1">                        &quot;last_name&quot;: &quot;Ford&quot;,</span>
+<span class="s1">                        &quot;first_name&quot;: &quot;Harrison&quot;,</span>
+<span class="s1">                        &quot;birth_date&quot;: 1942</span>
+<span class="s1">                },</span>
+<span class="s1">                {</span>
+<span class="s1">                        &quot;last_name&quot;: &quot;Fisher&quot;,</span>
+<span class="s1">                        &quot;first_name&quot;: &quot;Carrie&quot;,</span>
+<span class="s1">                        &quot;birth_date&quot;: 1956</span>
+<span class="s1">                }</span>
+<span class="s1">        ]</span>
+<span class="s1">}&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Je vous laisse effectuer l’insertion de l’ensemble des films tels qu’ils sont fournis par
+le site <a class="reference external" href="http://deptfod.cnam.fr/bd/tp/datasets/cassandra">http://deptfod.cnam.fr/bd/tp/datasets/cassandra</a>, avec tous les acteurs d’un film.
+Il suffit de récupérer le fichier contenant l’ensemble des commandes d’insertion
+et de l’exécuter comme un script dans DbVisualizer. Nous
+nous en servirons pour l’interrogation CQL ensuite.</p>
+</section>
+<section id="elasticsearch">
+<h3>ElasticSearch<a class="headerlink" href="#elasticsearch" title="Lien permanent vers ce titre">¶</a></h3>
+<p>ElasticSearch est un moteur de recherche disponible sous licence libre
+(Apache). Il repose sur Lucene (nous verrons plus bas ce que cela signifie).
+Il a été développé à partir de 2004 et est aujourd’hui adossé à une
+entreprise, <a class="reference external" href="https://www.elastic.co/fr/">Elastic.co</a>.</p>
+<p>Commençons par l’installation avec Docker. Voici une commande qui devrait fonctionner
+sous tous les systèmes et mettre ElasticSearch en attente sur le port 9200.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run -d --name es1 -p <span class="m">9200</span>:9200  elasticsearch:8.13.0
+</pre></div>
+</div>
+<div class="admonition-les-versions-d-elasticsearch admonition">
+<p class="admonition-title">Les versions d’ElasticSearch</p>
+<p>ElasticSearch évolue rapidement. Pour éviter que les instructions qui suivent
+ne deviennent rapidement obsolètes, j’indique le numéro de version dans
+l’installation avec Docker (la 8.13.0, de mars 2024).</p>
+</div>
+<p>Quelques commandes supplémentaires sont nécesssaires. Un compte <code class="docutils literal notranslate"><span class="pre">elastic</span></code>
+est créé, on lui attribue un mot de passe avec la commande suivante:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker <span class="nb">exec</span> -it es1 /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic
+</pre></div>
+</div>
+<p>Notez le mot de passe et placez-le éventuellement dans une variable
+d’environnement</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">ELASTIC_PASSWORD</span><span class="o">=</span>&lt;le_mot_de_passe&gt;
+</pre></div>
+</div>
+<p>Si vous voulez interagir avec <code class="docutils literal notranslate"><span class="pre">curl</span></code>, il faut récupérer un certificat
+d’authentification SSL.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker cp es1:/usr/share/elasticsearch/config/certs/http_ca.crt .
+</pre></div>
+</div>
+<p>Toutes les interactions avec un serveur ElasticSearch passent par une interface
+HTTP basée sur JSON. Vous
+pouvez directement vous adresser au serveur HTTP en écoute
+sur <a class="reference external" href="https://localhost:9200">https://localhost:9200</a>. Avec <code class="docutils literal notranslate"><span class="pre">curl</span></code> vous pouvez donc faire:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl --cacert http_ca.crt  -U elastic:mot_de_passe https://localhost:9200
+</pre></div>
+</div>
+<p>Vous devriez obtenir un document JSON semblable à
+celui-ci:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span> <span class="p">{</span>
+<span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;7a46670f6a9e&quot;</span><span class="p">,</span>
+<span class="nt">&quot;cluster_name&quot;</span><span class="p">:</span> <span class="s2">&quot;docker-cluster&quot;</span><span class="p">,</span>
+<span class="nt">&quot;cluster_uuid&quot;</span><span class="p">:</span> <span class="s2">&quot;89U3LpNhTh6Vr9UUOTZAjw&quot;</span><span class="p">,</span>
+<span class="nt">&quot;version&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;number&quot;</span><span class="p">:</span> <span class="s2">&quot;8.13.0&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;...&quot;</span><span class="p">:</span> <span class="s2">&quot;...&quot;</span><span class="p">,</span>
+     <span class="nt">&quot;lucene_version&quot;</span><span class="p">:</span> <span class="s2">&quot;9.1.1&quot;</span><span class="p">,</span>
+  <span class="p">},</span>
+<span class="nt">&quot;tagline&quot;</span><span class="p">:</span> <span class="s2">&quot;You Know, for Search&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Pour une inspection confortable du serveur et des index ElasticSearch, nous
+vous conseillons d’utiliser une interface d’administration: <code class="docutils literal notranslate"><span class="pre">ElasticVue</span></code>,
+disponible sous toutes les plateformes.
+Elle peut être téléchargée ici: <a class="reference external" href="https://elasticvue.com/">https://elasticvue.com/</a>.</p>
+<p>En lançant l’application, on peut se connecter au serveur <a class="reference external" href="https://localhost:9200">https://localhost:9200</a>
+et on obtient l’interface de la figure <a class="reference internal" href="#es-webui"><span class="std std-numref">Fig. 11</span></a>.
+La barre supérieure de l’interface propose des options <code class="docutils literal notranslate"><span class="pre">REST</span></code>
+et <code class="docutils literal notranslate"><span class="pre">SEARCH</span></code> qui vont nous intéresser dans un premier temps.</p>
+<figure class="align-center" id="id11">
+<span id="es-webui"></span><a class="reference internal image-reference" href="_images/elasticvue.png"><img alt="_images/elasticvue.png" src="_images/elasticvue.png" style="width: 90%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 11 </span><span class="caption-text">Le tableau de bord proposé par ElasticVue.</span><a class="headerlink" href="#id11" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>On ne parle pas de base de données dans ElasticSearch mais <em>d’index</em>.
+Pour créer un index <code class="docutils literal notranslate"><span class="pre">nfe204-1</span></code> on envoie un <code class="docutils literal notranslate"><span class="pre">PUT</span></code> à l’adresse
+<a class="reference external" href="https://localhost:9200/nfe204-1">https://localhost:9200/nfe204-1</a>.
+C’est facile avec la fenêtre REST d’ElasticVue: voir
+<a class="reference internal" href="#es-create-index"><span class="std std-numref">Fig. 12</span></a>.</p>
+<figure class="align-center" id="id12">
+<span id="es-create-index"></span><a class="reference internal image-reference" href="_images/es-create-index.png"><img alt="_images/es-create-index.png" src="_images/es-create-index.png" style="width: 90%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 12 </span><span class="caption-text">Utilisation d’ElasticVue pour transmettre des commandes REST</span><a class="headerlink" href="#id12" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>Le <code class="docutils literal notranslate"><span class="pre">PUT</span></code> crée un index   à l’URL indiquée. Pour créer notre base de données,
+nous allons utiliser une autre interface
+d’Elasticsearch, appelée <code class="docutils literal notranslate"><span class="pre">bulk</span></code> (<em>en grosses quantités</em>), qui permet comme son
+nom l’indique d’indexer de nombreux documents en une seule commande.</p>
+<p>Récupérez notre collection de films, au format JSON adapté à l’insertion en masse
+dans ElasticSearch,  sur le site <a class="reference external" href="http://deptfod.cnam.fr/bd/tp/datasets/">http://deptfod.cnam.fr/bd/tp/datasets/</a>. Le fichier
+se nomme <code class="docutils literal notranslate"><span class="pre">films_esearch.json</span></code>.</p>
+<p>Vous pouvez l’ouvrir pour voir le format.  Chaque document
+« film » (sur une seule ligne) est précédé d’un petit document JSON qui précise l’index (<code class="docutils literal notranslate"><span class="pre">movies</span></code>),
+et l’identifiant (<code class="docutils literal notranslate"><span class="pre">1</span></code>).</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;index&quot;</span><span class="p">:{</span><span class="nt">&quot;_index&quot;</span><span class="p">:</span> <span class="s2">&quot;nfe204&quot;</span><span class="p">,</span> <span class="nt">&quot;_id&quot;</span><span class="p">:</span> <span class="s2">&quot;movie&quot;</span><span class="p">}}</span>
+</pre></div>
+</div>
+<p>On trouve ensuite les documents JSON proprement dits. <strong>Attention il ne doit pas y avoir de retour à la
+ligne dans le codage JSON</strong>, ce qui est le cas dans le document que nous fournissons.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Mars Attacks!&quot;</span><span class="p">,</span> <span class="nt">&quot;summary&quot;</span><span class="p">:</span> <span class="s2">&quot;...&quot;</span><span class="p">,</span> <span class="nt">&quot;...&quot;</span><span class="p">:</span> <span class="s2">&quot;...&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Ensuite, importez les documents dans Elasticsearch en le transmettant par
+un <code class="docutils literal notranslate"><span class="pre">POST</span></code>  à l’URL <a class="reference external" href="https://localhost:9200/_bulk/">https://localhost:9200/_bulk/</a></p>
+<p>Avec les paramètres spécifiés dans le fichier <code class="docutils literal notranslate"><span class="pre">films_esearch.json</span></code>, vous
+devriez retrouver un index <code class="docutils literal notranslate"><span class="pre">nfe204</span></code>  maintenant présent dans l’interface, contenant
+les données sur les films.</p>
+</section>
+<section id="mongodb">
+<h3>MongoDB<a class="headerlink" href="#mongodb" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Installons maintenant MongoDB, un des systèmes NoSQL les plus populaires.
+L’installation Docker se fait avec la commande suivante et instancie un conteneur
+accessible  à localhost:30001.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run --name mon-mongo -p <span class="m">30001</span>:27017 -d mongo
+</pre></div>
+</div>
+<p>MongoDB fonctionne en mode classique client/serveur.
+Le serveur <code class="docutils literal notranslate"><span class="pre">mongod</span></code> est en attente sur le port 27017 dans son conteneur, et
+peut être redirigé vers un port de la machine Docker, comme le port 30001
+dans la commande précédente.</p>
+<p>En ce qui concerne les <em>applications</em> clientes, nous avons en gros deux possibilités:
+l’interpréteur de commande <code class="docutils literal notranslate"><span class="pre">mongo</span></code> (qui suppose d’avoir installé MongoDB sur la machine hôte)
+ou une application graphique plus agréable à utiliser.
+Parmi ces dernières, <code class="docutils literal notranslate"><span class="pre">Studio3T</span></code> (<a class="reference external" href="http://studio3.com">http://studio3.com</a>)  me semble le meilleur
+client graphique du moment; il existe une version gratuite, pour des utilisations non commerciales, qui ne vous expose
+qu’à quelques courriels de relance de la part des auteurs du système (vous pouvez en profiter
+pour les remercier gentiment).</p>
+<p>Studio3T propose
+un interpréteur de commande intelligent (autocomplétion, exécution de scripts placés
+dans des fichiers), des fonctionnalités d’import et d’export. La  <a class="reference internal" href="#studio3t"><span class="std std-numref">Fig. 13</span></a>  montre l’interface en action.</p>
+<blockquote>
+<div><figure class="align-center" id="id13">
+<span id="studio3t"></span><a class="reference internal image-reference" href="_images/studio3t.png"><img alt="_images/studio3t.png" src="_images/studio3t.png" style="width: 100%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 13 </span><span class="caption-text">L’interface de Studio3T</span><a class="headerlink" href="#id13" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+</div></blockquote>
+<p>Créons maintenant notre base des films, constituée de documents JSON ayant
+la forme suivante:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;_id&quot;</span><span class="o">:</span> <span class="s2">&quot;movie:100&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;The Social network&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;summary&quot;</span><span class="o">:</span> <span class="s2">&quot;On a fall night in 2003, Harvard undergrad and</span>
+<span class="s2">     programming genius Mark Zuckerberg sits down at his</span>
+<span class="s2">     computer and heatedly begins working on a new idea. (...)&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;year&quot;</span><span class="o">:</span> <span class="mf">2010</span><span class="p">,</span>
+  <span class="s2">&quot;director&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;last_name&quot;</span><span class="o">:</span> <span class="s2">&quot;Fincher&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;first_name&quot;</span><span class="o">:</span> <span class="s2">&quot;David&quot;</span><span class="p">},</span>
+  <span class="s2">&quot;actors&quot;</span><span class="o">:</span> <span class="p">[</span>
+    <span class="p">{</span><span class="s2">&quot;first_name&quot;</span><span class="o">:</span> <span class="s2">&quot;Jesse&quot;</span><span class="p">,</span> <span class="s2">&quot;last_name&quot;</span><span class="o">:</span> <span class="s2">&quot;Eisenberg&quot;</span><span class="p">},</span>
+    <span class="p">{</span><span class="s2">&quot;first_name&quot;</span><span class="o">:</span> <span class="s2">&quot;Rooney&quot;</span><span class="p">,</span> <span class="s2">&quot;last_name&quot;</span><span class="o">:</span> <span class="s2">&quot;Mara&quot;</span><span class="p">}</span>
+   <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Comme il serait fastidieux de les insérer un par un, nous allons utiliser Studio3T.
+Un fichier conforme au format attendu est disponible
+parmi les jeux de données de <a class="reference external" href="http://deptfod.cnam.fr/bd/tp/datasets/">http://deptfod.cnam.fr/bd/tp/datasets/</a>.
+Vous pouvez le télécharger et l’utiliser
+pour insérer directement les films dans la base avec l’utilitaire d’import de Studio3T.</p>
+</section>
+<section id="quiz">
+<h3>Quiz<a class="headerlink" href="#quiz" title="Lien permanent vers ce titre">¶</a></h3>
+<blockquote>
+<div><p>Quelles phrases suivantes sont exactes à propos de la notion de serveur :</p>
+<ol class="upperalpha simple">
+<li><p>Un serveur est lancé à chaque fois qu’on fait appel à lui</p></li>
+<li><p>Un serveur est nécessairement connecté à un port réseau</p></li>
+<li><p>Il ne peut y avoir qu’un seul serveur d’un type donné (par exemple
+un serveur Web) sur une machine</p></li>
+</ol>
+<p>Quelles phrases suivantes sont exactes à propos de Docker :</p>
+<ol class="upperalpha simple">
+<li><p>La machine Docker est un serveur</p></li>
+<li><p>La machine Docker est un client</p></li>
+<li><p>La machine Docker s’exécute dans un conteneur</p></li>
+<li><p>La machine Docker s’exécute dans un système hôte</p></li>
+</ol>
+<p>Après avoir installé un serveur dans un conteneur Docker, que reste-t-il à faire:</p>
+<ol class="upperalpha simple">
+<li><p>Il faut configurer le serveur</p></li>
+<li><p>Il faut lancer le serveur</p></li>
+<li><p>Il faut installer au moins un programme client dans le conteneur Docker</p></li>
+<li><p>Il faut installer au moins un programme client sur la machine hôte</p></li>
+</ol>
+</div></blockquote>
+</section>
+</section>
+<section id="exercices">
+<h2>Exercices<a class="headerlink" href="#exercices" title="Lien permanent vers ce titre">¶</a></h2>
+<p>Dans ces exercices vous devez mettre en action les principes de Docker vus ci-dessus, et vous
+êtes également invités à découvrir l’outil <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">compose</span></code> qui nous permet de configurer
+une fois pour toutes un environnement distribué constitué de plusieurs serveurs.</p>
+<div class="admonition-exercice-ex-s1-1-testons-notre-comprehension admonition" id="ex-s1-1">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-s1-1">Ex-S1-1</a>: testons notre compréhension</p>
+<p>Savez-vous répondre aux questions suivantes?</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Qu’est-ce qu’une machine Docker, où se trouve-t-elle, quel est son rôle?</p></li>
+<li><p>À quoi sert le terminal Docker, et qu’est-ce qui caractérise un tel terminal?</p></li>
+<li><p>Qu’est-ce que la machine hôte? Doit-elle forcément tourner sous Linux?</p></li>
+<li><p>Une instance d’image est-elle placée dans un conteneur, dans la machine hôte ou
+dans la machine Docker?</p></li>
+<li><p>Peut-on instancier une image dans plusieurs conteneurs?</p></li>
+</ul>
+</div></blockquote>
+<p>Si vous ne savez pas répondre, cela vaut la peine de relire ce qui précède, ou des ressources
+complémentaires sur le Web. Vous serez plus à l’aise par la suite si vous avez une
+idée claire de l’architecture et de ses concepts-clé.</p>
+</div>
+<div class="admonition-exercice-ex-s1-2-premiers-pas-docker admonition" id="ex-s1-2">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-s1-2">Ex-S1-2</a>: premiers pas Docker</p>
+<p>Maintenant, effectuez les opérations ci-dessus sur <em>votre</em> machine. Installez Docker,
+lancez le conteneur <code class="docutils literal notranslate"><span class="pre">hello-world</span></code>, affichez la liste des conteneurs, supprimez
+le conteneur <code class="docutils literal notranslate"><span class="pre">hello-world</span></code>.</p>
+</div>
+<div class="admonition-exercice-ex-s2-1-installez-mysql admonition" id="ex-s2-1">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-s2-1">Ex-S2-1</a>: installez MySQL</p>
+<ul>
+<li><p>Après installation de Docker, créez un conteneur avec la dernière version de MySQL. Vous pouvez
+utiliser la ligne de commande ou le <em>dashboard</em>.</p>
+<p>Installez également un client MySQL sur votre machine (par exemple le
+<em>MySQL Workbench</em> accessible à <a class="reference external" href="https://www.mysql.com/products/workbench/">https://www.mysql.com/products/workbench/</a>)
+et connectez-vous à votre conteneur Docker.</p>
+</li>
+<li><p>Au lieu de lancer toujours la même ligne de commande, on peut créer un fichier de configuration
+(dans un format qui s’appelle YAML) et l’exécuter avec l’utilitaire <code class="docutils literal notranslate"><span class="pre">docker-compose</span></code>. Voici un
+exemple de base: sauvegardez-le dans un fichier <code class="docutils literal notranslate"><span class="pre">mysql-compose.yml</span></code>.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">services</span><span class="p">:</span>
+  <span class="nt">mysql1</span><span class="p">:</span>
+    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mysql:latest</span>
+    <span class="nt">ports</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="s">&quot;6603:3306&quot;</span>
+    <span class="nt">environment</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="s">&quot;MYSQL_ALLOW_EMPTY_PASSWORD=1&quot;</span>
+</pre></div>
+</div>
+<p>Vous pouvez alors lancer la création de votre conteneur avec la commande:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker compose -f mysql-compose.yml up
+</pre></div>
+</div>
+<p>Voici quelques exercices à faire:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Testez que vous pouvez bien accéder à votre conteneur avec le client MySQL (quel est le port d’accès
+défini dans la configuration Yaml?)</p></li>
+<li><p>Configurez votre conteneur MySQL pour définir un compte d’accès <code class="docutils literal notranslate"><span class="pre">root</span></code> avec un mot
+de passe et donnez à la base le nom <code class="docutils literal notranslate"><span class="pre">nfe204</span></code> (aide: lisez
+la documentation associée au conteneur MySQL, laquelle
+se trouve ici: <a class="reference external" href="https://hub.docker.com/_/mysql">https://hub.docker.com/_/mysql</a>)</p></li>
+<li><p>Configurez un ensemble de trois conteneurs MySQL. Vérifiez que vous pouvez vous connecter à chacun.</p></li>
+<li><p>Arrêtez/redémarrez le conteneur (cherchez la commande <code class="docutils literal notranslate"><span class="pre">docker-compose</span></code>), enfin supprimez-le.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div>
+<div class="admonition-exercice-ex-s2-1-installez-mongodb admonition" id="ex-s2-2">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-s2-1">Ex-S2-1</a>: installez MongoDB</p>
+<p>Même exercice, mais cette fois avec MongoDB, un système NoSQL très utilisé.
+Les principes sont les mêmes: vous récupérez une image de MongoDB après voir
+fouillé sur <a class="reference external" href="http://hub.docker.com">http://hub.docker.com</a>, vous l’instanciez,
+vous configurez le port d’accès, et vous testez l’accès avec un client à partir
+de la machine-hôte.</p>
+<p>Pour MongoDB, voici les deux principaux  clients disponibles gratuitement:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Studio 3T (<em>free edition</em>), un des plus anciens, disponible à <a class="reference external" href="https://studio3t.com/">https://studio3t.com/</a></p></li>
+<li><p>Compass, disponible à <a class="reference external" href="https://www.mongodb.com/products/tools/compass">https://www.mongodb.com/products/tools/compass</a>,
+le client graphique « officiel » de MongoDB</p></li>
+</ul>
+</div></blockquote>
+<p>Créez un fichier de configuration pour <code class="docutils literal notranslate"><span class="pre">docker-compose</span></code>  également, afin d’instancier
+trois conteneurs.</p>
+</div>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+            <div>        
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Licence Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">
+  Ce cours</span> de <a xmlns:cc="http://creativecommons.org/ns#" href="http://www.bdpedia.fr" property="cc:attributionName" rel="cc:attributionURL">Philippe Rigaux</a> est mis à disposition selon les termes de la <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">licence Creative Commons Attribution - Pas d’Utilisation Commerciale - Partage dans les Mêmes Conditions 4.0 International</a>.
+</div>
+        <hr/>
+          <h3>Table Of Contents</h3>
+          <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Préliminaires: Docker</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#introduction-a-docker">Introduction à Docker</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#docker-et-ses-conteneurs">Docker et ses conteneurs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#les-images-docker">Les images Docker</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#docker-en-pratique">Docker en pratique</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#lancement-du-docker-desktop-mac-os-windows">Lancement du Docker Desktop (Mac OS, Windows)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#installons-des-serveurs-web">Installons des serveurs Web</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#le-tableau-de-bord-dashboard">Le tableau de bord (dashboard)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#un-serveur-c-est-bien-mais-ou-est-le-client">Un serveur c’est bien, mais où est le client?</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#nos-systemes-nosql">Nos systèmes NoSQL</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#couchdb">CouchDB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cassandra">Cassandra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#elasticsearch">ElasticSearch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mongodb">MongoDB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quiz">Quiz</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#exercices">Exercices</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="docstruct.html">Modélisation de bases NoSQL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rech-exacte.html">Recherche exacte</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cassandra.html">Etude de cas: Cassandra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cassandra_tp.html">Cassandra - Travaux Pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rech-approchee.html">Recherche approchée</a></li>
+<li class="toctree-l1"><a class="reference internal" href="es_tp.html">ElasticSearch - Travaux pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="traitements_lot.html">Traitements par lot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pigtp.html">Pig : Travaux pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cloud.html">Le <em>cloud</em>, une nouvelle machine de calcul</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replication.html">Systèmes NoSQL: la réplication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sharding.html">Systèmes NoSQL: le partitionnement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spark.html">Etude de cas: Apache Spark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="annales.html">Annales des examens</a></li>
+</ul>
+
+          <h3 style="margin-top: 1.5em;">Recherche</h3>
+          <form class="search" action="search.html" method="get">
+            <input type="text" name="q" />
+            <input type="submit" value="Go" />
+            <input type="hidden" name="check_keywords" value="yes" />
+            <input type="hidden" name="area" value="default" />
+          </form>
+          <p class="searchtip" style="font-size: 90%">
+      Saisissez un ou plusieurs mots-clés.
+          </p>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <a href="intro.html" title="Introduction"
+             >précédent</a> |
+          <a href="docstruct.html" title="Modélisation de bases NoSQL"
+             >suivant</a> |
+          <a href="genindex.html" title="Index général"
+             >index</a>
+        </div>
+
+        <div class="right">
+        <a href="index.html">Préliminaires: Docker</a><br/>
+          
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2014-2025, Nicolas Travers, Raphaël Fournier S&#39;niehotta et Philippe Rigaux.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>

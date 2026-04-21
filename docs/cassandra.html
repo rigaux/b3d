@@ -1,0 +1,1271 @@
+
+<!DOCTYPE html>
+
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
+    <title>Etude de cas: Cassandra &#8212; Bases de données documentaires et distribuées v&lt;release&gt; - Cours CNAM NFE204</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/agogo.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/translations.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Recherche" href="search.html" />
+    <link rel="next" title="Cassandra - Travaux Pratiques" href="cassandra_tp.html" />
+    <link rel="prev" title="Recherche exacte" href="rech-exacte.html" /> 
+  </head><body>
+    <div class="header-wrapper">
+      <div class="header">
+        <div class="headertitle"><a
+          href="index.html">Etude de cas: Cassandra</a></div>
+        <div class="rel">
+          <a href="rech-exacte.html" title="Recherche exacte"
+             accesskey="P">précédent</a><font color="white"> |</font>
+          <a href="cassandra_tp.html" title="Cassandra - Travaux Pratiques"
+             accesskey="N">suivant</a><font color="white"> |</font>
+          <a href="genindex.html" title="Index général"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+<script type="text/javascript" src="_static/dynsite.js"></script>
+
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="etude-de-cas-cassandra">
+<span id="chap-cassandra"></span><h1>Etude de cas: Cassandra<a class="headerlink" href="#etude-de-cas-cassandra" title="Lien permanent vers ce titre">¶</a></h1>
+<section id="s1-cassandra-une-base-relationnelle-etendue">
+<h2>S1: Cassandra, une base relationnelle étendue<a class="headerlink" href="#s1-cassandra-une-base-relationnelle-etendue" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="admonition-supports-complementaires admonition">
+<p class="admonition-title">Supports complémentaires</p>
+<ul class="simple">
+<li><p><a class="reference external" href="http://b3d.bdpedia.fr/files/slcass-model.pdf">Diapositives: le modèle de données Cassandra</a></p></li>
+<li><p><a class="reference external" href="https://mediaserver.lecnam.net/permalink/v125f359529fduxzlu9q/">Vidéo sur le modèle de données Cassandra</a></p></li>
+</ul>
+</div>
+<p>Cassandra est un système de gestion de données à grande échelle conçu à l’origine (2007) par les ingénieurs de Facebook
+pour répondre à des problématiques liées au stockage et à l’utilisation de gros volumes de données.
+En 2008, ils essayèrent de le démocratiser en founissant une version stable, documentée,
+disponible sur Google Code. Cependant, Cassandra ne reçut pas un accueil particulièrement enthousiaste.
+Les ingénieurs de Facebook décidèrent donc en 2009 de faire porter Cassandra par l’Apache Incubator.
+En 2010, Cassandra était promu au rang de <em>top-level Apache Project</em>.</p>
+<p>Apache a joué un rôle de premier plan dans l’attraction qu’a su créer Cassandra. La communauté s’est
+tellement investie dans le projet Cassandra que, au final,  ce dernier a complètement divergé
+de sa version originale. Facebook s’est alors résolu à accepter que le projet - en l’état -
+ne correspondait plus précisément à leurs besoins, et que reprendre le développement à leur compte
+ne rimerait à rien tant l’architecture avait évolué. Cassandra est donc resté porté par l’Apache Incubator.</p>
+<p>Aujourd’hui, c’est la société Datastax qui assure la distribution et le support de Cassandra
+qui reste un projet Open Source de la fondation Apache.</p>
+<p>Cassandra a <em>beaucoup</em> évolué depuis l’origine, ce qui explique une terminologie assez erratique
+qui peut prêter à confusion. L’inspiration initiale est le système BigTable de Google, et l’évolution
+a ensuite plutôt porté Cassandra vers un modèle tendant vers le relationnel, avec quelques différences
+significatives, notamment sur les aspects internes. C’est un système NoSQL très utilisé, et sans doute
+un bon point de départ pour passer du relationnel à un système distribué.</p>
+<section id="le-modele-de-donnees">
+<h3>Le modèle de données<a class="headerlink" href="#le-modele-de-donnees" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Cassandra est un système qui s’est progressivement orienté vers un modèle relationnel étendu,
+avec typage fort et schéma contraint.  Initialement, Cassandra était beaucoup plus permissif
+et permettait d’insérer à peu près n’importe quoi.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Méfiez-vous des « informations » qui trainent encore sur le Web, où Cassandra
+est par exemple  qualifié de « <em>column-store</em>, avec une confusion assez générale
+due en partie aux évolutions du système, et en partie au fait que certains se contentent
+de répéter ce qu’ils ont lu quelque part sans se donner la peine de vérifier ou même de comprendre.</p>
+</div>
+<p>Comme dans un système relationnel, une base de données Cassandra est constituée de <em>tables</em>.
+Chaque table a un nom et
+est constituée de colonnes. Toute ligne (<em>row</em>) de la table doit respecter le
+schéma de cette dernière. Si une table a 5 colonnes, alors à l’insertion d’une entrée,
+la donnée devra être composée de 5 valeurs respectant le typage. Une colonne peut avoir
+différents types,</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>des types atomiques, comme par exemple <em>entier</em>, <em>texte</em>, <em>date</em>;</p></li>
+<li><p>des types complexes (ensembles, listes, dictionnaires);</p></li>
+<li><p>des types construits et nommés.</p></li>
+</ul>
+</div></blockquote>
+<p>Cela vous rappelle quelque chose? Nous sommes effectivement proche d’un modèle de documents
+structurés de type JSON, avec imbrication de structures, mais avec un <em>schéma</em> qui assure
+le contrôle des données insérées.
+La gestion de la base est donc très contrainte et doit se
+faire en cohérence avec la structure de chaque table (son <em>schéma</em>). C’est une différence notable
+avec de nombreux systèmes NoSQL.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Le vocabulaire encore utilisé par Cassandra est hérité d’un historique
+complexe et s’avère source de confusion. Ce manque d’uniformité et de cohérence dans
+la terminologie est malheureusement une conséquence de l’absence de normalisation des systèmes
+dits « No-SQL ». Dans tout ce qui suit, nous essayons de rester en phase avec les concepts
+(et leur nommage) présentés dans ce cours, d’établir le lien avec le vocabulaire Cassandra
+et si possible d’expliquer les raisons des écarts terminologiques. En particulier,
+nous allons utiliser <em>document</em> comme synonyme de <em>row</em> Cassandra, pour
+des raisons d’homogénéïté avec le reste de ce cours.</p>
+</div>
+</section>
+<section id="paires-cle-valeur-columns-et-documents-rows">
+<h3>Paires clé/valeur (<em>columns</em>) et documents (<em>rows</em>)<a class="headerlink" href="#paires-cle-valeur-columns-et-documents-rows" title="Lien permanent vers ce titre">¶</a></h3>
+<p>La structure de base d’un document dans Cassandra est la paire <em>(clé, valeur)</em>,
+autrement dit la structure
+atomique de représentation des informations semi-structurées,
+à la base de XML ou JSON par exemple. Une valeur peut être atomique (entier, chaîne
+de caractères) ou complexe (dictionnaire, liste).</p>
+<div class="admonition-vocabulaire admonition">
+<p class="admonition-title"><strong>Vocabulaire</strong></p>
+<p>Dans Cassandra, cette structure est parfois appelée <em>colonne</em>, ce qui est difficilement explicable
+au premier abord (vous êtes d’accord qu’une paire-clé/valeur <em>n’est pas</em> une colonne?).
+Il s’agit en fait d’un héritage de l’inspiration initiale de Cassandra, le
+système <em>BigTable</em> de Google dans lequel les données sont stockées en colonnes. Même si l’organisation
+finale de Cassandra a évolué, le vocabulaire est resté. Bilan: chaque fois
+que vous lisez « colonne » dans le contexte Cassandra, comprenez « paire clé-valeur » et tout
+s’éclaircira.</p>
+</div>
+<div class="admonition-versions admonition">
+<p class="admonition-title"><strong>Versions</strong></p>
+<p>Il existe une deuxième subtilité que nous allons laisser de côté pour l’instant: les valeurs
+dans une paire clé-valeur Cassandra sont associées à des versions. Au moment où
+l’on affecte une valeur
+à une clé, cette valeur est étiquetée par l’estampille temporelle courante, et il est possible
+de conserver, pour une même clé, la série temporelle des valeurs successives.
+Cassandra, à strictement parler, gère donc des <em>triplets</em> (clé, estampille, valeur). C’est
+un héritage de BigTable, que l’on retrouve encore dans HBase par exemple.</p>
+<p>L’estampille a une utilité dans le fonctionnement interne de Cassandra,
+notamment lors des phases de réconciliation lorsque des fichiers ne sont plus synchronisés
+suite à la panne d’un nœud. Nous y reviendrons.</p>
+</div>
+<p>Un <em>document</em> dans Cassandra  est un identifiant unique associé à
+un ensemble de paires <em>(clé, valeur)</em>. Il s’agit ni plus ni moins de la notion traditionnelle
+de dictionnaire que nous avons rencontrée dès le premier chapitre de ce cours et qu’il
+serait très facile de représenter
+en JSON par exemple.</p>
+<div class="admonition-vocabulaire admonition">
+<p class="admonition-title"><strong>Vocabulaire</strong></p>
+<p>Cassandra appelle <em>row</em> les documents, et <em>row key</em> l’identifiant unique. La notion
+de ligne (<em>row</em>) vient également de BigTable. Conceptuellement, il n’y a pas
+de différence avec les documents structurés que nous étudions depuis le début
+de ce cours.</p>
+</div>
+<p>Dans les versions initiales de Cassandra, le nombre de paires clé-valeur
+constituant un document (ligne) n’était pas limité. On pouvait donc imaginer avoir
+des documents contenant des milliers de paires, tous différents les uns des autres. Ce
+n’est plus possible dans les versions récentes, chaque document devant être conforme
+au schéma de la table dans laquelle il est inséré. Les concepteurs de Cassandra ont sans doute
+considéré qu’il était malsain de produire des fourre-tout de données, difficilement
+gérables.  La  <a class="reference internal" href="#cass-row"><span class="std std-numref">Fig. 24</span></a>
+montre un document Cassandra sous la forme de ses paires clés-valeurs</p>
+<figure class="align-center" id="id2">
+<span id="cass-row"></span><a class="reference internal image-reference" href="_images/cass-row.png"><img alt="_images/cass-row.png" src="_images/cass-row.png" style="width: 50%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 24 </span><span class="caption-text">Structure d’un document dans Cassandra</span><a class="headerlink" href="#id2" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="les-tables-column-families">
+<h3>Les tables (<em>column families</em>)<a class="headerlink" href="#les-tables-column-families" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Les documents sont groupés dans des tables qui, sous Cassandra, sont parfois
+appelées des <em>column families</em> pour des raisons historiques.</p>
+<div class="admonition-vocabulaire admonition">
+<p class="admonition-title"><strong>Vocabulaire</strong></p>
+<p>La notion de <em>column family</em> vient là encore de Bigtable, où elle avait un sens précis
+qui a disparu ici (pourquoi appeler une collection une « famille de colonnes? »). Transposez
+<em>column family</em> en <em>collection</em> et vous serez en territoire connu. Pour retrouver
+un modèle encore très proche de celui de BigTable, vous pouvez regarder le système HBase
+où les termes  <em>column family</em>  et  <em>column</em>  ont encore un sens fort.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Il existe aussi des <em>super columns</em>, ainsi que des <em>super column families</em>. Ces structures apportent
+un réel niveau de complexité dans le modèle de données, et il n’est pas vraiment nécessaire d’en parler ici.
+Il se peut d’ailleurs que ces notions peu utiles disparaissent à l’avenir.</p>
+</div>
+<p>La <a class="reference internal" href="#cass-column-family"><span class="std std-numref">Fig. 25</span></a> illustre une table et 3 documents avec leur identifiant.</p>
+<figure class="align-center" id="id3">
+<span id="cass-column-family"></span><a class="reference internal image-reference" href="_images/cass-column-family.png"><img alt="_images/cass-column-family.png" src="_images/cass-column-family.png" style="width: 100%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 25 </span><span class="caption-text">Une table (<em>column family</em>) contenant 3 documents (<em>rows</em>) dans Cassandra</span><a class="headerlink" href="#id3" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="bases-keyspaces">
+<h3>Bases (<em>Keyspaces</em>)<a class="headerlink" href="#bases-keyspaces" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Enfin le troisième niveau d’organisation dans Cassandra est le <em>keyspace</em>, qui contient un ensemble de tables
+(<em>column families</em>).  C’est l’équivalent de la notion de base de données, ensemble de tables dans
+le modèle relationnel, ou ensemble de collections dans des systèmes comme MongoDB.</p>
+<p>En résumé:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Cassandra permet de stocker des tables <em>dénormalisées</em> dans lesquelles les valeurs
+ne sont pas nécessairement atomiques; il s’appuie sur
+une plus grande diversité de types (pas uniquement des entiers et des chaînes de caractères, mais
+des types construits comme les listes ou les dictionnaires).</p></li>
+<li><p>La modélisation d’une architecture de données dans Cassandra est beaucoup plus ouverte qu’en relationnel ce qui rend notamment la modélisation plus difficile à évaluer, surtout à long terme.</p></li>
+<li><p>La dénormalisation (souvent considérée comme la bête noire à pourchasser dans un modèle relationnel) devient recommandée avec Cassandra, en restant conscient que ses inconvénients (notamment la duplication   de l’information, et les incohérences possibles) doivent être envisagés sérieusement.</p></li>
+<li><p>En contrepartie des difficultés accrues de la modélisation, et surtout de l’impossibilté de garantir
+formellement la qualité d’un  schéma grâce à des méthodes adaptées, Cassandra assure un passage
+à l’échelle par distribution basé sur des techniques de partitionnement et de réplication
+que nous  détaillerons ultérieurement. C’est un système qui offre des performances jugées
+très satisfaisantes dans un environnement Big Data.</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="creons-notre-base">
+<h3>Créons notre base<a class="headerlink" href="#creons-notre-base" title="Lien permanent vers ce titre">¶</a></h3>
+<p>À vous de vous retrousser les manches pour créer votre base Cassandra et y insérer nos films
+(ou toute autre jeu de données de votre choix). Les commandes de base sont données ci-dessous;
+elles peuvent toutes être entrées directement dans client graphique comme DbVisualizer.
+Le <em>keyspace</em>
+————-</p>
+<p>Rappelons que <em>keyspace</em> est le nom que Cassandra donne à une base de données.
+Cassandra est fait pour fonctionner dans un environnement distribué. Pour créer
+un <em>keyspace</em>,
+il faut donc
+préciser la stratégie de réplication à adopter. Nous verrons plus en détail
+après comment  tout ceci fonctionne. Voici
+la commande en ligne:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>CREATE KEYSPACE IF NOT EXISTS Movies
+       WITH REPLICATION = { &#39;class&#39; : &#39;SimpleStrategy&#39;, &#39;replication_factor&#39;: 3 };
+</pre></div>
+</div>
+<p>Sous DbVisualizer, les <em>keyspaces</em> apparaissent à gauche de la
+fenêtre principale. Un clic bouton droit
+permet d’ouvrir un formulaire de création d’un <em>keyspace</em> (voir <a class="reference internal" href="#cass-create-keyspace"><span class="std std-numref">Fig. 26</span></a>).</p>
+<figure class="align-center" id="id4">
+<span id="cass-create-keyspace"></span><a class="reference internal image-reference" href="_images/cass-createkeyspace.png"><img alt="_images/cass-createkeyspace.png" src="_images/cass-createkeyspace.png" style="width: 100%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 26 </span><span class="caption-text">Utilisation de DbVisualizer – Création d’un <em>keyspace</em></span><a class="headerlink" href="#id4" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>Une fois le <em>keyspace</em> créé, essayez les commandes suivantes
+(sous <code class="docutils literal notranslate"><span class="pre">cqlsh</span></code> uniquement).</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cqlsh &gt; DESCRIBE keyspaces<span class="p">;</span>
+cqlsh &gt; DESCRIBE KEYSPACE Movies<span class="p">;</span>
+</pre></div>
+</div>
+<p>Avec un client graphique, il est facile d’explorer un <em>keyspace</em>. Sous DbVisualizer,
+vous pouvez entrer les commandes dans une fenêtre « SQL commander ».</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Il peut être nécessaire de se reconnecter à Cassandra pour que le
+<em>keyspace</em> devienne visible.</p>
+</div>
+<section id="donnees-relationnelles-a-plat">
+<h4>Données relationnelles (à plat)<a class="headerlink" href="#donnees-relationnelles-a-plat" title="Lien permanent vers ce titre">¶</a></h4>
+<p>On peut traiter Cassandra comme une base relationnelle (en se plaçant du point de vue
+de la modélisation en tout cas). On crée alors des tables destinées à contenir
+des données « à plat », avec des types atomiques. Commençons par créer une table pour nos artistes.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">create</span> <span class="k">table</span> <span class="n">artists</span> <span class="p">(</span><span class="n">id</span> <span class="nb">text</span><span class="p">,</span>
+               <span class="n">last_name</span> <span class="nb">text</span><span class="p">,</span> <span class="n">first_name</span> <span class="nb">text</span><span class="p">,</span>
+               <span class="n">birth_date</span> <span class="nb">int</span><span class="p">,</span> <span class="k">primary</span> <span class="k">key</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span>
+              <span class="p">);</span>
+</pre></div>
+</div>
+<p>Je vous renvoie à la documentation Cassandra pour la liste des types atomiques disponibles. Ce sont,
+à peu de chose près, ceux de SQL.</p>
+<p>L’insertion de données suit elle aussi la syntaxe SQL. Insérons quelques artistes.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">insert</span> <span class="k">into</span> <span class="n">artists</span> <span class="p">(</span><span class="n">id</span><span class="p">,</span> <span class="n">last_name</span><span class="p">,</span> <span class="n">first_name</span><span class="p">,</span> <span class="n">birth_date</span><span class="p">)</span>
+            <span class="k">values</span> <span class="p">(</span><span class="s1">&#39;artist1&#39;</span><span class="p">,</span> <span class="s1">&#39;Depardieu&#39;</span><span class="p">,</span> <span class="s1">&#39;Gérard&#39;</span><span class="p">,</span> <span class="mi">1948</span><span class="p">);</span>
+<span class="k">insert</span> <span class="k">into</span> <span class="n">artists</span> <span class="p">(</span><span class="n">id</span><span class="p">,</span> <span class="n">last_name</span><span class="p">,</span> <span class="n">first_name</span><span class="p">,</span> <span class="n">birth_date</span><span class="p">)</span>
+            <span class="k">values</span> <span class="p">(</span><span class="s1">&#39;artist2&#39;</span><span class="p">,</span> <span class="s1">&#39;Baye&#39;</span><span class="p">,</span> <span class="s1">&#39;Nathalie&#39;</span><span class="p">,</span> <span class="mi">1948</span><span class="p">);</span>
+<span class="k">insert</span> <span class="k">into</span> <span class="n">artists</span> <span class="p">(</span><span class="n">id</span><span class="p">,</span> <span class="n">last_name</span><span class="p">,</span> <span class="n">first_name</span><span class="p">)</span>
+            <span class="k">values</span> <span class="p">(</span><span class="s1">&#39;artist3&#39;</span><span class="p">,</span> <span class="s1">&#39;Marceau&#39;</span><span class="p">,</span> <span class="s1">&#39;Sophie&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>On peut vérifier que l’insertion a bien fonctionné en sélectionnant les données.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">artists</span><span class="p">;</span>
+
+ <span class="n">id</span>         <span class="o">|</span> <span class="n">last_name</span>   <span class="o">|</span> <span class="n">first_name</span>     <span class="o">|</span> <span class="n">birth_date</span>
+<span class="c1">------------+-------------+-----------------------------</span>
+  <span class="s1">&#39;artist1&#39;</span> <span class="o">|</span> <span class="n">Depardieu</span>   <span class="o">|</span> <span class="n">Gérard</span>         <span class="o">|</span> <span class="mi">1948</span>
+  <span class="s1">&#39;artist2&#39;</span> <span class="o">|</span> <span class="n">Baye</span>        <span class="o">|</span> <span class="n">Nathalie</span>       <span class="o">|</span> <span class="mi">1948</span>
+  <span class="s1">&#39;artist3&#39;</span> <span class="o">|</span> <span class="n">Marceau</span>     <span class="o">|</span> <span class="n">Sophie</span>         <span class="o">|</span> <span class="k">null</span>
+</pre></div>
+</div>
+<p>À la dernière insertion, nous avons délibérément omis de renseigner la colonne <code class="docutils literal notranslate"><span class="pre">birth_date</span></code>, et
+Cassandra accepte la commande sans retourner d’erreur. Cette flexibilité est l’un des aspects
+communs à tous les modèles s’appuyant sur une représentation semi-structurée.</p>
+<p>Il est également possible d’insérer à partir d’un document JSON en ajoutant le mot-clé <code class="docutils literal notranslate"><span class="pre">JSON</span></code>.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">insert</span> <span class="k">into</span> <span class="n">artists</span> <span class="n">JSON</span> <span class="s1">&#39;{</span>
+<span class="s1">     &quot;id&quot;: &quot;a1&quot;,</span>
+<span class="s1">     &quot;last_name&quot;: &quot;Coppola&quot;,</span>
+<span class="s1">     &quot;first_name&quot;: &quot;Sofia&quot;,</span>
+<span class="s1">     &quot;birth_date&quot;: &quot;1971&quot;</span>
+<span class="s1"> }&#39;</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>La structure du document doit correspondre très précisément (types compris) au schéma de la table,
+sinon Cassandra rejette l’insertion.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Vous pouvez récupérer sur le site <a class="reference external" href="http://deptfod.cnam.fr/bd/tp/datasets/">http://deptfod.cnam.fr/bd/tp/datasets/</a> des commandes
+d’insertion Cassandra pour notre base de films.</p>
+</div>
+</section>
+<section id="documents-structures-avec-imbrication">
+<h4>Documents structurés (avec imbrication)<a class="headerlink" href="#documents-structures-avec-imbrication" title="Lien permanent vers ce titre">¶</a></h4>
+<p>Cassandra va au-delà de la norme relationnelle en permettant des données
+<em>dénormalisées</em> dans lesquelles certaines valeurs sont complexes (dictionnaires, ensembles, etc.).
+C’est le principe de base que nous avons étudié pour la modélisation de document: en permettant
+l’imbrication on s’autorise la création de structures beaucoup plus riches, et potentiellement
+suffisantes pour représenter intégralement les informations relatives à une entité.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Le concept de relationnel « étendu » à des types complexes est très ancien, et existe déjà
+dans des systèmes comme Postgres depuis longtemps.</p>
+</div>
+<p>Prenons le cas des films. En relationnel, on aurait la commande suivante:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">create</span> <span class="k">table</span> <span class="n">movies</span> <span class="p">(</span><span class="n">id</span> <span class="nb">text</span><span class="p">,</span>
+            <span class="n">title</span> <span class="nb">text</span><span class="p">,</span>
+            <span class="k">year</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">genre</span> <span class="nb">text</span><span class="p">,</span>
+            <span class="n">country</span> <span class="nb">text</span><span class="p">,</span>
+         <span class="k">primary</span> <span class="k">key</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span> <span class="p">);</span>
+</pre></div>
+</div>
+<p>Tous les champs sont de type atomique. Pour représenter le metteur en scène, objet complexe
+avec un nom, un prénom, etc., il faudrait associer (en relationnel) chaque ligne de la table <em>movies</em>
+à une ligne d’une <em>autre</em> table représentant les artistes.</p>
+<p>Cassandra permet l’imbrication de la représentation d’un artiste dans la représentation d’un film;
+une seule table suffit donc.
+C’est le principe de dénormalisation: on regroupe
+les données le plus possible dans des lignes pour éviter les jointures.
+Une valeur d’attribut  peut correspondre:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>à un ensemble de valeurs (non ordonnées): <code class="docutils literal notranslate"><span class="pre">SET</span></code></p></li>
+<li><p>à une liste de valeurs: <code class="docutils literal notranslate"><span class="pre">LIST</span></code></p></li>
+<li><p>à un dictionnaire: <code class="docutils literal notranslate"><span class="pre">MAP</span></code></p></li>
+<li><p>à un nuplet: <cite>TUPLE`</cite></p></li>
+<li><p>à une instance d’un type</p></li>
+</ul>
+</div></blockquote>
+<p>Définissons le <em>type</em> <code class="docutils literal notranslate"><span class="pre">artist</span></code> de la manière suivante:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">create</span> <span class="k">type</span> <span class="n">artist</span> <span class="p">(</span><span class="n">id</span> <span class="nb">text</span><span class="p">,</span>
+                    <span class="n">last_name</span> <span class="nb">text</span><span class="p">,</span>
+                    <span class="n">first_name</span> <span class="nb">text</span><span class="p">,</span>
+                    <span class="n">birth_date</span> <span class="nb">int</span><span class="p">,</span>
+                    <span class="k">role</span> <span class="nb">text</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Et on peut alors créer la table <code class="docutils literal notranslate"><span class="pre">movies</span></code> en spécifiant que l’un des champs a pour type
+<code class="docutils literal notranslate"><span class="pre">artist</span></code>.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">create</span> <span class="k">table</span> <span class="n">movies</span> <span class="p">(</span><span class="n">id</span> <span class="nb">text</span><span class="p">,</span>
+                     <span class="n">title</span> <span class="nb">text</span><span class="p">,</span>
+                     <span class="k">year</span> <span class="nb">int</span><span class="p">,</span>
+                     <span class="n">genre</span> <span class="nb">text</span><span class="p">,</span>
+                     <span class="n">country</span> <span class="nb">text</span><span class="p">,</span>
+                     <span class="n">director</span> <span class="n">frozen</span><span class="o">&lt;</span><span class="n">artist</span><span class="o">&gt;</span><span class="p">,</span>
+                     <span class="k">primary</span> <span class="k">key</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span> <span class="p">);</span>
+</pre></div>
+</div>
+<p>Notez le champ <code class="docutils literal notranslate"><span class="pre">director</span></code>, avec pour type <code class="docutils literal notranslate"><span class="pre">frozen&lt;artist&gt;</span></code>  indiquant l’utilisation d’un
+type défini dans le schéma.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>L’utilisation de <code class="docutils literal notranslate"><span class="pre">frozen</span></code> semble obligatoire pour les types imbriqués. Les raisons
+sont peu claires pour moi. Il semble que <code class="docutils literal notranslate"><span class="pre">frozen</span></code> implique que toute modification de la
+valeur imbriquée doive se faire par remplacement complet, par opposition à une modification
+à une granularité plus fine affectant l’un des champs. Vous êtes invités à creuser
+la question si vous utilisez Cassandra.</p>
+</div>
+<p>Il devient alors possible d’insérer des documents structurés, comme celui de l’exemple ci-dessous.
+Ce qui montre
+l’équivalence entre le modèle Cassandra et les modèles des documents structurés que nous avons étudiés.
+Il est important de noter que les concepteurs de Cassandra ont décidé de se tourner vers un typage fort:
+tout document non conforme au schéma précédent est rejeté, ce qui garantit que la base de données est
+saine et respecte les contraintes.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">movies</span> <span class="n">JSON</span> <span class="s1">&#39;{</span>
+<span class="s1">    &quot;id&quot;: &quot;movie:1&quot;,</span>
+<span class="s1">    &quot;title&quot;: &quot;Vertigo&quot;,</span>
+<span class="s1">    &quot;year&quot;: 1958,</span>
+<span class="s1">    &quot;genre&quot;: &quot;drama&quot;,</span>
+<span class="s1">    &quot;country&quot;: &quot;USA&quot;,</span>
+<span class="s1">    &quot;director&quot;: {</span>
+<span class="s1">        &quot;id&quot;: &quot;artist:3&quot;,</span>
+<span class="s1">        &quot;last_name&quot;: &quot;Hitchcock&quot;,</span>
+<span class="s1">        &quot;first_name&quot;: &quot;Alfred&quot;,</span>
+<span class="s1">        &quot;birth_date&quot;: &quot;1899&quot;</span>
+<span class="s1">    }</span>
+<span class="s1">}&#39;</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Sur le même principe, on peut ajouter un niveau d’imbrication pour représenter
+l’ensemble des acteurs d’un film. Le constructeur <code class="docutils literal notranslate"><span class="pre">set&lt;...&gt;</span></code> déclare un type <em>ensemble</em>.
+Voici un exemple parlant:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">create</span> <span class="k">table</span> <span class="n">movies</span> <span class="p">(</span><span class="n">id</span> <span class="nb">text</span><span class="p">,</span>
+              <span class="n">title</span> <span class="nb">text</span><span class="p">,</span>
+              <span class="k">year</span> <span class="nb">int</span><span class="p">,</span>
+              <span class="n">genre</span> <span class="nb">text</span><span class="p">,</span>
+              <span class="n">country</span> <span class="nb">text</span><span class="p">,</span>
+              <span class="n">director</span> <span class="n">frozen</span><span class="o">&lt;</span><span class="n">artist</span><span class="o">&gt;</span><span class="p">,</span>
+              <span class="n">actors</span> <span class="k">set</span><span class="o">&lt;</span> <span class="n">frozen</span><span class="o">&lt;</span><span class="n">artist</span><span class="o">&gt;&gt;</span><span class="p">,</span>
+           <span class="k">primary</span> <span class="k">key</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span> <span class="p">);</span>
+</pre></div>
+</div>
+<p>Les acteurs sont donc une liste d’instances du type <code class="docutils literal notranslate"><span class="pre">artist</span></code>, ce qui correspond
+en JSON à la structure suivante:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">insert</span> <span class="k">into</span> <span class="n">movies</span> <span class="n">JSON</span> <span class="s1">&#39;{</span>
+<span class="s1">        &quot;id&quot;: &quot;movie:11&quot;,</span>
+<span class="s1">        &quot;title&quot;: &quot;Star Wars&quot;,</span>
+<span class="s1">        &quot;year&quot;: 1977,</span>
+<span class="s1">        &quot;genre&quot;: &quot;Adventure&quot;,</span>
+<span class="s1">        &quot;country&quot;: &quot;US&quot;,</span>
+<span class="s1">        &quot;director&quot;: {</span>
+<span class="s1">                &quot;id&quot;: &quot;artist:1&quot;,</span>
+<span class="s1">                &quot;last_name&quot;: &quot;Lucas&quot;,</span>
+<span class="s1">                &quot;first_name&quot;: &quot;George&quot;,</span>
+<span class="s1">                &quot;birth_date&quot;: 1944</span>
+<span class="s1">        },</span>
+<span class="s1">        &quot;actors&quot;: [</span>
+<span class="s1">                {</span>
+<span class="s1">                        &quot;last_name&quot;: &quot;Hamill&quot;,</span>
+<span class="s1">                        &quot;first_name&quot;: &quot;Mark&quot;,</span>
+<span class="s1">                        &quot;birth_date&quot;: 1951</span>
+<span class="s1">                },</span>
+<span class="s1">                {</span>
+<span class="s1">                        &quot;last_name&quot;: &quot;Ford&quot;,</span>
+<span class="s1">                        &quot;first_name&quot;: &quot;Harrison&quot;,</span>
+<span class="s1">                        &quot;birth_date&quot;: 1942</span>
+<span class="s1">                },</span>
+<span class="s1">                {</span>
+<span class="s1">                        &quot;last_name&quot;: &quot;Fisher&quot;,</span>
+<span class="s1">                        &quot;first_name&quot;: &quot;Carrie&quot;,</span>
+<span class="s1">                        &quot;birth_date&quot;: 1956</span>
+<span class="s1">                }</span>
+<span class="s1">        ]</span>
+<span class="s1">}&#39;</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Je vous laisse effectuer (si ce n’est déjà fait) l’insertion de l’ensemble des films tels qu’ils sont fournis par
+le site <a class="reference external" href="http://deptfod.cnam.fr/bd/tp/datasets/cassandra">http://deptfod.cnam.fr/bd/tp/datasets/cassandra</a>, avec tous les acteurs d’un film.
+Il suffit de récupérer le fichier contenant l’ensemble des commandes d’insertion
+et de l’exécuter comme un script. Nous
+nous en servirons pour l’interrogation CQL ensuite.</p>
+<p>En résumé:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Cassandra propose un modèle relationnel étendu, basé sur la capacité à imbriquer
+des types complexes dans la définition d’un schéma, et à sortir en conséquence
+de la première règle de normalisation (ce type de modèle est d’ailleurs appelé depuis
+longtemps N1NF pour <em>Non First Normal Form</em>);</p></li>
+<li><p>Cassandra a choisi d’imposer un typage fort: toute insertion doit être conforme au schéma;</p></li>
+<li><p>L’imbrication des constructeurs de type, notamment les <em>dictionnaires</em> (nuplets) et
+les <em>ensembles</em> (set) rend le modèle comparable aux documents structurés JSON ou XML.</p></li>
+</ul>
+</div></blockquote>
+<p>Il faut noter que les ensembles doivent rester de taille raisonnable sous peine de
+dégrader les performances. La conception d’un schéma Cassandra repose sur
+des principes très spécifiques sur lesquels nous revenons plus loin.</p>
+</section>
+</section>
+</section>
+<section id="s2-requetes-cassandra">
+<h2>S2: requêtes Cassandra<a class="headerlink" href="#s2-requetes-cassandra" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="admonition-supports-complementaires admonition">
+<p class="admonition-title">Supports complémentaires</p>
+<ul class="simple">
+<li><p><a class="reference external" href="http://b3d.bdpedia.fr/files/slcass-cql.pdf">Diapositives: CQL et ses limitations (et pourquoi…)</a></p></li>
+</ul>
+</div>
+<p>Cassandra propose un langage, nommé CQL, inspiré de SQL, mais fortement restreint par l’absence de jointure.
+De plus, d’autres types de restrictions s’appliquent, motivées par l’hypothèse qu’une
+base Cassandra est nécessairement une base à très grande échelle, et que les
+seules requêtes raisonnables sont celles pour lequelles la structuration des données
+permet des temps de réponse acceptables.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Cette session est une démonstration pratique ces capacités d’interrogation
+de Cassandra. Si vous souhaitez reproduire les manipulations, il vous
+faut un environnement constitué d’un serveur Cassandra,
+d’un client et de la base de données des films. En résumé, vous devriez avoir
+une table <code class="docutils literal notranslate"><span class="pre">movies</span></code> où chaque film contient des données imbriquées représentant
+le réalisateur du film et les acteurs.</p>
+</div>
+<section id="cql-un-sous-ensemble-de-sql">
+<h3>CQL, un sous-ensemble de SQL<a class="headerlink" href="#cql-un-sous-ensemble-de-sql" title="Lien permanent vers ce titre">¶</a></h3>
+<p>CQL ne permet d’interroger qu’une seule table. Cette (<em>très</em> forte) restriction
+mise à part (!), le
+langage est délibérement conçu comme un sous-ensemble de SQL et de sa construction
+<code class="docutils literal notranslate"><span class="pre">select</span> <span class="pre">from</span> <span class="pre">where</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Toute requête CQL doit se terminer par un “;”</p>
+</div>
+<p>Commençons par quelques exemples.</p>
+<p>Sélectionnons tous les films.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">select</span>  <span class="o">*</span> <span class="k">from</span> <span class="n">movies</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Selon l’utilitaire que vous utilisez, vous devriez obtenir l’affichage des premiers films
+sous une forme ou sous une autre. Cassandra étant supposé gérer de très grandes bases de données,
+ces utilitaires vont souvent ajouter automatiquement une clause limitant le nombre
+de lignes retournées. Vous pouvez ajouter cette clause explicitement.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">select</span>  <span class="o">*</span> <span class="k">from</span> <span class="n">movies</span> <span class="k">limit</span> <span class="mi">20</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>On peut obtenir le résultat encodé en JSON en ajoutant simplement le mot-clé <code class="docutils literal notranslate"><span class="pre">JSON</span></code>.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">select</span> <span class="n">JSON</span> <span class="o">*</span> <span class="k">from</span> <span class="n">movies</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Bien entendu, le <code class="docutils literal notranslate"><span class="pre">*</span></code> peut être remplacé par la liste des attributs à conserver (projeter).</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">select</span> <span class="n">title</span> <span class="k">from</span> <span class="n">movies</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Si une valeur <em>v</em> est un dictionnaire (objet en JSON), on peut accéder à l’un
+de ses composants <em>c</em> avec  la notation <em>v.c</em>. Exemple pour le réalisateur du film.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">select</span> <span class="n">title</span><span class="p">,</span> <span class="n">director</span><span class="p">.</span><span class="n">last_name</span> <span class="k">from</span> <span class="n">movies</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>En revanche, quand la valeur est un ensemble ou une liste, on ne sait pas avec CQL accéder
+à son contenu. La tentative d’exécuter la requête:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">select</span> <span class="n">title</span><span class="p">,</span> <span class="n">actors</span><span class="p">.</span><span class="n">last_name</span> <span class="k">from</span> <span class="n">movies</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>devrait retourner une erreur. Il est vrai que l’on ne sait pas très bien à quoi devrait ressembler
+le résultat. Ou plus exactement on le sait, mais
+cela supposeait que Cassandra soit capable de créer des types à la volée.
+D’autres langages (notamment XQuery, mais également le langage de script Pig que nous
+étudierons en fin de cours) proposent des solutions au problème
+d’interrogation de collections imbriquées. Il se peut que CQL évolue
+un jour pour proposer quelque chose de semblable.</p>
+<p>On peut, dans la clause <code class="docutils literal notranslate"><span class="pre">select</span></code>, appliquer des fonctions. Cassandra
+permet la définition de fonctions
+utilisateur, et leur application aux données grâce à CQL. Quelques fonctions prédéfinies sont
+également disponibles. Voici un exemple (sans intérêt autre qu’illustratif)
+de conversion de l’année du film
+en texte (c’est un entier à l’origine).</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">select</span> <span class="k">cast</span><span class="p">(</span><span class="k">year</span> <span class="k">as</span> <span class="nb">text</span><span class="p">)</span> <span class="k">as</span> <span class="n">yearText</span> <span class="k">from</span> <span class="n">movies</span> <span class="p">;</span>
+</pre></div>
+</div>
+<p>Notez le renommage de la colonne avec le mot-clé <code class="docutils literal notranslate"><span class="pre">as</span></code>. Tout cela est directement
+emprunté à SQL. On peut également compter le nombre de lignes dans la table.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">select</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">from</span> <span class="n">movies</span> <span class="p">;</span>
+</pre></div>
+</div>
+<p>On peut effectuer des filtrages avec la clause <code class="docutils literal notranslate"><span class="pre">where</span></code>. Par exemple:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">select</span>  <span class="o">*</span>  <span class="k">from</span> <span class="n">movies</span> <span class="k">where</span> <span class="n">id</span><span class="o">=</span><span class="s1">&#39;movie:33&#39;</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Remarque importante: le critère de sélection porte ici sur la <em>clé</em>. On peut
+généraliser à plusieurs valeurs avec la clause <code class="docutils literal notranslate"><span class="pre">in</span></code>.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">select</span>  <span class="o">*</span> <span class="k">from</span> <span class="n">movies</span>
+<span class="k">where</span> <span class="n">id</span> <span class="k">in</span> <span class="p">(</span><span class="s1">&#39;movie:33&#39;</span><span class="p">,</span> <span class="s1">&#39;movie:44214&#39;</span><span class="p">,</span> <span class="s1">&#39;movie:29845&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Tentons maintenant une recherche sur un attribut non-clé.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">select</span>  <span class="o">*</span> <span class="k">from</span> <span class="n">movies</span>
+<span class="k">where</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Elle&#39;</span> <span class="p">;</span>
+</pre></div>
+</div>
+<p><em>Vous devriez obtenir un rejet de cette requête avec le message suivant</em>:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Unable to execute CQL script. Cannot execute this query as it might involve data
+filtering and thus may have unpredictable performance. If you want
+to execute this query despite the performance unpredictability,
+use ALLOW FILTERING.
+</pre></div>
+</div>
+<p>En revanche, en ajoutant l’option ALLOW FILTERING, on obtient
+le résultat.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">select</span>  <span class="o">*</span> <span class="k">from</span> <span class="n">movies</span>
+<span class="k">where</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Elle&#39;</span>
+<span class="n">ALLOW</span> <span class="n">FILTERING</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Nous avons atteint les limites de CQL en tant que clône de SQL.</p>
+</section>
+<section id="pourquoi-cql-n-est-pas-sql">
+<h3>Pourquoi CQL n’est pas SQL<a class="headerlink" href="#pourquoi-cql-n-est-pas-sql" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Pourquoi un <code class="docutils literal notranslate"><span class="pre">where</span></code> sur un attribut non-clé est-il rejeté? Pour une raison qui tient
+à l’organisation des données: Cassandra organise une table selon une structure
+qui permet très rapidement de trouver un document par sa clé. La recherche par clé
+est donc autorisée. Pour aller plus loin, il faut regarder plus en détail
+le schéma d’une table. La syntaxe complète est ci-dessous:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span>   <span class="k">create</span> <span class="k">table</span> <span class="n">Tname</span> <span class="p">(</span>
+          <span class="n">part_key_1</span> <span class="k">type</span><span class="p">,</span>
+          <span class="n">part_key_2</span> <span class="k">type</span><span class="p">,</span>
+          <span class="p">...</span> <span class="k">type</span><span class="p">,</span>
+          <span class="n">clust_key_1</span> <span class="k">type</span><span class="p">,</span>
+          <span class="p">...</span> <span class="k">type</span><span class="p">,</span>
+          <span class="n">att_1</span> <span class="k">type</span><span class="p">,</span>
+          <span class="n">att_2</span> <span class="k">type</span><span class="p">,</span>
+          <span class="p">...</span> <span class="k">type</span><span class="p">,</span>
+          <span class="k">primary</span> <span class="k">key</span> <span class="p">(</span>
+      <span class="p">(</span><span class="n">part_key_1</span><span class="p">,</span> <span class="n">part_key2</span><span class="p">,</span> <span class="p">...),</span>
+      <span class="p">(</span><span class="n">clust_key_1</span><span class="p">,</span> <span class="n">clust_key_2</span><span class="p">,</span> <span class="p">...)</span>
+  <span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-center" id="id5">
+<span id="cassandra-chebotko"></span><a class="reference internal image-reference" href="_images/cassandra_chebotko.png"><img alt="_images/cassandra_chebotko.png" src="_images/cassandra_chebotko.png" style="width: 60%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 27 </span><span class="caption-text">Le schéma d’une table, avec la structure d’une clé</span><a class="headerlink" href="#id5" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>Les attributs d’un schéma peuvent être divisés en deux parties: les
+<em>attributs de la clé</em> et les attributs non-clés. Mais les attributs
+de la clé eux-mêmes se divisent en deux (<a class="reference internal" href="#cassandra-chebotko"><span class="std std-numref">Fig. 27</span></a>):</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>les attributs de <em>partitionnement</em>: ils déterminent le placement de la ligne
+sur un serveur</p></li>
+<li><p>les attributs de <em>regroupement</em>: ils servent à trier les lignes
+sur un même serveur.</p></li>
+</ul>
+</div></blockquote>
+<p>Il faut ici anticiper un peu sur l’étude de Cassandra comme système distribué.
+Sans entrer dans les détails, une table Cassandra est censée être très volumineuse.
+Cassandra la découpe en <em>fragments</em> et place chaque fragment sur un
+des serveurs du système distribué (<a class="reference internal" href="#cass-anneau"><span class="std std-numref">Fig. 28</span></a>). Ce système
+a la forme d’un anneau mais nous allons laisser de côté cette caractéristique
+pour l’instant.</p>
+<figure class="align-center" id="id6">
+<span id="cass-anneau"></span><a class="reference internal image-reference" href="_images/cassandra_anneau.png"><img alt="_images/cassandra_anneau.png" src="_images/cassandra_anneau.png" style="width: 50%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 28 </span><span class="caption-text">Cassandra est un système distribué: la <em>clé de partitionnement</em> détermine le serveur</span><a class="headerlink" href="#id6" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>Le contenu d’un fragment est déterminé par la <em>clé de partitionnement</em>.
+Pour chaque ligne on applique en effet une fonction (de hachage) aux valeurs de la clé de
+<em>partitionnement</em>. La valeur retournée par cette fonction détermine le placement dans le système distribué.
+Conséquence: <strong>une requête incluant comme critère une clé de partitionnement
+ne concerne qu’un seul serveur</strong>.</p>
+<p>De plus, dans un fragment (sur un serveur) les lignes sont triées sur la clé primaire.
+Pour une même valeur de partitionnement,  les lignes sont
+donc <em>consécutives</em> et ordonnées sur la clé de regroupement.
+Une requête sur une préfixe de la clé   primaire (part. + regroupement)
+correspond à un parcours <em>séquentiel</em> sur un seul nœud, beaucoup
+plus efficace qu’une recherche aléatoire.</p>
+<p>Prenons un exemple concret: nous considérons que l’ensemble imbriqué
+des acteurs d’un film est potentiellement trop grand pour l’imbriquer
+dans la table <code class="docutils literal notranslate"><span class="pre">movies</span></code>. On peut alors créer une table <code class="docutils literal notranslate"><span class="pre">roles</span></code> comme suit:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">create</span> <span class="k">table</span> <span class="n">Roles</span> <span class="p">(</span>
+    <span class="n">id_film</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">id_artiste</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="k">role</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">artist</span> <span class="n">frozen</span><span class="o">&lt;</span><span class="n">artist</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="k">primary</span> <span class="k">key</span> <span class="p">(</span><span class="n">id_film</span><span class="p">,</span> <span class="n">id_artiste</span><span class="p">)</span>
+ <span class="p">)</span>
+</pre></div>
+</div>
+<p>La clé de partitionnement est donc l’identifiant du film, et la
+clé de regroupement l’identifiant de l’artiste. Tous les rôles
+d’un même film seront sur le même serveur. Ils seront de plus
+regroupés et triés par identifiant d’artiste.</p>
+<figure class="align-center" id="id7">
+<span id="cass-cluster"></span><a class="reference internal image-reference" href="_images/cassandra_clustering.png"><img alt="_images/cassandra_clustering.png" src="_images/cassandra_clustering.png" style="width: 60%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 29 </span><span class="caption-text">Cassandra est un système distribué: la <em>clé de partitionnement</em> détermine le serveur</span><a class="headerlink" href="#id7" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p><em>Toute recherche sur un autre attribut (par exemple l’intitulé du rôle ou
+le nom de l’artiste) n’a d’autre
+solution que de parcourir séquentiellement toute la table en effectuant le test sur
+le critère de recherche à chaque fois</em>.</p>
+<p>Comme déjà indiqué, Cassandra est conçu pour de très grandes bases de données, et le rejet
+de ces requêtes séquentielle est une précaution. Le message indique clairement à l’utilisateur que
+sa requête est susceptible de prendre beaucoup de temps à s’exécuter.
+À l’usage on décrouvre tout un ensemble de restrictions (par rapport à SQL) qui s’expliquent
+par cette volonté d’éviter l’exécution d’une requête qui impliquerait un parcours de tout
+ou partie de la table. Voyons quelques exemples, avec explications.</p>
+<p>Tentons une requête sur la clé primaire, mais avec un critère <em>d’inégalité</em>.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">select</span>  <span class="o">*</span> <span class="k">from</span> <span class="n">movies</span>
+<span class="k">where</span> <span class="n">id</span> <span class="o">&gt;</span> <span class="s1">&#39;000000&#39;</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>On obtient un rejet avec un message indiquant que seule l’égalité est autorisée sur la clé
+(et d’autres détails à éclaircir ultérieurement).</p>
+<p>Peut-on trier les données avec la clause <code class="docutils literal notranslate"><span class="pre">order</span> <span class="pre">by</span></code>? Essayons.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">select</span>  <span class="o">*</span> <span class="k">from</span> <span class="n">movies</span> <span class="k">order</span> <span class="k">by</span> <span class="n">title</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Les deux requêtes sont rejetées. Le message nous dit (à peu près)
+que le tri est autorisé seulement quand on est assuré que les données à
+trier proviennent
+d’une seule partition. En (un peu plus) clair: Cassandra ne veut pas avoir à trier des données
+provenant de plusieurs serveurs, dans un environnement distribué avec répartition d’une table
+sur plusieurs nœuds.</p>
+<p>Et voilà. Cassandra interdit tout usage de CQL qui amènerait à parcourir toute la base ou
+une partie non prédictible de la base pour constituer le résultat. Cette interdiction
+n’est cependant pas totale. Dans le cas de la clause <code class="docutils literal notranslate"><span class="pre">where</span></code>, l’utilisateur
+peut prendre explicitement ses responsabilités en ajoutant la clause <code class="docutils literal notranslate"><span class="pre">allow</span> <span class="pre">filtering</span></code>,
+comme nous l’avons montré ci-dessus.
+Si la table contient des milliards de ligne, il faudra certainement
+attendre longtemps et exploiter intensivement les ressources du système pour un résultat
+limité. À utiliser
+à bon escient donc.</p>
+<p>Il faut penser que le coût d’évaluation de cette requête est proportionnel à la taille
+de la base. Cassandra
+tente de limiter les requêtes à celles dont le coût est proportionnel à la
+taille du résultat.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Cette remarque explique pourquoi la requête <code class="docutils literal notranslate"><span class="pre">select</span> <span class="pre">*</span> <span class="pre">from</span> <span class="pre">movies;</span></code>, qui
+parcourt toute la base, est autorisée.</p>
+</div>
+<p>À partir du moment où on autorise explicitement le filtrage, on peut combiner plusieurs
+critères de recherche, comme en SQL.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">select</span>  <span class="o">*</span> <span class="k">from</span> <span class="n">movies</span>
+<span class="k">where</span> <span class="n">country</span><span class="o">=</span><span class="s1">&#39;US&#39;</span> <span class="k">and</span> <span class="k">year</span><span class="o">=</span><span class="mi">2020</span> <span class="n">allow</span> <span class="n">filtering</span><span class="p">;</span>
+</pre></div>
+</div>
+<p><em>Mais</em>, si c’est pour faire du SQL, autant choisir une base relationnelle. Les restrictions
+de Cassandra doivent s’interpréter dans un contexte <em>Big Data</em> où l’accès aux données
+doit prendre en compte leur volumétrie (et notamment le fait que cette volumétrie
+impose une répartition des données dans un système distribué).</p>
+<p>Une autre possibilité est de créer un index secondaire sur les attributs auxquels on souhaite
+appliquer des critères de recherche.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">create</span> <span class="k">index</span> <span class="k">on</span> <span class="n">movies</span><span class="p">(</span><span class="k">year</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Cassandra autorise alors de requêtes avec la clause <code class="docutils literal notranslate"><span class="pre">where</span></code> portant sur les attributs indexés.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">movies</span> <span class="k">where</span> <span class="k">year</span> <span class="o">=</span> <span class="mi">2020</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>En présence d’un index, il n’est plus nécessaire de parcourir toute la collection. Cette option
+est cependant à utiliser avec prudence. En premier lieu, un index peut être coûteux à maintenir.
+Mais surtout sa sélectivité n’est pas toujours assurée. Ici, par exemple, un index sur l’année est
+probablement une très mauvaise idée. On peut estimer qu’un film sur 100 a été tourné en 1992, et
+à l’échelle du <em>Big Data</em>, ça laisse beaucoup de films à trouver, même avec l’index, et une requête
+qui peut ne pas être performante du tout.</p>
+</section>
+</section>
+<section id="s3-etude-de-cas-conception-d-un-schema">
+<h2>S3: étude de cas: conception d’un schéma<a class="headerlink" href="#s3-etude-de-cas-conception-d-un-schema" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="admonition-supports-complementaires admonition">
+<p class="admonition-title">Supports complémentaires</p>
+<ul class="simple">
+<li><p><a class="reference external" href="http://b3d.bdpedia.fr/files/slcass-etudecas.pdf">Etude de cas Cassandra</a></p></li>
+</ul>
+</div>
+<p>De nombreux conseils sont disponibles pour la conception d’un schéma Cassandra.
+Cette conception est nécessairement différente de celle d’un schéma relationnel
+à cause de l’absence du système de clé étrangère et de l’opération de jointure.
+C’est la raison pour laquelle de nombreux design patterns sont proposés pour
+guider la mise en place d’une architecture de données dans Cassandra qui soit
+cohérente avec les besoins métiers, et la performance que peut offrir la base de
+données. Je présente dans ce qui suit une étude de cas concrète, menée pour
+une entreprise souhaitant archiver des dépôts de code logiciel de type GitHub.
+Les principes adoptés sont largement inspirés de la documentation officielle
+Cassandra que vous pouvez
+consulter à <a class="reference external" href="https://cassandra.apache.org/doc/stable/cassandra/data_modeling/index.html">https://cassandra.apache.org/doc/stable/cassandra/data_modeling/index.html</a>.</p>
+<section id="les-principes">
+<h3>Les principes<a class="headerlink" href="#les-principes" title="Lien permanent vers ce titre">¶</a></h3>
+<p>En l’absence de normalisation comme en relationnel, plusieurs solutions
+sont possibles, présentant des caractéristiques différentes en terme de capacité
+à satisfaire certaines requêtes. Il en résulte que le schéma est construit en
+fonction d’un besoin, ce qui est problématique puisque d’une part il faut garantir
+que ce besoin est correctement exprimé, et que d’autre part le besoin eut évoluer
+ou d’autres peuvent apparaître, le schéma devenant du coup obsolète. Avec un
+système relationnel comme MySQL, le raisonnement est opposé: la disponibilité
+des jointures permet de se fixer comme but la normalisation du modèle de données
+afin de répondre à tous les cas d’usage possibles, éventuellement de manière non optimale.</p>
+<p>L’argument des défenseurs de Cassandra est que cette approche est acceptable
+pour une application de type WORM (Write Once, Read many). C’est le cas pour
+l’application d’archivage que nous allons étudier.</p>
+<p>Admettons que le besoin soit bien identifié. On doit alors scénariser
+la séquence des requêtes transmises par l’application (en l’absence de jointure,
+une seule requête ne peut suffire, on effectue une requête par table).
+On organise alors les tables pour que chaque requête s’exécute localement
+et séquentiellement, avec un critère d’accès portant sur la clé.
+<em>Le principe est que l’exécution d’une requête A fournit la valeur de la
+clé qui sert d’acès à la requête suivante.</em></p>
+<p>On peut créer ponctuellement des index ou des vues matérialisées. Au pire
+(mais est-ce évitable?) on multiplie les organisations physiques et donc la redondance.</p>
+</section>
+<section id="les-besoins">
+<h3>Les besoins<a class="headerlink" href="#les-besoins" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Nous voulons donc archiver des dépôts de données de type GitHub ou GitLab.
+La <a class="reference internal" href="#modele-swh"><span class="std std-numref">Fig. 30</span></a> montre notre modèle de données (simplifié).
+Nous avons donc des dépôts (<em>repository</em>),
+par exemple <a class="reference external" href="https://github.com/apache/cassandra">https://github.com/apache/cassandra</a>,
+contenant le code d’un logiciel ou autre ressource.
+Pour archiver ce dépôt, on effectue périodiquement des visites
+(<em>snapshot</em>) et on capture le contenu du dépôt à la date de visite.</p>
+<figure class="align-center" id="id8">
+<span id="modele-swh"></span><a class="reference internal image-reference" href="_images/modele_swh.png"><img alt="_images/modele_swh.png" src="_images/modele_swh.png" style="width: 100%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 30 </span><span class="caption-text">Notre modèle de données</span><a class="headerlink" href="#id8" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>La structure d’un dépôt logiciel est constituée de <em>branches</em> qui évoluent
+en parallèle les unes des autres, chaque évolution consituant une révision.
+Enfin, dans une révision, on stocke une arborescence de répertoire (<em>directory</em>)
+contenant des <em>entry</em> de plusieurs types (fichiers, ou liens, ou sous-répertoires, etc.).
+Dans le cas des fichiers, on stocke le contenu (<em>content</em>).</p>
+<p>Le besoin consiste à explorer cette structure en partant d’un
+dépôt identifié par son URL. On peut vouloir connaître la liste des visites,
+choisir une visite et lister les branches, choisir une branche et consulter
+la liste des révisions. Enfin, ayant choisi une révision, on peut
+reconstituer l’arborescence de son contenu.</p>
+<p>Remarquer que dans un modèle relationnel, chaque besoin correspondrait à
+une seule requête avec plus ou moins de jointure selon la profondeur
+d’exploration. Avec Cassandra, chaque besoin va correspondre à
+une séquence plus ou moins longue de requêtes mono-tables. Encore faut-il
+s’assurer que chaque requête va s’effectuer efficacement.</p>
+</section>
+<section id="schema-et-requetes">
+<h3>Schéma et requêtes<a class="headerlink" href="#schema-et-requetes" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Prenons pour commencer l’hypothèse qu’on cherche les visites
+faites à un dépôt. Une première approche purement relationnelle,
+avec clé primaire et clé étrangère, ne fonctionne pas.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">create</span> <span class="k">table</span> <span class="n">Repository</span>
+   <span class="p">(</span><span class="n">repo_id</span> <span class="n">uuid</span><span class="p">,</span>
+    <span class="n">url</span> <span class="nb">varchar</span><span class="p">,</span>
+    <span class="n">description</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="k">primary</span> <span class="k">key</span> <span class="p">(</span><span class="n">repo_id</span><span class="p">));</span>
+
+<span class="k">create</span> <span class="k">table</span> <span class="n">Visit</span>
+   <span class="p">(</span><span class="n">visit_id</span> <span class="n">uuid</span><span class="p">,</span>
+    <span class="n">repo_id</span>
+    <span class="n">visit_ref</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="nb">date</span> <span class="nb">date</span><span class="p">,</span>
+    <span class="k">primary</span> <span class="k">key</span> <span class="p">(</span><span class="n">visit_id</span><span class="p">)</span>
+   <span class="p">);</span>
+</pre></div>
+</div>
+<p>Il faut deux requêtes (pas de jointure) pour trouver les visites faites au dépôt Cassandra.
+De plus aucune n’est indexée: une catastrophe dans un contexte de données
+massives.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">select</span> <span class="n">repo_id</span> <span class="k">in</span> <span class="n">oid</span>
+<span class="k">from</span> <span class="n">Repository</span>
+<span class="k">where</span> <span class="n">url</span> <span class="o">=</span><span class="s1">&#39;github.com/apache/cassandra&#39;</span>
+
+<span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">Visit</span>
+<span class="k">where</span> <span class="n">repo_id</span> <span class="o">=</span> <span class="n">oid</span>
+</pre></div>
+</div>
+<p>Cassandra refuse les deux puisqu’aucune requête n’utilise la clé comme critère !
+Organisons les clés et chemins d’accès, en prenant comme principe que les
+critères de recherche doivent être dans la clé. La table <code class="docutils literal notranslate"><span class="pre">Repository</span></code>
+est identifiée par l’URL qui servira toujours de point d’accès.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">create</span> <span class="k">table</span> <span class="n">Repository</span>
+ <span class="p">(</span><span class="n">url</span> <span class="nb">varchar</span><span class="p">,</span>
+  <span class="n">description</span> <span class="nb">text</span><span class="p">,</span>
+  <span class="k">primary</span> <span class="k">key</span> <span class="p">(</span><span class="n">url</span><span class="p">)</span>
+  <span class="p">);</span>
+</pre></div>
+</div>
+<p>On peut donc toujours trouver très efficacement un dépôt.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">Repository</span>
+<span class="k">where</span>  <span class="n">url</span> <span class="o">=</span><span class="s1">&#39;github.com/apache/cassandra&#39;</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Pour trouver les visites à une URL, on peut commencer à exploiter
+la structure des clés et le placement physique qu’elle induit.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">create</span> <span class="k">table</span> <span class="n">Visit_by_repository</span>
+ <span class="p">(</span><span class="n">url_repo</span> <span class="nb">varchar</span><span class="p">,</span>
+  <span class="n">visit_ref</span> <span class="nb">int</span><span class="p">,</span>
+  <span class="nb">date</span> <span class="nb">date</span><span class="p">,</span>
+  <span class="k">primary</span> <span class="k">key</span> <span class="p">(</span><span class="n">url_repo</span><span class="p">,</span>
+               <span class="n">visit_ref</span><span class="p">)</span>
+  <span class="p">);</span>
+</pre></div>
+</div>
+<p>Notez d’abord le nommage. On ne
+peut accéder (efficacement) aux visites que si on connaît l’URL qui
+nous intéresse. C’est le <em>point d’accès</em>.
+On nomme donc la table <code class="docutils literal notranslate"><span class="pre">Visit_by_repository</span></code> pour bien indiquer cette restriction.
+Toutes les visites à un dépôt seront sur un même serveur et stockées
+consécutivement. On peut alors effectuer <em>efficacement</em> les requêtes suivantes.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">repository</span>
+<span class="k">where</span>  <span class="n">url</span> <span class="o">=</span><span class="s1">&#39;github.com/apache/cassandra&#39;</span><span class="p">;</span>
+
+<span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">Visit_by_repository</span>
+<span class="k">where</span>  <span class="n">url</span> <span class="o">=</span><span class="s1">&#39;github.com/apache/cassandra&#39;</span><span class="p">;</span>
+
+<span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">Visit_by_repository</span>
+<span class="k">where</span>  <span class="n">url</span> <span class="o">=</span><span class="s1">&#39;github.com/apache/cassandra&#39;</span>
+<span class="k">and</span> <span class="n">visit_ref</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Il existe des alternatives. On peut imbriquer les
+visites dans la table Repository en créant un type <code class="docutils literal notranslate"><span class="pre">Visit</span></code>.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">create</span> <span class="k">type</span> <span class="n">Visit</span> <span class="p">(</span>
+    <span class="nb">number</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">date_visit</span> <span class="nb">date</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Et en l’imbriquant dans <code class="docutils literal notranslate"><span class="pre">Repository</span></code></p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">create</span> <span class="k">table</span> <span class="n">Repository</span>
+   <span class="p">(</span><span class="n">url</span> <span class="nb">varchar</span><span class="p">,</span>
+    <span class="n">description</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">visites</span> <span class="n">list</span><span class="o">&lt;</span><span class="n">Visit</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="k">primary</span> <span class="k">key</span> <span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<p>Cette option suppose un nombre limité de visites
+(l’ordre de grandeur étant assez flou, quelques dizaines semble-t-il ?).
+On dispose alors d’une requête localisée et unique pour trouver toutes
+les visites d’un dépôt.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">Repository</span>
+<span class="k">where</span>  <span class="n">url</span> <span class="o">=</span><span class="s1">&#39;github.com/apache/cassandra&#39;</span>
+</pre></div>
+</div>
+<p>Cela permet des requêtes plus sophistiquées, comme les dépôts visités au moins 10 fois.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">Repository</span>
+<span class="k">where</span>  <span class="n">url</span> <span class="o">=</span><span class="s1">&#39;github.com/apache/cassandra&#39;</span>
+<span class="k">and</span> <span class="k">count</span><span class="p">(</span><span class="n">visit</span><span class="p">.</span><span class="nb">number</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">10</span>
+</pre></div>
+</div>
+<p>Introduisons maintenant les clichés <em>Snapshot</em> avec comme point d’accès l’URL d’un dépôt.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">create</span> <span class="k">table</span> <span class="n">Snapshot_by_repository</span>
+   <span class="p">(</span><span class="n">url</span> <span class="nb">varchar</span><span class="p">,</span>
+    <span class="n">snapshot_date</span><span class="p">,</span>
+    <span class="n">snapshot_id</span> <span class="n">uuid</span><span class="p">,</span>
+    <span class="n">repo</span> <span class="n">Repository</span><span class="p">,</span>
+    <span class="n">branches</span> <span class="k">map</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="n">uuid</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="k">primary</span> <span class="k">key</span> <span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">snapshot_date</span><span class="p">)</span>  <span class="p">)</span>
+</pre></div>
+</div>
+<p>On a utilisé un structure de dictionnaire (Map) pour placer les branches,
+en supposant peu de branches par <em>snapshot</em>. On peut obtenir tous les clichés d’un dépôt.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">Snapshot_by_repository</span>
+<span class="k">where</span>  <span class="n">url</span> <span class="o">=</span><span class="s1">&#39;github.com/apache/cassandra&#39;</span>
+</pre></div>
+</div>
+<p>Ou tous les clichés après une date et contenant une branche <code class="docutils literal notranslate"><span class="pre">master</span></code>.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">Snapshot_by_repository</span>
+<span class="k">where</span>  <span class="n">url</span> <span class="o">=</span><span class="s1">&#39;github.com/apache/cassandra&#39;</span>
+<span class="k">and</span> <span class="n">snapshot_date</span> <span class="o">&gt;</span> <span class="s1">&#39;01-MARCH-2024&#39;</span>
+<span class="k">and</span> <span class="n">branches</span> <span class="k">contains</span> <span class="k">key</span> <span class="s1">&#39;master&#39;</span>
+</pre></div>
+</div>
+<p>On obtient les identifiants des clichés et des branches. Maintenant,
+connaissant une branche, comment trouver les révisions ?</p>
+<p>On continue la même démarche et on crée une
+table <code class="docutils literal notranslate"><span class="pre">Revision_by_branch</span></code>. On arrive
+ici à une situation épineuse: les révisions
+forment un graphe (à partir d’une même
+révision, chaque développeur peut en créer une nouvelle,
+et les révisions peuvent être réconciliées ensuite.
+On va donc représenter les parents d’une révision
+(en supposant qu’il n’y en a pas des centaines,
+ce qui semble raisonnable).</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">create</span> <span class="k">table</span> <span class="n">Revision_by_branch</span>
+   <span class="p">(</span><span class="n">branch_id</span> <span class="n">uuid</span><span class="p">,</span>
+    <span class="n">revision_id</span> <span class="n">uuid</span><span class="p">,</span>
+    <span class="n">parents</span> <span class="n">list</span><span class="o">&lt;</span><span class="n">uuid</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="n">author</span> <span class="nb">varchar</span><span class="p">,</span>
+    <span class="n">message</span> <span class="nb">varchar</span><span class="p">,</span>
+    <span class="n">tstamp</span> <span class="nb">date</span><span class="p">,</span>
+    <span class="k">primary</span> <span class="k">key</span> <span class="p">(</span><span class="n">branch_id</span><span class="p">,</span>
+            <span class="n">revision_id</span><span class="p">)</span>
+    <span class="p">);</span>
+</pre></div>
+</div>
+<p>Dans le cas d’un graphe, on ne peut parfois plus
+se contenter de faire une requête par table. Il
+faut accepter dans certains cas de faire
+une requête par nœud du graphe !</p>
+<p>Commençons par les requêtes adaptées à la modélisation.
+On veut toutes les révisions d’une branche par Stefano.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">Revision_by_branch</span>
+<span class="k">where</span>  <span class="n">branch_id</span> <span class="o">=</span><span class="s1">&#39;bxyz&#39;</span>
+<span class="k">and</span> <span class="n">author</span> <span class="o">=</span> <span class="s1">&#39;Stefano&#39;</span>
+</pre></div>
+</div>
+<p>Tout va bien, on reste dans le cadre des requêtes efficaces.
+Prenons maintenant les révisions dont un parent est la révision “abcd”.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">Revision_by_branch</span>
+<span class="k">where</span>   <span class="n">branch_id</span> <span class="o">=</span><span class="s1">&#39;bxyz&#39;</span>
+<span class="k">and</span> <span class="n">parents</span> <span class="k">contains</span> <span class="s1">&#39;abcd&#39;</span>
+</pre></div>
+</div>
+<p>Ca va encore, tant que l’on connait l’identifiant de la branche.
+Maintenant on veut aller en sens inverse et « remonter »
+vers les parents et ascendants de la révision “lklklk”.
+On obtient la liste des parents avec la requête</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">select</span> <span class="n">parents</span> <span class="k">from</span> <span class="n">Revision_by_branch</span>
+<span class="k">where</span>   <span class="n">branch_id</span> <span class="o">=</span><span class="s1">&#39;bxyz&#39;</span>
+<span class="k">and</span> <span class="n">revision_id</span> <span class="o">=</span> <span class="s1">&#39;lklklk&#39;</span>
+</pre></div>
+</div>
+<p>Il faut ensuite effectuer <em>une</em> requête par parent.
+Pour chaque valeur <code class="docutils literal notranslate"><span class="pre">id_du_parent</span></code>, on exécute:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">select</span> <span class="n">parents</span> <span class="k">from</span> <span class="n">Revision_by_branch</span>
+<span class="k">where</span>   <span class="n">branch_id</span> <span class="o">=</span><span class="s1">&#39;bxyz&#39;</span>
+<span class="k">and</span> <span class="n">revision_id</span> <span class="o">=</span> <span class="s1">&#39;id_du_parent&#39;</span>
+</pre></div>
+</div>
+<p>Soit une requête pour chaque objet, ce qui est inadapté
+à un système gérant des données massives.
+On a peut-être intérêt dans ce cas à charger une bonne fois le graphe
+dans l’application.</p>
+<p>En résumé:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>La clé primaire détermine le stockage <em>et</em>  les requêtes acceptables. La
+<em>clé de partitionnement</em> est le point d’accès, la <em>clé de regroupement</em> est
+l’identifiant relatif au point d’accès.</p></li>
+</ul>
+<blockquote>
+<div><ul class="simple">
+<li><p>Il faut parfois « retourner » une clé primaire si on souhaite un accès
+symétrique à une table existante. Ce serait
+le cas par exemple si on voulait trouver toutes les
+révisions d’un fichier <em>et</em> tous les fichiers d’une révision (cf. exercice).
+C’est automatisable avec une vue matérialisée mais entraine une forte redondance.</p></li>
+<li><p>L’imbrication d’ensembles ou de listes peut limiter le nombre d’étapes
+mais leur taille doit être restreinte, cf. exemple des branches.</p></li>
+</ul>
+</div></blockquote>
+</div></blockquote>
+<p>La modélisation NoSQL, c’est du cas par cas, et les mêmes règles ne
+s’appliquent pas à tous les systèmes.</p>
+<p>À titre d’exercice, je vous laisse compléter le
+schéma avec les tables permettant de stocker les répertoires,
+les entrées et leur contenu.</p>
+</section>
+</section>
+<section id="exercices">
+<h2>Exercices<a class="headerlink" href="#exercices" title="Lien permanent vers ce titre">¶</a></h2>
+<p>Voici quelques manipulations et suggestions de recherches complémentaires.</p>
+<div class="admonition-exercice-mep-s2-1-experimentez-cql admonition" id="mep-s2-1">
+<p class="admonition-title">Exercice <a class="reference internal" href="#mep-s2-1">MEP-S2-1</a>: expérimentez CQL</p>
+<p>À vous de jouer: reproduisez les requêtes ci-dessus sur votre base Cassandra.</p>
+</div>
+<div class="admonition-exercice-ex-s3-1-completons-le-modele-github admonition" id="ex-s3-1">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-s3-1">Ex-S3-1</a>: complétons le modèle GitHub</p>
+<p>Notre schéma de l’étude de cas n’est pas fini. Nous voudrions
+pouvoir trouver tous les répertoires (<em>directory</em>) d’un dépôt
+pour une branche donnée.</p>
+<p>Nous voulons également trouver toutes les entrées d’un
+répertoire donné.</p>
+<p>Proposez les schémas des tables correspondant à ces besoins,
+et donnez les requêtes CQL correspondantes.</p>
+<p>Question complémentaire,: comment faire pour obtenir les
+révisions d’un répertoire?</p>
+<div class="admonition-correction admonition">
+<p class="admonition-title">Correction</p>
+<p>Les répertoires forment une structure d’arbre, donc
+un graphe. Pas idéal avec Cassandra.</p>
+<p>Voici une proposition. Il existe d’autres
+solutions car tout dépend des besoins et
+des volumétries anticipées.</p>
+<p>La
+table suivante intègre les enfants et parents.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span> <span class="k">create</span> <span class="k">table</span> <span class="n">Directory_by_revision</span>
+     <span class="p">(</span><span class="n">revision_id</span> <span class="n">uuid</span><span class="p">,</span>
+      <span class="n">directory_id</span> <span class="n">uuid</span><span class="p">,</span>
+      <span class="n">children</span> <span class="n">list</span><span class="o">&lt;</span><span class="n">uuid</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="n">parent_id</span> <span class="n">uuid</span><span class="p">,</span>
+      <span class="k">primary</span> <span class="k">key</span> <span class="p">(</span><span class="n">revision_id</span><span class="p">,</span> <span class="n">directory_id</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>On peut naviguer vers les parent ou vers les
+enfants, mais avec une requête à chaque fois. Il faut
+de plus supposer qu’il n’y a pas trop d’enfants
+(sous-répertoires) sinon il faut s’en remettre
+à la table des entrées ci-dessous en considérant
+qu’un sous-répertoire est une entrée d’un type particulier.</p>
+<p>Maintenant, connaissant une <em>directory</em> pour une
+révision donnée, je modélise
+les entrées.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">create</span> <span class="k">table</span> <span class="n">Entry_by_dir</span>
+     <span class="p">(</span><span class="n">revision_id</span> <span class="n">uuid</span><span class="p">,</span>
+        <span class="n">directory_id</span> <span class="n">uuid</span><span class="p">,</span>
+        <span class="n">entry_id</span> <span class="n">uuid</span><span class="p">,</span>
+        <span class="n">name</span> <span class="nb">varchar</span><span class="p">,</span>
+        <span class="n">access_rights</span> <span class="nb">varchar</span><span class="p">,</span>
+        <span class="k">primary</span> <span class="k">key</span> <span class="p">(</span> <span class="p">(</span><span class="n">revision_id</span><span class="p">,</span> <span class="n">directory_id</span><span class="p">),</span> <span class="n">entry_id</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Remarquez la clé de partitionnement composite. Toutes
+les entrées d’un même répertoire seront sur le même serveur,
+<em>mais</em> les répertoires d’une même révision pourront
+être sur des serveurs différents.
+Notez également qu’il y a sans doute trop d’entrées (fichiers) par répertoire
+pour les représenter par une liste imbriquée</p>
+<p>On peut alors obtennir toutes les entrées d’une <em>directory</em>
+(pour une révision donnée).</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">select</span> <span class="n">name</span> <span class="k">from</span> <span class="n">Entry_by_dir</span>
+<span class="k">where</span> <span class="n">revision_id</span> <span class="o">=</span> <span class="s1">&#39;a986678&#39;</span>
+<span class="k">and</span> <span class="n">directory_id</span> <span class="o">=</span> <span class="s1">&#39;xyz&#39;</span>
+</pre></div>
+</div>
+<p>On peut trouver une entrée dont le nom est <code class="docutils literal notranslate"><span class="pre">README.md</span></code> à
+condition de le faire dans un répertoire spécifique.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">select</span> <span class="n">content_ref</span> <span class="k">from</span> <span class="n">Entry_by_dir</span>
+<span class="k">where</span> <span class="n">revision_id</span> <span class="o">=</span> <span class="s1">&#39;a986678&#39;</span>
+<span class="k">and</span> <span class="n">directory_id</span> <span class="o">=</span> <span class="s1">&#39;xyz&#39;</span>
+<span class="k">and</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;README.md&#39;</span>
+</pre></div>
+</div>
+<p>À l’inverse si je veux avoir la liste des révisions
+d’une <em>directory</em> , je dois inverser la clé.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">create</span> <span class="k">table</span> <span class="n">Revision_by_directory</span>
+     <span class="p">(</span><span class="n">directory_id</span> <span class="n">uuid</span><span class="p">,</span>
+      <span class="n">revision_id</span> <span class="n">uuid</span><span class="p">,</span>
+      <span class="n">children</span> <span class="n">list</span><span class="o">&lt;</span><span class="n">uuid</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="k">primary</span> <span class="k">key</span> <span class="p">(</span><span class="n">revision_id</span><span class="p">,</span><span class="n">directory_id</span><span class="p">)</span>
+        <span class="p">)</span>
+</pre></div>
+</div>
+<p>On a une forte redondance si on veut les deux… Cette
+situation peut être gérée en créant
+<code class="docutils literal notranslate"><span class="pre">Revision_by_directory</span></code> comme une <em>vue matérialisée</em>
+(étude complémentaire à mener si cela vous  intéresse).</p>
+</div>
+</div>
+<div class="admonition-exercice-ex-s3-2-deduplication admonition" id="ex-s3-2">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-s3-2">Ex-S3-2</a>: déduplication</p>
+<p>Enfin se pose la question du contenu des entrées (fichiers).
+Ici nous avons un problème de redondance: il s’agit
+de ressources souvent volumineuses, et qui ne changent
+souvent pas d’une révision à l’autre (et même d’une branche
+à l’autre). Comment éviter de dupliquer un contenu en
+le partageant entre des révisions et des branches?
+Proposez une approche avec Cassandra.</p>
+<div class="admonition-correction admonition">
+<p class="admonition-title">Correction</p>
+<p>Si on veut éviter la duplication des contenus,
+il faut les stocker avec leur identifiant
+propre, sans les placer en fonction d’une branche
+ou d’une révision</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span> <span class="k">create</span> <span class="k">table</span> <span class="n">Content</span>
+     <span class="p">(</span><span class="n">content_id</span> <span class="n">uuid</span><span class="p">,</span>
+      <span class="n">raw_content</span> <span class="n">bits</span><span class="p">,</span>
+      <span class="k">primary</span> <span class="k">key</span> <span class="p">(</span><span class="n">content_id</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Dans ce cas, on modifie la table des entrées pour
+référencer le contenu.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">create</span> <span class="k">table</span> <span class="n">Entry_by_dir</span>
+     <span class="p">(</span><span class="n">revision_id</span> <span class="n">uuid</span><span class="p">,</span>
+        <span class="n">directory_id</span> <span class="n">uuid</span><span class="p">,</span>
+        <span class="n">entry_id</span> <span class="n">uuid</span><span class="p">,</span>
+        <span class="n">name</span> <span class="nb">varchar</span><span class="p">,</span>
+        <span class="n">access_rights</span> <span class="nb">varchar</span><span class="p">,</span>
+        <span class="n">content_id</span> <span class="n">uuid</span><span class="p">,</span>
+        <span class="k">primary</span> <span class="k">key</span> <span class="p">(</span> <span class="p">(</span><span class="n">revision_id</span><span class="p">,</span> <span class="n">directory_id</span><span class="p">),</span> <span class="n">entry_id</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>On voit tout de suite le problème: en essayant d’éviter une
+déduplication on s’est condamné à effectuer <em>une</em> requête
+pour <em>chaque</em> contenu, ce qui risque d’être insupportable.
+Tout dépend du fait qu’on doive ou non accéder souvent aux contenus.</p>
+</div>
+</div>
+<div class="admonition-exercice-mep-s2-3-sujet-d-etude-les-vues-materialisees admonition" id="mep-s2-3">
+<p class="admonition-title">Exercice <a class="reference internal" href="#mep-s2-3">MEP-S2-3</a>: sujet d’étude, les vues matérialisées</p>
+<p>Depuis la version 3, Cassandra propose un mécanisme de <em>vue matérialisé</em>. Etudiez
+la documentation à ce sujet, et montrez comment ce mécanisme peut permettre
+de répondre à des requêtes comme celle de l’exercice précédent.</p>
+</div>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+            <div>        
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Licence Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">
+  Ce cours</span> de <a xmlns:cc="http://creativecommons.org/ns#" href="http://www.bdpedia.fr" property="cc:attributionName" rel="cc:attributionURL">Philippe Rigaux</a> est mis à disposition selon les termes de la <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">licence Creative Commons Attribution - Pas d’Utilisation Commerciale - Partage dans les Mêmes Conditions 4.0 International</a>.
+</div>
+        <hr/>
+          <h3>Table Of Contents</h3>
+          <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docker.html">Préliminaires: Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docstruct.html">Modélisation de bases NoSQL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rech-exacte.html">Recherche exacte</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Etude de cas: Cassandra</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#s1-cassandra-une-base-relationnelle-etendue">S1: Cassandra, une base relationnelle étendue</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#le-modele-de-donnees">Le modèle de données</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#paires-cle-valeur-columns-et-documents-rows">Paires clé/valeur (<em>columns</em>) et documents (<em>rows</em>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#les-tables-column-families">Les tables (<em>column families</em>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bases-keyspaces">Bases (<em>Keyspaces</em>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#creons-notre-base">Créons notre base</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#donnees-relationnelles-a-plat">Données relationnelles (à plat)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#documents-structures-avec-imbrication">Documents structurés (avec imbrication)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#s2-requetes-cassandra">S2: requêtes Cassandra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cql-un-sous-ensemble-de-sql">CQL, un sous-ensemble de SQL</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pourquoi-cql-n-est-pas-sql">Pourquoi CQL n’est pas SQL</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#s3-etude-de-cas-conception-d-un-schema">S3: étude de cas: conception d’un schéma</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#les-principes">Les principes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#les-besoins">Les besoins</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#schema-et-requetes">Schéma et requêtes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#exercices">Exercices</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cassandra_tp.html">Cassandra - Travaux Pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rech-approchee.html">Recherche approchée</a></li>
+<li class="toctree-l1"><a class="reference internal" href="es_tp.html">ElasticSearch - Travaux pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="traitements_lot.html">Traitements par lot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pigtp.html">Pig : Travaux pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cloud.html">Le <em>cloud</em>, une nouvelle machine de calcul</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replication.html">Systèmes NoSQL: la réplication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sharding.html">Systèmes NoSQL: le partitionnement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spark.html">Etude de cas: Apache Spark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="annales.html">Annales des examens</a></li>
+</ul>
+
+          <h3 style="margin-top: 1.5em;">Recherche</h3>
+          <form class="search" action="search.html" method="get">
+            <input type="text" name="q" />
+            <input type="submit" value="Go" />
+            <input type="hidden" name="check_keywords" value="yes" />
+            <input type="hidden" name="area" value="default" />
+          </form>
+          <p class="searchtip" style="font-size: 90%">
+      Saisissez un ou plusieurs mots-clés.
+          </p>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <a href="rech-exacte.html" title="Recherche exacte"
+             >précédent</a> |
+          <a href="cassandra_tp.html" title="Cassandra - Travaux Pratiques"
+             >suivant</a> |
+          <a href="genindex.html" title="Index général"
+             >index</a>
+        </div>
+
+        <div class="right">
+        <a href="index.html">Etude de cas: Cassandra</a><br/>
+          
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2014-2025, Nicolas Travers, Raphaël Fournier S&#39;niehotta et Philippe Rigaux.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>

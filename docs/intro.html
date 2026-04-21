@@ -1,0 +1,361 @@
+
+<!DOCTYPE html>
+
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
+    <title>Introduction &#8212; Bases de données documentaires et distribuées v&lt;release&gt; - Cours CNAM NFE204</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/agogo.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/translations.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Recherche" href="search.html" />
+    <link rel="next" title="Préliminaires: Docker" href="docker.html" />
+    <link rel="prev" title="Cours de bases de données documentaires et distribuées" href="index.html" /> 
+  </head><body>
+    <div class="header-wrapper">
+      <div class="header">
+        <div class="headertitle"><a
+          href="index.html">Introduction</a></div>
+        <div class="rel">
+          <a href="index.html" title="Cours de bases de données documentaires et distribuées"
+             accesskey="P">précédent</a><font color="white"> |</font>
+          <a href="docker.html" title="Préliminaires: Docker"
+             accesskey="N">suivant</a><font color="white"> |</font>
+          <a href="genindex.html" title="Index général"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+<script type="text/javascript" src="_static/dynsite.js"></script>
+
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <p id="chap-intro">Tout le matériel proposé ici sert de support au cours « Bases de données documentaires et distribuées »
+proposé par le département d’informatique du Cnam. Le code du cours est
+NFE204 (voir le site <a class="reference external" href="http://deptinfo.cnam.fr/new/spip.php?rubrique146">http://deptinfo.cnam.fr/new/spip.php?rubrique146</a>
+pour des informations pratiques). Il est donné en</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Cours présentiel (premier semestre, mardi soir)</p></li>
+<li><p>Cours à distance (second semestre, avec supports audiovisuels)</p></li>
+</ul>
+</div></blockquote>
+<p>Par ailleurs, le document que vous commencez à lire  fait partie de l’ensemble des
+supports d’apprentissage proposés sur le site <a class="reference external" href="http://www.bdpedia.fr">http://www.bdpedia.fr</a>. Reportez-vous
+à ce site pour plus d’explications.</p>
+<p>Ce cours fait partie d’un ensemble d’enseignements consacrés à l’analyse de données massives, permettant
+éventuellement d’obtenir un Certificat de Spécialisation au Cnam. Vous êtes invités à consulter:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Le site du certificat: <a class="reference external" href="http://donneesmassives.cnam.fr/">http://donneesmassives.cnam.fr/</a></p></li>
+<li><p>La fiche du certificat: <a class="reference external" href="http://formation.cnam.fr/rechercher-par-discipline/certificat-de-specialisation-analyste-de-donnees-massives-669531.kjsp">http://formation.cnam.fr/rechercher-par-discipline/certificat-de-specialisation-analyste-de-donnees-massives-669531.kjsp</a></p></li>
+<li><p>La présentation du cours RCP216 sur la fouille de données distribuée <a class="reference external" href="http://cedric.cnam.fr/vertigo/Cours/RCP216/preambule.html">http://cedric.cnam.fr/vertigo/Cours/RCP216/preambule.html</a></p></li>
+<li><p>La présentation du projet de synthèse (UASB03) qui conclut le Certificat de données massives,  <a class="reference external" href="http://cedric.cnam.fr/vertigo/Cours/UASB03/uasb03.html">http://cedric.cnam.fr/vertigo/Cours/UASB03/uasb03.html</a></p></li>
+</ul>
+</div></blockquote>
+<section id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Lien permanent vers ce titre">¶</a></h1>
+<div class="admonition-supports-complementaires admonition">
+<p class="admonition-title">Supports complémentaires:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="http://b3d.bdpedia.fr/files/slprescours.pdf">Diapositives: Présentation du cours</a></p></li>
+</ul>
+</div>
+<p>Les bases relationnelles sont adaptées à des informations bien structurées,
+décomposables en unités simples (chaînes de caractères, numériques), et représentables sous
+forme de tableaux. Beaucoup de données ne satisfont pas ces critères: leur
+structure est complexe, variable,
+et elles ne se décomposent par aisément en attributs élémentaires. Comment
+représenter le contenu d’un
+livre par exemple? d’une image ou d’une vidéo? d’une partition musicale?</p>
+<p>Les bases relationnelles répondent à cette question en multipliant le nombre de tables,
+et de lignes dans ces tables, pour représenter ce qui constitue conceptuellement
+une même « entité ». Cette décomposition en fragment « plats » (les lignes)
+est la fameuse <em>normalisation</em> (relationnelle) qui impose, pour reconstituer
+l’information complète, d’effectuer une ou plusieurs jointures assemblant les lignes stockées
+indépendamment les unes des autres.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Ce cours suppose une connaissance solide des bases de données relationnelles. Si
+ce n’est pas le cas, vous risquez d’avoir des lacunes et des difficultés à assimiler
+les nouvelles connaissances présentées. Je vous recommande au préalable de consulter
+les cours suivants:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>le cours <a class="reference external" href="http://sql.bdpedia.fr">Bases relationnelles, modèles et langages</a>, pour tout
+savoir sur la conception d’une base relationnelle et le langage SQL.</p></li>
+<li><p>le cours <a class="reference external" href="http://sys.bdpedia.fr">Systèmes relationnels</a>, pour les aspects systèmes: indexation,
+optimisation, concurrence d’accès.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<p>Cette approche, qui a fait ses preuves, ne convient cependant pas dans certains cas. Les
+données de nature essentiellement textuelle par exemple (livre, documentation)
+se représentent mal en relationnel;
+c’est vrai aussi de certains objets dont la stucture est très flexible;
+enfin, <em>l’échange de données</em>
+dans un environnement distribué se prête mal à une représentation
+éclatée en plusieurs constituants
+élémentaires  qu’il
+faut ré-assembler pour qu’ils prennent sens. Toutes ces raisons mènent
+à des modes de représentation
+plus riches permettant la réunion, en une seule structure, de toutes
+les informations relatives
+à un même objet conceptuel. C’est ce que nous appellerons <em>document</em>,
+dans une acception
+élargie un peu abusive mais bien pratique.</p>
+<section id="sujet-du-cours">
+<h2>Sujet du cours<a class="headerlink" href="#sujet-du-cours" title="Lien permanent vers ce titre">¶</a></h2>
+<p>Dans tout ce qui suit nous désignons donc par le terme générique de <em>document</em> toute
+paire <em>(i, v)</em> où <em>i</em> est l’identifiant du document et <em>v</em>
+une <em>valeur structurée</em>  contenant les informations caractérisant le document. Nous
+reviendrons plus précisément sur ces notions dans le cours.</p>
+<p>La gestion d’ensembles de documents selon les principes des bases de données,
+avec notamment des outils de recherche avancés, relève des <em>bases documentaires</em>.
+Le volume important
+de ces bases amène souvent à les gérer dans un système distribué constitué de
+fermes de serveurs allouées à la demande dans une infrastructure de type « cloud ».
+L’usage
+est maintenant établi d’appeler ces systèmes « NoSQL » pour souligner leurs
+différences avec
+les systèmes relationnels. Le fait qu’ils ne suivent pas le modèle relationnel
+est d’ailleurs à peu près leur seul point commun. De manière générale,
+et avec de grandes
+variantes quand on se penche sur les détails, ils partagent également:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>la représentation des données sous forme d’unités d’information indépendantes les unes des unes,
+(ce que nous appelons justement <em>document</em>) organisées en <em>collections</em>;</p></li>
+<li><p>des méthodes d’accès aux collections basées soit sur des langages non standardisés,
+soit sur des recherches par similarité qui relèvent de la <em>recherche d’information</em>;</p></li>
+<li><p>la capacité à <em>passer à l’échelle</em> (expression énigmatique que nous essaierons de clarifier)
+par ajout de ressources matérielles, donnant ces fameux environnements distribués et extensibles,</p></li>
+<li><p>et enfin des techniques de distribution de calculs permettant de traiter des collections
+massives dans des délais raisonnables.</p></li>
+</ul>
+</div></blockquote>
+<p>Tous ces aspects, centrés sur les
+documents de nature textuelle (ce qui exclut les documents multimédia
+comme les images ou vidéos),
+constituent le cœur de notre sujet.   Il couvre en particulier:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>les modèles de données pour documents structurés (et, concrètemet, la syntaxe
+JSON), conception,
+bases de documents structurés (MongoDb, CouchDB, Cassandra, etc.).</p></li>
+<li><p>les techniques de recherche et d’interrogation, exacte ou approchée</p></li>
+<li><p>les traitements par lot de données massives</p></li>
+<li><p>la gestion de grandes collections dans des environnements distribués</p></li>
+<li><p>les traitements à grande échelle: Hadoop, MapReduce et Spark.</p></li>
+</ul>
+</div></blockquote>
+<p>La <em>représentation</em> des données s’appuie sur un <em>modèle</em>. Dans
+le cas du relationnel, ce sont des tables
+(pour le dire simplement), et nous supposerons que vous connaissez
+l’essentiel. Dans le cas des documents,
+les structures sont plus complexes: tableaux, ensembles, agrégats,
+imbrication, références. Nous étudions essentiellement
+la notion de <em>document structuré</em> et son  format de représentation
+le plus courant, JSON.</p>
+<p>Disposer de données, mêmes correctement représentées, sans pouvoir
+rien en faire n’a que peu d’intérêt. Les
+<em>opérations</em> sur les données sont les créations, mises à jour,
+destruction, et surtout <em>recherche</em>, selon
+des critères plus ou moins complexes. Les bases relationnelles
+ont SQL, nous verrons que la recherche dans
+des grandes bases documentaires se fait soit par des recherches exactes
+(avec des langages propriétaires) soit par des recherches approchées
+(mis en œuvre par des moteurs de recherche).</p>
+<p>Enfin, à tort ou à raison, les nouveaux systèmes de gestion de données, orientés
+vers ce que nous appelons,
+au sens large, des « documents », sont maintenant considérés comme des
+outils de choix pour passer à l’échelle
+de très grandes masses de données (le « Big data »). Ces nouveaux systèmes,
+collectivement (et vaguement)
+désignés par le mot-valise « NoSQL » ont essentiellement en commun de
+pouvoir constituer à peu de frais
+des systèmes distribués, scalables, aptes à stocker et
+traiter des collections à très grande échelle.
+Une partie significative du cours est consacrée à ces systèmes,
+à leurs principes, et à l’inspection
+en détail de quelques exemples représentatifs.</p>
+</section>
+<section id="contenu-et-objectifs-du-cours">
+<h2>Contenu et objectifs du cours<a class="headerlink" href="#contenu-et-objectifs-du-cours" title="Lien permanent vers ce titre">¶</a></h2>
+<p>Le cours vise à vous transmettre, <em>dans un contexte pratique</em>, deux types
+de connaissances.</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt>Connaissances fondamentales:</dt><dd><ol class="arabic simple">
+<li><p><em>Modélisation de documents structurés</em>: structures, sérialisation, formats (JSON);
+les schémas de bases documentaires; les
+échanges de documents sur le Web et notamment <em>l’Open Data</em></p></li>
+<li><p><em>Techniques d’interrogation et de recherche</em>: recherche exacte et recherche approchée</p></li>
+<li><p><em>Stockage, gestion, et passage à l’échelle par distribution</em>. L’essentiel sur les systèmes distribués, le
+partitionnement, la réplication, la reprise sur panne; le cas
+des systèmes NoSQL.</p></li>
+<li><p><em>Traitement de données massives</em>: Hadoop et MapReduce, et une introduction à Spark</p></li>
+</ol>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Connaissances pratiques:</dt><dd><ol class="arabic simple">
+<li><p>Des systèmes « NoSQL » orientés « documents »; (MongoDB, CouchDB, Cassandra)</p></li>
+<li><p>Des moteurs de recherche (ElasticSearch)</p></li>
+<li><p>L’étude, en pratique, de deux systèmes distribués:
+ElasticSearch,  Cassandra.</p></li>
+<li><p>La combinaison des moteurs de stockage et des moteurs de traitement
+distribué: Hadoop, Spark et Flink.</p></li>
+</ol>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<p>Les connaissances  préalables  pour bien suivre ce cours sont essentiellement une bonne
+compréhension des bases relationnelles, soit au moins la conception d’un schéma,
+SQL, ce qu’est un index et des notions de base sur les transactions.</p>
+<p>Pour les aspects pratiques, il est souhaitable
+également d’avoir une aisance minimale dans un environnement de développement. Il s’agit
+d’éditer un fichier, de lancer une commande, de ne pas paniquer devant un nouvel outil,
+de savoir résoudre un problème avec un minimum de tenacité. Aucun développement
+n’est à effectuer, mais des exemples de code sont fournis et doivent être mis en œuvre
+pour une bonne compréhension.</p>
+<p>Le cours vise à vous transmettre des connaissances génériques, indépendantes
+d’un système particulier. Il s’appuie cependant sur la mise en pratique. Vous avez donc besoin d’un ordinateur pour travailler.
+Si vous êtes au Cnam tout est fourni, sinon un ordinateur portable raisonnablement récent et puissant
+(8 GOs en mémoire RAM au minimum) suffit. Tous les logiciels utilisés sont libres
+de droits, et leur
+installation est décrite avec le système Docker.</p>
+</section>
+<section id="organisation">
+<h2>Organisation<a class="headerlink" href="#organisation" title="Lien permanent vers ce titre">¶</a></h2>
+<p>Le cours est découpé en <em>chapitres</em>, couvrant un sujet bien déterminé, et en <em>sessions</em>.
+J’essaie  de structurer les sessions pour qu’elles
+demandent environ 2 heures de travail personnel (bien sûr, cela dépend également de vous).
+Pour assimiler une session vous pouvez combiner les ressources suivantes:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>La lecture du support en ligne: celui que vous avez sous les yeux, également disponible
+en <a class="reference external" href="http://b3d.bdpedia.fr/files/b3d.pdf">PDF</a>  ou en
+<a class="reference external" href="http://b3d.bdpedia.fr/files/b3d.epub">ePub</a>.</p></li>
+<li><p>Le suivi du cours, en vidéo ou en présentiel.</p></li>
+<li><p>La réponse au quiz pour valider votre compréhension</p></li>
+<li><p>La réalisation des exercices proposés en fin de session.</p></li>
+<li><p>Enfin, <strong>optionnellement</strong>, la reproduction des manipulations vues  dans chaque session. N’y passez
+pas des heures:il vaut mieux comprendre les principes que de résoudre des problèmes techniques
+peu instructifs.</p></li>
+</ul>
+</div></blockquote>
+<p>La réalisation des exercices en revanche est essentielle pour vérifier que vous maîtrisez le
+contenu. Pour les inscrits au cours, ils sont proposés sous forme de devoirs à rendre et à faire
+évaluer avant de poursuivre.</p>
+<p>Vous devez assimiler le contenu des sessions <em>dans l’ordre
+où elles sont proposées</em>. Commencez par lire le support, jusqu’à ce que les principes vous paraissent clairs.
+Répondez alors au quiz de la session. Essayez de
+reproduire les exemples de code: ils sont testés et doivent donc fonctionner, sous
+réserve d’un changement de version introduisant une incompatibilité.
+Le cas échéant, cherchez
+à résoudre les problèmes par vous-mêmes: c’est le meilleur moyen de comprendre, mais n’y passez pas
+tout votre temps.
+Finissez enfin par les exercices. Les solutions sont dévoilées au fur et à mesure de l’avancement
+du cours, mais si vous ne savez pas faire un exercice, c’est sans doute que le cours est mal assimilé
+et il est plus profitable d’approfondir en relisant à nouveau que de simplement copier une solution.</p>
+<p>Enfin, vous êtes totalement encouragés à explorer par vous-mêmes de nouvelles pistes. Certaines
+sont proposées dans les exercices.</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+            <div>        
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Licence Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">
+  Ce cours</span> de <a xmlns:cc="http://creativecommons.org/ns#" href="http://www.bdpedia.fr" property="cc:attributionName" rel="cc:attributionURL">Philippe Rigaux</a> est mis à disposition selon les termes de la <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">licence Creative Commons Attribution - Pas d’Utilisation Commerciale - Partage dans les Mêmes Conditions 4.0 International</a>.
+</div>
+        <hr/>
+          <h3>Table Of Contents</h3>
+          <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#sujet-du-cours">Sujet du cours</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#contenu-et-objectifs-du-cours">Contenu et objectifs du cours</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#organisation">Organisation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="docker.html">Préliminaires: Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docstruct.html">Modélisation de bases NoSQL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rech-exacte.html">Recherche exacte</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cassandra.html">Etude de cas: Cassandra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cassandra_tp.html">Cassandra - Travaux Pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rech-approchee.html">Recherche approchée</a></li>
+<li class="toctree-l1"><a class="reference internal" href="es_tp.html">ElasticSearch - Travaux pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="traitements_lot.html">Traitements par lot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pigtp.html">Pig : Travaux pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cloud.html">Le <em>cloud</em>, une nouvelle machine de calcul</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replication.html">Systèmes NoSQL: la réplication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sharding.html">Systèmes NoSQL: le partitionnement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spark.html">Etude de cas: Apache Spark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="annales.html">Annales des examens</a></li>
+</ul>
+
+          <h3 style="margin-top: 1.5em;">Recherche</h3>
+          <form class="search" action="search.html" method="get">
+            <input type="text" name="q" />
+            <input type="submit" value="Go" />
+            <input type="hidden" name="check_keywords" value="yes" />
+            <input type="hidden" name="area" value="default" />
+          </form>
+          <p class="searchtip" style="font-size: 90%">
+      Saisissez un ou plusieurs mots-clés.
+          </p>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <a href="index.html" title="Cours de bases de données documentaires et distribuées"
+             >précédent</a> |
+          <a href="docker.html" title="Préliminaires: Docker"
+             >suivant</a> |
+          <a href="genindex.html" title="Index général"
+             >index</a>
+        </div>
+
+        <div class="right">
+        <a href="index.html">Introduction</a><br/>
+          
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2014-2025, Nicolas Travers, Raphaël Fournier S&#39;niehotta et Philippe Rigaux.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>

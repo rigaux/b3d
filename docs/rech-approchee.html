@@ -1,0 +1,2293 @@
+
+<!DOCTYPE html>
+
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
+    <title>Recherche approchée &#8212; Bases de données documentaires et distribuées v&lt;release&gt; - Cours CNAM NFE204</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/agogo.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/translations.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Recherche" href="search.html" />
+    <link rel="next" title="ElasticSearch - Travaux pratiques" href="es_tp.html" />
+    <link rel="prev" title="Cassandra - Travaux Pratiques" href="cassandra_tp.html" /> 
+  </head><body>
+    <div class="header-wrapper">
+      <div class="header">
+        <div class="headertitle"><a
+          href="index.html">Recherche approchée</a></div>
+        <div class="rel">
+          <a href="cassandra_tp.html" title="Cassandra - Travaux Pratiques"
+             accesskey="P">précédent</a><font color="white"> |</font>
+          <a href="es_tp.html" title="ElasticSearch - Travaux pratiques"
+             accesskey="N">suivant</a><font color="white"> |</font>
+          <a href="genindex.html" title="Index général"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+<script type="text/javascript" src="_static/dynsite.js"></script>
+
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="recherche-approchee">
+<span id="chap-introri"></span><h1>Recherche approchée<a class="headerlink" href="#recherche-approchee" title="Lien permanent vers ce titre">¶</a></h1>
+<div class="admonition-supports-complementaires admonition">
+<p class="admonition-title">Supports complémentaires:</p>
+<ul class="simple">
+<li><p>Un cours complet en ligne (en anglais) et accompagné d’un ouvrage de
+référence : <a class="reference external" href="http://www-nlp.stanford.edu/IR-book/">http://www-nlp.stanford.edu/IR-book/</a>. <em>Certaines parties du
+cours empruntent des exemples à ce livre</em>.</p></li>
+</ul>
+</div>
+<section id="s1-introduction-a-la-recherche-d-information">
+<h2>S1: introduction à la recherche d’information<a class="headerlink" href="#s1-introduction-a-la-recherche-d-information" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="admonition-supports-complementaires admonition">
+<p class="admonition-title">Supports complémentaires:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="http://b3d.bdpedia.fr/files/slri-intro-principes.pdf">Présentation: Introduction à la recherche d’information</a></p></li>
+<li><p><a class="reference external" href="https://mediaserver.lecnam.net/permalink/v125f5947d4c11yianvt/">Vidéo de la session Introduction RI - principes</a></p></li>
+</ul>
+</div>
+<section id="qu-est-ce-que-la-recherche-d-information">
+<h3>Qu’est ce que la recherche d’information<a class="headerlink" href="#qu-est-ce-que-la-recherche-d-information" title="Lien permanent vers ce titre">¶</a></h3>
+<p>La <em>Recherche d’Information</em> (RI, <em>Information Retrieval, IR</em> en anglais)
+consiste à trouver des <em>documents</em> peu ou faiblement structurés, dans une grande
+<em>collection</em>, en fonction d’un <em>besoin d’information</em>. Le domaine d’application
+le plus connu est celui de la recherche « plein texte ». Étant donné une
+collection de documents constitués essentiellement de texte, comment trouver les
+plus pertinents en fonction d’un besoin exprimé par quelques mots-clés? La RI
+développe des <em>modèles</em> pour interpréter les documents d’une part, le besoin
+d’information d’autre part, en vue de faire correspondre les deux, mais aussi
+des <em>techniques</em> pour calculer des réponses rapidement même en présence de
+collections très volumineuses. Enfin, des systèmes (appelés « moteurs de
+recherches ») fournissent des solutions sophistiquées prêtes à l’emploi.</p>
+<p>La RI a pris une très grande importance, en raison notamment de l’émergence
+de vastes sources de documents que l’on peut agréger et exploiter (le Web bien
+sûr, mais aussi les systèmes d’information d’entreprise). Les techniques
+utilisées ont également beaucoup progressé, avec des  résultats spectaculaires.
+La RI est maintenant omniprésente dans beaucoup d’environnements informatiques,
+et notamment:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>la recherche sur le Web, utilisée quotidiennement par des milliards d’utilisateurs;</p></li>
+<li><p>la recherche de messages dans votre boîte mail;</p></li>
+<li><p>la recherche de fichiers sur votre ordinateur (<em>Spotlight</em>);</p></li>
+<li><p>la recherche de documents dans une base documentaire, publique ou privée.</p></li>
+</ul>
+</div></blockquote>
+<p>Ce chapitre introduit ces différents aspects en se concentrant sur la recherche
+d’information appliquée à des collections de documents structurés, comprenant
+des parties textuelles importantes.</p>
+</section>
+<section id="precision-et-rappel">
+<h3>Précision et  rappel<a class="headerlink" href="#precision-et-rappel" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Comme le montre la définition assez imprécise donnée en préambule, la recherche
+d’information se donne un objectif à la fois ambitieux et relativement vague.
+Cela s’explique en partie par le contexte d’utilisation de ces systèmes. Avec
+une base de données classique, on connaît le schéma des données, leur
+organisation générale, avec des contraintes qui garantissent qu’elles ont une
+certaine régularité. En RI, les données, ou « documents », sont souvent
+hétérogènes, de provenances diverses, présentent des irrégularités et des
+variations dues à l’absence de contrainte et de validation au moment de leur
+création. De plus, un système de RI est souvent utilisé par des utilisateurs
+non-experts. À la difficulté d’interpréter le contenu des documents et de le
+décrire s’ajoute celle de comprendre le « besoin », exprimé souvent de manière
+très partielle.</p>
+<p>D’une certaine manière, la RI vise essentiellement à prendre en compte ces
+difficultés pour proposer des réponses les plus pertinentes possibles. La notion
+de <em>pertinence</em> est centrale ici: un document est pertinent s’il satisfait le
+besoin exprimé. Quand on utilise SQL, on considère que la réponse est toujours
+exacte car définie de manière mathématique (en fonction de l’état de la base).  En
+RI, on ne peut jamais considérer qu’un résultat, constitué d’un ensemble de
+documents, est exact, mais on mesure son <em>degré de pertinence</em> (c’est-à-dire les
+erreurs du système de recherche) en distinguant:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>les <strong>faux positifs</strong>: ce sont les documents <em>non pertinents</em> inclus dans le
+résultat; ils ont été sélectionnés à tort. En anglais, on parle de <em>false
+positive</em>.</p></li>
+<li><p>les <strong>faux négatifs</strong>: ce sont les documents <em>pertinents</em> qui <em>ne sont pas</em>
+inclus dans le résultat. En anglais, on parle de <em>false negative</em>.</p></li>
+</ul>
+</div></blockquote>
+<p>Les documents <em>pertinents</em> inclus dans le résultat sont appelés les <strong>vrais
+positifs</strong>, les documents <em>non pertinents</em> non inclus dans le résultat sont
+appelés les <strong>vrais négatifs</strong>. On le voit à ce qui vient d’être dit : on
+emploie le terme <em>positif</em> pour désigner ce qui a été ramené dans le résultat de
+recherche. À l’inverse, les documents qui sont <em>négatifs</em> ont été laissés de
+côté par le moteur de recherche au moment de faire correspondre des documents
+avec un besoin d’information. Et l’on désigne par <em>vrai</em> ce qui a été bien
+classé (dans le résultat ou hors du résultat).</p>
+<p>Deux indicateurs formels, basés sur ces notions, sont couramment employés
+pour mesurer la qualité d’un système de RI.</p>
+<div class="admonition-la-precision admonition">
+<p class="admonition-title">La précision</p>
+<p>La <em>précision</em> mesure la proportion des vrais positifs dans le résultat <em>r</em>.
+Si on note respectivement <span class="math notranslate nohighlight">\(t_p(r)\)</span> et <span class="math notranslate nohighlight">\(f_p(r)\)</span> le nombre de vrais
+et de faux positifs dans <em>r</em> (de taille <span class="math notranslate nohighlight">\(|r|\)</span>), alors</p>
+<div class="math notranslate nohighlight">
+\[\text{précision} = \frac{t_p(r)}{t_p(r) + f_p(r)} =  \frac{t_p(r)}{|r|}\]</div>
+<p>Une précision de 1 correspond à l’absence totale de faux positifs. Une
+précision nulle indique un résultat ne contenant aucun document pertinent.</p>
+</div>
+<div class="admonition-le-rappel admonition">
+<p class="admonition-title">Le rappel</p>
+<p>Le rappel mesure la proportion des documents pertinents qui sont inclus dans le résultat. Si on note <span class="math notranslate nohighlight">\(f_n(r)\)</span> le
+nombre de documents faussement négatifs, alors le rappel est:</p>
+<div class="math notranslate nohighlight">
+\[\frac{t_p(r)}{t_p(r) + f_n(r)}\]</div>
+<p>Un rappel de 1 signifie que tous les documents pertinents apparaissent dans le résultat.  Un rappel
+de 0 signifie qu’il n’y a aucun document pertinent dans le résultat.</p>
+</div>
+<p>La  <a class="reference internal" href="#truefalsepositivenegative"><span class="std std-numref">Fig. 31</span></a> illustre (en anglais) ces concepts
+pour bien distinguer les ensembles dont on parle pour chaque requête de
+recherche et les mesures associées.</p>
+<figure class="align-center" id="id4">
+<span id="truefalsepositivenegative"></span><a class="reference internal image-reference" href="_images/fauxpositifs.png"><img alt="_images/fauxpositifs.png" src="_images/fauxpositifs.png" style="width: 70%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 31 </span><span class="caption-text">Vrai, faux, positifs, négatifs.</span><a class="headerlink" href="#id4" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>Ces deux indicateurs sont très difficiles à optimiser simultanément. Pour
+augmenter le rappel, il suffit d’ajouter plus de documents dans le résultat, au
+détriment de la précision. À l’extrême, un résultat qui contient <em>toute</em> la
+collection interrogée a un rappel de 1, et une précision qui tend vers 0.
+Inversement, si on fait le choix de ne garder dans le résultat que les documents
+dont on est sûr de la pertinence, la précision s’améliore mais on augmente le
+risque de faux négatifs (c’est-à-dire de ne pas garder des documents
+pertinents), et donc d’un rappel dégradé.</p>
+<p>L’évaluation d’un système de RI est une tâche complexe et fragile car elle repose
+sur des enquêtes impliquant des utilisateurs. Reportez-vous à l’ouvrage de
+référence cité au début du chapitre (et au matériel de cours associé) pour en
+savoir plus.</p>
+</section>
+<section id="la-recherche-plein-texte">
+<h3>La recherche plein texte<a class="headerlink" href="#la-recherche-plein-texte" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Commençons par étudier une méthode simple de recherche pour trouver des
+documents répondant à une recherche dite « plein texte » constituée d’un ensemble
+de mots-clés.  On va donner à cette recherche une définition assez restrictive
+pour l’instant: il s’agit de trouver tous les documents contenant <em>tous</em> les
+mots-clés. Prenons pour exemple l’ensemble (modeste) de documents ci-dessous.</p>
+<div class="admonition-exemple-exemple-s1-1-des-petits-documents-pour-comprendre admonition" id="exemple-s1-1">
+<p class="admonition-title">Exemple  <a class="reference internal" href="#exemple-s1-1">Exemple-S1-1</a>: des petits documents pour comprendre</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(d_1\)</span>: <code class="docutils literal notranslate"><span class="pre">Le</span> <span class="pre">loup</span> <span class="pre">est</span> <span class="pre">dans</span> <span class="pre">la</span> <span class="pre">bergerie.</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_2\)</span>: <code class="docutils literal notranslate"><span class="pre">Le</span> <span class="pre">loup</span> <span class="pre">et</span> <span class="pre">le</span> <span class="pre">trois</span> <span class="pre">petits</span> <span class="pre">cochons</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_3\)</span>: <code class="docutils literal notranslate"><span class="pre">Les</span> <span class="pre">moutons</span> <span class="pre">sont</span> <span class="pre">dans</span> <span class="pre">la</span> <span class="pre">bergerie.</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_4\)</span>:  <code class="docutils literal notranslate"><span class="pre">Spider</span> <span class="pre">Cochon,</span> <span class="pre">Spider</span> <span class="pre">Cochon,</span> <span class="pre">il</span> <span class="pre">peut</span> <span class="pre">marcher</span> <span class="pre">au</span> <span class="pre">plafond.</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_5\)</span>: <code class="docutils literal notranslate"><span class="pre">Un</span> <span class="pre">loup</span> <span class="pre">a</span> <span class="pre">mangé</span> <span class="pre">un</span> <span class="pre">mouton,</span> <span class="pre">les</span> <span class="pre">autres</span> <span class="pre">loups</span> <span class="pre">sont</span> <span class="pre">restés</span> <span class="pre">dans</span> <span class="pre">la</span> <span class="pre">bergerie.</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_6\)</span>:  <code class="docutils literal notranslate"><span class="pre">Il</span> <span class="pre">y</span> <span class="pre">a</span> <span class="pre">trois</span> <span class="pre">moutons</span> <span class="pre">dans</span> <span class="pre">le</span> <span class="pre">pré,</span> <span class="pre">et</span> <span class="pre">un</span> <span class="pre">mouton</span> <span class="pre">dans</span> <span class="pre">la</span> <span class="pre">gueule</span> <span class="pre">du</span> <span class="pre">loup.</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_7\)</span>: <code class="docutils literal notranslate"><span class="pre">Le</span> <span class="pre">cochon</span> <span class="pre">est</span> <span class="pre">à</span> <span class="pre">12</span> <span class="pre">le</span> <span class="pre">Kg,</span> <span class="pre">le</span> <span class="pre">mouton</span> <span class="pre">à</span>&#160; <span class="pre">10</span> <span class="pre">E/Kg</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_8\)</span>: <code class="docutils literal notranslate"><span class="pre">Les</span> <span class="pre">trois</span> <span class="pre">petits</span> <span class="pre">loups</span> <span class="pre">et</span> <span class="pre">le</span> <span class="pre">grand</span> <span class="pre">méchant</span> <span class="pre">cochon</span></code></p></li>
+</ul>
+</div>
+<p>Et ainsi de suite. Supposons que l’on recherche <strong>tous les documents parlant de
+loups, de moutons mais pas de bergerie</strong> (c’est le besoin).  Une solution simple
+consiste à parcourir tous les documents et à tester la présence des mots-clés.
+Ce n’est pas  très satisfaisant car:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>c’est potentiellement long, pas sur notre exemple bien sûr, mais en présence d’un ensemble volumineux de documents;</p></li>
+<li><p>le critère « pas de bergerie » n’est pas facile à traiter;</p></li>
+<li><p>les autres types de recherche (« le mot “loup” doit être <em>près</em> du mot “mouton” ») sont
+difficiles;</p></li>
+<li><p><em>quid</em> si je veux <em>classer</em> par pertinence les documents trouvés?</p></li>
+</ul>
+</div></blockquote>
+<p>On peut faire mieux en créant une structure compacte sur laquelle peuvent
+s’effectuer les opérations de recherche. Les données sont organisées dans une
+matrice (dite d’incidence) qui représente l’occurrence (ou  non) de chaque mot
+dans chaque document. On peut, au choix, représenter les mots en colonnes et les
+documents en ligne, ou l’inverse. La première solution semble plus naturelle
+(chaque fois que j’insère un nouveau document, j’ajoute une ligne dans la
+matrice). Nous verrons plus loin que la seconde représentation, appelée <em>matrice
+inversée</em>, est en fait beaucoup plus appropriée pour une recherche efficace.</p>
+<div class="admonition-terme-vocabulaire admonition">
+<p class="admonition-title">Terme, vocabulaire.</p>
+<p>Nous utilisons progressivement la notion de <em>terme</em> (<em>token</em> en anglais) qui
+est un peu différente de celle de « mot ». Le  <em>vocabulaire</em>, parfois appelé
+<em>dictionnaire</em>, est l’ensemble des termes sur lesquels on peut poser une
+requête. Ces notions seront développées plus loin.</p>
+</div>
+<p>Commençons par montrer une matrice d’incidence avec les documents en ligne. On
+se limite au vocabulaire suivant: {« loup », « mouton », « cochon », « bergerie »,
+« pré », « gueule »}.</p>
+<blockquote>
+<div><span id="loups"></span><table class="colwidths-given docutils align-default" id="id5">
+<caption><span class="caption-number">Tableau 9 </span><span class="caption-text">La matrice d’incidence</span><a class="headerlink" href="#id5" title="Lien permanent vers ce tableau">¶</a></caption>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>loup</p></th>
+<th class="head"><p>mouton</p></th>
+<th class="head"><p>cochon</p></th>
+<th class="head"><p>bergerie</p></th>
+<th class="head"><p>pré</p></th>
+<th class="head"><p>gueule</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(d_1\)</span></p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(d_2\)</span></p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(d_3\)</span></p></td>
+<td><p>0</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(d_4\)</span></p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(d_5\)</span></p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(d_6\)</span></p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(d_7\)</span></p></td>
+<td><p>0</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(d_8\)</span></p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>Cette structure est parfois utilisée dans les bases de données sous le nom
+<em>d’index bitmap</em>. Elle permet de répondre à notre besoin de la manière suivante :</p>
+<ul class="simple">
+<li><p>On prend les <em>vecteurs d’incidence</em> de chaque terme contenu dans la requête,
+soit les colonnes dans notre représentation :</p>
+<ul>
+<li><p>Loup:      11001101</p></li>
+<li><p>Mouton:    00101110</p></li>
+<li><p>Bergerie:    01010011</p></li>
+</ul>
+</li>
+<li><p>On fait un <code class="docutils literal notranslate"><span class="pre">et</span></code> (<a class="reference external" href="https://fr.wikipedia.org/wiki/Conjonction_logique">logique</a>)  sur les vecteurs de
+<cite>Loup</cite> et <cite>Mouton</cite> et on obtient 00001100</p></li>
+<li><p>Puis on fait un <code class="docutils literal notranslate"><span class="pre">et</span></code> du résultat avec le <em>complément</em> du vecteur de
+<cite>Bergerie</cite> (01010111)</p></li>
+<li><p>On obtient 00000100, d’où on déduit que la réponse est limitée au document
+<span class="math notranslate nohighlight">\(d_6\)</span>, puisque la 6e position est la seule où il y a un “1”.</p></li>
+</ul>
+</section>
+<section id="les-index-inverses">
+<h3>Les index inversés<a class="headerlink" href="#les-index-inverses" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Si on imagine maintenant des données à grande échelle, on s’aperçoit que cette
+approche un peu naïve soulève quelques problèmes.  Posons par exemple les
+hypothèses suivantes:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Un million de documents, mille mots chacun en moyenne (ordre de grandeur
+d’une encyclopédie en ligne bien connue)</p></li>
+<li><p>Disons 6 octets par mot, soit 6 Go (pas très gros en fait!)</p></li>
+<li><p>Disons 500 000 termes <em>distincts</em> (ordre de grandeur du nombre de mots dans
+une langue comme l’anglais)</p></li>
+</ul>
+</div></blockquote>
+<p>La matrice a 1 000 000 de lignes, 500 000 colonnes, donc <span class="math notranslate nohighlight">\(500 \times 10^9\)</span>
+bits, soit 62 GO. Elle ne tient pas en mémoire de nombreuses machines, ce qui va
+beaucoup compliquer les choses…. Comment faire mieux?</p>
+<p>Une première remarque est que nous avons besoin des vecteurs pour les <em>termes</em>
+(mots) pour effectuer des opérations logiques (<code class="docutils literal notranslate"><span class="pre">and</span></code>, <code class="docutils literal notranslate"><span class="pre">or</span></code>, <code class="docutils literal notranslate"><span class="pre">not</span></code>) et il
+est donc préférable <em>d’inverser</em> la matrice pour disposer les termes en ligne
+(la représentation est une question de convention: ce qui est important c’est
+qu’au niveau de la structure de données, le vecteur d’incidence associé à un
+<em>terme</em> soit stocké contigument en mémoire et donc accessible simplement et
+rapidement). On obtient la structure de la  <a class="reference internal" href="#inverted-index-bool"><span class="std std-numref">Fig. 32</span></a>
+pour notre petit ensemble de documents.</p>
+<figure class="align-center" id="id6">
+<span id="inverted-index-bool"></span><a class="reference internal image-reference" href="_images/inverted-index-bool.png"><img alt="_images/inverted-index-bool.png" src="_images/inverted-index-bool.png" style="width: 40%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 32 </span><span class="caption-text">Inversion de la matrice</span><a class="headerlink" href="#id6" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>Seconde remarque:  la matrice d’incidence est <em>creuse</em>. En effet, sur chaque
+ligne, il y a au plus 1000 « 1 » (cas extrême où tous les termes du document sont
+distincts). Donc, dans l’ensemble de la matrice, il n’y a au plus que
+<span class="math notranslate nohighlight">\(10^9\)</span> positions avec des 1, soit un sur 500. Il est donc tout à fait
+inutile de représenter les cellules avec des 0. On obtient une structure appelée
+<em>index inversé</em> qui est essentiellement l’ensemble des lignes de la matrice
+d’incidence, dans laquelle on ne représente que les cellules correspondant à <em>au
+moins</em> une occurrence du terme (en ligne) dans le document (en colonne).</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Comme on ne représente plus l’ensemble des colonnes pour chaque ligne, il faut indiquer,
+pour chaque cellule, à quelle colonne elle correspond.  Pour cela, on place dans
+les cellules <em>l’identifiant</em> du document (<em>docId</em>). <strong>De plus chaque liste est
+triée sur l’identifiant du document</strong>.</p>
+</div>
+<p>La  <a class="reference internal" href="#inverted-index"><span class="std std-numref">Fig. 33</span></a>   montre un exemple d’index inversé pour trois
+termes, pour une collection importante de documents consacrés à nos animaux
+familiers. À chaque terme est associé une liste inverse.</p>
+<figure class="align-center" id="id7">
+<span id="inverted-index"></span><a class="reference internal image-reference" href="_images/inverted-index.png"><img alt="_images/inverted-index.png" src="_images/inverted-index.png" style="width: 50%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 33 </span><span class="caption-text">Un index inversé</span><a class="headerlink" href="#id7" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>On parle donc de cochon dans les documents 2, 31, 54 et 101 (notez que les
+documents sont ordonnés — très important). Il est clair que la taille des
+listes inverses varie en fonction de la fréquence d’un terme dans la collection.</p>
+<p>La structure d’index inversé est utilisée dans <em>tous</em>  les moteurs de recherche.
+Elle présente d’excellentes propriétés pour une recherche efficace, avec en
+particulier des possibilités importantes de compression des listes associées à
+chaque terme.</p>
+<div class="admonition-vocabulaire admonition">
+<p class="admonition-title"><strong>Vocabulaire</strong></p>
+<p>Le <em>dictionnaire</em> (<em>dictionary</em>) est l’ensemble
+des termes de l’index inversé; le <em>répertoire</em> est la structure qui
+associe chaque terme à l’adresse de la liste inversée (<em>posting list</em>) associée au terme.
+Enfin on ne parle plus de cellule (la matrice a disparu) mais <em>d’entrée</em> pour
+désigner un élément d’une liste inverse.</p>
+</div>
+<p>En principe, le répertoire est toujours en mémoire, ce qui permet de trouver
+très rapidement les listes impliquées dans la recherche.  Les listes inverses
+sont, autant que possible, en mémoire, sinon elles sont compressées et stockées
+dans des fichiers (contigus) sur le disque.</p>
+</section>
+<section id="operations-de-recherche">
+<h3>Opérations de recherche<a class="headerlink" href="#operations-de-recherche" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Étant donné cette structure, recherchons les documents parlant de loup et de
+mouton. On ne peut plus faire un <code class="docutils literal notranslate"><span class="pre">et</span></code> sur des tableaux de bits de taille fixe
+puisque nous avons maintenant des listes de taille variable. L’algorithme
+employé est une <em>fusion</em> ( »<em>merge</em> ») de liste triées. C’est une technique très
+efficace qui consiste à parcourir en parallèle et séquentiellement des listes,
+en une seule fois. Le parcours unique est permis par le tri des listes sur un
+même critère (l’identifiant du document).</p>
+<p>La  <a class="reference internal" href="#loup-et-mouton-full"><span class="std std-numref">Fig. 34</span></a> montre comment on traite la requête <code class="docutils literal notranslate"><span class="pre">loup</span>
+<span class="pre">et</span> <span class="pre">mouton</span></code>. On maintient deux curseurs, positionnés au départ au début de
+chaque liste. L’algorithme compare les valeurs des docId contenues dans les
+cellules pointées par les deux curseurs. On compare ces deux valeurs, puis:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>(choix A) si elles sont égales, on a trouvé un document: on
+place son identifiant dans le résultat, à gauche; <em>on avance les deux curseurs d’un cran</em></p></li>
+<li><p>(choix B) sinon, on avance le curseur pointant sur la cellule dont la valeur est la
+plus petite, jusqu’à atteindre ou dépasser la valeur la plus grande.</p></li>
+</ul>
+</div></blockquote>
+<figure class="align-center" id="id8">
+<span id="loup-et-mouton-full"></span><a class="reference internal image-reference" href="_images/loup-et-mouton-full.png"><img alt="_images/loup-et-mouton-full.png" src="_images/loup-et-mouton-full.png" style="width: 100%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 34 </span><span class="caption-text">Parcours linéaire pour la fusion de listes triées</span><a class="headerlink" href="#id8" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>La  <a class="reference internal" href="#loup-et-mouton-full"><span class="std std-numref">Fig. 34</span></a> se lit de gauche à droite, de haut en bas.
+On applique tout d’abord deux fois le choix A: les documents 1 et 2 parlent
+de loup et de mouton. À la troisième étape, le curseur du haut (loup) pointe
+sur le document 3, le pointeur du bas (mouton) sur le document 4. On applique
+le choix B en déplaçant le curseur du haut jusqu’à la valeur 4.</p>
+<p>Et ainsi de suite.  Il est clair <em>qu’un seul parcours suffit</em>. La recherche est
+linéaire, et l’efficacité est garantie par un parcours séquentiel d’une
+structure (la liste) très compacte. De plus, il n’est pas nécessaire d’attendre
+la fin du parcours de toutes les listes pour commencer à obtenir le résultat.
+L’algorithme est résumé ci-dessous.</p>
+<div class="highlight-php notranslate"><div class="highlight"><pre><span></span><span class="x">// Fusion de deux listes l1 et l2</span>
+<span class="x">function Intersect($l1, $l2)</span>
+<span class="x">{</span>
+<span class="x">  $résultat = [];</span>
+<span class="x">  // Début de la fusion des listes</span>
+<span class="x">  while ($l1 != null and $l2 != null) {</span>
+<span class="x">    if ($l1.docId == $l2.docId) {</span>
+<span class="x">      // On a trouvé un document contenant les deux termes</span>
+<span class="x">      $résultat += $l1.docId;</span>
+<span class="x">      // Avançons sur les deux listes</span>
+<span class="x">      $l1 = $l1.next; $l2 = $l2.next;</span>
+<span class="x">    }</span>
+<span class="x">    else if ($l1.docId &lt; $l2.docId) {</span>
+<span class="x">      // Avançons sur l1</span>
+<span class="x">      $l1 = $l1.next;</span>
+<span class="x">    }</span>
+<span class="x">    else {</span>
+<span class="x">       // Avançons sur l2</span>
+<span class="x">      $l2 = $l2.next;</span>
+<span class="x">    }</span>
+<span class="x">  }</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>C’est l’algorithme de base de la recherche d’information. Dans la version
+présentée ici, on satisfait des requêtes dites <em>booléennes</em>: l’appartenance d’un
+document au résultat est binaire, et il n’y a aucun classement par pertinence.</p>
+<p>À partir de cette technique élémentaire, on peut commencer à raffiner, pour
+aboutir aux techniques sophistiquées visant à capturer au mieux le besoin de
+l’utilisateur, à trouver les documents qui satisfont ce besoin et à les classer
+par pertinence. Pour en arriver là, tout un ensemble d’étapes que nous avons
+ignorées dans la présentation abrégée qui précède sont nécessaires. Nous les
+reprenons dans ce qui suit.</p>
+</section>
+<section id="quiz">
+<h3>Quiz<a class="headerlink" href="#quiz" title="Lien permanent vers ce titre">¶</a></h3>
+<div class="reauthoring_embedded_quiz" id="ri-intro-1"><form class="reauthoring_embedded_quiz_questions"><p><strong>Cherchez l’erreur!</strong>  Quelle propriété parmi les suivantes ne vous semble pas s’appliquer à la recherche d’information?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  On évalue la proximité entre le besoin exprimé et les documents du système</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img>  On cherche des documents de structure similaire à celui donné par la requête</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  On cherche des documents de contenu similaire à celui donné par la requête</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  On cherche les paires de documents proches les uns des autres</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="ri-intro-2"><form class="reauthoring_embedded_quiz_questions"><p>Quel est le rappel si la recherche ramène tous les documents?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Le rappel est maximal, donc 1</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Le rappel est minimal, donc 0</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Le rappel est le rapport entre le nombre de documents pertinents et la taille de la collection</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="ri-intro-3"><form class="reauthoring_embedded_quiz_questions"><p>Quelle est la précision si la recherche ramène tous les documents?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> La précision est maximale, donc 1</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> La précision est minimale, donc 0</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> La précision est le rapport entre le nombre de documents pertinents et la taille de la collection</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="ri-intro-4"><form class="reauthoring_embedded_quiz_questions"><p>Quel est le rappel si la recherche ne ramène aucun document?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Le rappel est maximal, donc 1</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Le rappel est minimal, donc 0</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Le rappel est le rapport entre le nombre de documents pertinents et la taille de la collection</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="ri-intro-5"><form class="reauthoring_embedded_quiz_questions"><p>Quelle est la précision si la recherche ne ramène aucun document?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> La précision est maximale, donc 1</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> La précision est minimale, donc 0</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> La précision est indéfinie</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="ri-intro-6"><form class="reauthoring_embedded_quiz_questions"><p>Si je souhaite minimiser le nombre de faux positifs dans ma réponse, je dois favoriser</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Le rappel</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> La précision</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Le rapport rappel / précision</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Le rapport  précision / rappel</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="ri-intro-7"><form class="reauthoring_embedded_quiz_questions"><p>Si je souhaite minimiser le nombre de faux négatifs dans ma réponse, je dois favoriser</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Le rappel</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> La précision</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="ri-intro-8"><form class="reauthoring_embedded_quiz_questions"><p>Qu’est-ce qu’une matrice (ou un index) inversé?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> C’est une structure dans laquelle on a remplacé les 0 par des 1 et réciproquement, pour
+faciliter les calculs</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  C’est une structure où les documents sont  en ligne et les token en colonne</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img>  C’est une structure où les documents sont  en colonne et les token en ligne</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="ri-intro-9"><form class="reauthoring_embedded_quiz_questions"><p>Qu’est-ce que le répertoire dans un index inversé?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> C’est l’espace où l’on stocke les listes inversées</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  C’est la liste des termes indexés</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img>  C’est un tableau qui associe un terme et une liste</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="ri-intro-10"><form class="reauthoring_embedded_quiz_questions"><p>Quel est le coût d’une recherche avec un index inversé?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Proportionnel à la taille de la collection</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img>  Proportionnel à la taille des listes correspondant aux mots cherchés</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  Proportionnel au nombre de termes de la requête</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="ri-intro-11"><form class="reauthoring_embedded_quiz_questions"><p>Par rapport à la définition de la recherche d’information, quel énoncé ci-dessous
+sur la recherche booléenne vous semble correct ?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Ce n’est pas de la RI car on traite des documents structurés</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img>  Ce n’est pas de la RI car il n’y a pas d’estimation de la pertinence</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  Ce n’est pas de la RI car il n’y a ni faux négatif ni faux positif.</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div></section>
+</section>
+<section id="s2-l-analyse-de-documents">
+<h2>S2: L’analyse de documents<a class="headerlink" href="#s2-l-analyse-de-documents" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="admonition-supports-complementaires admonition">
+<p class="admonition-title">Supports complémentaires:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="http://b3d.bdpedia.fr/files/slri-indexation-analyse.pdf">Présentation: Recherche d’information - analyse de documents</a></p></li>
+<li><p><a class="reference external" href="https://mediaserver.lecnam.net/permalink/v125f5947d4batpxkr93/">Vidéo : Pré-traitement des documents  textuels</a></p></li>
+</ul>
+</div>
+<p>En présence d’un document textuel un tant soit peu complexe, on ne peut pas se
+contenter de découper plus ou moins arbitrairement en mots sans se poser
+quelques questions et appliquer un pré-traitement du texte. Les effets de ce
+pré-traitement doivent être compris et maîtrisés: ils influent directement sur
+la précision et le rappel. Quelques exemples simples pour s’en convaincre:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>si on cherche les documents contenant le mot « loup », on s’attend généralement
+à trouver ceux contenant « loups », « Loup », « louve »; il faut donc, quand on
+conserve un document dans Elasticsearch, qu’il soit en mesure de mettre ces
+différentes formes dans <em>le même index inversé</em>;</p></li>
+<li><p>si on ne normalise pas (on conserve les majuscules et les pluriels), on va dégrader
+le rappel, puisqu’un utilisateur saisissant le mot-clef « loup » ne trouvera
+pas les documents dans lesquels ce terme apparaît <em>seulement</em> sous la forme « Loup » ou « loups »;</p></li>
+<li><p>on le comprend immédiatement avec le cas de « loup / louve », il faut une
+connaissance experte de la langue pour décider que « louve » et « loup » doivent
+être associés, ce qui requiert une transformation qui dépend de la langue et
+nécessite une analyse approfondie du contenu;</p></li>
+<li><p>inversement, si on normalise (retrait des accents, par exemple) « cote »,
+« côte », « côté », on va unifier des mots dont le sens est différent, et on va
+diminuer la précision.</p></li>
+</ul>
+</div></blockquote>
+<p>En fonction des caractéristiques des documents traités, des utilisateurs de
+notre système de recherche, il faudra trouver un bon équilibre, aucune solution
+n’étant parfaite. C’est de l’art et du réglage…</p>
+<p>L’analyse se compose de plusieurs phases:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><em>Tokenization</em>: découpage du texte en « termes ».</p></li>
+<li><p><em>Normalisation</em>: identification de toutes les variantes d’écritures d’un
+même terme et choix d’une règle de normalisation (que faire des majuscules? acronymes? apostrophes? accents?).</p></li>
+<li><p><em>Stemming</em> (« racinisation »): rendre la racine des mots pour éviter le biais des
+variations autour d’un même sens (auditer, auditeur, audition, etc.)</p></li>
+<li><p><em>Stop words</em> (« mots vides »), comment éliminer les mots très courants qui ne rendent
+pas compte de la signification propre du document?</p></li>
+</ul>
+</div></blockquote>
+<p>Ce qui suit est une brève introduction, essentiellement destinée à comprendre
+les outils prêts à l’emploi que nous utiliserons ensuite. Remarquons en
+particulier que les étapes ci-dessus sont parfois décomposées en sous-étapes
+plus fines avec des algorithmes spécifiques (par exemple, un pour les accents,
+un autre pour les majuscules). L’ordre que nous donnons ci-dessus est un exemple,
+il peut y avoir de légères variations. Enfin, notez bien que <strong>le texte
+transformé dans une étape sert de texte d’entrée à la transformation suivante</strong>
+(nous y reviendrons dans la partie pratique).</p>
+<section id="tokenisation-et-normalisation">
+<h3>Tokenisation et normalisation<a class="headerlink" href="#tokenisation-et-normalisation" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Un <em>tokenizer</em> prend en entrée un texte (une chaîne de caractères) et produit
+une séquence de <em>tokens</em>. Il effectue donc un traitement purement lexical,
+consistant typiquement à éliminer les espaces blancs, la ponctuation, les
+liaisons, etc., et à identifier les « mots ». Des transformations peuvent
+également intervenir (suppression des accents par exemple, ou normalisation des
+acronymes - U.S.A. devient USA).</p>
+<p>La tokenization est très fortement dépendante de la langue. La première chose à
+faire est d’identifier cette dernière. En première approche on peut examiner le
+jeu de caractères (<a class="reference internal" href="#characters"><span class="std std-numref">Fig. 35</span></a>).</p>
+<figure class="align-center" id="id9">
+<span id="characters"></span><a class="reference internal image-reference" href="_images/characters.png"><img alt="_images/characters.png" src="_images/characters.png" style="width: 10%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 35 </span><span class="caption-text">Quelques jeux de caractères … exotiques</span><a class="headerlink" href="#id9" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>Il s’agit respectivement du: Coréen, Japonais, Maldives, Malte, Islandais.
+Ce n’est évidemment pas suffisant pour distinguer des langues utilisant le
+même jeu de caractères. Une extension simple est d’identifier
+les <em>séquences de caractères fréquents</em>, (<em>n</em>-grams).
+Des bibliothèques fonctionnelles font ça très bien (e.g., Tika, <a class="reference external" href="http://tika.apache.org">http://tika.apache.org</a>)</p>
+<p>Une fois la langue identifiée, on divise le texte en <em>tokens</em> (« mots »).
+Ce n’est pas du tout aussi facile qu’on le dirait!</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Dans certaines langues (Chinois, Japonais), les mots  <em>ne sont pas</em> séparés par des espaces.</p></li>
+<li><p>Certaines langues s’écrivent de droite à gauche, de haut en bas.</p></li>
+<li><p>Que faire (et de manière <em>cohérente</em>) des acronymes, élisions, nombres, unités, URL, email, etc.</p></li>
+<li><p>Que faire des <em>mots composés</em>: les séparer en <em>tokens</em> ou les regrouper en un seul? Par exemple:</p>
+<ul>
+<li><p>Anglais: <em>hostname</em>, <em>host-name</em> et <em>host name</em>, …</p></li>
+<li><p>Français: Le Mans, aujourd’hui, pomme de terre, …</p></li>
+<li><p>Allemand: <em>Levensversicherungsgesellschaftsangestellter</em> (employé d’une société d’assurance vie).</p></li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+<p>Pour les majuscules et la ponctuation, une solution simple est de
+normaliser systématiquement (minuscules, pas de ponctuation). Ce qui
+donnerait le résultat suivant pour notre petit jeu de données.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(d_1\)</span>: <code class="docutils literal notranslate"><span class="pre">le</span> <span class="pre">loup</span> <span class="pre">est</span> <span class="pre">dans</span> <span class="pre">la</span> <span class="pre">bergerie</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_2\)</span>: <code class="docutils literal notranslate"><span class="pre">le</span> <span class="pre">loup</span> <span class="pre">et</span> <span class="pre">les</span> <span class="pre">trois</span> <span class="pre">petits</span> <span class="pre">cochons</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_3\)</span>: <code class="docutils literal notranslate"><span class="pre">les</span> <span class="pre">moutons</span> <span class="pre">sont</span> <span class="pre">dans</span> <span class="pre">la</span> <span class="pre">bergerie</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_4\)</span>:  <code class="docutils literal notranslate"><span class="pre">spider</span> <span class="pre">cochon</span> <span class="pre">spider</span> <span class="pre">cochon</span> <span class="pre">il</span> <span class="pre">peut</span> <span class="pre">marcher</span> <span class="pre">au</span> <span class="pre">plafond</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_5\)</span>: <code class="docutils literal notranslate"><span class="pre">un</span> <span class="pre">loup</span> <span class="pre">a</span> <span class="pre">mangé</span> <span class="pre">un</span> <span class="pre">mouton</span> <span class="pre">les</span> <span class="pre">autres</span> <span class="pre">loups</span> <span class="pre">sont</span> <span class="pre">restés</span> <span class="pre">dans</span> <span class="pre">la</span> <span class="pre">bergerie</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_6\)</span>:  <code class="docutils literal notranslate"><span class="pre">il</span> <span class="pre">y</span> <span class="pre">a</span> <span class="pre">trois</span> <span class="pre">moutons</span> <span class="pre">dans</span> <span class="pre">le</span> <span class="pre">pré</span> <span class="pre">et</span> <span class="pre">un</span> <span class="pre">mouton</span> <span class="pre">dans</span> <span class="pre">la</span> <span class="pre">gueule</span> <span class="pre">du</span> <span class="pre">loup</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_7\)</span>: <code class="docutils literal notranslate"><span class="pre">le</span> <span class="pre">cochon</span> <span class="pre">est</span> <span class="pre">à</span> <span class="pre">12</span> <span class="pre">euros</span> <span class="pre">le</span> <span class="pre">kilo</span> <span class="pre">le</span> <span class="pre">mouton</span> <span class="pre">à</span>&#160; <span class="pre">10</span> <span class="pre">euros</span> <span class="pre">kilo</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_8\)</span>: <code class="docutils literal notranslate"><span class="pre">les</span> <span class="pre">trois</span> <span class="pre">petits</span> <span class="pre">loups</span> <span class="pre">et</span> <span class="pre">le</span> <span class="pre">grand</span> <span class="pre">méchant</span> <span class="pre">cochon</span></code></p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="stemming-racine-lemmatisation">
+<h3>Stemming (racine), lemmatisation<a class="headerlink" href="#stemming-racine-lemmatisation" title="Lien permanent vers ce titre">¶</a></h3>
+<p>La racinisation consiste à <em>confondre</em> toutes les formes d’un même mot, ou de
+mots apparentés, en une seule <em>racine</em>. Le  <em>stemming morphologique</em>
+retire les pluriels, marque de genre, conjugaisons, modes, etc.
+Le <em>stemming lexical</em> fond les termes proches lexicalement:
+« politique, politicien, police (?) » ou   « université, universel, univers (?) ».
+Ici, le choix influe clairement sur la précision et le rappel (plus d’unification
+favorise le rappel au détriment de la précision).</p>
+<p>La racinisation
+est très dépendante de la langue et peut nécessiter une analyse linguistique
+complexe.  En anglais, <em>geese</em> est le pluriel de <em>goose</em>, <em>mice</em> de <em>mouse</em>;
+les formes   masculin / féminin en français n’ont parfois rien à voir (« loup / louve »)
+mais aussi (« cheval / jument »: parle-t-on de la même chose?) Quelques
+exemples célèbres montrent les difficultés d’interprétation:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>« Les poules du couvent couvent »: où est le verbe, où est le substantif?</p></li>
+<li><p>« La petite brise la glace »:  idem.</p></li>
+</ul>
+</div></blockquote>
+<p>Voici un résultat possible de la racinisation pour nos documents.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(d_1\)</span>: <code class="docutils literal notranslate"><span class="pre">le</span> <span class="pre">loup</span> <span class="pre">etre</span> <span class="pre">dans</span> <span class="pre">la</span> <span class="pre">bergerie</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_2\)</span>: <code class="docutils literal notranslate"><span class="pre">le</span> <span class="pre">loup</span> <span class="pre">et</span> <span class="pre">les</span> <span class="pre">trois</span> <span class="pre">petit</span> <span class="pre">cochon</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_3\)</span>: <code class="docutils literal notranslate"><span class="pre">les</span> <span class="pre">mouton</span> <span class="pre">etre</span> <span class="pre">dans</span> <span class="pre">la</span> <span class="pre">bergerie</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_4\)</span>:  <code class="docutils literal notranslate"><span class="pre">spider</span> <span class="pre">cochon</span> <span class="pre">spider</span> <span class="pre">cochon</span> <span class="pre">il</span> <span class="pre">pouvoir</span> <span class="pre">marcher</span> <span class="pre">au</span> <span class="pre">plafond</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_5\)</span>: <code class="docutils literal notranslate"><span class="pre">un</span> <span class="pre">loup</span> <span class="pre">avoir</span> <span class="pre">manger</span> <span class="pre">un</span> <span class="pre">mouton</span> <span class="pre">les</span> <span class="pre">autre</span> <span class="pre">loup</span> <span class="pre">etre</span> <span class="pre">rester</span> <span class="pre">dans</span> <span class="pre">la</span> <span class="pre">bergerie</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_6\)</span>:  <code class="docutils literal notranslate"><span class="pre">il</span> <span class="pre">y</span> <span class="pre">avoir</span> <span class="pre">trois</span> <span class="pre">mouton</span> <span class="pre">dans</span> <span class="pre">le</span> <span class="pre">pre</span> <span class="pre">et</span> <span class="pre">un</span> <span class="pre">mouton</span> <span class="pre">dans</span> <span class="pre">la</span> <span class="pre">gueule</span> <span class="pre">du</span> <span class="pre">loup</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_7\)</span>: <code class="docutils literal notranslate"><span class="pre">le</span> <span class="pre">cochon</span> <span class="pre">etre</span> <span class="pre">a</span> <span class="pre">12</span> <span class="pre">euro</span> <span class="pre">le</span> <span class="pre">kilo</span> <span class="pre">le</span> <span class="pre">mouton</span> <span class="pre">a</span> <span class="pre">10</span> <span class="pre">euro</span> <span class="pre">kilo</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_8\)</span>: <code class="docutils literal notranslate"><span class="pre">les</span> <span class="pre">trois</span> <span class="pre">petit</span> <span class="pre">loup</span> <span class="pre">et</span> <span class="pre">le</span> <span class="pre">grand</span> <span class="pre">mechant</span> <span class="pre">cochon</span></code></p></li>
+</ul>
+</div></blockquote>
+<p>Il existe des procédures spécialisées pour chaque langue. En anglais,
+l’algorithme <a class="reference external" href="http://snowballstem.org/">Snowball</a> de Martin Porter fait
+référence et est toujours développé aujourd’hui. Il a connu des déclinaisons
+dans de nombreuses langues, dont le français, par un travail collaboratif.</p>
+</section>
+<section id="mots-vides-et-autres-filtres">
+<h3>Mots vides et autres filtres<a class="headerlink" href="#mots-vides-et-autres-filtres" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Un des filtres les plus courants consiste
+à retire les mots porteurs d’une information faible
+( »<em>stop words</em> » ou « mots vides »)  afin de limiter le stockage.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Les articles: <em>le</em>, <em>le</em>, <em>ce</em>, etc.</p></li>
+<li><p>Les verbes « fonctionnels »: <em>être</em>, <em>avoir</em>, <em>faire</em>, etc.</p></li>
+<li><p>Les conjonctions: <em>et</em>, <em>ou</em>, etc.</p></li>
+<li><p>et ainsi de suite.</p></li>
+</ul>
+</div></blockquote>
+<p>Le choix est délicat car, d’une part, ne pas supprimer
+les mots vides augmente l’espace de stockage nécessaire (et ce d’autant
+plus que la liste associée à un mot très fréquent est très longue),
+d’autre part les éliminer peut diminuer la pertinence des
+recherches  (« pomme de terre », « Let it be », « Stade de France »).</p>
+<p>Parmi les autres filtres, citons en vrac:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><em>Majuscules / minuscules</em>. On peut tout mettre en minuscules, mais
+on perd alors la distinction nom propre / nom commu,, par exemple Lyonnaise des Eaux, Société Générale, Windows, etc.</p></li>
+<li><p><em>Acronymes</em>.
+CAT = <em>cat</em> ou <em>Caterpillar Inc.</em>?  M.A.A.F ou MAAF ou Mutuelle … ?</p></li>
+<li><p><em>Dates, chiffres</em>.
+Monday 24, August, 1572 – 24/08/1572 – 24 août 1572;
+10000 ou 10,000.00 ou 10,000.00</p></li>
+</ul>
+</div></blockquote>
+<p>Dans tous les cas, les même règles de transformation s’appliquent aux documents
+ET à la requête. Voici, au final, pour chaque document la liste
+des <em>tokens</em> après application de quelques règles simples.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(d_1\)</span>: <code class="docutils literal notranslate"><span class="pre">loup</span> <span class="pre">etre</span> <span class="pre">bergerie</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_2\)</span>: <code class="docutils literal notranslate"><span class="pre">loup</span> <span class="pre">trois</span> <span class="pre">petit</span> <span class="pre">cochon</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_3\)</span>: <code class="docutils literal notranslate"><span class="pre">mouton</span> <span class="pre">etre</span> <span class="pre">bergerie</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_4\)</span>:  <code class="docutils literal notranslate"><span class="pre">spider</span> <span class="pre">cochon</span> <span class="pre">spider</span> <span class="pre">cochon</span> <span class="pre">pouvoir</span> <span class="pre">marcher</span> <span class="pre">plafond</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_5\)</span>: <code class="docutils literal notranslate"><span class="pre">loup</span> <span class="pre">avoir</span> <span class="pre">manger</span>&#160; <span class="pre">mouton</span> <span class="pre">autre</span> <span class="pre">loup</span> <span class="pre">etre</span> <span class="pre">rester</span> <span class="pre">bergerie</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_6\)</span>:  <code class="docutils literal notranslate"><span class="pre">avoir</span> <span class="pre">trois</span> <span class="pre">mouton</span> <span class="pre">pre</span> <span class="pre">mouton</span> <span class="pre">gueule</span> <span class="pre">loup</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_7\)</span>: <code class="docutils literal notranslate"><span class="pre">cochon</span> <span class="pre">etre</span> <span class="pre">douze</span> <span class="pre">euro</span> <span class="pre">kilo</span> <span class="pre">mouton</span> <span class="pre">dix</span> <span class="pre">euro</span> <span class="pre">kilo</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(d_8\)</span>: <code class="docutils literal notranslate"><span class="pre">trois</span> <span class="pre">petit</span> <span class="pre">loup</span> <span class="pre">grand</span> <span class="pre">mechant</span> <span class="pre">cochon</span></code></p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="id1">
+<h3>Quiz<a class="headerlink" href="#id1" title="Lien permanent vers ce titre">¶</a></h3>
+<div class="reauthoring_embedded_quiz" id="ri-analysedoc-1"><form class="reauthoring_embedded_quiz_questions"><p>Qu’est-ce que la tokenisation?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  C’est l’élimination de toute ponctuation</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img>  C’est le découpage d’un texte en unités lexicales</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> C’est l’extraction des termes d’un dictionnaire présents dans un texte</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="ri-analysedoc-2"><form class="reauthoring_embedded_quiz_questions"><p>Quelle opération ci-dessous ne relèvent pas de la stemmisation?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img>  Rassembler tous les synonymes en un seul terme</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  Supprimer toutes les formes plurielles</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  Ramener tous les verbes à la forme infinitive</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div></section>
+</section>
+<section id="s3-recherche-avec-classement">
+<h2>S3: recherche avec classement<a class="headerlink" href="#s3-recherche-avec-classement" title="Lien permanent vers ce titre">¶</a></h2>
+<p>Supports complémentaires:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference external" href="http://b3d.bdpedia.fr/files/slri-ranking-rankedsearch.pdf">Présentation: Recherche avec classement</a></p></li>
+<li><p><a class="reference external" href="https://mediaserver.lecnam.net/permalink/v125f35a3b0b7my7jokt/">Vidéo de la session « Principes de la recherche avec classement »</a></p></li>
+</ul>
+</div></blockquote>
+<p>Le mode d’interrogation classique en base de données consiste à
+exprimer des critères de recherche et à produire en sortie les
+données qui satisfont <em>exactement</em> ces critères. En d’autres termes,
+dans le cas d’une base documentaire, on peut déterminer qu’un document
+est ou n’est pas dans le résultat. Cette décision univoque correspond
+au modèle de requêtes Booléennes présenté précécemment.</p>
+<section id="notions-de-base-espace-metrique-distance-et-similarite">
+<h3>Notions de base: espace métrique, distance et similarité<a class="headerlink" href="#notions-de-base-espace-metrique-distance-et-similarite" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Dans le cas typique
+d’un document textuel, il est illusoire de vouloir effectuer une recherche
+exacte en tentant de produire comme critère  la chaîne de caractères
+complète du document, voire même une sous-chaîne.
+La même remarque s’applique
+à des objets complexes ou multimédia (images, vidéos, etc.). La logique est alors
+plutôt d’interpréter la requête comme un <em>besoin</em>, et d’identifier les
+documents les plus « proches » du besoin.
+En recherche d’information (<em>RI</em>), on raisonne donc plutôt en terme
+de <em>pertinence</em> pour décider si un document fait ou non partie du résultat d’une recherche.
+La formalisation de ces notions
+de besoin et de pertinence est au centre des méthodes de RI.</p>
+<p>En particulier, la formalisation de la pertinence consiste à en donner une
+expression <em>quantitative</em>. Pour cela, l’approche classique consiste</p>
+<blockquote>
+<div><ul>
+<li><p>à définir un espace métrique <em>E</em> doté d’une fonction de <em>distance</em> <span class="math notranslate nohighlight">\(m_E\)</span>,</p></li>
+<li><p>à définir une fonction <span class="math notranslate nohighlight">\(f\)</span> de l’espace des documents vers <em>E</em>; cette fonction s’applique également
+à la requête <em>q</em>, vue comme un document;</p></li>
+<li><p>enfin, on mesure la pertinence (ou <em>similarité</em>) entre
+deux documents <span class="math notranslate nohighlight">\(d_1\)</span> et <span class="math notranslate nohighlight">\(d_2\)</span> comme l’inverse de la distance entre <span class="math notranslate nohighlight">\(f(d_1)\)</span>
+et <span class="math notranslate nohighlight">\(f(d_2)\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[sim(d, q) = \frac{1}{m_E(f(d_1), f(d_2))}\]</div>
+</li>
+</ul>
+</div></blockquote>
+<p>On obtient une mesure de la similarité, ou <em>score</em>, mesurant la proximité de deux documents
+(ou, plus précisément, des vecteurs représentant ces documents). Il reste à interpréter
+la requête <span class="math notranslate nohighlight">\(q\)</span> comme un document et à évaluer <span class="math notranslate nohighlight">\(sim(f(d), f(q))\)</span> pour chaque document <em>d</em>
+afin d’évaluer la pertinence d’un document vis-à-vis du besoin
+exprimé par la requête.</p>
+<p>Avec cette approche, contrairement aux requêtes Booléennes, on ne peut souvent plus dire
+de manière stricte qu’un document <em>d</em> n’appartient
+pas au résultat d’une recherche. Il est plus correct de dire que <em>d</em> est plus ou
+moins <em>pertinent</em>. Cela rend les résultats beaucoup plus riches, et offre à l’utilisateur
+la possibilité d’éviter le « tout ou rien » de l’approche Booléenne.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Reportez-vous au chapitre <a class="reference internal" href="#chap-introri"><span class="std std-ref">Recherche approchée</span></a> pour une discussion
+introductive sur les notions de faux et vrais positifs, de rappel et de précision.</p>
+</div>
+<p>La contrepartie de cette flexibilité est l’abondance des candidats potentiels
+et la nécessité de les <em>classer</em> en fonction de leur pertinence/score. Le rôle d’un
+moteur de recherche consiste donc (conceptuellement), pour chaque requête <em>q</em>,
+à calculer le score <span class="math notranslate nohighlight">\(s_i = sim(q, d_i)\)</span> pour chaque document <span class="math notranslate nohighlight">\(d_i\)</span>
+de la collection, à trier tous les documents par ordre décroissant des scores
+et à présenter ce classement à l’utilisateur.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Il faut ajouter une contrainte de temps: le résultat doit être
+disponible en quelques dizièmes de secondes, même dans le cas de collections
+comprenant des millions, des centaines de millions ou des milliards de documents (cas du Web).
+La performance de la recherche s’appuie sur les structures d’index inversés
+et des optimisations fines qui dépassent le cadre de ce cours:
+reportez-vous, par exemple, au livre en ligne mentionné en début de chapitre.</p>
+</div>
+<p>En pratique, le calcul du score pour <em>tous</em> les documents n’est bien sûr pas
+faisable (ni souhaitable d’ailleurs), et le moteur de recherche dispose de structures
+de données qui vont lui permettre de déterminer rapidement les
+documents ayant le meilleur score. Ces documents (disons les 10 ou 20 premiers, typiquement)
+sont présentés à l’utilisateur, et le reste de la liste est calculé à la demande
+si besoin est. Dans le cas d’une interface interactive (et si le classement
+est réellement pertinent vis-à-vis du besoin), il est rare qu’un utilisateur aille au-delà de la seconde,
+voire même de la première page.</p>
+<p><strong>Vocabulaire</strong>. En résumé, voici les points à retenir.</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>on effectue des calculs dans un espace métrique, le plus souvent un espace vectoriel;</p></li>
+<li><p>pour chaque document, on produit un objet de l’espace métrique, appelé <em>descripteur</em>,
+qui a le plus souvent la forme d’un <em>vecteur</em> (<em>features vector</em>);</p></li>
+<li><p>on applique le même traitement à la requête <em>q</em> pour obtenir un descripteur <span class="math notranslate nohighlight">\(v_q\)</span>;</p></li>
+<li><p>le <em>score</em> est une mesure de la pertinence d’un document <span class="math notranslate nohighlight">\(d_i\)</span> par rapport au
+<em>besoin</em> exprimé par la requête <em>q</em>;</p></li>
+<li><p>le calcul du score s’appuie sur la mesure de la <em>distance</em> entre le descripteur de <span class="math notranslate nohighlight">\(d_i\)</span>
+et celui de <em>q</em>.</p></li>
+</ol>
+</div></blockquote>
+<p>Ces principes étant posés, voyons une application concrète (quoique simplifiée
+pour l’instant, et peu satisfaisante en pratique) au cas de la recherche plein texte.</p>
+</section>
+<section id="application-a-la-recherche-plein-texte">
+<h3>Application à la recherche plein texte<a class="headerlink" href="#application-a-la-recherche-plein-texte" title="Lien permanent vers ce titre">¶</a></h3>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>La méthode présentée ci-dessous n’est qu’une première approche,
+à la fois très simplifiée et présentant de sévères défauts
+par rapport à la méthode générale que nous présenterons ensuite.</p>
+</div>
+<p>Pour commencer, on suppose
+connu l’ensemble <span class="math notranslate nohighlight">\(V=\{t_1, t_2, \cdots, t_n\}\)</span> de tous les termes utilisables pour la rédaction d’un
+document et on définit <em>E</em> comme l’espace de tous les vecteurs
+constitués de <em>n</em> coordonnées valant soit 0, soit 1 (soit,
+en notation mathématique, <span class="math notranslate nohighlight">\(E = \{0, 1\}^{n}\)</span>). Ce sont nos descripteurs.</p>
+<p>Par exemple, on considère que le vocabulaire est {« papa », « maman », « gateau », « chocolat », « haut », « bas »}.
+Nos vecteurs sont donc constitués de 6 coordonnées valant soit 0, soit 1. Il faut alors
+définir la fonction <span class="math notranslate nohighlight">\(f\)</span> qui associe un document <em>d</em> à son descripteur (vecteur) <span class="math notranslate nohighlight">\(v = f(d)\)</span>.
+Voici cette définition:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}v[i] = \left\{
+          \begin{array}{ll}
+            1 \text{ si $d$ contient le terme $t_i$}\\
+            0 \text{ sinon}
+          \end{array}
+        \right.\end{split}\]</div>
+<p>C’est exactement la représentation que nous avons adoptée jusqu’à présent. À chaque
+document on associe une séquence (un vecteur) de 1 ou de 0 selon que le terme <span class="math notranslate nohighlight">\(t_i\)</span>
+est présent ou non dans le document.</p>
+<p>Prenons un premier exemple. Le document <span class="math notranslate nohighlight">\(d_{maman}\)</span>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;maman est en haut, qui fait du gateau&quot;</span>
+</pre></div>
+</div>
+<p>sera représenté par le descripteur/vecteur <span class="math notranslate nohighlight">\([0, 1, 1, 0, 1, 0]\)</span>. Je vous laisse
+calculer le vecteur de ce second document <span class="math notranslate nohighlight">\(d_{papa}\)</span>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;papa est en bas, qui fait du chocolat&quot;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Remarquez que l’on choisit délibérément d’ignorer certains mots considérés
+comme peu représentatifs du contenu du document. Ce sont les <em>stop words</em> (mots
+inutiles) comme « est », « en », « qui », « fait », etc.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Remarquez également que <em>l’ordre des mots</em> dans le document est ignoré
+par cette représentation qui considère un texte comme un « sac de mots » (<em>bag of words</em>).
+Si on prend un document contenant les deux phrases ci-dessus, on ne sait
+plus distinguer si papa est en haut ou en bas, ou si maman
+fait du gateau ou du chocolat.</p>
+</div>
+<p>Maintenant, contrairement à la recherche Booléenne
+dans laquelle on vérifiait que, pour chaque terme requis, la position correspondante dans le vecteur
+d’un document était à 1, on va appliquer une fonction de distance sur les vecteurs
+afin d’obtenir une valeur entre 0 et 1 mesurant la pertinence.
+Un candidat naturel est la distance Euclidienne dont nous rappelons la définition,
+pour deux vecteurs <span class="math notranslate nohighlight">\(v_1\)</span> et <span class="math notranslate nohighlight">\(v_2\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[E(v_1, v_2) = \sqrt{(v_1^1 - v^1_2)^2 + (v^2_1 - v^2_2)^2 + \cdots + (v_1^n - v^n_2)^2}\]</div>
+<p>Et la similarité est l’inverse de la distance.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}sim(v_1, v_2) = \left\{
+          \begin{array}{ll}
+            \infty \text{ si $v^i_1=v^i_2$ pour tout $i$ }\\
+            \frac{1}{E(v_1, v_2)}  \text{ sinon}
+          \end{array}
+        \right.\end{split}\]</div>
+<p>On obtient une mesure de la similarité, ou <em>score</em>, mesurant la proximité de deux documents
+(ou, plus précisément, des vecteurs représentant ces documents).</p>
+<p>Il reste à interpréter
+la requête comme un document et à évaluer <span class="math notranslate nohighlight">\(sim(f(d), f(q))\)</span> pour chaque document <em>d</em>
+et la requête <em>q</em> pour évaluer la pertinence d’un document vis-à-vis du besoin
+exprimé par la requête. La requête <em>q</em> par exemple:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;maman haut chocolat&quot;</span>
+</pre></div>
+</div>
+<p>est donc transformée en un vecteur <span class="math notranslate nohighlight">\(v_q = [0, 1, 0, 1, 1, 0]\)</span>. Pour le document
+<span class="math notranslate nohighlight">\(d_{maman}\)</span>, on obtient un score
+de <span class="math notranslate nohighlight">\(sim (v_q, d_{maman}) = \frac{1}{\sqrt{2}}\)</span>.  À vous de calculer
+<span class="math notranslate nohighlight">\(sim (v_q, d_{papa})\)</span> et de vérifier que ce score est moins elevé, ce qui correspond
+à notre intuition. Notez quand même:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>que « chocolat », un des mots-clés de <em>q</em>, n’apparaît pas dans le document <span class="math notranslate nohighlight">\(d_{maman}\)</span>, malgré tout classé en tête;</p></li>
+<li><p>qu’un seul terme est commun entre <span class="math notranslate nohighlight">\(d_{papa}\)</span> et <em>q</em>, et que le document est quand même (bien) classé;</p></li>
+<li><p>qu’un document comme « <code class="docutils literal notranslate"><span class="pre">bébé</span> <span class="pre">mange</span> <span class="pre">sa</span> <span class="pre">soupe</span></code> » obtiendrait un score non nul (lequel?) et serait donc lui aussi
+classé (si on ne met pas de borne à la valeur du score).</p></li>
+</ul>
+</div></blockquote>
+<p>Une différence concrète très sensible (illustrée ci-dessus) avec les requêtes Booléennes
+est qu’il n’est pas nécessaire
+qu’un document contienne <em>tous</em> les termes de la requête pour que son score soit
+différent de 0.</p>
+<p>Les limites de l’approche présentée jusqu’ici sont explorées dans des
+exercices. La méthode beaucoup plus robuste détaillée dans la prochaine section
+montrera aussi, par contraste, coment des facteurs comme la taille des documents,
+la taille du vocabulaire, le nombre d’occurrences d’un terme dans un document
+et la rareté de ce terme influent sur la précision du classement.</p>
+</section>
+<section id="id2">
+<h3>Quiz<a class="headerlink" href="#id2" title="Lien permanent vers ce titre">¶</a></h3>
+<div class="reauthoring_embedded_quiz" id="ri-rank1-1"><form class="reauthoring_embedded_quiz_questions"><p>Quelle est la différence entre un espace métrique (EM) et un espace vectoriel (EV)?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Les données d’un EM sont ordonnées, contraitrement aux vecteurs</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Il existe une fonction de distance dans un EM, et pas dans un EV</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Un EV est un type particulier d’espace métrique</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="ri-rank1-12"><form class="reauthoring_embedded_quiz_questions"><p>Laquelle de ces propriétés n’est pas nécessaire pour une distance</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> La symétrie</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> L’inégalité triangulaire</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> La valeur est comprise entre 0 et 1</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> La distance est nulle ssi les deux objets sont les mêmes</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="ri-rank1-2"><form class="reauthoring_embedded_quiz_questions"><p>Quelle explication de la notion de « bag of words » vous semble la bonne.</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Chaque texte est représenté par un sous-ensemble de ses mots, c’est le « sac »</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Le texte est considéré comme un ensemble de mots sans ordre, comme
+s’ils étaient dans un « sac »</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Les textes sont projetés dans un espace vectoriel appelé « sac de mots ».</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="ri-rank1-3"><form class="reauthoring_embedded_quiz_questions"><p>Pourquoi est-il plus correct de parler de distance entre les représentations des documents
+que de distance entre les documents eux-mêmes?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Parce qu’il peut y avoir plusieurs représentations possibles d’un même
+document, ce qui peut influer sur la distance</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Parce que la distance naturelle entre deux documents textuels est trop coûteuse
+à calculer</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Parce que cela permet d’appliquer une même distance à des documents multimédia
+quelconques: images, vidéos, etc.</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="ri-rank1-4"><form class="reauthoring_embedded_quiz_questions"><p>Comment est interprétée une requête <em>q</em> ?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> C’est une séquence d’opérations à appliquer à la collection</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> C’est une spécification de critères de recherche filtrant la collection</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> C’est un document de même type que ceux de la collection</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> C’est une sous-chaîne des documents textuels de la collection</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="ri-rank1-5"><form class="reauthoring_embedded_quiz_questions"><p>Qu’est-ce qui détermine le classement du résultat?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> On calcule toutes les distances entre chaque paire de documents, et on trie.</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> On calcule la distance par rapport à un document de référence: la requête</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Les documents qui contiennent le plus de termes sont classés en premier</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="ri-rank1-6"><form class="reauthoring_embedded_quiz_questions"><p>Qu’est-ce qu’un <em>stop word</em></p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> On exclut les documents qui contiennent ce mot</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> C’est un mot courant qui n’informe pas sur le document</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> C’est un mot qui déclenche l’arrêt de la recherche quand il est rencontré</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="ri-rank1-7"><form class="reauthoring_embedded_quiz_questions"><p>Un document doit contenir tous les mots de la requête pour être pertinent</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Vrai</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Faux</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="ri-rank1-8"><form class="reauthoring_embedded_quiz_questions"><p>Quelle propriété de la distance euclidienne est vraie?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> On ne prend en compte que les 1</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> On ne prend en compte que les 0</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> On prend en compte toutes les coordonnées des vecteurs</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> On prend en compte les coordonnées du vecteur décrivant la requête</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div></section>
+</section>
+<section id="s4-recherche-plein-texte">
+<h2>S4: recherche plein  texte<a class="headerlink" href="#s4-recherche-plein-texte" title="Lien permanent vers ce titre">¶</a></h2>
+<p>Supports complémentaires:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference external" href="http://b3d.bdpedia.fr/files/slri-ranking-fulltextsearch.pdf">Présentation: Recherche plein texte</a></p></li>
+<li><p><a class="reference external" href="https://mediaserver.lecnam.net/permalink/v125f35a3b0588uwz8x9/">Vidéo de la session classement dans la recherche plein texte</a></p></li>
+</ul>
+</div></blockquote>
+<p>Nous reprenons maintenant un approche plus solide pour la recherche plein texte,
+qui pour l’essentiel s’appuie sur les principes précédents, mais corrige les
+gros inconvénients que vous avez dû découvrir en complétant les exercices.</p>
+<p>La méthode présentée dans ce qui suit est maintenant bien établie et utilisée,
+à quelques raffinements près, comme approche de base par tous les moteurs de recherche.
+Résumons (une nouvelle fois):</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>les documents (textuels) sont vus comme des <em>sacs de mots</em>, l’ordre entre les mots étant
+ignoré; on ne fera pas de différence entre un document qui dit que le mouton est
+dans la gueule du loup et un autre qui prétend  que le loup est dans la gueule du mouton (?);</p></li>
+<li><p>quand on parle de « mots », il faut bien comprendre: les termes obtenus par application
+d’un processus de simplification / normalisation lexicale déjà étudié;</p></li>
+<li><p>un descripteur est associé à chaque document, dans un espace doté d’une fonction
+de distance qui permet d’estimer la similarité entre deux documents;</p></li>
+<li><p>enfin, la <em>requête</em> elle-même est vue comme un document, et placée donc dans le même espace;
+on considère donc ici les requêtes exprimées comme une liste de mots, sans aucune construction
+syntaxique complémentaire.</p></li>
+</ul>
+</div></blockquote>
+<p>Ceci posé, nous nous concentrons sur la fonction de similarité.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>« mot » et « terme » sont utilisés comme des synonymes à partir de maintenant.</p>
+</div>
+<section id="le-poids-des-mots">
+<h3>Le poids des mots<a class="headerlink" href="#le-poids-des-mots" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Dans l’approche très simplifiée présentée ci-dessus, nous avons traité les mots uniformément,
+selon une approche Booléenne: 1 si le mot est présent dans le document, 0 sinon.</p>
+<p>Pour obtenir des résultats de meilleure qualité, on va prendre en compte
+les degrés de pertinence et d’information portés par un terme, selon deux principes:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>plus un terme est présent dans un document, plus il est représentatif du contenu du document;</p></li>
+<li><p>moins un terme est présent dans une collection, et plus une occurrence de terme est significative.</p></li>
+</ol>
+</div></blockquote>
+<p>De plus, on va tenter d’éliminer le biais lié à la longueur variable
+des documents. Il est clair que plus un document est long, et plus il contiendra
+de mots et de répétitions d’un même mot. Si on n’introduit pas un élément correctif,
+la longueur des documents a donc un impact fort sur le résultat d’une recherche et
+d’un classement, ce qui n’est pas forcément souhaitable.</p>
+<p>En tenant compte de ces facteurs, on aboutit à affecter un <em>poids</em>
+à chaque mot dans un document, et à représenter ce dernier comme un vecteur
+de paires <em>(mot, poids)</em>, ce qui peut être considéré comme une représentation compacte
+du contenu du document.  La méthode devenue classique pour déterminer le poids est
+de combiner la <em>fréquence des termes</em> et la <em>fréquence inverse (des termes) dans
+les documents</em>, ce que l’on abrège par <em>tf</em> (<em>term frequency</em>)
+et <em>idf</em> (<em>inverse document frequency</em>).</p>
+<section id="la-frequence-des-termes">
+<h4>La fréquence des termes<a class="headerlink" href="#la-frequence-des-termes" title="Lien permanent vers ce titre">¶</a></h4>
+<p>La <em>fréquence d’un terme t</em> dans un document <em>d</em> est le nombre d’occurrences de
+<em>t</em> dans <em>d</em>.</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{tf}(t,d)= n_{t,d}\]</div>
+<p>où <span class="math notranslate nohighlight">\(n_{t,d}\)</span> est le nombre d’occurrences de <em>t”</em> dans <em>d</em>. On
+représente donc un document par la liste des termes associés à leur fréquence. Si
+on prend une collection de documents, dans laquelle certains termes apparaissent
+dans plusieurs documents (ce qui est le cas normal), on peut représenter
+les <em>tf</em> par une matrice semblable à la matrice d’incidence déjà vue
+dans la cas Booléen. Celle ci-dessous correspond à une collection de trois documents,
+avec un vocabulaire constitué de 4 termes.</p>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>terme</p></th>
+<th class="head"><p>d1</p></th>
+<th class="head"><p>d2</p></th>
+<th class="head"><p>d3</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>voiture</p></td>
+<td><p>27</p></td>
+<td><p>15</p></td>
+<td><p>24</p></td>
+</tr>
+<tr class="row-odd"><td><p>marais</p></td>
+<td><p>3</p></td>
+<td><p>20</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p>serpent</p></td>
+<td><p>0</p></td>
+<td><p>25</p></td>
+<td><p>29</p></td>
+</tr>
+<tr class="row-odd"><td><p>baleine</p></td>
+<td><p>14</p></td>
+<td><p>0</p></td>
+<td><p>17</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>total</cite></p></td>
+<td><p><cite>44</cite></p></td>
+<td><p><cite>60</cite></p></td>
+<td><p><cite>70</cite></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="normalisation-des-tf">
+<h4>Normalisation des <em>tf</em><a class="headerlink" href="#normalisation-des-tf" title="Lien permanent vers ce titre">¶</a></h4>
+<p>Il y a donc 44 termes dans le document <em>d1</em>, 60 dans le <em>d2</em> et 70 dans le <em>d3</em>. Il est clair qu’il est difficile
+de comparer dans l’absolu des fréquences de terme pour des documents de longueur très différentes, car
+la probabilité qu’un terme apparaisse souvent augment avec la taille du document.</p>
+<p>Pour s’affranchir de l’effet induit par la taille (qui amènerait à classer systématiquement en tête les
+documents longs), on <em>normalise</em> donc les valeurs des <em>tf</em>. Une méthode simple est, par exemple,
+de diviser chaque <em>tf</em> par le nombre total de termes dans le document, ce qui donnerait la
+matrice suivante:</p>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>terme</p></th>
+<th class="head"><p>d1</p></th>
+<th class="head"><p>d2</p></th>
+<th class="head"><p>d3</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>voiture</p></td>
+<td><p>27/44</p></td>
+<td><p>15/60</p></td>
+<td><p>24/70</p></td>
+</tr>
+<tr class="row-odd"><td><p>marais</p></td>
+<td><p>3/44</p></td>
+<td><p>20/60</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p>serpent</p></td>
+<td><p>0</p></td>
+<td><p>25/60</p></td>
+<td><p>29/70</p></td>
+</tr>
+<tr class="row-odd"><td><p>baleine</p></td>
+<td><p>14/44</p></td>
+<td><p>0</p></td>
+<td><p>17/70</p></td>
+</tr>
+</tbody>
+</table>
+<p>Un calcul un peu plus sophistiqué consiste à considérer l’ensemble une colonne de la matrice
+d’incidence comme un vecteur dans un espace multidimensionel. Dans notre exemple l’espace
+est de dimension 4, chaque axe correspondant à l’un des termes. Le vecteur de <em>d1</em>
+est (27, 3, 0, 14), celui de <em>d2</em> (15,20, 25,0), etc.
+Pour normaliser ces vecteurs, on va diviser leurs coordonnées par leur norme euclidienne.
+Rappel: la norme d’un vecteur <span class="math notranslate nohighlight">\(v = (x_1, x_2, \cdots, x_n)\)</span> est</p>
+<div class="math notranslate nohighlight">
+\[||v|| = \sqrt{x_1^2 + x_2^2 + \cdots + x_n^2}\]</div>
+<p>La norme du vecteur <em>d1</em> est donc:</p>
+<div class="math notranslate nohighlight">
+\[\sqrt{27^2 + 3^2 + 14^2} =  30,56\]</div>
+<p>Celle de <em>d2</em>:</p>
+<div class="math notranslate nohighlight">
+\[\sqrt{15^2 + 20^2 + 25^2} =  35,35\]</div>
+<p>Celle de <em>d3</em>:</p>
+<div class="math notranslate nohighlight">
+\[\sqrt{24^2 + 29^2 + 17^2} =  41,3\]</div>
+<p>On voit que le résultat est assez différent de la simple somme des <em>tf</em>. L’interprétation
+des descripteurs de documents comme des vecteurs est à la base d’un calcul de similarité
+basé sur les cosinus, que nous détaillons ci-dessous.</p>
+</section>
+<section id="la-frequence-inverse-dans-les-documents">
+<h4>La fréquence inverse dans les documents<a class="headerlink" href="#la-frequence-inverse-dans-les-documents" title="Lien permanent vers ce titre">¶</a></h4>
+<p>La fréquence inverse d’un terme dans les documents (<em>inverse document
+frequency</em>, ou <em>idf</em>) mesure l’importance d’un terme par rapport à une
+collection <em>D</em> de documents. Un terme qui apparaît rarement peut être considéré
+comme plus caractéristique d’un document qu’un autre, très commun. On retrouve
+l’idée des mots inutiles, avec un raffinement consistant à mesurer le degré
+d’utilité.</p>
+<p>L’idf d’un terme <em>t</em>  est obtenu en divisant le nombre total de documents par
+le nombre de documents contenant au moins une occurrence de <em>t</em>. De plus, on prend
+le logarithme de cette fraction pour conserver cette valeur dans un intervalle
+comparable à celui du <em>tf</em>.</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{idf}(t)=\log\frac{|D|}{\left|\left\{d' \in D\,|\,n_{t,d'}&gt;0\right\}\right|}\]</div>
+<p>Notez que si on ne prenait pas le logarithme, la valeur de l’idf pourrait
+devenir très grande, et rendrait négligeable l’autre composante du poids d’un
+terme. La base du logarithme est 10 en général, mais quelle que soit la base,
+vous noterez que l’idf est nul dans le cas d’un terme apparaissant dans <em>tous</em>
+les documents (c’est clair? sinon réfléchissez!).</p>
+<p>Reprenons notre matrice ci-dessus en supposant que la collection se limite
+aux trois documents. Alors</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>l’idf de « voiture » est 0, car il apparaît dans tous les documents. Intuitivement, « voiture »
+est (pour la collection étudiée) tellement courant qu’il n’apporte rien comme critère de recherche.</p></li>
+<li><p>l’idf de « marais », « serpent » et « baleine »   est <span class="math notranslate nohighlight">\(log(3/2)\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Dans un cas plus réaliste, un terme qui apparaît 100 fois dans une collection d’un million de documents aura
+un idf de <span class="math notranslate nohighlight">\(log_{10}(1000000/100) = log_{10}(10000) = 4\)</span> (en base 10). Un terme qui n’apparaît
+que 10 fois aura un idf de <span class="math notranslate nohighlight">\(log_{10}(1000000/10) = log_{10}(100000) = 5\)</span>. Une valeur d’idf plus élevée
+indique le terme est relativement plus important car plus rare.</p>
+</section>
+<section id="le-poids-tf-idf">
+<h4>Le poids tf.idf<a class="headerlink" href="#le-poids-tf-idf" title="Lien permanent vers ce titre">¶</a></h4>
+<p>On peut combiner le tf (normalisé ou non) et l’idf pour obtenir le poids tf.idf d’un terme <em>t</em> dans un document.
+C’est simplement le produit des deux valeurs précédentes:</p>
+<div class="math notranslate nohighlight">
+\[\mathop{\mathrm{tf{.}idf}}(t,d)= n_{t,d}\cdot \log\frac{|D|}{\left|\left\{d'\in D\,|\,n_{t,d'}&gt;0\right\}\right|}\]</div>
+<p>À chaque document <em>d</em> nous associons un vecteur <span class="math notranslate nohighlight">\(v_d\)</span> dont chaque composante <span class="math notranslate nohighlight">\(v_d[i]\)</span>
+contient le tf.idf du terme <span class="math notranslate nohighlight">\(t_i\)</span> pour <em>d</em>.</p>
+<p>Si le tf n’est pas normalisé,  les valeurs des tf.idf
+seront d’autant plus élevées que le document est long. En terme de stockage (et pour anticiper un peu sur la
+structure des index inversés), il est préférable de stocker</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>l’idf à part, dans une structure indexée par le terme,</p></li>
+<li><p>la norme des vecteurs à part, dans une structure indexéee par les documents</p></li>
+<li><p>et enfin de placer dans chaque cellule la valeur du tf.</p></li>
+</ul>
+</div></blockquote>
+<p>On peut alors effectuer le produit tf.idf et la division par la norme au moment du calcul de la distance.</p>
+</section>
+</section>
+<section id="la-similarite-cosinus">
+<h3>La similarité cosinus<a class="headerlink" href="#la-similarite-cosinus" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Nous avons donc des vecteurs représentant les documents. La requête
+est elle aussi représentée par un vecteur  dans lequel les coefficients
+des mots sont à 1.  Comment calculer la distance entre ces vecteurs?
+Si on prend comme mesure la norme de la différence entre deux vecteurs comme nous l’avons fait
+initialement, des anomalies sévères apparaissent car deux documents peuvent avoir des
+contenus semblables mais des tailles très différentes. La distance Euclidienne n’est donc
+pas un bon candidat.</p>
+<p>On pourrait mesure la distance euclidienne entre les vecteurs normalisés.
+Une mesure plus adaptée en pratique  est la <em>similarité cosinus</em>. Commençons par quelques rappels,
+en commençant par la formule du <em>produit scalaire</em> de deux vecteurs.</p>
+<div class="math notranslate nohighlight">
+\[v_1 . v_2  = ||v_1|| \times ||v_2|| \times cos \theta = \sum_{i=1}^n v_1[i] \times v_2[i]\]</div>
+<p>où <span class="math notranslate nohighlight">\(\theta\)</span> désigne l’angle entre les deux vecteurs et <span class="math notranslate nohighlight">\(||v||\)</span> la norme d’un vecteur
+<em>v</em> (sa longueur Euclidienne).</p>
+<p>On en déduit donc que le cosinus de l’angle entre deux vecteurs satisfait:</p>
+<div class="math notranslate nohighlight">
+\[cos { } \theta  = \frac{\sum_{i=1}^n v_1[i] \times v_2[i]}{||v_1|| \times ||v_2||}\]</div>
+<p>Quel est l’intérêt de prendre ce cosinus comme mesure de similarité? L’idée est que l’on compare
+la <em>direction</em> de deux vecteurs, indépendamment de leurs longueurs. La  <a class="reference internal" href="#cosinesim"><span class="std std-numref">Fig. 36</span></a>
+montre la représentation des vecteurs pour nos documents de l’exercice <a class="reference internal" href="#ex-s3-1">Ex-S3-1</a>. Les
+vecteurs en ligne pleine sont les vecteurs unitaires, normalisés, les lignes pointillées
+montrant les vecteurs complets. Pour des raisons d’illustration,
+l’espace est réduit à deux dimensions correspondant  aux deux termes, « loup » et « bergerie ».
+Il faut imaginer un espace vectoriel de dimension <em>n</em>, <em>n</em> étant le nombre
+de termes dans la collection, et donc potentiellement très grand.</p>
+<figure class="align-center" id="id10">
+<span id="cosinesim"></span><a class="reference internal image-reference" href="_images/CosineSim.png"><img alt="_images/CosineSim.png" src="_images/CosineSim.png" style="width: 60%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 36 </span><span class="caption-text">Illustration de la similarité cosinus</span><a class="headerlink" href="#id10" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+<p>Les documents (B) et (D) contiennent respectivement une occurrence de « bergerie » et une de « loup »:
+ils sont alignés avec les axes respectifs.</p>
+<p>Le  document (A) contient une occurrence de « loup »
+et une de « bergerie » et fait donc un angle de 45 degrés avec l’abcisse: le cosinus de cet angle,
+égal à <span class="math notranslate nohighlight">\(\sqrt{2}/2\)</span>, représente la similarité entre A et B.</p>
+<p>En ce qui concerne C,
+« loup » est mentionné deux fois et « bergerie » une, d’où un angle plus important avec l’abcisse.</p>
+<p>Le fait d’avoir comme dénominateur
+dans la formule le produit des normes revient à normaliser le calcul en ne considérant que des
+vecteurs de longueur unitaire.  La mesure satisfait aussi des conditions satisfaisantes
+intuitivement:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>l’angle entre deux vecteurs de même direction est 0, le cosinus vaut 1;</p></li>
+<li><p>l’angle entre deux vecteurs orthogonaux, donc « indépendants » (aucun terme en commun),
+est 90 degrés, le cosinus vaut 0;</p></li>
+<li><p>toutes les autres valeurs possibles (dans la mesure où les coefficients de nos vecteurs sont
+positifs) varient continuement entre 0 et 1 avec la variation de l’angle entre 0 et 90 degrés.</p></li>
+</ul>
+</div></blockquote>
+<p>Dernier atout: la similarité cosinus est très simple à calculer, et très rapide pour des vecteurs
+comprenant de nombreuses composantes à 0, ce qui est le cas pour la représentation des documents.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>La similarité cosinus n’est pas une distance au sens strict du terme (l’inégalité triangulaire
+n’est pas respectée), mais ses propriétés en font un excellent candidat.</p>
+</div>
+<p>Passons à la pratique sur notre exemple de trois documents représentés par la matrice
+donnée précédemment. On va ignorer l’idf pour faire simple, et se contenter de prendre en compte
+le tf.</p>
+<p>Commençons par une requête simplissime: « voiture ». Cette requête est représentée dans l’espace
+de dimension 4 de notre vocabulaire par le vecteur (1, 0, 0, 0), dont la norme est 1.
+On pourrait croire qu’il suffit de prendre le classement des <em>tf</em>
+du terme concerné, sans se lancer dans des calculs compliqués, auquel cas
+<em>d1</em> arriverait en tête juste devant <em>d3</em>. <em>Erreur!</em> Ce qui compte ce n’est pas
+la fréquence d’un terme, mais sa proportion par rapport aux autres. Il faut appliquer le
+calcul cosinus rigoureusement.</p>
+<p>Calculons donc les cosinus. Pour d1, le cosinus vaut est le produit scalaire des
+vecteurs (27, 3, 0, 14) et (1, 0, 0, 0), divisé par le produit de la norme de ces deux vecteurs:</p>
+<div class="math notranslate nohighlight">
+\[\frac{27 \times 1 + 3 \times 0 + 0 \times 0 + 14 \times 0}{1  \times 30,56} = 0,88\]</div>
+<p>Pour les autres documents:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Pour d2, le cosinus vaut : <span class="math notranslate nohighlight">\(\frac{15 + 0 + 0 + 0}{1 \times 35,35} = 0,424\)</span></p></li>
+<li><p>Pour d3, le cosinus vaut : <span class="math notranslate nohighlight">\(\frac{24 + 0 +0 +0}{1,41 \times 41,3} = 0,58\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Le classement est d1, d3, d2, et on voit que <em>d1</em> l’emporte assez nettement sur <em>d3</em> alors que
+le nombre d’occurrences du terme « voiture » est à peu près le même dans les deux cas. Explication:
+<em>d1</em> parle <em>essentiellement</em> de voiture, le second terme le plus important, « baleine », ayant moins
+d’occurrences. Dans <em>d3</em> au contraire, « serpent » est le terme principal, « voiture » arrivant en second.
+Le document <em>d1</em> est donc plus pertinent pour la requête et doit être classé en premier.</p>
+<p>Prenons un second exemple, « voiture » et « baleine ». Remarquons d’abord que les coefficients de la requête sont (1, 0, 0, 1) et
+sa norme <span class="math notranslate nohighlight">\(\sqrt{1+1} = 1,41\)</span>. Voici les calculs cosinus:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Pour d1, le cosinus vaut : <span class="math notranslate nohighlight">\(\frac{27 + 14}{1,41 \times 30,56} = 0,95\)</span></p></li>
+<li><p>Pour d2, le cosinus vaut : <span class="math notranslate nohighlight">\(\frac{15 + 0}{1,41 \times 35,35} = 0,30\)</span></p></li>
+<li><p>Pour d3, le cosinus vaut : <span class="math notranslate nohighlight">\(\frac{24 + 17}{1,41 \times 41,3} = 0,70\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>L’ordre est donc d1, d3, d2. Le document d3 présente un meilleur équilibre
+entre les composantes <code class="docutils literal notranslate"><span class="pre">voiture</span></code> et  <code class="docutils literal notranslate"><span class="pre">baleine</span></code>, mais, contrairement
+à d1, il a une autre composante forte pour <code class="docutils literal notranslate"><span class="pre">serpent</span></code>
+ce qui diminue sa similarité.</p>
+</section>
+<section id="id3">
+<h3>Quiz<a class="headerlink" href="#id3" title="Lien permanent vers ce titre">¶</a></h3>
+<div class="reauthoring_embedded_quiz" id="ri-tfidf-1"><form class="reauthoring_embedded_quiz_questions"><p>Pourquoi un terme est-il considéré comme important pour un document?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Parce qu’il est rare dans le document</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Parce qu’il est rare dans la collection</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Parce qu’il est fréquent dans la collection et rare dans le document</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Parce qu’il est rare dans la collection et fréquent dans le document</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="ri-tfidf-1a"><form class="reauthoring_embedded_quiz_questions"><p>Je soumets une requête <span class="math notranslate nohighlight">\(t_1 t_2 \cdots t_n\)</span>. Quel est le tf de chaque terme
+dans le vecteur représentant cette requête?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  <span class="math notranslate nohighlight">\(\frac{1}{n}\)</span></p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img>  1</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  <span class="math notranslate nohighlight">\(\frac{1}{\sqrt{n}}\)</span></p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="ri-tfidf-1b"><form class="reauthoring_embedded_quiz_questions"><p>La normalisation de ce vecteur-requête est elle
+importante pour le classement ?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Non puisque cela revient à multiplier tous les rangs par une constante positive, et
+ne change donc pas l’ordre.</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Oui car c’est la condition pour permettre le calcul du cosinus</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Non car la normalisation n’a de sens que pour les documents, pas pour la requête</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="ri-tfidf-1c"><form class="reauthoring_embedded_quiz_questions"><p>Dans la figure <a class="reference internal" href="#euclidiandistance"><span class="std std-numref">Fig. 37</span></a>, qu’obtient-on en projetant un vecteur sur l’axe d’un terme <em>t</em> ?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> La norme du vecteur multipliée par le cosinus</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> L’idf du terme <em>t</em></p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Le tf du terme <em>t</em></p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Le tf.idf du terme <em>t</em></p></li>
+</ol>
+<figure class="align-center" id="id11">
+<span id="euclidiandistance"></span><a class="reference internal image-reference" href="_images/euclidiandistance.png"><img alt="_images/euclidiandistance.png" src="_images/euclidiandistance.png" style="width: 50%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 37 </span><span class="caption-text">Vecteurs dans un espace Euclidien</span><a class="headerlink" href="#id11" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="ri-tfidf-2"><form class="reauthoring_embedded_quiz_questions"><p>On exprime une requête avec un seul terme. Est-ce que l’idf du terme a une importance pour
+le classement?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Non puisque cela ne change pas la direction du vecteur</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Oui car cela change sa norme</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Non car son idf est forcément égal à 1 dans ce cas</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="ri-tfidf-3"><form class="reauthoring_embedded_quiz_questions"><p>Quel est le but de la normalisation ?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Unifier la taille des vecteurs décrivant les documents</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Effacer les écarts entre les fréquences de termes dans un document</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Utiliser une même représentation pour tous les documents</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="ri-tfidf-4"><form class="reauthoring_embedded_quiz_questions"><p>Comment caractériser un mot qui n’a aucun intérêt pour une recherche?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> C’est un mot dont l’idf vaut 1</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> C’est un mot dont l’idf vaut 0</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> C’est un mot qui n’apparaît que dans un seul document</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="ri-tfidf-41"><form class="reauthoring_embedded_quiz_questions"><p>Quelle propriété est vraie pour le calcul de la similarité cosinus entre deux documents</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> On doit prendre en compte toutes les coordonnées des vecteurs</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> On ne prend en compte que les paires de coordonnées non nulles</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> On ne prend en compte que les paires dont une coordonnée est non nulle</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img>  On ne prend en compte que les paires de coordonnées (0,0)</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="ri-tfidf-5"><form class="reauthoring_embedded_quiz_questions"><p>Deux documents de même longueur contiennent tous les deux le même nombre
+d’occurrences d’un terme <em>t</em>. Que peut-on en déduire sur le classement
+de ces documents si je fais une recherche avec l’unique terme <em>t</em>?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Ils seront tous les deux classés en tête avec une valeur cosinus de 1</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Leur classement sera le même, mais pas forcément en tête</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Leur classement dépend, pour chacun, des co-occurrences avec d’autres termes
+différents de <em>t</em></p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div><div class="reauthoring_embedded_quiz" id="ri-tfidf-6"><form class="reauthoring_embedded_quiz_questions"><p>Je soumets une requête composée de deux termes: <span class="math notranslate nohighlight">\(t_1\)</span>  et <span class="math notranslate nohighlight">\(t_2\)</span>, qui ont le même idf. Chaque document
+contient soit <span class="math notranslate nohighlight">\(t_1\)</span>, soit <span class="math notranslate nohighlight">\(t_2\)</span>, une seule fois,  et jamais les deux ensemble. Quel
+sera le résultat?</p>
+<ol class="upperalpha eqt-answer-list simple">
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Ils seront tous les deux classés en tête avec une valeur cosinus de 1</p></li>
+<li><p><input type="radio" name="question" value="I" />  <img class="result_icon" style="display: none;"       src="_static/Incorrect_20x20.png"></img> Leur classement sera le même, mais pas forcément en tête</p></li>
+<li><p><input type="radio" name="question" value="C" />  <img class="result_icon" style="display: none;"       src="_static/Correct_20x20.png"></img> Les documents sont classés selon leur taille</p></li>
+</ol>
+</form><div class="reauthoring_embedded_quiz_buttons"><input class="reauthoring_quiz_button reauthoring-grade"        style="display:none;"        type="button" value="Vérifier" /><input class="reauthoring_quiz_button reauthoring-again"        style="display:none;"        type="button" value="Nouvel essai" /><input class="reauthoring_quiz_button reauthoring-solution"        style="display:none;"        type="button" value="Solution" />  <img class="correct_icon" style="opacity: 0;"       src="_static/Correct_20x20.png"></img>  <img class="incorrect_icon" style="opacity: 0;"       src="_static/Incorrect_20x20.png"></img><span class="reauthoring-embedded-answer"></span></div></div></section>
+</section>
+<section id="exercices">
+<h2>Exercices<a class="headerlink" href="#exercices" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="admonition-exercice-ex-s1-1-precision-et-rappel-calculons admonition" id="ex-s1-1">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-s1-1">Ex-S1-1</a>: précision et rappel, calculons</p>
+<p>Voici une matrice donnant les faux positifs et faux négatifs, vrais positifs et vrais négatifs
+pour une recherche.</p>
+<span id="conmat"></span><table class="colwidths-given docutils align-default" id="id12">
+<caption><span class="caption-number">Tableau 10 </span><span class="caption-text">Table de contingence</span><a class="headerlink" href="#id12" title="Lien permanent vers ce tableau">¶</a></caption>
+<colgroup>
+<col style="width: 43%" />
+<col style="width: 29%" />
+<col style="width: 29%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Pertinent</p></th>
+<th class="head"><p>Non pertinent</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Ramené (positif)</p></td>
+<td><p>50</p></td>
+<td><p>10</p></td>
+</tr>
+<tr class="row-odd"><td><p>Non ramené (négatif)</p></td>
+<td><p>30</p></td>
+<td><p>120</p></td>
+</tr>
+</tbody>
+</table>
+<p>Quelques questions:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Donnez la précision et le rappel.</p></li>
+<li><p>Quelle méthode stupide donne toujours un rappel maximal?</p></li>
+<li><p>Quelles sont les valeurs possibles pour la précision si je tire un seul document au hasard?</p></li>
+<li><p>Si j’effectue un tirage aléatoire, que penser de l’évolution de la précision et du rappel
+en fonction de la taille du tirage ?</p></li>
+</ul>
+</div></blockquote>
+<div class="admonition-correction admonition">
+<p class="admonition-title">Correction</p>
+<ul class="simple">
+<li><p>Précision: 50 / 60</p></li>
+<li><p>Rappel: 50 / 80</p></li>
+<li><p>Ramener tous les documents</p></li>
+<li><p>La précision est soit 1, soit 0.</p></li>
+<li><p>Avec un tirage aléatoire, la relation entre espérance du rappel (plus précisément de
+l’espérance du rappel) et
+nombre de résultats est monotone croissante. La proportion pertinents / non pertinents
+reste constante en espérance. Evidemment, plus l’échantillon est restreint, plus
+cette hypothèse se fragilise, avec donc une variance qui augmente.</p></li>
+</ul>
+</div>
+</div>
+<div class="admonition-exercice-ex-s1-2-precision-et-rappel-reflechissons admonition" id="ex-s1-2">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-s1-2">Ex-S1-2</a>: précision et rappel, réfléchissons.</p>
+<p>Soit un système qui affiche systématiquement 20 documents, ni plus ni moins, pour toutes les recherches. Indiquez
+quel est la précision et le rappel dans les cas suivants:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Mon besoin de recherche correspond à un document unique de la collection, il est affiché parmi les 20.</p></li>
+<li><p>Ma base contient 100 documents, je veux tous les obtenir, le système m’en renvoie 20.</p></li>
+<li><p>Je fais une recherche dont je sais qu’elle devrait me ramener 30 documents. Parmi les
+20 que renvoie le système, je n’en retrouve que 10 parmi ceux attendus.</p></li>
+</ul>
+</div></blockquote>
+<div class="admonition-correction admonition">
+<p class="admonition-title">Correction</p>
+<ul class="simple">
+<li><p>p = 1/20, r = 1/1 = 1</p></li>
+<li><p>p = 20/20 = 1 ; r = 20/100 = 0.2</p></li>
+<li><p>p = 10/20 = 0.5 ; r = 10/30 = 1/3</p></li>
+</ul>
+</div>
+</div>
+<div class="admonition-exercice-ex-s1-3-proposons-une-autre-mesure admonition" id="ex-s1-3">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-s1-3">Ex-S1-3</a>: proposons une autre mesure</p>
+<p>Voici une autre mesure de qualité, que nous appellerons <em>exactitude</em> comme traduction de <em>accuracy</em> (exactitude).
+Elle se définit comme la fraction du résultat qui est correcte (en comptant les
+vrais positifs et vrais négatifs comme corrects). Donc,</p>
+<div class="math notranslate nohighlight">
+\[accuracy = \frac{t_n + t_p}{t_n + t_p + f_n + f_p}.\]</div>
+<p>Où <em>p</em> et <em>n</em> désignent les négatifs et positifs, <em>t</em> et <em>f</em> les vrais et faux, respectivement.</p>
+<p>Cette mesure ne convient pas en recherche d’information. Pourquoi? Imaginez un système où seule une infime
+partie des documents sont pertinents, quelle que soit la recherche.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Quelle serait l’exactitude dans ce cas?</p></li>
+<li><p>Quelle méthode simple et stupide donnerait une exactitude proche de la perfection?</p></li>
+</ul>
+</div></blockquote>
+<div class="admonition-correction admonition">
+<p class="admonition-title">Correction</p>
+<ul class="simple">
+<li><p>L’exactitude tend vers 1</p></li>
+<li><p>Il suffit de renvoyer un résultat vide, quelle que soit la requête.</p></li>
+</ul>
+</div>
+</div>
+<div class="admonition-exercice-ex-s1-4-matrice-d-incidence admonition" id="ex-s1-4">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-s1-4">Ex-S1-4</a>: matrice d’incidence</p>
+<p>Faire un fichier Excel (ou l’équivalent) qui calcule la taille d’une
+collection, la taille de la matrice d’incidence, et la densité de 1 dans
+cette matrice, en fonction des paramètres suivants :</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><em>n</em>, le nombre de documents,</p></li>
+<li><p><em>d</em>, le nombre de termes distincts,</p></li>
+<li><p><em>m</em>, le nombre moyen de mots dans un document,</p></li>
+<li><p><em>w</em>, la taille moyenne d’un mot (en octets).</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="admonition-exercice-ex-s1-5-algorithme-de-negation admonition" id="ex-s1-5">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-s1-5">Ex-S1-5</a>: algorithme de négation</p>
+<p>On sait faire une fusion pour une recherche de type ET. La recherche
+de type OU est évidente (?). Montrer qu’un
+algorithme similaire existe pour une recherche de type NOT (« les documents
+qui parlent de loup mais pas de mouton »).</p>
+</div>
+<div class="admonition-exercice-ex-s3-1-premiers-pas-vers-la-recherche-plein-texte admonition" id="ex-s3-1">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-s3-1">Ex-S3-1</a>: premiers pas vers la recherche plein texte</p>
+<p>Voici quelques documents textuels (brefs!).</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>A: <code class="docutils literal notranslate"><span class="pre">Le</span> <span class="pre">loup</span> <span class="pre">est</span> <span class="pre">dans</span> <span class="pre">la</span> <span class="pre">bergerie.</span></code></p></li>
+<li><p>B: <code class="docutils literal notranslate"><span class="pre">Les</span> <span class="pre">moutons</span> <span class="pre">sont</span> <span class="pre">dans</span> <span class="pre">la</span> <span class="pre">bergerie.</span></code></p></li>
+<li><p>C: <code class="docutils literal notranslate"><span class="pre">Un</span> <span class="pre">loup</span> <span class="pre">a</span> <span class="pre">mangé</span> <span class="pre">un</span> <span class="pre">mouton,</span> <span class="pre">les</span> <span class="pre">autres</span> <span class="pre">loups</span> <span class="pre">sont</span> <span class="pre">restés</span> <span class="pre">dans</span> <span class="pre">la</span> <span class="pre">bergerie.</span></code></p></li>
+<li><p>D:  <code class="docutils literal notranslate"><span class="pre">Il</span> <span class="pre">y</span> <span class="pre">a</span> <span class="pre">trois</span> <span class="pre">moutons</span> <span class="pre">dans</span> <span class="pre">le</span> <span class="pre">pré,</span> <span class="pre">et</span> <span class="pre">un</span> <span class="pre">mouton</span> <span class="pre">dans</span> <span class="pre">la</span> <span class="pre">gueule</span> <span class="pre">du</span> <span class="pre">loup.</span></code></p></li>
+</ul>
+</div></blockquote>
+<p>Prenons le vocabulaire suivant: {« loup », « mouton », « bergerie », « pré », « gueule »}.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Construisez la fonction qui associe chaque document à un vecteur dans <span class="math notranslate nohighlight">\(\{0, 1\}^{5}\)</span>. Vous pouvez
+représenter cette fonction sous forme d’une matrice d’incidence.</p></li>
+<li><p>Calculer le score de chaque document par la distance Euclidienne
+pour les recherches suivantes, et en déduire le classsement:</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(q_1\)</span>. « loup et pré »</p></li>
+<li><p><span class="math notranslate nohighlight">\(q_2\)</span>. « loup et mouton »</p></li>
+<li><p><span class="math notranslate nohighlight">\(q_3\)</span>. « bergerie »</p></li>
+<li><p><span class="math notranslate nohighlight">\(q_4\)</span>. « gueule du loup »</p></li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="admonition-correction admonition">
+<p class="admonition-title">Correction</p>
+<p>Les vecteurs des documents</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(v(A) = [1, 0, 1, 0, 0]\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(v(B) = [0, 1, 1, 0, 0]\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(v(C) = [1, 1, 1, 0, 0]\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(v(D) = [1, 1, 0, 1, 1]\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Les vecteurs des requêtes</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(v(q_1) = [1, 0, 0, 1, 0]\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(v(q_2) = [1, 1, 0, 0, 0]\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(v(q_3) = [0, 0, 1, 0, 0]\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(v(q_4) = [1, 0, 0, 0, 1]\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>En ce qui concerne les requêtes:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(E(q_1, A) = \sqrt{2}; E(q_1, B) = \sqrt{4}; E(q_1, C) = \sqrt{3}; E(q_1, D) = \sqrt{2}\)</span>.  A et D sont les plus pertinents,
+suivi de C  et enfin B. Notez que A de contient pas le mot « pré ». Pourquoi
+obtient-il le même score que D?</p></li>
+<li><p><span class="math notranslate nohighlight">\(E(q_2, A) = \sqrt{2}; E(q_2, B) = \sqrt{2}; E(q_2, C) = \sqrt{1}; E(q_2, D) = \sqrt{2}\)</span>.</p></li>
+<li><p><span class="math notranslate nohighlight">\(E(q_3, A) = \sqrt{1}; E(q_3, B) = \sqrt{1}; E(q_3, C) = \sqrt{2}; E(q_3, D) = \sqrt{5}\)</span>.</p></li>
+<li><p><span class="math notranslate nohighlight">\(E(q_4, A) = \sqrt{2}; E(q_4, B) = \sqrt{4}; E(q_4, C) = \sqrt{3}; E(q_4, D) = \sqrt{2}\)</span>. C’est
+donc D qui l’emporte, mais à égalité avec A, ce ne correspond pas vraiment à l’intuition.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="admonition-exercice-ex-s3-2-a-propos-de-la-fonction-de-distance admonition" id="ex-s3-2">
+<span id="ftsdistanceapp"></span><p class="admonition-title">Exercice <a class="reference internal" href="#ex-s3-2">Ex-S3-2</a>:  à propos de la fonction de distance</p>
+<p>Supposons que l’on prenne comme distance non pas la distance Euclidienne mais le carré
+de cette distance. Est-ce que cela change le classement? Qu’est-ce que cela vous inspire?</p>
+</div>
+<div class="admonition-correction admonition">
+<p class="admonition-title">Correction</p>
+<p>On peut effectuer un calcul <em>simplifié</em> de la distance, tant que l’ordre est respecté. Ce
+qui nous intéresse en fait, ce n’est pas le score proprement dit, mais l’ordre des scores.</p>
+</div>
+<div class="admonition-exercice-ex-s3-3-critique-de-la-distance-euclidienne admonition" id="ex-s3-3">
+<span id="ftsbaddistance"></span><p class="admonition-title">Exercice <a class="reference internal" href="#ex-s3-3">Ex-S3-3</a>:  critique de la distance Euclidienne</p>
+<p>La  distance que nous avons utilisée mesure la <em>différence</em> entre la requête
+et un document, par comparaison des termes un à un. Cela induit des inconvénients
+qu’il est assez facile de mettre en évidence.</p>
+<p>Supposons maintenant que le vocabulaire a une taille très grande. On fait une recherche avec 1 mot-clé.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>quel est le score pour un document qui ne contient 99 termes et pas ce mot-clé?</p></li>
+<li><p>quel est le score pour un document qui contient 101 termes <em>et</em> le mot-clé?</p></li>
+</ul>
+</div></blockquote>
+<p>Conclusion? Le classement obtenu sera-t-il satisfaisant? Trouvez un cas où un document est bien classé
+même s’il ne contient pas le mot-clé !</p>
+</div>
+<div class="admonition-correction admonition">
+<p class="admonition-title">Correction</p>
+<p>Distance de <span class="math notranslate nohighlight">\(\sqrt{100}=10\)</span> dans le premier cas; de <span class="math notranslate nohighlight">\(\sqrt{100}\)</span> dans le second également. Ils seront classés au même niveau,
+ce qui ne va pas du tout!</p>
+<p>Un document avec 50 termes sera mieux classé
+que n’importe quel document de 100 termes contenant ou non le mot-clé. Cela nous met sur
+la piste de ce qui ne va pas: la mesure que nous utilisons est fortement dépendante de la
+taille du document, au détriment de sa pertinence.</p>
+</div>
+<div class="admonition-exercice-ex-s3-4-critique-de-l-hypothese-d-uniformite-des-termes admonition" id="ex-s3-4">
+<span id="ftsuniform"></span><p class="admonition-title">Exercice <a class="reference internal" href="#ex-s3-4">Ex-S3-4</a>:  critique de l’hypothèse d’uniformité des termes</p>
+<p>Enfin, dans notre approche très simplifiée, tous les termes ont la même importance. Calculez
+le classement pour la requête:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(q_5\)</span>. « bergerie et gueule »</p></li>
+</ul>
+</div></blockquote>
+<p>et tentez d’expliquer le résultat. Est-il satisfaisant? Quel est le biais (pensez au raisonnement
+sur la longueur du document dans l’exercice précédent).</p>
+</div>
+<div class="admonition-correction admonition">
+<p class="admonition-title">Correction</p>
+<blockquote>
+<div><p>Vecteur de la requête: <span class="math notranslate nohighlight">\(v(q_5) =  [0, 0, 1, 0, 1]]\)</span></p>
+<p>Calcul des classements:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(E(q_5, A) = \sqrt{2}; E(q_5, B) = \sqrt{2}; E(q_5, C) = \sqrt{3}; E(q_2, D) = \sqrt{4}\)</span>.</p></li>
+</ul>
+</div></blockquote>
+</div></blockquote>
+<p>Tous les documents sont mieux classés que D, alors que « gueule » est un terme plus discriminant.</p>
+</div>
+<div class="admonition-exercice-ex-s4-1-a-propos-de-la-requete admonition" id="ex-s4-1">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-s4-1">Ex-S4-1</a>: à propos de la requête</p>
+<p>Je soumets une requête <span class="math notranslate nohighlight">\(t_1, t_2, \cdots, t_n\)</span>.
+Quel est le poids de chaque terme dans le vecteur représentant cette requête?
+La normalisation de ce vecteur est elle importante pour le classement (justifier)?</p>
+</div>
+<div class="admonition-exercice-ex-s4-2-encore-des-voitures-des-serpents-et-des-baleines admonition" id="ex-s4-2">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-s4-2">Ex-S4-2</a>: encore des voitures, des serpents et des baleines</p>
+<p>Reprenons notre exemple des documents <em>d1</em>, <em>d2</em> et <em>d3</em>,
+calculez le classement pour les requêtes suivantes:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>serpent</p></li>
+<li><p>voiture et serpent</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="admonition-exercice-ex-s4-3-pesons-le-loup-le-mouton-et-la-bergerie admonition" id="ex-s4-3">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-s4-3">Ex-S4-3</a>: pesons le loup, le mouton et la bergerie</p>
+<p>Nous reprenons nos documents de l’exemple <a class="reference internal" href="#ex-s3-1">Ex-S3-1</a>. Le
+vocabulaire est toujours le suivant: {« loup », « mouton », « bergerie », « pré », « gueule »}.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Donnez, pour chaque document, le tf de chaque terme.</p></li>
+<li><p>Donnez les idf des termes (ne pas prendre le logarithme, pour simplifier).</p></li>
+<li><p>En déduire la matrice d’incidence montrant  l’idf pour chaque
+terme, le nombre de termes pour chaque document,  et le tf pour chaque cellule.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="admonition-correction admonition">
+<p class="admonition-title">Correction</p>
+<p>Fréquence des termes par document (tf).</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Document A: loup (1), bergerie (1)</p></li>
+<li><p>Document B: mouton (1), bergerie (1)</p></li>
+<li><p>Document C: loup (2), mouton (1), bergerie (1)</p></li>
+<li><p>Document D: loup (1), mouton (2), pré (1), gueule (1)</p></li>
+</ul>
+</div></blockquote>
+<p>Fréquence inverse des termes dans les documents (idf): loup  (4/3),
+mouton (4/3), bergerie (4/3), pré (4), gueule (4).</p>
+<span id="loups2"></span><table class="colwidths-given docutils align-default" id="id13">
+<caption><span class="caption-number">Tableau 11 </span><span class="caption-text">La matrice d’incidence</span><a class="headerlink" href="#id13" title="Lien permanent vers ce tableau">¶</a></caption>
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 15%" />
+<col style="width: 15%" />
+<col style="width: 15%" />
+<col style="width: 15%" />
+<col style="width: 15%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>loup (4/3)</p></th>
+<th class="head"><p>mouton (4/3)</p></th>
+<th class="head"><p>bergerie (4/3)</p></th>
+<th class="head"><p>pré (4)</p></th>
+<th class="head"><p>gueule (4)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>A</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>B</p></td>
+<td><p>0</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p>C</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>D</p></td>
+<td><p>1</p></td>
+<td><p>2</p></td>
+<td><p>0</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="admonition-exercice-ex-s4-4-interrogeons-et-classons admonition" id="ex-s4-4">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-s4-4">Ex-S4-4</a>: interrogeons et classons</p>
+<p>Reprendre les requêtes suivantes:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(q_1\)</span>. « loup et pré »</p></li>
+<li><p><span class="math notranslate nohighlight">\(q_2\)</span>. « loup et mouton »</p></li>
+<li><p><span class="math notranslate nohighlight">\(q_3\)</span>. « bergerie »</p></li>
+<li><p><span class="math notranslate nohighlight">\(q_4\)</span>. « gueule du loup »</p></li>
+</ul>
+</div></blockquote>
+<p>et calculer le classement avec la distance cosinus, en ne prenant en compte
+que le vecteur des tf.</p>
+<blockquote>
+<div><div class="admonition-correction admonition">
+<p class="admonition-title">Correction</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Les normes:</p>
+<ul class="simple">
+<li><p>A: <span class="math notranslate nohighlight">\(\sqrt{1+ 1} = \sqrt{2}\)</span></p></li>
+<li><p>B: <span class="math notranslate nohighlight">\(\sqrt{1 + 1} = \sqrt{2}\)</span></p></li>
+<li><p>C: <span class="math notranslate nohighlight">\(\sqrt{2^2 + 1 +  1} = \sqrt{6}\)</span></p></li>
+<li><p>D: <span class="math notranslate nohighlight">\(\sqrt{2^2 + 1 +  1 + 1} = \sqrt{7}\)</span></p></li>
+</ul>
+</li>
+</ol>
+</div></blockquote>
+<ol class="arabic">
+<li><p>Classement (on ne normalise pas la requête car cela n’influe pas sur le classement,
+et du coup on a des cosinus supérieurs à 1):</p>
+<blockquote>
+<div><ul>
+<li><p>loup et pré:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>A: <span class="math notranslate nohighlight">\(\frac{1 + 0 + 0 + 0 +0}{\sqrt{2}} = 0,707\)</span></p></li>
+<li><p>B: <span class="math notranslate nohighlight">\(\frac{0}{\sqrt{2}} = 0\)</span></p></li>
+<li><p>C: <span class="math notranslate nohighlight">\(\frac{2 + 0 + 0 + 0 +0}{\sqrt{6}} = 0,816\)</span></p></li>
+<li><p>D: <span class="math notranslate nohighlight">\(\frac{1 + 0 + 0 + 1 +0}{\sqrt{7}} = 0,755\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Seul D contient les deux termes, <em>mais</em> il
+en contient aussi beaucoup d’autres. Il est donc
+dominé par C, qui parle fortement de loup mais par
+de pré, et contient (un peu) moins de termes.
+A est bien classé, même s’il ne contient
+pas « pré », car (intuitivement)à il parle de « loup »
+de manière forte, ne contenant que très peu de termes.</p>
+</li>
+<li><dl>
+<dt>loup et mouton:</dt><dd><blockquote>
+<div><ul class="simple">
+<li><p>A: <span class="math notranslate nohighlight">\(\frac{1 + 0 + 0 + 0 +0}{\sqrt{2}} = 0,707\)</span></p></li>
+<li><p>B: <span class="math notranslate nohighlight">\(\frac{0 + 1 + 0 + 0 +0}{\sqrt{2}} = 0,707\)</span></p></li>
+<li><p>C: <span class="math notranslate nohighlight">\(\frac{2 + 1 + 0 + 0 +0}{\sqrt{6}} = 1,22\)</span></p></li>
+<li><p>D: <span class="math notranslate nohighlight">\(\frac{1 + 2 + 0 + 0 +0}{\sqrt{7}} = 1,13\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>C et D sont à peu près à égalité, comme on peut le
+prévoir intuitivement: ils parlent des deux
+termes  de manière un peu déséquilibrée,
+par rapport à la requête. C l’emporte car sa norme est
+plus petite, il est donc plus « concentré » sur
+les termes de la requête.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<blockquote>
+<div><ul>
+<li><dl class="simple">
+<dt>bergerie:</dt><dd><ul class="simple">
+<li><p>A: <span class="math notranslate nohighlight">\(\frac{1}{\sqrt{2}}  = 0,707\)</span></p></li>
+<li><p>B: <span class="math notranslate nohighlight">\(\frac{1}{\sqrt{2}}  = 0,707\)</span></p></li>
+<li><p>C: <span class="math notranslate nohighlight">\(\frac{1}{\sqrt{6}} = 0,4\)</span></p></li>
+<li><p>D: <span class="math notranslate nohighlight">\(\frac{0}{\sqrt{7}}\)</span></p></li>
+</ul>
+</dd>
+</dl>
+<p>A et B arrivent à égalité: il parlent tous les deux
+une fois de bergerie, et contiennent exactement
+un autre terme.</p>
+</li>
+<li><dl class="simple">
+<dt>gueule du loup:</dt><dd><ul class="simple">
+<li><p>A: <span class="math notranslate nohighlight">\(\frac{1 + 0 + 0 + 0 +0}{\sqrt{2}} = 0,707\)</span></p></li>
+<li><p>B: <span class="math notranslate nohighlight">\(\frac{0}{\sqrt{2}} = 0\)</span></p></li>
+<li><p>C: <span class="math notranslate nohighlight">\(\frac{2 + 0 + 0 + 0 +0}{\sqrt{6}} = 0,816\)</span></p></li>
+<li><p>D: <span class="math notranslate nohighlight">\(\frac{1 + 0 + 0 + 0 +1}{\sqrt{7}} = 0,75\)</span></p></li>
+</ul>
+</dd>
+</dl>
+<p>Même analyse que pour la première requête</p>
+</li>
+</ul>
+</div></blockquote>
+</div></blockquote>
+</li>
+</ol>
+</div>
+</div></blockquote>
+</div>
+<div class="admonition-exercice-ex-s4-5-comparons-les-loups-et-les-moutons admonition" id="ex-s4-5">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-s4-5">Ex-S4-5</a>: comparons les loups et les moutons</p>
+<ul>
+<li><p>Reprenez une nouvelle fois  les documents de l’exercice  <a class="reference internal" href="#ex-s1-1">Ex-S1-1</a>. Vous devriez
+avoir la matrice des tf.idf calculée dans l’exercice <a class="reference internal" href="#ex-s4-3">Ex-S4-3</a>.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>classez les documents B, C, D par similarité cosinus décroissante
+avec A;</p></li>
+<li><p>calculez la similarité cosinus entre chaque paire de documents; peut-on
+identifier 2 groupes évidents?</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div>
+<div class="admonition-exercice-ex-s4-6-un-exemple-complet admonition" id="ex-s4-6">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-s4-6">Ex-S4-6</a> : un exemple complet</p>
+<p>Voici trois recettes.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Panna cotta (pc):  Mettre la crème, le sucre et la vanille dans une casserole et faire frémir. Ajouter
+les 3 feuilles de gélatine préalablement  trempées dans l’eau froide. Bien remuer
+et verser la crème dans des coupelles. Laisser refroidir quelques heures.</p></li>
+<li><p>Crème brulée (cb): Faire bouillir le lait, ajouter la crème et le sucre hors du feu. Ajouter les
+jaunes d’œufs, mettre au four au bain marie et laisser cuire doucement
+à 180C environ 10 minutes. Laisser refroidir puis mettre dessus du sucre roux et le
+brûler avec un petit chalumeau.</p></li>
+<li><p>Mousse au chocolat (mc): Faire ramollir le chocolat dans une terrine. Incorporer les jaunes et le sucre.
+Puis, battre les blancs en neige ferme et les ajouter délicatement au
+mélange à l’aide d’une spatule. Mettre au frais 1 heure ou 2 minimum.</p></li>
+</ul>
+</div></blockquote>
+<p>À vous de jouer pour la création de l’index et les calculs de classement.</p>
+<blockquote>
+<div><ul>
+<li><p>On prend pour vocabulaire  les mots suivants : crème, sucre, œuf, gélatine. Tous
+les autres mots sont ignorés.
+Donnez la matrice d’incidence avec l’idf de chaque terme, et le tf de chaque paire (terme, document).</p></li>
+<li><p>Donnez les normes de vecteurs représentant chaque document.</p></li>
+<li><p>Donner les résultats classés par combinaison tf (on ignore l’idf) pour les requêtes suivantes</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>crème et sucre</p></li>
+<li><p>crème et œuf</p></li>
+<li><p>œuf et gélatine</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>Même chose mais en tenant compte de l’idf (sans appliquer le logarithme).</p></li>
+<li><p>Commentez le résultat de la dernière requête. Est-il correct intuitivement? Que penser de l’indexation
+du terme “œuf”, est-elle réprésentative du contenu des recettes?</p></li>
+</ul>
+</div></blockquote>
+<div class="admonition-correction admonition">
+<p class="admonition-title">Correction</p>
+<ol class="arabic">
+<li><p>Matrice d’incidence</p>
+<p>Crème apparaît dans 2 documents sur 3, idf=3/2;  sucre dans 3 sur 3 (idf=1),
+œuf dans 1 sur 3 (idf=3) comme gélatine. On obtient:</p>
+</li>
+</ol>
+<blockquote>
+<div><table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>pc</p></th>
+<th class="head"><p>cb</p></th>
+<th class="head"><p>mc</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>crème (3/2)</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>sucre (1)</p></td>
+<td><p>1</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td><p>œuf (3)</p></td>
+<td><p>0</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>gélatine (3)</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<ol class="arabic">
+<li><p>Les normes:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>pc: <span class="math notranslate nohighlight">\(\sqrt{2^2 + 1+ 1} = \sqrt{6}\)</span></p></li>
+<li><p>cb: <span class="math notranslate nohighlight">\(\sqrt{1 + 2^2 + 1} = \sqrt{6}\)</span></p></li>
+<li><p>mc: <span class="math notranslate nohighlight">\(\sqrt{1} = 1\)</span></p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>Classement (on ne normalise pas la requête car cela n’influe pas sur le classement,
+et du coup on a des cosinus supérieurs à 1):</p>
+<blockquote>
+<div><ul>
+<li><p>crème et sucre:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>pc: <span class="math notranslate nohighlight">\(\frac{2+ 1}{\sqrt{6}}\)</span></p></li>
+<li><p>cb: <span class="math notranslate nohighlight">\(\frac{1 + 2}{\sqrt{6}}\)</span></p></li>
+<li><p>mc: <span class="math notranslate nohighlight">\(\frac{1}{1}\)</span></p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>crème et œuf:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>pc: <span class="math notranslate nohighlight">\(\frac{2}{\sqrt{6}}\)</span></p></li>
+<li><p>cb: <span class="math notranslate nohighlight">\(\frac{1 + 1}{\sqrt{6}}\)</span></p></li>
+<li><p>mc: <span class="math notranslate nohighlight">\(\frac{0}{1}\)</span></p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>œuf et gélatine:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>pc: <span class="math notranslate nohighlight">\(\frac{1}{\sqrt{6}}\)</span></p></li>
+<li><p>cb: <span class="math notranslate nohighlight">\(\frac{1}{\sqrt{6}}\)</span></p></li>
+<li><p>mc: <span class="math notranslate nohighlight">\(\frac{0}{1}\)</span></p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>Etudions maintenant l’impact de l’idf. En prenant le logarithme, on obtient:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(idf(\text{crème}) = log(1.5) = 0,176\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(idf(\text{sucre}) = log(1) = 0\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(idf(\text{œuf}) = log(3) = 0,477\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(idf(\text{gélatine}) = log(3) = 0,477\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>On remarque que l’IDF de “sucre” vaut zéro, ce qui revient à dire que ce terme
+ne sert à rien dans une requête. Cela reflête le fait que “sucre” apparaît
+dans <em>tous</em> les documents et que son pouvoir de discrimination est nul.</p>
+<p>Ce qui nous donne la matrice des tf.idf suivante:</p>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>pc</p></th>
+<th class="head"><p>cb</p></th>
+<th class="head"><p>mc</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>crème</p></td>
+<td><p>0,352</p></td>
+<td><p>0,176</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>sucre</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p>œuf</p></td>
+<td><p>0</p></td>
+<td><p>0,477</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>gélatine</p></td>
+<td><p>0,477</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+</tr>
+</tbody>
+</table>
+<p>Un inconvénient immédiat apparaît: le document <code class="docutils literal notranslate"><span class="pre">mc</span></code> a tous ses coefficients
+à zéro et n’apparaîtra dans aucun résultat, même pour les requêtes sur le sucre.
+Pour pallier ce défaut, on peut prendre pour l’idf non pas le log mais <span class="math notranslate nohighlight">\(1+log\)</span>.
+Celà fait partie des très nombreux petits réglages qui font la qualité d’un moteur de recherche.</p>
+<p>Les normes des vecteurs:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>pc: <span class="math notranslate nohighlight">\(\sqrt{0,352^2 +  0,477^2} = 0,593\)</span></p></li>
+<li><p>cb: <span class="math notranslate nohighlight">\(\sqrt{0,176^2 + 0,477^2} = 0,508\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>La requête « œuf et gélatine » est représentée par le vecteur (0,477, 0,477). La similarité
+cosinus (toujours en ignorant la norme de la requête qui est constante et ne change
+pas le classement)  est donc:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>pc: <span class="math notranslate nohighlight">\(\frac{0,477^2}{0,593}\)</span></p></li>
+<li><p>cb: <span class="math notranslate nohighlight">\(\frac{0,477^2}{0,508}\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>C’est donc la crème brulée qui l’emporte. Pourquoi? Parce que le terme
+« œuf » commun entre la requête et le document est prépondérant dans la représentation
+vectorielle de ce dernier.
+En prenant en compte l’idf, il semble en effet que le document <code class="docutils literal notranslate"><span class="pre">cb</span></code> parle essentiellement
+d’œuf, alors que le document <code class="docutils literal notranslate"><span class="pre">pc</span></code> parle à peu près à parts égales d’œuf et de crème.
+Le document le plus spécifiquement liée à la requête vient donc en premier.</p>
+<p>La pauvre mousse au chocolat n’apparaît pas dans le résultat,
+alors qu’il faut vraiment des œufs pour la préparer.</p>
+</li>
+<li><p>Interprétation: clairement, il faut des œufs dans la mousse au chocolat, mais le mot “œuf”
+lui-même n’apparaît pas, ce qui fausse les résultats. Le tf est à 0 pour le document mc,
+et l’idf de “œuf” est surévalué (parce que le nombre de documents lui-même est
+ridiculement petit).</p>
+<p>Notre moteur de recherche souffre donc des limitations d’une approche purement lexicale
+basée uniquement sur le tf.idf. Il mérite donc des améliorations, la plus séduiasante
+étant la consrtruction de réseaux de termes de type <em>word to vec</em> pour tenter d’identifier
+les concepts à apparier, plutôt que les termes.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="admonition-exercice-ex-s4-7-et-si-on-calculait-autrement admonition" id="ex-s4-7">
+<p class="admonition-title">Exercice <a class="reference internal" href="#ex-s4-7">Ex-S4-7</a>: et si on calculait autrement?</p>
+<p>Chaque document est représenté comme un vecteur dans un espace <em>n</em>-dimensionnel.
+avec des coefficients <em>normalisés</em> tf.idf.</p>
+<blockquote>
+<div><blockquote>
+<div><blockquote>
+<div></div></blockquote>
+<figure class="align-center" id="id14">
+<span id="euclidiansim"></span><a class="reference internal image-reference" href="_images/EuclidianSim.png"><img alt="_images/EuclidianSim.png" src="_images/EuclidianSim.png" style="width: 50%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 38 </span><span class="caption-text">Calcul basé sur la distance Euclidienne</span><a class="headerlink" href="#id14" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
+</div></blockquote>
+<p>Revenons à notre idée initiale de calculer la similarité basée sur la distance Euclidienne entre
+les deux points A et B:</p>
+<div class="math notranslate nohighlight">
+\[E(A, B) = \sqrt{(a_1 - b_1)^2 + (a_2 - b_2)^2 + \cdots + (a_n - b_n)^2}\]</div>
+<p>La figure <a class="reference internal" href="#euclidiansim"><span class="std std-numref">Fig. 38</span></a> montre la distance Euclidienne, et la distance cosinus
+entre les deux points A et B. Montrez qu’un classement par ordre décroissant
+de la similarité cosinus et identique au classement par ordre croissant de
+la distance Euclidienne! (Aide: montrez que la distance augmente quand le cosinus
+diminue. Un peu de Pythagore peut aider).</p>
+</div></blockquote>
+<div class="admonition-correction admonition">
+<p class="admonition-title">Correction</p>
+<p>Notons que: OBC et CBA sont deux triangles rectangles, par définition
+du cosinus comme projection orthogonale. Par ailleurs, on ne considère pour les calculs
+de similarité que les points situés dans le quadrant des coordonnées positives, et le cosinus
+est donc une valeur positive entre 0 et 1.</p>
+<p>Enfin, on sait que A et B sont sur le cercle trigonométrique. Donc:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(|| OB || = 1\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(||OA || = 1 = ||OC || + || CA ||\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>C’est parti pour Pythagore, comme au collège. Nous avons:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(|| AB ||^2 = || BC ||^2 + ||AC ||^2\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(|| OB ||^2 = 1 = || OC ||^2 + ||BC ||^2\)</span>, et donc <span class="math notranslate nohighlight">\(||BC ||^2 = 1 - || OC ||^2\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Ce qui nous donne:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(|| AB ||^2 = 1 - || OC ||^2 + ||AC ||^2  = 1 - || OC ||^2 + (1- ||OC ||)^2\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(|| AB ||^2 = 2  (1 - || OC ||)\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>AB est la distance euclidienne, OC la distance cosinus comprise entre 0 et 1.
+L’une augmente (de 0 à <span class="math notranslate nohighlight">\(\sqrt{2}\)</span>) quand l’autre diminue (de 1 à 0). C.Q.F.D.</p>
+<p>La distance cosinus est plus efficace à  calculer car il suffit de considérer
+les indices des deux vecteurs pour lesquels les coordonnéess
+sont toutes les deux non nulles, alors
+que pour la distance euclidienne on doit prendre en compte ceux pour lesquelles
+<em>au moins</em> une des coordonnées est non nulle.</p>
+</div>
+</div>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+            <div>        
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Licence Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">
+  Ce cours</span> de <a xmlns:cc="http://creativecommons.org/ns#" href="http://www.bdpedia.fr" property="cc:attributionName" rel="cc:attributionURL">Philippe Rigaux</a> est mis à disposition selon les termes de la <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">licence Creative Commons Attribution - Pas d’Utilisation Commerciale - Partage dans les Mêmes Conditions 4.0 International</a>.
+</div>
+        <hr/>
+          <h3>Table Of Contents</h3>
+          <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docker.html">Préliminaires: Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docstruct.html">Modélisation de bases NoSQL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rech-exacte.html">Recherche exacte</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cassandra.html">Etude de cas: Cassandra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cassandra_tp.html">Cassandra - Travaux Pratiques</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Recherche approchée</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#s1-introduction-a-la-recherche-d-information">S1: introduction à la recherche d’information</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#qu-est-ce-que-la-recherche-d-information">Qu’est ce que la recherche d’information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#precision-et-rappel">Précision et  rappel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#la-recherche-plein-texte">La recherche plein texte</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#les-index-inverses">Les index inversés</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#operations-de-recherche">Opérations de recherche</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quiz">Quiz</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#s2-l-analyse-de-documents">S2: L’analyse de documents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tokenisation-et-normalisation">Tokenisation et normalisation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#stemming-racine-lemmatisation">Stemming (racine), lemmatisation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mots-vides-et-autres-filtres">Mots vides et autres filtres</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Quiz</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#s3-recherche-avec-classement">S3: recherche avec classement</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#notions-de-base-espace-metrique-distance-et-similarite">Notions de base: espace métrique, distance et similarité</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#application-a-la-recherche-plein-texte">Application à la recherche plein texte</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Quiz</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#s4-recherche-plein-texte">S4: recherche plein  texte</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#le-poids-des-mots">Le poids des mots</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#la-frequence-des-termes">La fréquence des termes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#normalisation-des-tf">Normalisation des <em>tf</em></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#la-frequence-inverse-dans-les-documents">La fréquence inverse dans les documents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#le-poids-tf-idf">Le poids tf.idf</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#la-similarite-cosinus">La similarité cosinus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">Quiz</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#exercices">Exercices</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="es_tp.html">ElasticSearch - Travaux pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="traitements_lot.html">Traitements par lot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pigtp.html">Pig : Travaux pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cloud.html">Le <em>cloud</em>, une nouvelle machine de calcul</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replication.html">Systèmes NoSQL: la réplication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sharding.html">Systèmes NoSQL: le partitionnement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spark.html">Etude de cas: Apache Spark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="annales.html">Annales des examens</a></li>
+</ul>
+
+          <h3 style="margin-top: 1.5em;">Recherche</h3>
+          <form class="search" action="search.html" method="get">
+            <input type="text" name="q" />
+            <input type="submit" value="Go" />
+            <input type="hidden" name="check_keywords" value="yes" />
+            <input type="hidden" name="area" value="default" />
+          </form>
+          <p class="searchtip" style="font-size: 90%">
+      Saisissez un ou plusieurs mots-clés.
+          </p>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <a href="cassandra_tp.html" title="Cassandra - Travaux Pratiques"
+             >précédent</a> |
+          <a href="es_tp.html" title="ElasticSearch - Travaux pratiques"
+             >suivant</a> |
+          <a href="genindex.html" title="Index général"
+             >index</a>
+        </div>
+
+        <div class="right">
+        <a href="index.html">Recherche approchée</a><br/>
+          
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2014-2025, Nicolas Travers, Raphaël Fournier S&#39;niehotta et Philippe Rigaux.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>
