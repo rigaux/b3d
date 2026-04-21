@@ -117,7 +117,7 @@ pigtp = 'public'
 annales18 = 'public'
 annales20 = 'public'
 annales23 = 'public'
-annales24 = 'private'
+annales24 = 'public'
 pasfini = 'private'
 
 # Add any paths that contain templates here, relative to this directory.

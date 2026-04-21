@@ -101,7 +101,7 @@ Ce sujet contient \pageref{LastPage} pages.\\
 \end{tabular}
 \end{center}
 
-\section*{Première partie : modélisation NoSQL (8 pts)}
+\section*{Première partie : modélisation NoSQL (7 pts)}
 
 Nous sommes en 2030, les attaques répétées contre
 la presse indépendante ont fini par atteindre leur but\,: 
@@ -116,7 +116,7 @@ leur article sur ces plateformes.
 
 Posons-nous quelques questions sur le fonctionnement
 de cette presse ubérisée. Un modèle UML très sommaire est 
-donné dans la figure\,\ref{exam-21-presseuber}. Les journalistes
+donné dans la figure\,\ref{presseuber}. Les journalistes
 publient des articles, et ces articles sont diffusés par des  plateformes (plusieurs plateformes 
 si possible, qui elles-mêmes publient beaucoup d'articles).
 
@@ -521,7 +521,7 @@ car plus spécifique au besoin exprimé par la requête.
   \end{enumerate}
 
 
-  \section{Troisième partie\,: comprendre Cassandra (4 pts)}
+\section*{Troisième partie\,: comprendre Cassandra (4 pts)}
 
   On veut proposer un schéma Cassandra pour explorer cette base. 
   Rappelons d'abord ce qu'est une clé composite en Cassandra\,: 
@@ -532,7 +532,7 @@ car plus spécifique au besoin exprimé par la requête.
   On crée la table Article avec la commande suivante\,:
 \begin{minted}{sql}
   create table Article (id_plateforme text,
-                        id_article text,
+                        ref_article text,
                          auteur frozen<Personne>,
                          contenu text,
                          primary key (id_plateforme, id_article));
@@ -542,12 +542,12 @@ Commentez chacune des affirmations suivantes, indiquez si elles
 sont vraies ou fausses et pourquoi.
 
   \begin{enumerate}
-	\item tous les articles d'une plateforme sont sur le même serveur
-    \item tous les articles d'un auteur sont sur le même serveur
+	\item tous les articles d'une plateforme sont sur le même serveur\,;
+    \item tous les articles d'un auteur sont sur le même serveur\,;
 	\item il n'y a pas de duplication d'un article, même s'il
-	    a été publié par plus d'une plateforme
-    \item Accéder aux articles d'une plateforme peut s'effectuer
-	    par un parcours séquentiel sur un seul serveur
+	    a été publié par plus d'une plateforme\,;
+    \item accéder aux articles d'une plateforme peut s'effectuer
+	    par un parcours séquentiel sur un seul serveur.
   \end{enumerate}  
   
 
@@ -569,8 +569,6 @@ sont vraies ou fausses et pourquoi.
      étudié un système où le partitionnement n'était pas dynamique\,?
    
 	 \item Quel est le principe de la reprise sur panne dans MapReduce?\,
-
-	    \item Quel est le principe de la reprise sur panne dans Spark?\,
    
    \item Un groupe de serveurs en mode maître-esclave comprend 5 n{\oe}uds. Suite à une fragmentation
 du réseau, le maître se retrouve  avec un seul esclave.  Expliquez ce qui se passe alors.

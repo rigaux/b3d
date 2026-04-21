@@ -2027,7 +2027,7 @@ On décide de remplacer la base relationnelle par une base Cassandra.
             Rappelons que la modélisation structurée (ici avec sérialisation
             JSON) a pour but d'éviter autant que possible des références
             à d'autres documents qui entraineraient la nécessité
-            de faire des jointures. On inclus donc comme objets
+            de faire des jointures. On inclut donc comme objets
             le conducteur, le site, et comme *liste* d'objets les passagers.
             
             .. code-block:: json
@@ -2263,7 +2263,7 @@ Répondez aux questions suivantes
          
             select idConducteur, count(*) 
             from Trajet
-            where commantaire like '%voiture%'
+            where commentaire like '%voiture%'
             group by idConducteur
 
 Quatrième partie : systèmes distribués (3 pts)
