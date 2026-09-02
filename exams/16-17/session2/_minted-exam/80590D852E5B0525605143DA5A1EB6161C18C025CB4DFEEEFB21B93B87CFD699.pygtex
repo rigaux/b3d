@@ -1,5 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-tickets\PYGZus{}client \PYG{o}{=} \PYG{k}{filter} tickets \PYG{k}{BY} idClient \PYG{k}{not} \PYG{k}{null}\PYG{p}{;}
-tickets\PYGZus{}groupes \PYG{o}{=} \PYG{k}{group} tickets\PYGZus{}client \PYG{k}{by} idClient;
-avg\PYGZus{}par\PYGZus{}client \PYG{o}{=} \PYG{k}{foreach} tickets\PYGZus{}groupes \PYG{k}{generate} \PYG{k}{group}\PYG{o}{,} \PYG{n+nb}{AVG}\PYG{p}{(}tickets\PYGZus{}groupes.prixTotal\PYG{p}{);}
-\end{Verbatim}
