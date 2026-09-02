@@ -1,0 +1,18 @@
+mysql1:
+     image: mysql:latest
+     ports:
+       - "6603:3306"
+     environment:
+       - "MYSQL_ALLOW_EMPTY_PASSWORD=1"
+mysql2:
+     image: mysql:latest
+     ports:
+       - "6604:3306"
+     environment:
+       - "MYSQL_ALLOW_EMPTY_PASSWORD=1"
+mysql3:
+     image: mysql:latest
+     ports:
+       - "6605:3306"
+     environment:
+       - "MYSQL_ALLOW_EMPTY_PASSWORD=1"

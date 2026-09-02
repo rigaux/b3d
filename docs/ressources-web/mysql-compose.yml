@@ -1,0 +1,7 @@
+services:
+  mysql1:
+    image: mysql:latest
+    ports:
+      - "6603:3306"
+    environment:
+      - "MYSQL_ALLOW_EMPTY_PASSWORD=1"
