@@ -1,0 +1,76 @@
+Pig Stack Trace
+---------------
+ERROR 1200: <line 1, column 15>  mismatched input '(' expecting QUOTEDSTRING
+
+Failed to parse: <line 1, column 15>  mismatched input '(' expecting QUOTEDSTRING
+	at org.apache.pig.parser.QueryParserDriver.parse(QueryParserDriver.java:244)
+	at org.apache.pig.parser.QueryParserDriver.parse(QueryParserDriver.java:182)
+	at org.apache.pig.PigServer$Graph.validateQuery(PigServer.java:1707)
+	at org.apache.pig.PigServer$Graph.registerQuery(PigServer.java:1680)
+	at org.apache.pig.PigServer.registerQuery(PigServer.java:623)
+	at org.apache.pig.tools.grunt.GruntParser.processPig(GruntParser.java:1063)
+	at org.apache.pig.tools.pigscript.parser.PigScriptParser.parse(PigScriptParser.java:501)
+	at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:230)
+	at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:205)
+	at org.apache.pig.tools.grunt.Grunt.run(Grunt.java:66)
+	at org.apache.pig.Main.run(Main.java:558)
+	at org.apache.pig.Main.main(Main.java:170)
+================================================================================
+Pig Stack Trace
+---------------
+ERROR 1025: 
+<line 2, column 33> Invalid field projection. Projected field [journal] does not exist.
+
+org.apache.pig.impl.plan.PlanValidationException: ERROR 1025: 
+<line 2, column 33> Invalid field projection. Projected field [journal] does not exist.
+	at org.apache.pig.newplan.logical.expression.ProjectExpression.findColNum(ProjectExpression.java:191)
+	at org.apache.pig.newplan.logical.expression.ProjectExpression.setColumnNumberFromAlias(ProjectExpression.java:174)
+	at org.apache.pig.newplan.logical.visitor.ColumnAliasConversionVisitor$1.visit(ColumnAliasConversionVisitor.java:53)
+	at org.apache.pig.newplan.logical.expression.ProjectExpression.accept(ProjectExpression.java:215)
+	at org.apache.pig.newplan.DependencyOrderWalker.walk(DependencyOrderWalker.java:75)
+	at org.apache.pig.newplan.PlanVisitor.visit(PlanVisitor.java:52)
+	at org.apache.pig.newplan.logical.optimizer.AllExpressionVisitor.visit(AllExpressionVisitor.java:80)
+	at org.apache.pig.newplan.logical.relational.LOFilter.accept(LOFilter.java:79)
+	at org.apache.pig.newplan.DependencyOrderWalker.walk(DependencyOrderWalker.java:75)
+	at org.apache.pig.newplan.PlanVisitor.visit(PlanVisitor.java:52)
+	at org.apache.pig.newplan.logical.relational.LogicalPlan.validate(LogicalPlan.java:175)
+	at org.apache.pig.PigServer$Graph.validateQuery(PigServer.java:1708)
+	at org.apache.pig.PigServer$Graph.registerQuery(PigServer.java:1680)
+	at org.apache.pig.PigServer.registerQuery(PigServer.java:623)
+	at org.apache.pig.tools.grunt.GruntParser.processPig(GruntParser.java:1063)
+	at org.apache.pig.tools.pigscript.parser.PigScriptParser.parse(PigScriptParser.java:501)
+	at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:230)
+	at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:205)
+	at org.apache.pig.tools.grunt.Grunt.run(Grunt.java:66)
+	at org.apache.pig.Main.run(Main.java:558)
+	at org.apache.pig.Main.main(Main.java:170)
+================================================================================
+Pig Stack Trace
+---------------
+ERROR 1025: 
+<line 2, column 33> Invalid field projection. Projected field [journal] does not exist.
+
+org.apache.pig.impl.plan.PlanValidationException: ERROR 1025: 
+<line 2, column 33> Invalid field projection. Projected field [journal] does not exist.
+	at org.apache.pig.newplan.logical.expression.ProjectExpression.findColNum(ProjectExpression.java:191)
+	at org.apache.pig.newplan.logical.expression.ProjectExpression.setColumnNumberFromAlias(ProjectExpression.java:174)
+	at org.apache.pig.newplan.logical.visitor.ColumnAliasConversionVisitor$1.visit(ColumnAliasConversionVisitor.java:53)
+	at org.apache.pig.newplan.logical.expression.ProjectExpression.accept(ProjectExpression.java:215)
+	at org.apache.pig.newplan.DependencyOrderWalker.walk(DependencyOrderWalker.java:75)
+	at org.apache.pig.newplan.PlanVisitor.visit(PlanVisitor.java:52)
+	at org.apache.pig.newplan.logical.optimizer.AllExpressionVisitor.visit(AllExpressionVisitor.java:80)
+	at org.apache.pig.newplan.logical.relational.LOFilter.accept(LOFilter.java:79)
+	at org.apache.pig.newplan.DependencyOrderWalker.walk(DependencyOrderWalker.java:75)
+	at org.apache.pig.newplan.PlanVisitor.visit(PlanVisitor.java:52)
+	at org.apache.pig.newplan.logical.relational.LogicalPlan.validate(LogicalPlan.java:175)
+	at org.apache.pig.PigServer$Graph.validateQuery(PigServer.java:1708)
+	at org.apache.pig.PigServer$Graph.registerQuery(PigServer.java:1680)
+	at org.apache.pig.PigServer.registerQuery(PigServer.java:623)
+	at org.apache.pig.tools.grunt.GruntParser.processPig(GruntParser.java:1063)
+	at org.apache.pig.tools.pigscript.parser.PigScriptParser.parse(PigScriptParser.java:501)
+	at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:230)
+	at org.apache.pig.tools.grunt.GruntParser.parseStopOnError(GruntParser.java:205)
+	at org.apache.pig.tools.grunt.Grunt.run(Grunt.java:66)
+	at org.apache.pig.Main.run(Main.java:558)
+	at org.apache.pig.Main.main(Main.java:170)
+================================================================================

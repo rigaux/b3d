@@ -1,0 +1,40 @@
+{
+	"type":"object",
+	"$schema": "http://json-schema.org/draft-03/schema",
+	"properties":{
+		"_id": {"type":"string", "ipsum": "id"},
+		"actors": {
+			"type":"array",
+			"items":
+				{
+					"type":"object",
+					"required":false,
+					 "minItems": 2,
+	                 "maxItems": 6,
+					"properties":{
+						"_id": {"type":"string", "ipsum": "id"},
+						"birth_date": {"type":"string", "format": "date"},
+						"first_name": {"type":"string", "ipsum": "fname"},
+						"last_name": {"type":"string", "ipsum": "fname"},
+						"role": {"type":"string"}
+					}
+				}
+		},
+		"genre": {"type":"string",  
+		         "enum": [ "Drame", "Comédie", "Action", "Guerre", "Science-Fiction"]},
+		"summary": {"type":"string", "required":false},
+		"title": {"type":"string"},
+		"year": {"type":"integer"},
+		"country": {"type":"string",  "enum": [ "USA", "FR", "IT"]},
+		"director": {
+			"type":"object",
+			"properties":{
+				"_id":{"type":"string"},
+				"birth_date": {"type":"string"},
+				"first_name":  {"type":"string", "ipsum": "fname"},
+				"last_name":{"type":"string", "ipsum": "fname"}
+			}
+		}
+	}
+}
+

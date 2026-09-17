@@ -1,0 +1,119 @@
+[
+  {
+    "color": "#F58F53",
+    "name": "Tramway 3A",
+    "number": "3A",
+    "route_name": "PONT GARIGLIANO - HOP G.POMPIDOU <-> PORTE DE VINCENNES"
+  },
+  {
+    "color": "",
+    "name": "Tramway 3B",
+    "number": "3B",
+    "route_name": "Porte de vincennes <-> porte de la chapelle"
+  },
+  {
+    "color": "#BC438C",
+    "name": "Tramway 2",
+    "number": "T2",
+    "route_name": "Pont De Bezons <-> Porte de Versailles"
+  },
+  {"color": null, "name": "RER A", "number": "A", "route_name": "RER A"},
+  {"color": null, "name": "RER B", "number": "B", "route_name": "RER B"},
+  {"color": null, "name": "RER C", "number": "C", "route_name": "RER C"},
+  {
+    "color": "#FECC2F",
+    "name": "Ligne 1",
+    "number": "1",
+    "route_name": "La Défense ↔ Château de Vincennes"
+  },
+  {
+    "color": "#106FB6",
+    "name": "Ligne 2",
+    "number": "2",
+    "route_name": "Porte Dauphine ↔ Nation"
+  },
+  {
+    "color": "#9B9842",
+    "name": "Ligne 3",
+    "number": "3",
+    "route_name": "Pont de Levallois ↔ Gallieni"
+  },
+  {
+    "color": "#8BD3DE",
+    "name": "Ligne 3 Bis",
+    "number": "3 Bis",
+    "route_name": "Gambetta ↔ Porte des Lilas"
+  },
+  {
+    "color": "#B94D9A",
+    "name": "Ligne 4",
+    "number": "4",
+    "route_name": "Porte de Clignancourt ↔ Mairie de Montrouge"
+  },
+  {
+    "color": "#F58F53",
+    "name": "Ligne 5",
+    "number": "5",
+    "route_name": "Bobigny - Pablo Picasso ↔ Place d’Italie"
+  },
+  {
+    "color": "#7AC597",
+    "name": "Ligne 6",
+    "number": "6",
+    "route_name": "Charles de Gaulle - Étoile ↔ Nation"
+  },
+  {
+    "color": "#7AC597",
+    "name": "Ligne 7 Bis",
+    "number": "7 Bis",
+    "route_name": "Louis Blanc ↔ Pré Saint-Gervais"
+  },
+  {
+    "color": "#F39FB2",
+    "name": "Ligne 7",
+    "number": "7",
+    "route_name": "La Courneuve - 8 mai 1945 ↔ Villejuif - Louis Aragon / Mairie d’Ivry"
+  },
+  {
+    "color": "#C4A4CC",
+    "name": "Ligne 8",
+    "number": "8",
+    "route_name": "Balard ↔ (Créteil) Pointe du Lac"
+  },
+  {
+    "color": "#CEC83D",
+    "name": "Ligne 9",
+    "number": "9",
+    "route_name": "Pont de Sèvres ↔ Mairie de Montreuil"
+  },
+  {
+    "color": "#DFAF47",
+    "name": "Ligne 10",
+    "number": "10",
+    "route_name": "Boulogne - Pont de Saint-Cloud ↔ Gare d’Austerlitz"
+  },
+  {
+    "color": "#8C653D",
+    "name": "Ligne 11",
+    "number": "11",
+    "route_name": "Châtelet ↔ Mairie des Lilas"
+  },
+  {
+    "color": "#128B5B",
+    "name": "Ligne 12",
+    "number": "12",
+    "route_name": "Front Populaire ↔ Mairie d’Issy"
+  },
+  {
+    "color": "#8BD3DE",
+    "name": "Ligne 13",
+    "number": "13",
+    "route_name": "Asnières Gennevilliers Les Courtilles / Saint-Denis - Université ↔ Châtillon - Montrouge"
+  },
+  {
+    "color": "#65318F",
+    "name": "Ligne 14",
+    "number": "14",
+    "route_name": "Saint-Lazare ↔ Olympiades"
+  }
+]

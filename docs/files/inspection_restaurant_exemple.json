@@ -1,0 +1,18 @@
+{
+	"idRestaurant": 40373938,
+	"restaurant": {
+		"name": "IHOP",
+		"borough": "BRONX",
+		"buildingnum": "5655",
+		"street": "BROADWAY",
+		"zipcode": "10463",
+		"phone": "7185494565",
+		"cuisineType": "American"
+	},
+	"inspectionDate": "2016-08-16",
+	"violationCode": "04L",
+	"violationDescription": "Evidence of mice or live mice present in facility's food and/or non-food areas.",
+	"criticalFlag": "Critical",
+	"score": 15,
+	"grade": "A"
+}

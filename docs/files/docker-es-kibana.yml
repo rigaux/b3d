@@ -1,0 +1,31 @@
+version: '3'
+services:
+services:
+  es01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.3
+    container_name: es01
+    environment:
+      - node.name=es01
+      - cluster.name=es-single
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - 9200:9200
+    networks:
+      - elastic
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.9.2
+    environment:
+      - ELASTICSEARCH_URL=http://localhost:9200
+    ports:
+      - 5601:5601
+
+networks:
+  elastic:
+    driver: bridge

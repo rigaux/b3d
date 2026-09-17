@@ -1,0 +1,103 @@
+1999	Three-Dimensional Image Capture and Applications	Real-time Active Range Finder Using Light Intensity Modulation.	Takeo Azuma, Kenya Uomori, Atsushi Morimura
+2000	Three-Dimensional Image Capture and Applications	Strategies for Registering Range Images from Unknown Camera Positions.	Fausto Bernardini, Holly E. Rushmeier
+2000	Three-Dimensional Image Capture and Applications	High-resolution Ultrafast 3D Imaging.	Jnos Rohly, Douglas P. Hart
+1998	Three-Dimensional Image Capture and Applications	Optoelectronic dimensional Integral Inspection of Hollow Cylinder-type Articles for conveyor Line.	Oleg I. Bityutsky, Yuri V. Chugui, Boris E. Krivenkov, Vladimir I. Ladigin, Alexander I. Pastushenko, Sergey V. Plotnikov, Victor V. Vertoprakhov, Sergey P. Yunoshev
+1999	Three-Dimensional Image Capture and Applications	Development of a 3D Digitizer for Breast Surgery Procedures.	Jorge Rodriguez-Larena, Fernando Canal
+2000	Three-Dimensional Image Capture and Applications	Automatic Reconstruction of Large 3D Models of Real Environments from Unregistered Data-sets.	Faysal Boughorbel, David L. Page, Mongi A. Abidi
+1998	Three-Dimensional Image Capture and Applications	Three-line High-power Three-dimensional Sensor.	Liviu Bursanescu, Mihaela Bursanescu
+1999	Three-Dimensional Image Capture and Applications	Multispectral Pattern Projection Range Finder.	Tatsuo Sato
+2000	Three-Dimensional Image Capture and Applications	High-speed Three-dimensional Laser Sensor.	Liviu Bursanescu, Mihaela Bursanescu, Maher Hamdi, Franois Blais, David Green
+1998	Three-Dimensional Image Capture and Applications	3D Range Optical Sensor: analysis of the Measurement Errors and Development of Procedures for Their Compensation.	Matteo Carocci, Sara Lazzari, Roberto Rodella, Giovanna Sansoni
+1999	Three-Dimensional Image Capture and Applications	3D Profilometry Using a Dynamically Configurable Confocal Microscope.	Sungdo Cha, Paul C. Lin, Lijun Zhu, Elliot L. Botvinick, Pang-Chen Sun, Yeshaiahu Fainman
+1999	Three-Dimensional Image Capture and Applications	Examining Laser Triangulation System Performance Using a Software Simulation.	Jeffery S. Collier, Joseph H. Nurre
+1998	Three-Dimensional Image Capture and Applications	Effect of Sway on Image Fidelity in Whole-body Digitizing.	Brian Corner, Anmin Hu
+1999	Three-Dimensional Image Capture and Applications	Moly: A Prototype Handheld 3D Digitizer with Diffraction Optics.	Tom D. Ditto, Douglas A. Lyon
+1999	Three-Dimensional Image Capture and Applications	Reconstruction of the Surface of the Human Body from 3D Scanner Data Using 13-splines.	Ioannis Douros, Laura Dekker, Bernard F. Buxton
+1998	Three-Dimensional Image Capture and Applications	Reverse Engineering Using Optical 3D Sensors.	Harald Schnfeld, Gerd Husler, Stefan Karbacher
+1998	Three-Dimensional Image Capture and Applications	Wrapping 3D Scanning Data.	Herbert Edelsbrunner, Michael A. Facello, Ping Fu, Jiang Qian, Dmitry V. Nekhayev
+1999	Three-Dimensional Image Capture and Applications	Spherical Harmonic Surface Representation with Feedback Control.	Sarp Ertrk, Tim J. Dennis
+1999	Three-Dimensional Image Capture and Applications	Efficient Free-form Surface Representation with Application in Orthodontics.	Sameh M. Yamany, Ahmed R. El-Bialy
+2000	Three-Dimensional Image Capture and Applications	Real-time 3D Shape Measurement with Digital Stripe Projection by Texas Instruments Micro Mirror Devices DMD.	Gottfried Frankowski, Mai Chen, Torsten Huth
+1998	Three-Dimensional Image Capture and Applications	Multiscale Analysis of 3D Surface Image: Application to Clam Shell Characterization.	A. Garcia, Frdric Truchetet, Olivier Laligant, Christophe Dumont, Eric Verrecchia, Mongi A. Abidi
+1999	Three-Dimensional Image Capture and Applications	Multiple Structured Light System for the 3D Measurement of Feet.	Hansjrg Grtner, Jean-Franois Lavoie, Eric Vermette, Pascal-Simon Houle
+1998	Three-Dimensional Image Capture and Applications	Pose and Motion Estimation Using Dual quaternion-based Extended Kalman Filtering.	James S. Goddard Jr., Mongi A. Abidi
+2000	Three-Dimensional Image Capture and Applications	Direct Estimation of 3D Motion Parameters and Relative Depth Using the Minimum Description Length Principle.	Souad Hadjres, Amar Mitiche
+1999	Three-Dimensional Image Capture and Applications	Depth-based Selective Image Reconstruction Using Spatiotemporal Image Analysis.	Tetsuji Haga, Kazuhiko Sumi, Manabu Hashimoto, A. Seki
+1998	Three-Dimensional Image Capture and Applications	Toward a Handheld Laser Range Scanner: Integrating Observation-based Motion Compensation.	Patrick Hbert, Marc Rioux
+1999	Three-Dimensional Image Capture and Applications	Slicing, Fitting, and Linking (SFL): A Modular Triangulation Approach.	Elsayed E. Hemayed, Aly A. Farag
+2000	Three-Dimensional Image Capture and Applications	3D Object Reconstruction from a Sequence of Images Using Voxel Coloring.	Elsayed E. Hemayed, Mostafa G.-H. Mostafa, Aly A. Farag
+1999	Three-Dimensional Image Capture and Applications	3D Profiling by Optical Demodulation with an Image Intensifier.	Heinrich Hfler, Volker Jetter, Elmar Wagner
+2000	Three-Dimensional Image Capture and Applications	Restoration of Broken Earthenware Using Close Range Photogrammetry and a CAD System.	Amir Saeed Homainejad, Mohamad Hassan Asgari
+1998	Three-Dimensional Image Capture and Applications	Real-time 3D Reconstruction System using CAM-based Highly Parallel Processing Board.	Eiichi Hosoya, Mamoru Nakanishi, Takeshi Ogura
+1998	Three-Dimensional Image Capture and Applications	Novel Fully Integrated Computer System for Custom Footwear: from 3D Digitization to Manufacturing.	Pascal-Simon Houle, Eric Beaulieu, Zhaoheng Liu
+1999	Three-Dimensional Image Capture and Applications	Reconstruction of Complete 3D Object Model from Multiview Range Images.	Yi-Ping Hung, Chu-Song Chen, Ing-Bor Hsieh, Chiou-Shann Fuh
+1999	Three-Dimensional Image Capture and Applications	Color Digitizing and Modeling of Free-form 3D Objects.	Timothe Jost, Christian Schtz, Heinz Hgli
+2000	Three-Dimensional Image Capture and Applications	Object Modeling in Multiple-object 3D Scene Using Deformable Simplex Meshes.	Ernesto L. Juarez, Christophe Dumont, Mongi A. Abidi
+1999	Three-Dimensional Image Capture and Applications	Robust 3D Reconstruction System for Human Jaw Modeling.	Sameh M. Yamany, Aly A. Farag, David Tasman, Allan G. Farman
+2000	Three-Dimensional Image Capture and Applications	Acquisition of 3D Image Representation in Multimedia Ambiance Communication using 3D Laser Scanner and Digital Camera.	Toshifumi Kanamaru, Kunio Yamada, Tadashi Ichikawa, Takeshi Naemura, Kiyoharu Aizawa, Takahiro Saito
+1998	Three-Dimensional Image Capture and Applications	New Approach for the Modeling and Smoothing of Scattered 3D Data.	Stefan Karbacher, Gerd Husler
+2000	Three-Dimensional Image Capture and Applications	Fast Shape from Focus Using Dynamic Programming.	Joungil Yun, Tae-Sun Choi
+2000	Three-Dimensional Image Capture and Applications	Axi-vision Camera: A Three-dimensional Camera.	Masahiro Kawakita, Keigo Iizuka, Tahito Aida, Hiroshi Kikuchi, Hideo Fujikake, Jun Yonai, Kuniharo Takizawa
+2000	Three-Dimensional Image Capture and Applications	Real-time Structured Light Depth Extraction.	Kurtis Keller, Jeremy Ackerman
+2000	Three-Dimensional Image Capture and Applications	Impact of Intensity Edge map on Segmentation of Noisy Range Images.	Yan Zhang, Yiyong Sun, Hamed Sari-Sarraf, Mongi A. Abidi
+2000	Three-Dimensional Image Capture and Applications	Interpolation of Ray-space Data by Adaptive Filtering.	Takeyuki Kobayashi, Toshiaki Fujii, Tadahiko Kimoto, Masayuki Tanimoto
+1999	Three-Dimensional Image Capture and Applications	Three Steps to Make Shape from Shading Work Consistently on Real Scenes.	Holger Lange
+1999	Three-Dimensional Image Capture and Applications	Robust Cooperation Concept for Low-level Vision Modules.	Holger Lange, Jean-Christophe Culioli
+1999	Three-Dimensional Image Capture and Applications	Error Sensitivity of Rotation Angles in the ICP Algorithm.	Byung-Uk Lee, Chul-Min Kim, Rae-Hong Park
+1998	Three-Dimensional Image Capture and Applications	3D Surface Real-time Measurement Using Phase-shifted Interference Fringe Technique for Craniofacial Identification.	Gennady G. Levin, Gennady N. Vishnyakov, Alexey A. Naumov, Sergei S. Abramov
+1998	Three-Dimensional Image Capture and Applications	Automated Fudicial Labeling on Human Body Data.	Erick A. Lewark, Joseph H. Nurre
+2000	Three-Dimensional Image Capture and Applications	Segmenting 3D Surface Scan Data of the Human Body by 2D Projection.	Peng Li, Brian D. Corner, Steven Paquette
+1999	Three-Dimensional Image Capture and Applications	Extracting Surface Area Coverage by Superimposing 3D Scan Data.	Peng Li, Brian D. Corner, Steven Paquette
+2000	Three-Dimensional Image Capture and Applications	Entropy of Profile Sections to Estimate the Next Sensor Position.	Christian Liska, Robert Sablatnig
+2000	Three-Dimensional Image Capture and Applications	Optimizing Triangular Mesh Generation from Range Images.	Tianyu Lu, D. Y. Y. Yun
+1999	Three-Dimensional Image Capture and Applications	CyberModeler: A Compact 3D Scanner Based on Monoscopic Camera.	Yukinori Matsumoto, Kouta Fujimura, Toru Kitamura
+1998	Three-Dimensional Image Capture and Applications	Adaptive Area-based Stereo Matching.	Christian Menard, Robert Sablatnig
+1998	Three-Dimensional Image Capture and Applications	Gel Tomography for 3D Acquisition of Plant Root Systems.	Kevin Montgomery, Gerard Heyenga
+1999	Three-Dimensional Image Capture and Applications	Real-time Monitoring of Icebreaker Propeller Blades' Ice Load Using Underwater Laser ranging System.	Andr Morin, Michel Arsenault, Merv H. Edgecombe, Ernst Radloff
+2000	Three-Dimensional Image Capture and Applications	Scanning Projection Grating Moire Topography.	Jung-Taek Oh, Sangyoon Lee, Seung-Woo Kim
+2000	Three-Dimensional Image Capture and Applications	ShapeGrabber FootScanner: A Low Cost High Accuracy 3D System for the Acquisition of Human Feet.	Franois Blais, Joel A. Bisson, Steven Williams, Nancy Roberston, Serge Rozin, Andrew Nelson
+1999	Three-Dimensional Image Capture and Applications	3D Reconstruction, Visualization, and Measurement of MRI Images.	Abhijit S. Pandya, Pritesh P. Patel, Mehul B. Desai, Paramtap Desai
+1999	Three-Dimensional Image Capture and Applications	Generating Animated Sequences from 3D Whole-body Scans.	Roy P. Pargas, Murtuza Chatriwala, Daniel Mulfinger, Pushkar Deshmukh, Sathish S. Vadhiyar
+1998	Three-Dimensional Image Capture and Applications	Tilted Planes in 3D Image Analysis.	Roy P. Pargas, Nancy J. Staples, Brian F. Malloy, Ken Cantrell, Murtuza Chatriwala
+2000	Three-Dimensional Image Capture and Applications	Monitoring and Measurement of Movement of Objects by Fringe Projection Method.	Michal Pawlowski, Malgorzata Kujawinska, Marek Wegiel
+2000	Three-Dimensional Image Capture and Applications	Parameters Matching of Objects in Video Sequences.	Yannick Perret, Thierry Excoffier, Sada Bouakaz
+2000	Three-Dimensional Image Capture and Applications	Optimizing Random Patterns for Invariants-based Identification.	Maurizio Pilu
+2000	Three-Dimensional Image Capture and Applications	Three-dimensional Scene Reconstruction from Images.	Marc Pollefeys, Reinhard Koch, Maarten Vergauwen, Bert DeKnuydt, Luc J. Van Gool
+1998	Three-Dimensional Image Capture and Applications	3D Shape Initialization of Objects in Multiview Image Sequences.	Thomas B. Riegel, Federico Pedersini, Roberto Manzotti
+1998	Three-Dimensional Image Capture and Applications	3D Textured Models of Indoor Scenes from Composite Range and Video Images.	Vtor Sequeira, Kia Ng, Stuart Butterfield, Joo G. M. Gonalves, David Hogg
+1998	Three-Dimensional Image Capture and Applications	Three-dimensional Shape Reconstruction from Two-dimensional Images Using Symmetric Camera Location.	Masaharu Shimanuki, Hiroyuki Sato, Takao Akatsuka
+2000	Three-Dimensional Image Capture and Applications	New Class Library for Animation of Voxel Humans.	Goh Shuang Ru, Orapan Kluenkaew, Tang Ming Lee, Zhonge Wu, Edmond C. Prakash
+2000	Three-Dimensional Image Capture and Applications	Opto-numerical Methods of Data Acquisition for Computer Graphics and Animation Systems.	Robert Sitnik, Malgorzata Kujawinska
+1998	Three-Dimensional Image Capture and Applications	VIRO 3D: Tast Three-dimensional Full-body Scanning for Humans and Other Living Objects.	Norbert Stein, Bernhard Minge
+2000	Three-Dimensional Image Capture and Applications	High-resolution Triangulation of Arbitrary Shaped Surfaces based on Coordinate Curves.	Bijan Timsari
+2000	Three-Dimensional Image Capture and Applications	Differential Motions for Recovering 3D Structure and Motions from an Unstructured Environment.	Jos Vicente, Domingo Guinea, Victor M. Preciado
+2000	Three-Dimensional Image Capture and Applications	Recreation of Three-dimensional Objects in a Real-time Simulated Environment by Means of a Panoramic Single Lens Stereoscopic Image-Capturing Device.	Erwin Wong
+2000	Three-Dimensional Image Capture and Applications	Volumetric Apparel for Visible Female.	Zhonge Wu, Goh Shuang Ru, Orapan Kluenkaew, Tang Ming Lee, Edmond C. Prakash
+2005	3DIM	Gaussian Scale-Space Dense Disparity Estimation with Anisotropic Disparity-Field Diffusion.	Jangheon Kim, Thomas Sikora
+2005	3DIM	Projection-Based Registration Using a Multi-View Camera for Indoor Scene Reconstruction.	Sehwan Kim, Woontack Woo
+2005	3DIM	Registration of Multiple Range Scans as a Location Recognition Problem: Hypothesis Generation, Refinement and Verification.	Bradford J. King, Tomasz Malisiewicz, Charles V. Stewart, Richard J. Radke
+2001	3DIM	In Process 3D-Sensing for Laser Material Processing.	P. Klinger, B. Spellenberg, J. M. Hermann, Gerd Husler
+1997	3DIM	From Coarse to Fine Correspondence of 3-D Facial Images and its Application to Facial Caricaturing.	Takayuki Kondo, Kazuhito Murakami, Hiroyasu Koshimizu
+2005	3DIM	Automatic Class Selection and Prototyping for 3-D Object Classification.	Raghavendra Donamukkala, Daniel F. Huber, Anuj Kapuria, Martial Hebert
+2003	3DIM	Weighted Cone-Curvature: Applications for 3D Shapes Similarity.	Miguel Adn, Antonio Adn, Carlos Cerrada, Pilar Merchn, Santiago Salamanca
+2005	3DIM	Capturing 2½D Depth and Texture of Time-Varying Scenes Using Structured Infrared Light.	Christian Frh, Avideh Zakhor
+2005	3DIM	Accurate Principal Directions Estimation in Discrete Surfaces.	Gady Agam, Xiaojing Tang
+2001	3DIM	3D Modeling System of Human Face and Full 3D Facial Caricaturing.	Takayuki Fujiwara, Hiroyasu Koshimizu, Kouta Fujimura, Hitoshi Kihara, Yoshiaki Noguchi, Naoya Ishikawa
+2003	3DIM	Colour Texture Fusion of Multiple Range Images.	Alexander Agathos, Robert B. Fisher
+1999	3DIM	On the Detection of Feature Points of 3D Facial Image and its Application to 3D Facial Caricature.	Takayuki Fujiwara, Takeshi Nishihara, Masafumi Tominaga, Hiroyasu Koshimizu, Kunihito Kato, Kazuhito Murakami
+2003	3DIM	3D Animation Of Cerebral Activity Using Both Spatial And Temporal fMRI Information.	Cdric Aguerre, Pascal Desbarats, Bixente Dilharreguy, Chrit T. W. Moonen
+2003	3DIM	Interactive Shape Acquisition using Marker Attached Laser Projecto.	Ryo Furukawa, Hiroshi Kawasaki
+1997	3DIM	CAD and Vision in Rangefinder-based Dimensional Metrology.	Heikki Ailisto
+2005	3DIM	Uncalibrated Multiple Image Stereo System with Arbitrarily Movable Camera and Projector for Wide Range Scanning.	Ryo Furukawa, Hiroshi Kawasaki
+2003	3DIM	Three-Dimensional Reconstruction of the Bony Structures involved in the Articular Complex of the Human Shoulder Using Shape-Based Interpolation and Contour-Based Extrapolation.	Alexandra Branzan Albu, Denis Laurendeau, Luc J. Hbert, Hlne Moffet, Christian Moisan
+1999	3DIM	Virtual Environment Modeling by Integrated Optical and Acoustic Sensing.	Andrea Fusiello, Riccardo Giannitrapani, V. Isaia, Vittorio Murino
+2001	3DIM	AVENUE: Automated Site Modeling in Urban Environments.	Peter K. Allen, Ioannis Stamos, Atanas Gueorguiev, Ethan Gold, Paul Blaer
+1999	3DIM	OSCAR: Object Segmentation Using Correspondence and Relaxation.	Ben Galvin, Brendan McCane, Kevin Novins
+2005	3DIM	Efficient Discovery Service for a Digital Library of 3D Models.	Hesham Anan, Kurt Maly, Mohammad Zubair
+1997	3DIM	Industrial Painting Inspection using Specular Sharpness.	Jaime Gmez Garca-Bermejo, J. Delgado Urrechu, F. J. Diaz Pernas, Juan Lpez Coronado
+2003	3DIM	Automatic 3D modeling of palatal plaster casts.	Marco Andreetto, Nicola Brusco, Guido Maria Cortelazzo
+2003	3DIM	Geometrically Stable Sampling for the ICP Algorithm.	Natasha Gelfand, Szymon Rusinkiewicz, Leslie Ikemoto, Marc Levoy
+1999	3DIM	On-Line Hand-Eye Calibration.	Nicolas Andreff, Radu Horaud, Bernard Espiau
+2005	3DIM	Multiresolution Interactive Modeling with Efficient Visualization.	Jean-Daniel Deschnes, Patrick Hbert, Philippe Lambert, Jean-Nicolas Ouellet, Dragan Tubic
+2005	3DIM	A Robust Image-Based Method for 3D Registration.	Ting Li
+2001	3DIM	A 3D Laser Micro-sensor Integrating Control and Data Processing in an FPGA-Based Calculator.	Nestor Arana-Arejolaleiba, Maurice Briot, Christian Ganibal, Alexandre Nketsa, Roland Prajoux

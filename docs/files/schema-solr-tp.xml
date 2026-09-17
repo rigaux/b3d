@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<schema name="example" version="1.5">
+  <!--  Liste des champs de l'index -->
+  <fields>
+    <field name="_id" type="string" indexed="true" stored="true"
+      required="true" />
+    <field name="contenu" type="text" indexed="true" stored="true"
+      required="true" />
+    <!-- Un champ dans lequel on concatène les autres pour une recherche "plein-texte" -->
+    <field name="text" type="text" indexed="true" stored="true"
+      multiValued="true" />
+    <copyField source="contenu" dest="text" />
+
+    <!-- Un champ "technique" requis par Solr/Lucene -->
+    <field name="_version_" type="long" indexed="true" stored="true" />
+  </fields>
+
+  <!-- La clé d'accès à un document dans l'index -->
+  <uniqueKey>_id</uniqueKey>
+
+  <!-- Configuration des types de champ -->
+  <types>
+    <fieldType name="string" class="solr.StrField" />
+    <fieldType name="int" class="solr.IntField" />
+    <fieldType name="long" class="solr.LongField" />
+    <fieldType name="text" class="solr.TextField">
+      <analyzer>
+        <tokenizer class="solr.StandardTokenizerFactory" />
+            <!-- Normalisations diverses -->
+        <!-- <filter class="solr.LowerCaseFilterFactory" />
+        <filter class="solr.ElisionFilterFactory"/> -->
+        <!-- suppression des mots vides -->
+       <!-- <filter class="solr.StopFilterFactory" ignoreCase="1" words="monCheminVersLeCoreSolr/conf/stopwords.txt" /> -->
+        <filter class="solr.SnowballPorterFilterFactory" language="French" /> 
+
+        <!-- suppression d'éventuelles balises HTML-->
+        <!--<charFilter class="solr.HTMLStripCharFilterFactory"/>-->
+
+        <!--[> découpage selon les espaces <]-->
+        <!--<tokenizer class="solr.WhitespaceTokenizerFactory"/>-->
+
+        <!--[> suppression de la ponctuation <]-->
+        <!--<filter class="solr.PatternReplaceFilterFactory" pattern="^(\p{Punct}*)(.*?)(\p{Punct}*)$" replacement="$2"/>-->
+
+        <!--[> suppression des tokens vides et des mots démesurés <]-->
+        <!--<filter class="solr.LengthFilterFactory" min="1" max="100" />-->
+
+        <!--[> passage en minuscules <]-->
+        <!--<filter class="solr.LowerCaseFilterFactory"/>-->
+
+        <!--[> suppression des élisions (l', qu',...) <]-->
+        <!--<filter class="solr.ElisionFilterFactory" articles="elisionwords.txt"/> -->
+
+        <!--[> découpage des mots composés <]-->
+        <!--<filter class="solr.WordDelimiterFilterFactory" splitOnCaseChange="1" splitOnNumerics="1" stemEnglishPossessive="1" generateWordParts="1"-->
+         <!--generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="1" preserveOriginal="1"/>-->
+
+        <!--[> suppression des mots insignifiants <]-->
+        <!--<filter class="solr.StopFilterFactory" ignoreCase="1" words="stopwords.txt" enablePositionIncrements="true"/>-->
+
+        <!--[> gestion des synonymes <]-->
+  <!--<filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>-->
+
+        <!--[> lemmatisation (pluriels,...) <]-->
+        <!--<filter class="solr.SnowballPorterFilterFactory" language="French" protected="protwords.txt"/>-->
+
+        <!--[> normalisation des accents, cédilles, e dans l'o,...<]-->
+        <!--<filter class="solr.ASCIIFoldingFilterFactory"/>-->
+
+        <!--[> suppression des doublons éventuels <]-->
+        <!--<filter class="solr.RemoveDuplicatesTokenFilterFactory"/>-->
+      </analyzer>
+    </fieldType>
+  </types>
+</schema>
+

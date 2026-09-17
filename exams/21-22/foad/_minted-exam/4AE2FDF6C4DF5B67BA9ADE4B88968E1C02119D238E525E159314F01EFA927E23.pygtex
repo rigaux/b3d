@@ -1,3 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{articleEtAuteur} \PYG{o}{=} \PYG{n}{cogroup} \PYG{n}{Articles} \PYG{k}{by} \PYG{k}{ref}\PYG{p}{,} \PYG{n}{Auteurs} \PYG{k}{by} \PYG{n}{refArticle}\PYG{p}{;}
-\end{Verbatim}

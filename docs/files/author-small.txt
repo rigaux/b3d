@@ -1,0 +1,101 @@
+Jurgen Annevelink	Modern Database Systems	Object SQL - A Language for the Design and Implementation of Object Databases.	1995
+Rafiul Ahad	Modern Database Systems	Object SQL - A Language for the Design and Implementation of Object Databases.	1995
+Amelia Carlson	Modern Database Systems	Object SQL - A Language for the Design and Implementation of Object Databases.	1995
+Daniel H. Fishman	Modern Database Systems	Object SQL - A Language for the Design and Implementation of Object Databases.	1995
+Michael L. Heytens	Modern Database Systems	Object SQL - A Language for the Design and Implementation of Object Databases.	1995
+William Kent	Modern Database Systems	Object SQL - A Language for the Design and Implementation of Object Databases.	1995
+Jos A. Blakeley	Modern Database Systems	OQL[C++]: Extending C++ with an Object Query Capability.	1995
+Yuri Breitbart	Modern Database Systems	Transaction Management in Multidatabase Systems.	1995
+Hector Garcia-Molina	Modern Database Systems	Transaction Management in Multidatabase Systems.	1995
+Abraham Silberschatz	Modern Database Systems	Transaction Management in Multidatabase Systems.	1995
+Stavros Christodoulakis	Modern Database Systems	Multimedia Information Systems: Issues and Approaches.	1995
+Leonidas Koveos	Modern Database Systems	Multimedia Information Systems: Issues and Approaches.	1995
+Umeshwar Dayal	Modern Database Systems	Active Database Systems.	1995
+Eric N. Hanson	Modern Database Systems	Active Database Systems.	1995
+Jennifer Widom	Modern Database Systems	Active Database Systems.	1995
+Angelika Kotz Dittrich	Modern Database Systems	Where Object-Oriented DBMSs Should Do Better: A Critique Based on Early Experiences.	1995
+Klaus R. Dittrich	Modern Database Systems	Where Object-Oriented DBMSs Should Do Better: A Critique Based on Early Experiences.	1995
+Hector Garcia-Molina	Modern Database Systems	Distributed Databases.	1995
+Meichun Hsu	Modern Database Systems	Distributed Databases.	1995
+Nathan Goodman	Modern Database Systems	An Object-Oriented DBMS War Story: Developing a Genome Mapping Database in C++.	1995
+Gail E. Kaiser	Modern Database Systems	Cooperative Transactions for Multiuser Environments.	1995
+William Kelley	Modern Database Systems	Schema Architecture of the UniSQL/M Multidatabase System	1995
+Sunit K. Gala	Modern Database Systems	Schema Architecture of the UniSQL/M Multidatabase System	1995
+Won Kim	Modern Database Systems	Schema Architecture of the UniSQL/M Multidatabase System	1995
+Tom C. Reyes	Modern Database Systems	Schema Architecture of the UniSQL/M Multidatabase System	1995
+Bruce Graham	Modern Database Systems	Schema Architecture of the UniSQL/M Multidatabase System	1995
+Alfons Kemper	Modern Database Systems	Physical Object Management.	1995
+Guido Moerkotte	Modern Database Systems	Physical Object Management.	1995
+Won Kim	Modern Database Systems	Introduction to Part 1: Next-Generation Database Technology.	1995
+Won Kim	Modern Database Systems	Object-Oriented Database Systems: Promises, Reality, and Future.	1995
+Won Kim	Modern Database Systems	Introduction to Part 2: Technology for Interoperating Legacy Databases.	1995
+Won Kim	Modern Database Systems	On Resolving Schematic Heterogeneity in Multidatabase Systems.	1995
+Injun Choi	Modern Database Systems	On Resolving Schematic Heterogeneity in Multidatabase Systems.	1995
+Sunit K. Gala	Modern Database Systems	On Resolving Schematic Heterogeneity in Multidatabase Systems.	1995
+Mark Scheevel	Modern Database Systems	On Resolving Schematic Heterogeneity in Multidatabase Systems.	1995
+Won Kim	Modern Database Systems	Requirements for a Performance Benchmark for Object-Oriented Database Systems.	1995
+Jorge F. Garza	Modern Database Systems	Requirements for a Performance Benchmark for Object-Oriented Database Systems.	1995
+Won Kim	Modern Database Systems	On View Support in Object-Oriented Databases Systems.	1995
+William Kelley	Modern Database Systems	On View Support in Object-Oriented Databases Systems.	1995
+Vincent J. Kowalski	Modern Database Systems	The POSC Solution to Managing E&P Data.	1995
+David Krieger	Modern Database Systems	C++ Bindings to an Object Database.	1995
+Tim Andrews	Modern Database Systems	C++ Bindings to an Object Database.	1995
+Teresa F. Lunt	Modern Database Systems	Authorization in Object-Oriented Databases.	1995
+Weiyi Meng	Modern Database Systems	Query Processing in Multidatabase Systems.	1995
+Clement T. Yu	Modern Database Systems	Query Processing in Multidatabase Systems.	1995
+Amihai Motro	Modern Database Systems	Management of Uncerainty in database Systems.	1995
+Edward Omiecinski	Modern Database Systems	Parallel Relational Database Systems.	1995
+M. Tamer zsu	Modern Database Systems	Query Processing in Object-Oriented Database Systems.	1995
+Jos A. Blakeley	Modern Database Systems	Query Processing in Object-Oriented Database Systems.	1995
+Marek Rusinkiewicz	Modern Database Systems	Specification and Execution of Transactional Workflows.	1995
+Amit P. Sheth	Modern Database Systems	Specification and Execution of Transactional Workflows.	1995
+Hanan Samet	Modern Database Systems	Spatial Data Structures.	1995
+Hanan Samet	Modern Database Systems	Spatial Data Models and Query Processing.	1995
+Walid G. Aref	Modern Database Systems	Spatial Data Models and Query Processing.	1995
+Ming-Chien Shan	Modern Database Systems	Pegasus: A Heterogeneous Information Management System.	1995
+Rafi Ahmed	Modern Database Systems	Pegasus: A Heterogeneous Information Management System.	1995
+Jim Davis	Modern Database Systems	Pegasus: A Heterogeneous Information Management System.	1995
+Weimin Du	Modern Database Systems	Pegasus: A Heterogeneous Information Management System.	1995
+William Kent	Modern Database Systems	Pegasus: A Heterogeneous Information Management System.	1995
+Richard T. Snodgrass	Modern Database Systems	Temporal Object-Oriented Databases: A Critical Comparison.	1995
+Richard Mark Soley	Modern Database Systems	The OMG Object Model.	1995
+William Kent	Modern Database Systems	The OMG Object Model.	1995
+Ralph L. Stout	Modern Database Systems	EDA/SQL.	1995
+Craig W. Thompson	Modern Database Systems	The Changing Database Standards Landscape.	1995
+Yuri Breitbart	Modern Database Systems	Overview of the ADDS System.	1995
+Tom C. Reyes	Modern Database Systems	Overview of the ADDS System.	1995
+Anders Bjrnerstedt	Object-Oriented Concepts, Databases, and Applications	Version Control in an Object-Oriented Architecture.	1989
+Christer Hulten	Object-Oriented Concepts, Databases, and Applications	Version Control in an Object-Oriented Architecture.	1989
+Robert Bretl	Object-Oriented Concepts, Databases, and Applications	The GemStone Data Management System.	1989
+David Maier	Object-Oriented Concepts, Databases, and Applications	The GemStone Data Management System.	1989
+Allen Otis	Object-Oriented Concepts, Databases, and Applications	The GemStone Data Management System.	1989
+D. Jason Penney	Object-Oriented Concepts, Databases, and Applications	The GemStone Data Management System.	1989
+Bruce Schuchardt	Object-Oriented Concepts, Databases, and Applications	The GemStone Data Management System.	1989
+Jacob Stein	Object-Oriented Concepts, Databases, and Applications	The GemStone Data Management System.	1989
+E. Harold Williams	Object-Oriented Concepts, Databases, and Applications	The GemStone Data Management System.	1989
+Monty Williams	Object-Oriented Concepts, Databases, and Applications	The GemStone Data Management System.	1989
+Michael J. Carey	Object-Oriented Concepts, Databases, and Applications	Storage Management in EXODUS.	1989
+David J. DeWitt	Object-Oriented Concepts, Databases, and Applications	Storage Management in EXODUS.	1989
+Joel E. Richardson	Object-Oriented Concepts, Databases, and Applications	Storage Management in EXODUS.	1989
+Eugene J. Shekita	Object-Oriented Concepts, Databases, and Applications	Storage Management in EXODUS.	1989
+Dominique Decouchant	Object-Oriented Concepts, Databases, and Applications	A Distributed Object Manager for the Smalltalk-80 System.	1989
+Jim Diederich	Object-Oriented Concepts, Databases, and Applications	Objects, Messages, and Rules in Database Design.	1989
+Jack Milton	Object-Oriented Concepts, Databases, and Applications	Objects, Messages, and Rules in Database Design.	1989
+Clarence A. Ellis	Object-Oriented Concepts, Databases, and Applications	Active Objects: Ealities and Possibilities.	1989
+Simon J. Gibbs	Object-Oriented Concepts, Databases, and Applications	Active Objects: Ealities and Possibilities.	1989
+Daniel H. Fishman	Object-Oriented Concepts, Databases, and Applications	Overview of the Iris DBMS.	1989
+Jurgen Annevelink	Object-Oriented Concepts, Databases, and Applications	Overview of the Iris DBMS.	1989
+David Beech	Object-Oriented Concepts, Databases, and Applications	Overview of the Iris DBMS.	1989
+E. C. Chow	Object-Oriented Concepts, Databases, and Applications	Overview of the Iris DBMS.	1989
+Tim Connors	Object-Oriented Concepts, Databases, and Applications	Overview of the Iris DBMS.	1989
+J. W. Davis	Object-Oriented Concepts, Databases, and Applications	Overview of the Iris DBMS.	1989
+Waqar Hasan	Object-Oriented Concepts, Databases, and Applications	Overview of the Iris DBMS.	1989
+C. G. Hoch	Object-Oriented Concepts, Databases, and Applications	Overview of the Iris DBMS.	1989
+William Kent	Object-Oriented Concepts, Databases, and Applications	Overview of the Iris DBMS.	1989
+S. Leichner	Object-Oriented Concepts, Databases, and Applications	Overview of the Iris DBMS.	1989
+Peter Lyngbk	Object-Oriented Concepts, Databases, and Applications	Overview of the Iris DBMS.	1989
+Brom Mahbod	Object-Oriented Concepts, Databases, and Applications	Overview of the Iris DBMS.	1989
+Marie-Anne Neimat	Object-Oriented Concepts, Databases, and Applications	Overview of the Iris DBMS.	1989
+Tore Risch	Object-Oriented Concepts, Databases, and Applications	Overview of the Iris DBMS.	1989
+Ming-Chien Shan	Object-Oriented Concepts, Databases, and Applications	Overview of the Iris DBMS.	1989
+W. Kevin Wilkinson	Object-Oriented Concepts, Databases, and Applications	Overview of the Iris DBMS.	1989

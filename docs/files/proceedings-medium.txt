@@ -1,0 +1,1007 @@
+1999	Three-Dimensional Image Capture and Applications	Real-time Active Range Finder Using Light Intensity Modulation.	Takeo Azuma, Kenya Uomori, Atsushi Morimura
+2000	Three-Dimensional Image Capture and Applications	Strategies for Registering Range Images from Unknown Camera Positions.	Fausto Bernardini, Holly E. Rushmeier
+2000	Three-Dimensional Image Capture and Applications	High-resolution Ultrafast 3D Imaging.	Jnos Rohly, Douglas P. Hart
+1998	Three-Dimensional Image Capture and Applications	Optoelectronic dimensional Integral Inspection of Hollow Cylinder-type Articles for conveyor Line.	Oleg I. Bityutsky, Yuri V. Chugui, Boris E. Krivenkov, Vladimir I. Ladigin, Alexander I. Pastushenko, Sergey V. Plotnikov, Victor V. Vertoprakhov, Sergey P. Yunoshev
+1999	Three-Dimensional Image Capture and Applications	Development of a 3D Digitizer for Breast Surgery Procedures.	Jorge Rodriguez-Larena, Fernando Canal
+2000	Three-Dimensional Image Capture and Applications	Automatic Reconstruction of Large 3D Models of Real Environments from Unregistered Data-sets.	Faysal Boughorbel, David L. Page, Mongi A. Abidi
+1998	Three-Dimensional Image Capture and Applications	Three-line High-power Three-dimensional Sensor.	Liviu Bursanescu, Mihaela Bursanescu
+1999	Three-Dimensional Image Capture and Applications	Multispectral Pattern Projection Range Finder.	Tatsuo Sato
+2000	Three-Dimensional Image Capture and Applications	High-speed Three-dimensional Laser Sensor.	Liviu Bursanescu, Mihaela Bursanescu, Maher Hamdi, Franois Blais, David Green
+1998	Three-Dimensional Image Capture and Applications	3D Range Optical Sensor: analysis of the Measurement Errors and Development of Procedures for Their Compensation.	Matteo Carocci, Sara Lazzari, Roberto Rodella, Giovanna Sansoni
+1999	Three-Dimensional Image Capture and Applications	3D Profilometry Using a Dynamically Configurable Confocal Microscope.	Sungdo Cha, Paul C. Lin, Lijun Zhu, Elliot L. Botvinick, Pang-Chen Sun, Yeshaiahu Fainman
+1999	Three-Dimensional Image Capture and Applications	Examining Laser Triangulation System Performance Using a Software Simulation.	Jeffery S. Collier, Joseph H. Nurre
+1998	Three-Dimensional Image Capture and Applications	Effect of Sway on Image Fidelity in Whole-body Digitizing.	Brian Corner, Anmin Hu
+1999	Three-Dimensional Image Capture and Applications	Moly: A Prototype Handheld 3D Digitizer with Diffraction Optics.	Tom D. Ditto, Douglas A. Lyon
+1999	Three-Dimensional Image Capture and Applications	Reconstruction of the Surface of the Human Body from 3D Scanner Data Using 13-splines.	Ioannis Douros, Laura Dekker, Bernard F. Buxton
+1998	Three-Dimensional Image Capture and Applications	Reverse Engineering Using Optical 3D Sensors.	Harald Schnfeld, Gerd Husler, Stefan Karbacher
+1998	Three-Dimensional Image Capture and Applications	Wrapping 3D Scanning Data.	Herbert Edelsbrunner, Michael A. Facello, Ping Fu, Jiang Qian, Dmitry V. Nekhayev
+1999	Three-Dimensional Image Capture and Applications	Spherical Harmonic Surface Representation with Feedback Control.	Sarp Ertrk, Tim J. Dennis
+1999	Three-Dimensional Image Capture and Applications	Efficient Free-form Surface Representation with Application in Orthodontics.	Sameh M. Yamany, Ahmed R. El-Bialy
+2000	Three-Dimensional Image Capture and Applications	Real-time 3D Shape Measurement with Digital Stripe Projection by Texas Instruments Micro Mirror Devices DMD.	Gottfried Frankowski, Mai Chen, Torsten Huth
+1998	Three-Dimensional Image Capture and Applications	Multiscale Analysis of 3D Surface Image: Application to Clam Shell Characterization.	A. Garcia, Frdric Truchetet, Olivier Laligant, Christophe Dumont, Eric Verrecchia, Mongi A. Abidi
+1999	Three-Dimensional Image Capture and Applications	Multiple Structured Light System for the 3D Measurement of Feet.	Hansjrg Grtner, Jean-Franois Lavoie, Eric Vermette, Pascal-Simon Houle
+1998	Three-Dimensional Image Capture and Applications	Pose and Motion Estimation Using Dual quaternion-based Extended Kalman Filtering.	James S. Goddard Jr., Mongi A. Abidi
+2000	Three-Dimensional Image Capture and Applications	Direct Estimation of 3D Motion Parameters and Relative Depth Using the Minimum Description Length Principle.	Souad Hadjres, Amar Mitiche
+1999	Three-Dimensional Image Capture and Applications	Depth-based Selective Image Reconstruction Using Spatiotemporal Image Analysis.	Tetsuji Haga, Kazuhiko Sumi, Manabu Hashimoto, A. Seki
+1998	Three-Dimensional Image Capture and Applications	Toward a Handheld Laser Range Scanner: Integrating Observation-based Motion Compensation.	Patrick Hbert, Marc Rioux
+1999	Three-Dimensional Image Capture and Applications	Slicing, Fitting, and Linking (SFL): A Modular Triangulation Approach.	Elsayed E. Hemayed, Aly A. Farag
+2000	Three-Dimensional Image Capture and Applications	3D Object Reconstruction from a Sequence of Images Using Voxel Coloring.	Elsayed E. Hemayed, Mostafa G.-H. Mostafa, Aly A. Farag
+1999	Three-Dimensional Image Capture and Applications	3D Profiling by Optical Demodulation with an Image Intensifier.	Heinrich Hfler, Volker Jetter, Elmar Wagner
+2000	Three-Dimensional Image Capture and Applications	Restoration of Broken Earthenware Using Close Range Photogrammetry and a CAD System.	Amir Saeed Homainejad, Mohamad Hassan Asgari
+1998	Three-Dimensional Image Capture and Applications	Real-time 3D Reconstruction System using CAM-based Highly Parallel Processing Board.	Eiichi Hosoya, Mamoru Nakanishi, Takeshi Ogura
+1998	Three-Dimensional Image Capture and Applications	Novel Fully Integrated Computer System for Custom Footwear: from 3D Digitization to Manufacturing.	Pascal-Simon Houle, Eric Beaulieu, Zhaoheng Liu
+1999	Three-Dimensional Image Capture and Applications	Reconstruction of Complete 3D Object Model from Multiview Range Images.	Yi-Ping Hung, Chu-Song Chen, Ing-Bor Hsieh, Chiou-Shann Fuh
+1999	Three-Dimensional Image Capture and Applications	Color Digitizing and Modeling of Free-form 3D Objects.	Timothe Jost, Christian Schtz, Heinz Hgli
+2000	Three-Dimensional Image Capture and Applications	Object Modeling in Multiple-object 3D Scene Using Deformable Simplex Meshes.	Ernesto L. Juarez, Christophe Dumont, Mongi A. Abidi
+1999	Three-Dimensional Image Capture and Applications	Robust 3D Reconstruction System for Human Jaw Modeling.	Sameh M. Yamany, Aly A. Farag, David Tasman, Allan G. Farman
+2000	Three-Dimensional Image Capture and Applications	Acquisition of 3D Image Representation in Multimedia Ambiance Communication using 3D Laser Scanner and Digital Camera.	Toshifumi Kanamaru, Kunio Yamada, Tadashi Ichikawa, Takeshi Naemura, Kiyoharu Aizawa, Takahiro Saito
+1998	Three-Dimensional Image Capture and Applications	New Approach for the Modeling and Smoothing of Scattered 3D Data.	Stefan Karbacher, Gerd Husler
+2000	Three-Dimensional Image Capture and Applications	Fast Shape from Focus Using Dynamic Programming.	Joungil Yun, Tae-Sun Choi
+2000	Three-Dimensional Image Capture and Applications	Axi-vision Camera: A Three-dimensional Camera.	Masahiro Kawakita, Keigo Iizuka, Tahito Aida, Hiroshi Kikuchi, Hideo Fujikake, Jun Yonai, Kuniharo Takizawa
+2000	Three-Dimensional Image Capture and Applications	Real-time Structured Light Depth Extraction.	Kurtis Keller, Jeremy Ackerman
+2000	Three-Dimensional Image Capture and Applications	Impact of Intensity Edge map on Segmentation of Noisy Range Images.	Yan Zhang, Yiyong Sun, Hamed Sari-Sarraf, Mongi A. Abidi
+2000	Three-Dimensional Image Capture and Applications	Interpolation of Ray-space Data by Adaptive Filtering.	Takeyuki Kobayashi, Toshiaki Fujii, Tadahiko Kimoto, Masayuki Tanimoto
+1999	Three-Dimensional Image Capture and Applications	Three Steps to Make Shape from Shading Work Consistently on Real Scenes.	Holger Lange
+1999	Three-Dimensional Image Capture and Applications	Robust Cooperation Concept for Low-level Vision Modules.	Holger Lange, Jean-Christophe Culioli
+1999	Three-Dimensional Image Capture and Applications	Error Sensitivity of Rotation Angles in the ICP Algorithm.	Byung-Uk Lee, Chul-Min Kim, Rae-Hong Park
+1998	Three-Dimensional Image Capture and Applications	3D Surface Real-time Measurement Using Phase-shifted Interference Fringe Technique for Craniofacial Identification.	Gennady G. Levin, Gennady N. Vishnyakov, Alexey A. Naumov, Sergei S. Abramov
+1998	Three-Dimensional Image Capture and Applications	Automated Fudicial Labeling on Human Body Data.	Erick A. Lewark, Joseph H. Nurre
+2000	Three-Dimensional Image Capture and Applications	Segmenting 3D Surface Scan Data of the Human Body by 2D Projection.	Peng Li, Brian D. Corner, Steven Paquette
+1999	Three-Dimensional Image Capture and Applications	Extracting Surface Area Coverage by Superimposing 3D Scan Data.	Peng Li, Brian D. Corner, Steven Paquette
+2000	Three-Dimensional Image Capture and Applications	Entropy of Profile Sections to Estimate the Next Sensor Position.	Christian Liska, Robert Sablatnig
+2000	Three-Dimensional Image Capture and Applications	Optimizing Triangular Mesh Generation from Range Images.	Tianyu Lu, D. Y. Y. Yun
+1999	Three-Dimensional Image Capture and Applications	CyberModeler: A Compact 3D Scanner Based on Monoscopic Camera.	Yukinori Matsumoto, Kouta Fujimura, Toru Kitamura
+1998	Three-Dimensional Image Capture and Applications	Adaptive Area-based Stereo Matching.	Christian Menard, Robert Sablatnig
+1998	Three-Dimensional Image Capture and Applications	Gel Tomography for 3D Acquisition of Plant Root Systems.	Kevin Montgomery, Gerard Heyenga
+1999	Three-Dimensional Image Capture and Applications	Real-time Monitoring of Icebreaker Propeller Blades' Ice Load Using Underwater Laser ranging System.	Andr Morin, Michel Arsenault, Merv H. Edgecombe, Ernst Radloff
+2000	Three-Dimensional Image Capture and Applications	Scanning Projection Grating Moire Topography.	Jung-Taek Oh, Sangyoon Lee, Seung-Woo Kim
+2000	Three-Dimensional Image Capture and Applications	ShapeGrabber FootScanner: A Low Cost High Accuracy 3D System for the Acquisition of Human Feet.	Franois Blais, Joel A. Bisson, Steven Williams, Nancy Roberston, Serge Rozin, Andrew Nelson
+1999	Three-Dimensional Image Capture and Applications	3D Reconstruction, Visualization, and Measurement of MRI Images.	Abhijit S. Pandya, Pritesh P. Patel, Mehul B. Desai, Paramtap Desai
+1999	Three-Dimensional Image Capture and Applications	Generating Animated Sequences from 3D Whole-body Scans.	Roy P. Pargas, Murtuza Chatriwala, Daniel Mulfinger, Pushkar Deshmukh, Sathish S. Vadhiyar
+1998	Three-Dimensional Image Capture and Applications	Tilted Planes in 3D Image Analysis.	Roy P. Pargas, Nancy J. Staples, Brian F. Malloy, Ken Cantrell, Murtuza Chatriwala
+2000	Three-Dimensional Image Capture and Applications	Monitoring and Measurement of Movement of Objects by Fringe Projection Method.	Michal Pawlowski, Malgorzata Kujawinska, Marek Wegiel
+2000	Three-Dimensional Image Capture and Applications	Parameters Matching of Objects in Video Sequences.	Yannick Perret, Thierry Excoffier, Sada Bouakaz
+2000	Three-Dimensional Image Capture and Applications	Optimizing Random Patterns for Invariants-based Identification.	Maurizio Pilu
+2000	Three-Dimensional Image Capture and Applications	Three-dimensional Scene Reconstruction from Images.	Marc Pollefeys, Reinhard Koch, Maarten Vergauwen, Bert DeKnuydt, Luc J. Van Gool
+1998	Three-Dimensional Image Capture and Applications	3D Shape Initialization of Objects in Multiview Image Sequences.	Thomas B. Riegel, Federico Pedersini, Roberto Manzotti
+1998	Three-Dimensional Image Capture and Applications	3D Textured Models of Indoor Scenes from Composite Range and Video Images.	Vtor Sequeira, Kia Ng, Stuart Butterfield, Joo G. M. Gonalves, David Hogg
+1998	Three-Dimensional Image Capture and Applications	Three-dimensional Shape Reconstruction from Two-dimensional Images Using Symmetric Camera Location.	Masaharu Shimanuki, Hiroyuki Sato, Takao Akatsuka
+2000	Three-Dimensional Image Capture and Applications	New Class Library for Animation of Voxel Humans.	Goh Shuang Ru, Orapan Kluenkaew, Tang Ming Lee, Zhonge Wu, Edmond C. Prakash
+2000	Three-Dimensional Image Capture and Applications	Opto-numerical Methods of Data Acquisition for Computer Graphics and Animation Systems.	Robert Sitnik, Malgorzata Kujawinska
+1998	Three-Dimensional Image Capture and Applications	VIRO 3D: Tast Three-dimensional Full-body Scanning for Humans and Other Living Objects.	Norbert Stein, Bernhard Minge
+2000	Three-Dimensional Image Capture and Applications	High-resolution Triangulation of Arbitrary Shaped Surfaces based on Coordinate Curves.	Bijan Timsari
+2000	Three-Dimensional Image Capture and Applications	Differential Motions for Recovering 3D Structure and Motions from an Unstructured Environment.	Jos Vicente, Domingo Guinea, Victor M. Preciado
+2000	Three-Dimensional Image Capture and Applications	Recreation of Three-dimensional Objects in a Real-time Simulated Environment by Means of a Panoramic Single Lens Stereoscopic Image-Capturing Device.	Erwin Wong
+2000	Three-Dimensional Image Capture and Applications	Volumetric Apparel for Visible Female.	Zhonge Wu, Goh Shuang Ru, Orapan Kluenkaew, Tang Ming Lee, Edmond C. Prakash
+2005	3DIM	Gaussian Scale-Space Dense Disparity Estimation with Anisotropic Disparity-Field Diffusion.	Jangheon Kim, Thomas Sikora
+2005	3DIM	Projection-Based Registration Using a Multi-View Camera for Indoor Scene Reconstruction.	Sehwan Kim, Woontack Woo
+2005	3DIM	Registration of Multiple Range Scans as a Location Recognition Problem: Hypothesis Generation, Refinement and Verification.	Bradford J. King, Tomasz Malisiewicz, Charles V. Stewart, Richard J. Radke
+2001	3DIM	In Process 3D-Sensing for Laser Material Processing.	P. Klinger, B. Spellenberg, J. M. Hermann, Gerd Husler
+1997	3DIM	From Coarse to Fine Correspondence of 3-D Facial Images and its Application to Facial Caricaturing.	Takayuki Kondo, Kazuhito Murakami, Hiroyasu Koshimizu
+2005	3DIM	Automatic Class Selection and Prototyping for 3-D Object Classification.	Raghavendra Donamukkala, Daniel F. Huber, Anuj Kapuria, Martial Hebert
+2003	3DIM	Weighted Cone-Curvature: Applications for 3D Shapes Similarity.	Miguel Adn, Antonio Adn, Carlos Cerrada, Pilar Merchn, Santiago Salamanca
+2005	3DIM	Capturing 2½D Depth and Texture of Time-Varying Scenes Using Structured Infrared Light.	Christian Frh, Avideh Zakhor
+2005	3DIM	Accurate Principal Directions Estimation in Discrete Surfaces.	Gady Agam, Xiaojing Tang
+2001	3DIM	3D Modeling System of Human Face and Full 3D Facial Caricaturing.	Takayuki Fujiwara, Hiroyasu Koshimizu, Kouta Fujimura, Hitoshi Kihara, Yoshiaki Noguchi, Naoya Ishikawa
+2003	3DIM	Colour Texture Fusion of Multiple Range Images.	Alexander Agathos, Robert B. Fisher
+1999	3DIM	On the Detection of Feature Points of 3D Facial Image and its Application to 3D Facial Caricature.	Takayuki Fujiwara, Takeshi Nishihara, Masafumi Tominaga, Hiroyasu Koshimizu, Kunihito Kato, Kazuhito Murakami
+2003	3DIM	3D Animation Of Cerebral Activity Using Both Spatial And Temporal fMRI Information.	Cdric Aguerre, Pascal Desbarats, Bixente Dilharreguy, Chrit T. W. Moonen
+2003	3DIM	Interactive Shape Acquisition using Marker Attached Laser Projecto.	Ryo Furukawa, Hiroshi Kawasaki
+1997	3DIM	CAD and Vision in Rangefinder-based Dimensional Metrology.	Heikki Ailisto
+2005	3DIM	Uncalibrated Multiple Image Stereo System with Arbitrarily Movable Camera and Projector for Wide Range Scanning.	Ryo Furukawa, Hiroshi Kawasaki
+2003	3DIM	Three-Dimensional Reconstruction of the Bony Structures involved in the Articular Complex of the Human Shoulder Using Shape-Based Interpolation and Contour-Based Extrapolation.	Alexandra Branzan Albu, Denis Laurendeau, Luc J. Hbert, Hlne Moffet, Christian Moisan
+1999	3DIM	Virtual Environment Modeling by Integrated Optical and Acoustic Sensing.	Andrea Fusiello, Riccardo Giannitrapani, V. Isaia, Vittorio Murino
+2001	3DIM	AVENUE: Automated Site Modeling in Urban Environments.	Peter K. Allen, Ioannis Stamos, Atanas Gueorguiev, Ethan Gold, Paul Blaer
+1999	3DIM	OSCAR: Object Segmentation Using Correspondence and Relaxation.	Ben Galvin, Brendan McCane, Kevin Novins
+2005	3DIM	Efficient Discovery Service for a Digital Library of 3D Models.	Hesham Anan, Kurt Maly, Mohammad Zubair
+1997	3DIM	Industrial Painting Inspection using Specular Sharpness.	Jaime Gmez Garca-Bermejo, J. Delgado Urrechu, F. J. Diaz Pernas, Juan Lpez Coronado
+2003	3DIM	Automatic 3D modeling of palatal plaster casts.	Marco Andreetto, Nicola Brusco, Guido Maria Cortelazzo
+2003	3DIM	Geometrically Stable Sampling for the ICP Algorithm.	Natasha Gelfand, Szymon Rusinkiewicz, Leslie Ikemoto, Marc Levoy
+1999	3DIM	On-Line Hand-Eye Calibration.	Nicolas Andreff, Radu Horaud, Bernard Espiau
+2005	3DIM	Multiresolution Interactive Modeling with Efficient Visualization.	Jean-Daniel Deschnes, Patrick Hbert, Philippe Lambert, Jean-Nicolas Ouellet, Dragan Tubic
+2005	3DIM	A Robust Image-Based Method for 3D Registration.	Ting Li
+2001	3DIM	A 3D Laser Micro-sensor Integrating Control and Data Processing in an FPGA-Based Calculator.	Nestor Arana-Arejolaleiba, Maurice Briot, Christian Ganibal, Alexandre Nketsa, Roland Prajoux
+2005	3DIM	Hierarchical Coarse to Fine Depth Estimation for Realistic View Interpolation.	Indra Geys, Luc J. Van Gool
+2005	3DIM	3D Modeling of Outdoor Environments by Integrating Omnidirectional Range and Color Images.	Toshihiro Asai, Masayuki Kanbara, Naokazu Yokoya
+2005	3DIM	Detecting Cylinders in 3D Range Data Using Model Selection Criteria.	Niloofar Gheissari, Alireza Bab-Hadiashar
+1997	3DIM	Constructing Models of Articulating Objects: Range Data Partitioning.	Anthony Ashbrook, Robert B. Fisher
+2003	3DIM	Human Identification from Body Shape.	Afzal Godil, Patrick Grother, Sandy Ressler
+2005	3DIM	Extracting Main Modes of Human Body Shape Variation from 3-D Anthropometric Data.	Zouhour Ben Azouz, Chang Shu, Richard Lepage, Marc Rioux
+2001	3DIM	A Method for the Registration of Attributed Range Images.	Guy Godin, Denis Laurendeau, Robert Bergevin
+1997	3DIM	Data Acquisition and Representation of Mechanical Parts and Interfaces to Manufacturing Devices.	Ruzena Bajcsy, Richard Pito
+2003	3DIM	Accuracy of 3D Range Scanners by Measurement of the Slanted Edge Modulation Transfer Function.	Michael Goesele, Christian Fuchs, Hans-Peter Seidel
+1997	3DIM	Design Considerations for a Range Image Sensor Containing a PSD-array and An On-chip Multiplexer.	Michiel de Bakker, Piet W. Verbeek, Gijs K. Steenvoorden
+2005	3DIM	Image-Gradient-Guided Real-Time Stereo on Graphics Hardware.	Minglun Gong, Ruigang Yang
+2001	3DIM	Structure and Motion from Two Uncalibrated Views Using Points on Planes.	Adrien Bartoli, Peter F. Sturm, Radu Horaud
+1997	3DIM	Automatic CAD Modeling of Industrial Pipes from Range Images.	Franois Goulette
+1997	3DIM	Fast Global Registration of 3D Sampled Surfaces using a Multi-Z-Buffer Technique.	Raouf Benjemaa, Francis Schmitt
+2005	3DIM	3-D Vision Technology for Occupant Detection and Classification.	Pandu Ranga Rao Devarakota, Bruno Mirbach, Marta Castillo-Franco, Bjrn E. Ottersten
+1999	3DIM	Digital 3D Imaging System for Rapid Response on Remote Sites.	J.-Angelo Beraldin, Franois Blais, Luc Cournoyer, Marc Rioux, Sabry F. El-Hakim, R. Rodella, F. Bernier, N. Harrison
+1999	3DIM	Is Appearance-Based Structure from Motion Viable?	David DiFranco, Sing Bing Kang
+2003	3DIM	Using k-d Trees for Robust 3D Point Pattern Matching.	Baihua Li, Horst Holstein
+2003	3DIM	Optimized Position Sensors for Flying-Spot Active Triangulation Systems.	J.-Angelo Beraldin, Franois Blais, Marc Rioux, Jacques Domey, Lorenzo Gonzo, Fabrizio De Nisi, F. Comper, David Stoppa, Massimo Gottardi, Andrea Simoni
+2003	3DIM	Registration and Fusion of Intensity and Range Data for 3D Modelling of Real World Scenes.	Paulo Dias, Vtor Sequeira, Francisco Vaz, Joo G. M. Gonalves
+1997	3DIM	Automatic Editing and Curve-fitting of 3-D Surface Scan Data of the Human Body.	Peng Li, Peter R. M. Jones
+1997	3DIM	Object Model Creation from Multiple Range Images: Acquisition, Calibration, Model Building and Verification.	J.-Angelo Beraldin, Luc Cournoyer, Marc Rioux, Franois Blais, Sabry F. El-Hakim, Guy Godin
+1997	3DIM	A Scene Analysis System for the Generation of 3-D Models.	Oliver Grau
+2001	3DIM	Real-Time Geometrical Tracking and Pose Estimation Using Laser Triangulation and Photogrammetry.	Franois Blais, J.-Angelo Beraldin, Sabry F. El-Hakim, Luc Cournoyer
+1999	3DIM	Efficient and Reliable Template Set Matching for 3D Object Recognition.	Michael A. Greenspan, Pierre Boulanger
+2003	3DIM	Recursive Model Optimization Using ICP and Free Moving 3D Data Acquisition.	Franois Blais, Michel Picard, Guy Godin
+2001	3DIM	A Nearest Neighbor Method for Efficient ICP.	Michael A. Greenspan, Guy Godin
+1999	3DIM	A Geometric Approach to the Segmentation of Range Images.	Mary Ellen Bock, Concettina Guerra
+2003	3DIM	Approximate K-D Tree Search for Efficient ICP.	Michael A. Greenspan, Mike Yurick
+2005	3DIM	Accuracy of 3D Scanning Technologies in a Face Scanning Scenario.	Chris Boehnen, Patrick J. Flynn
+1999	3DIM	Hand Posture Estimation from 2D Monocular Image.	H. Y. Guan, C. S. Chua, Y. K. Ho
+2005	3DIM	Hierarchical Segmentation of Range Images with Contour Constraints.	Pierre Boulanger, Gustavo Osorio, Flavio Prieto
+2001	3DIM	Reliable 3D Surface Acquisition, Registration and Validation Using Statistical Error Models.	Jens Guehring
+2005	3DIM	Non-Parametric 3D Surface Completion.	Toby P. Breckon, Robert B. Fisher
+1999	3DIM	Robust Surface Matching for Registration.	Elizabeth Guest, Steven Kelly, Elizabeth Berry, Mrta Fidrich
+2005	3DIM	Micro-Stereoscopic Vision System for the Determination of Air Bubbles and Aqueous Droplets Content within Oil Drops in Simulated Processes of Multiphase Fermentations.	J. B. Briere, M. S. Cordova, E. Galindo, Gabriel Corkidi
+2003	3DIM	3D optical scanning diagnostics for Leonardo Da Vinci's "Adorazione dei Magi" conservation.	Gabriele Guidi, Carlo Atzeni, Sara Lazzari
+2005	3DIM	Unsupervised 3D Object Recognition and Reconstruction in Unordered Datasets.	Matthew Brown, David G. Lowe
+2003	3DIM	Accuracy Verification and Enhancement in 3D Modeling: Application to Donatello's Maddalena.	Gabriele Guidi, Andrea Cioci, Carlo Atzeni, J.-Angelo Beraldin
+1997	3DIM	Optimal Postures and Positioning for Human Body Scanning.	Matthew A. Brunsman, Hein A. M. Daanen, Kathleen M. Robinette
+2005	3DIM	3D Digitization of a Large Model of Imperial Rome.	Gabriele Guidi, Laura Loredana Micoli, Michele Russo, Bernard Frischer, Monica De Simone, Alessandro Spinetti, Luca Carosso
+2005	3DIM	3D Registration by Textured Spin-Images.	Nicola Brusco, Marco Andreetto, Andrea Giorgi, Guido Maria Cortelazzo
+2003	3DIM	Calibration of a Zooming Camera using the Normalized Image of the Absolute Conic.	Jean-Yves Guillemaut, Alberto S. Aguado, John Illingworth
+2001	3DIM	3-D Landmark Detection and Identification in the CAESAR Project.	Dennis Burnsides, Mark Boehmer, Kathleen M. Robinette
+2005	3DIM	Euclidean Reconstruction from Translational Motion Using Multiple Cameras.	Pr Hammarstedt, Anders Heyden
+1997	3DIM	Automated Pavement Distress Collection and Analysis: A 3-D Approach.	Liviu Bursanescu, Franois Blais
+2001	3DIM	Compact and Portable 3D Camera for Space Applications.	E. Harvey, M. Arsenault, J.-F. Lavoie, B. Blanger, M.-A. Boucher
+2001	3DIM	Comparison of HK and SC Curvature Description Methods.	H. Cantzler, Robert B. Fisher
+1997	3DIM	Generalized Cylinders Extraction in a Range Image.	Denis Dion Jr., Denis Laurendeau, Robert Bergevin
+2005	3DIM	Realistic Human Head Modeling with Multi-View Hairstyle Reconstruction.	Xiaolan Li, Hongbin Zha
+1999	3DIM	Large Data Sets and Confusing Scenes in 3-D Surface Matching and Recognition.	Owen T. Carmichael, Daniel F. Huber, Martial Hebert
+2001	3DIM	How Much 3D-Information Can We Acquire? Optical Range Sensors at the Physical Limit, and Where to Apply Them.	Gerd Husler
+1999	3DIM	Automatic Body Measurement for Mass Customization of Garments.	Andrew Certain, Werner Stuetzle
+2005	3DIM	Automatic Registration of Range Images Based on Correspondence of Complete Plane Patches.	Wenfeng He, Wei Ma, Hongbin Zha
+2005	3DIM	Semi-Automatic Range to Range Registration: A Feature-Based Method.	Chen Chao, Ioannis Chao
+2001	3DIM	A Self-Referenced Hand-Held Range Sensor.	Patrick Hbert
+1997	3DIM	Segmentation of Range Images into Planar Regions.	Paul Checchin, Laurent Trassoudaine, J. Alizon
+1999	3DIM	Locking onto 3D-Structure by a Combined Vergence and Fusion System.	R. D. Henkel
+1999	3DIM	A 3D Scanning System Based on Low-Occlusion Approach.	Bor-Tow Chen, Wen-Shiou Lou, Chia-Chen Chen, Hsien-Chang Lin
+1997	3DIM	Multi-Resolution Geometric Fusion.	Adrian Hilton, John Illingworth
+2005	3DIM	A Light Modulation/Demodulation Method for Real-Time 3D Imaging.	Qian Chen, Toshikazu Wada
+1997	3DIM	Toward Optimal Structured Light Patterns.	Eli Horn, Nahum Kiryati
+1999	3DIM	Edge-Based Approach to Mesh Simplification.	Kyowoong Choo, Il Dong Yun, Sang Uk Lee
+2005	3DIM	A Complete U-V-Disparity Study for Stereovision Based 3D Driving Environment Analysis.	Zhencheng Hu, Francisco Lamosa, Keiichi Uchimura
+2001	3DIM	Calibration-Free Approach to 3D Reconstruction Using Light Stripe Projections on a Cube Frame.	Chang Woo Chu, Sungjoo Hwang, Soon Ki Jung
+1999	3DIM	Moving Objects Detection from Time-Varied Background: An Application of Camera 3D Motion Analysis.	Zhencheng Hu, Keiichi Uchimura
+1999	3DIM	PALM: Portable Sensor-Augmented Vision System for Large-Scene Modeling.	Teck Khim Ng, Takeo Kanade
+2005	3DIM	Automatic Burr Detection on Surfaces of Revolution Based on Adaptive 3D Scanning.	Kasper Claes, Thomas P. Koninckx, Herman Bruyninckx
+2001	3DIM	Automatic 3D Modeling Using Range Images Obtained from Unknown Viewpoints.	Daniel F. Huber
+2005	3DIM	Partial Surface Integration Based on Variational Implicit Functions and Surfaces for 3D Model Building.	P. Claes, Dirk Vandermeulen, Luc J. Van Gool, Paul Suetens
+1997	3DIM	Geometric Matching of 3-D Objects: Assessing the Range of Successful Initial Configurations.	Heinz Hgli, Christian Schtz
+2005	3DIM	Robust and Accurate Partial Surface Registration Based on Variational Implicit Surfaces for Automatic 3D Model Building.	P. Claes, Dirk Vandermeulen, Luc J. Van Gool, Paul Suetens
+2005	3DIM	Stereo by Multiperspective Imaging under 6 DOF Camera Motion.	Naoyuki Ichimura
+2001	3DIM	Planar Patch Extraction with Noisy Depth Data.	Dana Cobzas, Hong Zhang
+2003	3DIM	A Hierarchical Method for Aligning Warped Meshes.	Leslie Ikemoto, Natasha Gelfand, Marc Levoy
+1999	3DIM	Joined Segmentation of Cortical Surface and Brain Volume in MRI Using a Homotopic Deformable Cellular Model.	Yann Cointepas, Isabelle Bloch, Line Garnero
+2001	3DIM	Modeling from Reality.	Katsushi Ikeuchi
+2005	3DIM	Spatio-Temporal Fusion of Multiple View Video Rate 3D Surfaces.	Gordon Collins, Adrian Hilton
+2005	3DIM	Fast Alignment of 3D Geometrical Models and 2D Color Images Using 2D Distance Maps.	Yumi Iwashita, Ryo Kurazume, Tsutomu Hasegawa, Kenji Hara
+2005	3DIM	Acquisition of View-Based 3-D Object Models Using Supervised, Unstructured Data.	Kevin Coogan, Isaac Green
+1997	3DIM	Fusing and Guiding Range Measurements with Colour Video Images.	Piotr Jasiobedzki
+1997	3DIM	Using PCA to Model Shape for Process Control.	R. C. Crida, Andrew J. Stoddart, John Illingworth
+2005	3DIM	Fitting of 3D Circles and Ellipses Using a Parameter Decomposition Approach.	Xiaoyi Jiang, Da-Chuan Cheng
+1997	3DIM	Reducing Movement Artifacts in Whole Body Scanning.	Hein A. M. Daanen, Matthew A. Brunsman, Kathleen M. Robinette
+1999	3DIM	Extraction and Tracking of Surfaces in Range Image Sequences.	Xiaoyi Jiang, Sacha Hofer, Thomas Stahs, Ingo Ahrns, Horst Bunke
+2001	3DIM	Range Image Registration: A Software Platform and Empirical Evaluation.	Gerald Dalley, Patrick J. Flynn
+1997	3DIM	Surface Registration by Matching Oriented Points.	Andrew Edie Johnson, Martial Hebert
+2001	3DIM	A Laser Range Scanner Designed for Minimum Calibration Complexity.	James Davis, Xing Chen
+1997	3DIM	A System for Semi-Automatic Modeling of Complex Environments.	A. E. Johnson, R. Hoffman, J. Osborn, M. Hebert
+2003	3DIM	Image-Based Techniques for Digitizing Environments and Artifacts.	Paul E. Debevec
+1997	3DIM	Registration and Integration of Textured 3-D Data.	Andrew Edie Johnson, Sing Bing Kang
+1999	3DIM	Building Symbolic Information for 3D Human Body Modeling from Range Data.	Laura Dekker, Ioannis Douros, Bernard F. Buxton, Philip C. Treleaven
+1997	3DIM	Automatic 3 -- D Digitization using a Laser Rangefinder with a Small Field of View.	Dimitri Papadopoulos-Orfanos, Francis Schmitt
+1999	3DIM	Three-Dimensional Modelling and Rendering of the Human Skeletal Trunk from 2D Radiographic Images.	S. Delorme, Y. Petit, Carl-Eric Aubin, Jean Dansereau, Hubert Labelle, C. Landry, Jacques A. de Guise
+2001	3DIM	Compact 3D Profilometer with Grazing Incidence Diffraction Optics.	Tom Ditto
+2005	3DIM	Fast Multiple-Baseline Stereo with Occlusion.	Marc-Antoine Drouin, Martin Trudeau, Sbastien Roy
+1997	3DIM	Building 3-D City Models from Multiple Unregistered Profile Maps.	Olli Jokinen
+2005	3DIM	An Improved Calibration Technique for Coupled Single-Row Telemeter and CCD Camera.	Romain Dupont, Renaud Keriven, Philippe Fuchs
+1999	3DIM	Self-Calibration of a Light Striping System by Matching Multiple 3-D Profile Maps.	Olli Jokinen
+2005	3DIM	Transform-Based Methods for Indexing and Retrieval of 3D Objects.	Helin Dutagaci, Blent Sankur, Ycel Yemez
+2003	3DIM	A Multi-Resolution ICP with Heuristic Closest Point Search for Fast and Robust 3D Registration of Range Images.	Timothe Jost, Heinz Hgli
+2003	3DIM	Effective 3D Modeling Of Heritage Sites.	Sabry F. El-Hakim, J.-Angelo Beraldin, Michel Picard, Antonio Vettore
+2005	3DIM	Identifying the Interface between Two Sand Materials.	Anders Kaestner, Peter Lehmann, Hannes Fluehler
+2003	3DIM	Silhouette and Stereo Fusion for 3D Object Modeling.	Carlos Hernndez Esteban, Francis Schmitt
+1997	3DIM	Extracting Surface Patches from Complete Range Descriptions.	Robert B. Fisher, Andrew W. Fitzgibbon, David W. Eggert
+2005	3DIM	Foreword.	
+2003	3DIM	Scanning and Processing 3D Objects for Web Display.	Mohamed Farouk, Ibrahim El-Rifai, Shady El-Tayar, Hisham El-Shishiny, Mohamed Hosny, Mohamed El-Rayes, Jos Gomes, Frank Giordano, Holly E. Rushmeier, Fausto Bernardini, Karen A. Magerlein
+2005	3DIM	Coordination of Appearance and Motion Data for Virtual View Generation of Traditional Dances.	Yuji Kamon, Ryo Yamane, Yasuhiro Mukaigawa, Takeshi Shakunaga
+2003	3DIM	Exploiting Mirrors for Laser Stripe 3D Scanning.	Andrea Fasano, Marco Callieri, Paolo Cignoni, Roberto Scopigno
+2003	3DIM	Virtual Reconstruction of broken and unbroken Pottery.	Martin Kampel, Robert Sablatnig
+2005	3DIM	Multisensor Fusion for Volumetric Reconstruction of Large Outdoor Areas.	M. Fiocco, G. Bostrm, Joo G. M. Gonalves, Vtor Sequeira
+2005	3DIM	Further Improving Geometric Fitting.	Ken-ichi Kanatani
+2003	3DIM	Solving architectural modelling problems using knowledge.	Robert B. Fisher
+2001	3DIM	Processing Range Data for Reverse Engineering and Virtual Reality.	Stefan Karbacher, X. Laboureux, Nikolaus Schn, Gerd Husler
+1999	3DIM	A Low-Cost Range Finder Using a Visually Located, Structured Light Source.	Robert B. Fisher, Anthony Ashbrook, Craig Robertson, Naoufel Werghi
+2001	3DIM	Refining Triangle Meshes by Non-linear Subdivision.	Stefan Karbacher, Stephan Seeger, Gerd Husler
+2003	3DIM	Real-time Range Scanning of Deformable Surfaces by Adaptively Coded Structured Light.	Thomas P. Koninckx, Andreas Griesser, Luc J. Van Gool
+2007	3DIM	Discrete Delaunay: Boundary extraction from voxel objects.	Dobrina Boltcheva, Dominique Bechmann, Sylvain Thery
+2003	3DIM	Deformable Model with Adaptive Mesh and Automated Topology Changes.	Jacques-Olivier Lachaud, Benjamin Taton
+2005	3DIM	Scale Selection for Classification of Point-Sampled 3-D Surfaces.	Jean-Franois Lalonde, Ranjith Unnikrishnan, Nicolas Vandapel, Martial Hebert
+1999	3DIM	An Automation System for Industrial 3-D Laser Digitizing.	D. G. Lamb, D. L. Baird, Michael A. Greenspan
+2001	3DIM	Estimation of Elastic Constants from 3D Range-Flow.	Jochen Lang, Dinesh K. Pai
+1999	3DIM	Bayesian Estimation of Distance and Surface Normal with a Time-of-Flight Laser Rangefinder.	Jochen Lang, Dinesh K. Pai
+1999	3DIM	Advances in the Cooperation of Shape from Shading and Stereo Vision.	Holger Lange
+2001	3DIM	The Parallel Iterative Closest Point Algorithm.	Christian Langis, Michael A. Greenspan, Guy Godin
+1999	3DIM	Building 3D Facial Models and Detecting Face Pose in 3D Space.	Shihong Lao, Masato Kawade, Yasushi Sumi, Fumiaki Tomita
+1999	3DIM	The Mapping of Texture on VR Polygonal Models.	Denis Laurendeau, Nathalie Bertrand 0002, Rgis Houde
+1997	3DIM	Road Surface Inspection using Laser Scanners Adapted for the High Precision Measurements of Large Flat Surfaces.	John Laurent, Mario Talbot, Michel Douce
+2005	3DIM	Toward a Near Optimal Quad/Triangle Subdivision Surface Fitting.	Guillaume Lavou, Florent Dupont, Atilla Baskurt
+2005	3DIM	An Efficient Scattered Data Approximation Using Multilevel B-Splines Based on Quasi-Interpolants.	Byung-Gook Lee, Joon-Jae Lee, Jaechil Yoo
+1999	3DIM	The Digital Michelangelo Project.	Marc Levoy
+2005	3DIM	Evaluating Collinearity Constraint for Automatic Range Image Registration.	Yonghuai Liu, Longzhuang Li, Baogang Wei
+2005	3DIM	Multi-Resolution Modeling and Locally Refined Collision Detection for Haptic Interaction.	Peiran Liu, Xiaojun Shen, Nicolas D. Georganas, Gerhard Roth
+2003	3DIM	Evaluating Structural Constraints for Accurate Range Image Registration.	Yonghuai Liu, Baogang Wei
+2005	3DIM	An Adaptive Dandelion Model for Reconstructing Spherical Terrain-Like Visual Hull Surfaces.	Xin Liu, Hongxun Yao, Wen Gao
+1997	3DIM	A Fast and Accurate 3-D Rangefinder using the Biris Technology: The TRID Sensor.	Frdric Loranger, Denis Laurendeau, Rgis Houde
+1999	3DIM	3D Statistical Shape Models for Medical Image Segmentation.	Cristian Lorenz, Nils Krahnstoever
+2003	3DIM	Reliable and Rapidly-Converging ICP Algorithm Using Multiresolution Smoothing.	Kok-Lim Low, Anselmo Lastra
+1997	3DIM	Frequency Domain Estimation of 3-D Rigid Motion Based on Range and Intensity Data.	Luca Lucchese, Gianfranco Doretto, Guido M. Cortelazzo
+2003	3DIM	Automatic Modeling of Animatable Virtual Humans - A Survey.	Nadia Magnenat-Thalmann, Hyewon Seo, Frederic Cordier
+1997	3DIM	Rangefinder using Time Correlated Single Photon Counting.	J. S. Massa, Manickam Umasuthan, Andrew M. Wallace, G. S. Buller, Andrew C. Walker
+2001	3DIM	Generation of Geometric Model by Registration and Integration of Multiple Range Images.	Takeshi Masuda
+2003	3DIM	Surface Curvature Estimation from the Signed Distance Field.	Takeshi Masuda
+2005	3DIM	Simultaneous Determination of Registration and Deformation Parameters among 3D Range Images.	Tomohito Masuda, Yuichiro Hirota, Katsushi Ikeuchi, Ko Nishino
+2001	3DIM	A Method of Style Discrimination of Oil Painting Based on 3D Range Data.	Naoya Masuda, Kazuhiko Yamamoto, Kunihito Kato, Hideki Tanahashi
+1997	3DIM	A Portable Three-Dimensional Digitizer.	Y. Matsumoto, Hajime Terasaki, K. Sugimoto, T. Arakawa
+1999	3DIM	Calibration of a Laser Stripe Profiler.	Alan M. McIvor
+2003	3DIM	3-D Motion and Shape from Multiple Image Sequences.	Rdiger Mecke, Bernd Michaelis
+2003	3DIM	Streaming Transmission of Point-Sampled Geometry Based on View-Dependent Level-of-Detail.	Fang Meng, Hongbin Zha
+2003	3DIM	Active Balloon Model Based On 3D Skeleton Extraction By Competitive Learning.	Ken'ichi Morooka, Hiroyuki Takagi, Hiroshi Nagahashi
+1999	3DIM	Computations on a Spherical View Space for Efficient Planning of Viewpoints in 3-D Object Modeling.	Ken'ichi Morooka, Hongbin Zha, Tsutomu Hasegawa
+2001	3DIM	Reconstruction of Complex Environments by Robust Pre-aligned ICP.	Vittorio Murino, Lucca Ronchetti, Umberto Castellani, Andrea Fusiello
+2001	3DIM	Stroboscopic Stereo Rangefinder.	Jean-Christophe Nebel, Francisco J. Rodrguez-Miguel, W. Paul Cockshott
+1999	3DIM	Fast and Robust Registration of 3D Surfaces Using Low Curvature Patche.	Van-Duc Nguyen, Victor Nzomigni, Charles V. Stewart
+1997	3DIM	Automatic Reconstruction of 3D Objects using a Mobile Monoscopic Camera.	Wolfgang Niem, Jochen Wingbermhle
+2001	3DIM	3D Reconstruction from Two Orthogonal Views Using Simulated Annealing Approach.	Jing Ning, Sally I. McClean, Kieran Cranley
+2003	3DIM	Automatic Model Refinement for 3D Reconstruction with Mobile Robots.	Andreas Nchter, Hartmut Surmann, Joachim Hertzberg
+1997	3DIM	Locating Landmarks on Human Body Scan Data.	Joseph H. Nurre
+2005	3DIM	Fast Simultaneous Alignment of Multiple Range Images Using Index Images.	Takeshi Oishi, Atsushi Nakazawa, Ryo Kurazume, Katsushi Ikeuchi
+2003	3DIM	Parallel Alignment of a Large Number of Range Images.	Takeshi Oishi, Ryusuke Sagawa, Atsushi Nakazawa, Ryo Kurazume, Katsushi Ikeuchi
+2005	3DIM	Contour Point Tracking by Enforcement of Rigidity Constraints.	Ricardo Oliveira, Joo Costeira, Joo Xavier
+1999	3DIM	Dense Disparity Estimation Using Gabor Filters and Image Derivatives.	Mohammed Ouali, Claude Laurgeau, Djemel Ziou
+2005	3DIM	Incremental Catmull-Clark Subdivision.	Hamid-Reza Pakdel, Faramarz F. Samavati
+2005	3DIM	A Contour-Based Approach to 3D Text Labeling on Triangulated Surfaces.	Gregory G. Slabaugh, Viorel Mihalef, Gozde B. Unal
+1997	3DIM	Nefertiti: A Query by Content Software for Three-Dimensional Models Databases Management.	Eric Paquet, Marc Rioux
+1999	3DIM	Automatic Feature Correspondence for Scene Reconstruction from Multiple Views.	Philip W. Smith, Mark D. Elstrom
+2001	3DIM	Dual-Beam Structured-Light Scanning for 3-D Object Modeling.	Johnny Park, Guilherme N. DeSouza, Avinash C. Kak
+1999	3DIM	Estimating Pose Through Local Geometry.	Gilbert Soucy, Franco Callari, Frank P. Ferrie
+1999	3DIM	Constructing NURBS Surface Model from Scattered and Unorganized Range Data.	In Kyu Park, Sang Uk Lee, Il Dong Yun
+2003	3DIM	A Point-and-Shoot Color 3D Camera.	Askold V. Strat, Manuel M. Oliveira
+2003	3DIM	A Range Image Refinement Technique for Multi-view 3D Model Reconstruction.	Soon-Yong Park, Murali Subbarao
+2001	3DIM	Reconstruction of Surfaces behind Occlusions in Range Images.	Freek Stulp, Fabio Dell'Acqua, Robert B. Fisher
+2003	3DIM	A Fast Point-to-Tangent Plane Technique for Multi-view Registration.	Soon-Yong Park, Murali Subbarao
+2005	3DIM	Bayesian Modelling of Camera Calibration and Reconstruction.	Rashmi Sundareswara, Paul R. Schrater
+2001	3DIM	Affine Transformations of 3D Objects Represented with Neural Networks.	Emmanouil Piperakis, Itsuo Kumazawa
+2001	3DIM	Acquisition of Three-Dimensional Information in a Real Environment by Using the Stereo Omni-directional System (SOS).	Hideki Tanahashi, Daisuke Shimada, Kazuhiko Yamamoto, Yoshinori Niwa
+1997	3DIM	A Registration Aid.	Richard Pito
+2003	3DIM	Free-Form Surface Reconstruction from Multiple Images .	Chang Shu, Gerhard Roth
+2007	3DIM	Dense Depth and Color Acquisition of Repetitive Motions.	Yi Xu, Daniel G. Aliaga
+1999	3DIM	Hand-Held Acquisition of 3D Models with a Video Camera.	Marc Pollefeys, Reinhard Koch, Maarten Vergauwen, Luc J. Van Gool
+2005	3DIM	A MRF Formulation for Coded Structured Light.	Jean-Philippe Tardif, Sbastien Roy
+2003	3DIM	The ModelCamera: a Hand-Held Device for Interactive Modeling.	Voicu Popescu, Elisha Sacks, Gleb Bahmutov
+2003	3DIM	Multi-projectors for arbitrary surfaces without explicit calibration nor reconstructio.	Jean-Philippe Tardif, Sbastien Roy, Martin Trudeau
+1999	3DIM	Virtual Environments for Critical Intervention Support: Modeling, Design and Implementation Issues.	Denis Poussart, Franois Bernier, Martin Simoneau
+2003	3DIM	Cramer-Rao Bounds for Nonparametric Surface Reconstruction from Range Data.	Tolga Tasdizen, Ross T. Whitaker
+2001	3DIM	Tolerance Control with High Resolution 3D Measurement.	Flavio Prieto, Tanneguy Redarce, Pierre Boulanger, Richard Lepage
+2003	3DIM	Anisotropic diffusion of surface normals for feature preserving surface reconstruction.	Tolga Tasdizen, Ross T. Whitaker
+1999	3DIM	CAD-Based Range Sensor Placement for Optimum 3D Data Acquisitio.	Flavio Prieto, Tanneguy Redarce, Pierre Boulanger, Richard Lepage
+2005	3DIM	A Flexible 3D Modeling System Based on Combining Shape-from-Silhouette with Light-Sectioning Algorithm.	Tomoya Terauchi, Yasuhiro Oue, Kouta Fujimura
+1999	3DIM	Multiview Registration for Large Data Sets.	Kari Pulli
+1997	3DIM	Physics-Based Models for Image Analysis/Synthesis and Geometric Design.	Demetri Terzopoulos
+1997	3DIM	Robust Meshes from Multiple Range Maps.	Kari Pulli, Tom Duchamp, Hugues Hoppe, John Alan McDonald, Linda G. Shapiro, Werner Stuetzle
+2005	3DIM	Determining Characteristic Views of a 3D Object by Visual Hulls and Hausdorff Distance.	Adrien Theetten, Jean-Philippe Vandeborre, Mohamed Daoudi
+2005	3DIM	Projective Surface Matching of Colored 3D Scans.	Kari Pulli, Simo Piiroinen, Tom Duchamp, Werner Stuetzle
+2001	3DIM	3D Modeling of Archaeological Vessels Using Shape from Silhouette.	Srdan Tosovic, Robert Sablatnig
+2003	3DIM	Adaptive Enhancement of 3D Scenes using Hierarchical Registration of Texture-Mapped 3D models.	Srikumar Ramalingam, Suresh K. Lodha
+2005	3DIM	Relighting Acquired Models of Outdoor Scenes.	Alejandro Troccoli, Peter K. Allen
+2001	3DIM	Approaches to a Color Scannerless Range Imaging System.	Lawrence A. Ray, Louis Gabello, Kenneth Repich
+2003	3DIM	Efficient Surface Reconstruction from Range Curves.	Dragan Tubic, Patrick Hbert, Denis Laurendeau
+1997	3DIM	3-D Modeling from Range Imagery: An Incremental Method with a Planning Component.	Michael K. Reed, Peter K. Allen, Ioannis Stamos
+2005	3DIM	Virtual Clay Modeling System Using Multi-Viewpoint Images.	Etsuko Ueda, Yoshio Matsumoto, Tsukasa Ogasawara
+2003	3DIM	Human Figure Reconstruction and Modeling from Single Image or Monocular Video Sequence.	Fabio Remondino, Andreas Roditakis
+1999	3DIM	Generating Smooth Surfaces with Bicubic Splines over Triangular Meshes: Toward Automatic Model Building from Unorganized 3D Points.	Toshio Ueshiba, Gerhard Roth
+2005	3DIM	3D Models from Extended Uncalibrated Video Sequences: Addressing Key-Frame Selection and Projective Drift.	Jason Repko, Marc Pollefeys
+2005	3DIM	Correction of Color Information of a 3D Model Using a Range Intensity Image.	Kazunori Umeda, Megumi Shinozaki, Guy Godin, Marc Rioux
+1999	3DIM	Modeling Structured Environments by a Single Moving Camera.	Tapio Repo, Juha Rning
+2001	3DIM	Combining Off- and On-Line Calibration of a Digital Camera.	Magdalena Urbanek, Radu Horaud, Peter F. Sturm
+2001	3DIM	Shape Recovery and Analysis of Large Screw Threads.	Craig Robertson, Robert B. Fisher
+2003	3DIM	Stable Real-Time Interaction Between Virtual Humans And Real Scenes .	Luca Vacchetti, Vincent Lepetit, George Papagiannakis, Michal Ponder, Pascal Fua, Daniel Thalmann, Nadia Magnenat-Thalmann
+1999	3DIM	The Caesar Project: A 3-D Surface Anthropometry Survey.	Kathleen M. Robinette, Hein A. M. Daanen
+2003	3DIM	Surflet-Pair-Relation Histograms: A Statistical 3D-Shape Representation for Rapid Classification.	Eric Wahl, Ulrich Hillenbrand, Gerd Hirzinger
+1999	3DIM	3D Shape Recovery and Registration based on the Projection of Non Coherent Structured Light.	Roberto Rodella, Giovanna Sansoni
+2003	3DIM	Efficient Reconstruction of Indoor Scenes with Color.	Rui Wang 0003, David P. Luebke
+2001	3DIM	Computing Camera Positions from a Multi-camera Head.	Gerhard Roth
+2005	3DIM	Shape Reconstruction of Human Foot from Multi-Camera Images Based on PCA of Human Shape Database.	Jiahui Wang, Hideo Saito, Makoto Kimura, Masaaki Mochimaru, Takeo Kanade
+1999	3DIM	Registering Two Overlapping Range Images.	Gerhard Roth
+1997	3DIM	Registration of 3-D Partial Surface Models using Luminance and Depth Information.	Sebastian Weik
+1999	3DIM	Curve and Surface Models to Drive 3D Reconstruction Using Stereo and Shading.	David Roussel, Patrick Bourdot, Rachid Gherbi
+1999	3DIM	Faithful Recovering of Quadric Surfaces from 3D Range Data.	Naoufel Werghi, Anthony Ashbrook, Robert B. Fisher, Craig Robertson
+2003	3DIM	Segmentation and Modeling of Approximately Rotationally Symmetric Objects in 3D Ultrasound.	Johannes Ruisz, Dieter Hnigmann, Helmut Pottmann
+1999	3DIM	Indoor Scene Reconstruction from Sets of Noisy Range Images.	Ross T. Whitaker, Jens Gregor, P. F. Chen
+2001	3DIM	3D Capture for Computer Graphics.	Holly E. Rushmeier
+2005	3DIM	Real-Time Image Based Rendering from Uncalibrated Images.	Geert Willems, Frank Verbiest, Maarten Vergauwen, Luc J. Van Gool
+1999	3DIM	Computing Consistent Normals and Colors from Photometric Data.	Holly E. Rushmeier, Fausto Bernardini
+1999	3DIM	Model-Based Scanning Path Generation for Inspection.	Chang Shu, Fengfeng Xi
+2007	3DIM	Hybrid Scene Reconstruction by Integrating Scan Data and Stereo Image Pairs.	Xiangyin Ma, Hongbin Zha
+2003	3DIM	Image-Based Object Editing.	Holly E. Rushmeier, Jos Gomes, Laurent Balmelli, Fausto Bernardini, Gabriel Taubin
+2003	3DIM	Enhanced, Robust Genetic Algorithms for Multiview Range Image Registration.	Luciano Silva, Olga Regina Pereira Bellon, Kim L. Boyer
+2007	3DIM	Stratified Self-calibration and Metric Reconstruction of a Trinocular Structured Light Vision System.	Y. Li, S. K. Lee
+2001	3DIM	Efficient Variants of the ICP Algorithm.	Szymon Rusinkiewicz, Marc Levoy
+2003	3DIM	Combining texture and shape for automatic crude patch registration.	Joris Vanden Wyngaerd, Luc J. Van Gool
+1999	3DIM	On Estimating the Position of Fragments on Rotational Symmetric Pottery.	Robert Sablatnig, Christian Menard
+2003	3DIM	A Discrete Reeb Graph Approach for the Segmentation of Human Body Scans .	Yijun Xiao, Paul Siebert, Naoufel Werghi
+2003	3DIM	Next View Planning for a Combination of Passive and Active Acquisition Techniques.	Robert Sablatnig, Srdan Tosovic, Martin Kampel
+2005	3DIM	Additional Reviewers.	
+2007	3DIM	Scaling up multiprojector immersive displays: the LightTwist project.	Sbastien Roy
+1999	3DIM	Curvature Estimation for Segmentation of Triangulated Surfaces.	R. Sacchi, Janet F. Poliakoff, Peter D. Thomas, K.-H. Hfele
+1997	3DIM	3-D Modeling of Human Hand with Motion Constraints.	Yoshihiro Yasumuro, Qian Chen, Kunihiro Chihara
+2003	3DIM	Taking Consensus of Signed Distance Field for Complementing Unobservable Surface.	Ryusuke Sagawa, Katsushi Ikeuchi
+1999	3DIM	Progressive Multilevel Meshes from Octree Particles.	Ycel Yemez, Francis Schmitt
+2003	3DIM	Effective Nearest Neighbor Search for Aligning and Merging Range Images.	Ryusuke Sagawa, Tomohito Masuda, Katsushi Ikeuchi
+2005	3DIM	Digitizing Archaeological Excavations from Multiple Views.	Xenophon Zabulis, Alexander Patterson, Kostas Daniilidis
+1999	3DIM	Appearance-Based Virtual View Generation of Temporally-Varying Events from Multi-Camera Images in the 3D Room.	Hideo Saito, Shigeyuki Baba, Makoto Kimura, Sundar Vedula, Takeo Kanade
+2005	3DIM	A Mechanism for Range Image Integration without Image Registration.	Lyubomir Zagorchev, Ardeshir Goshtasby
+2001	3DIM	Three-Dimensional Shape Modeling with Extended Hyperquadrics.	Tsuneo Saito, Munenori Ohuchi
+1999	3DIM	Dynamic Gaze-Controlled Levels of Detail of Polygonal Objects in 3-D Environment Modeling.	Hongbin Zha, Yoshinobu Makimoto, Tsutomu Hasegawa
+1999	3DIM	Recovery of Shape and Surface Reflectance of Specular Object from Rotation of Light Source.	Hideo Saito, Kazuko Omata, Shinji Ozawa
+1997	3DIM	Active Modeling of 3-D Objects: Planning on the Next Best Pose (NBP) for Acquiring Range Images.	Hongbin Zha, Ken'ichi Morooka, Tsutomu Hasegawa, Tadashi Nagata
+1997	3DIM	Shape Measurement of Discontinuous Objects using Projected Fringes and Temporal Phase Unwrapping.	Henrik O. Saldner, Jonathan M. Huntley
+2005	3DIM	Bootstrapped Real-Time Ego Motion Estimation and Scene Modeling.	Xiang Zhang, Yakup Genc
+1997	3DIM	3-D Imager for Dimensional Gauging of Industrial Workpieces: State-of-the-Art of the Development of a Robust and Versatile System.	Giovanna Sansoni, Sara Lazzari, Stefano Peli, Franco Docchio
+1999	3DIM	Experimental Analysis of Harmonic Shape Images.	Dongmei Zhang, Martial Hebert
+2001	3DIM	Fast Range Image Segmentation by an Edge Detection Strategy.	Angel Domingo Sappa, Michel Devy
+2001	3DIM	A Physically-Based Model for Real-Time Facial Expression Animation.	Yu Zhang, Eric Sung, Edmond C. Prakash
+2005	3DIM	Globally Convergent Range Image Registration by Graph Kernel Algorithm.	Radim Sra, Ikuko Shimizu Okatani, Akihiro Sugimoto
+2001	3DIM	Robust Recognition and Pose Determination of 3-D Objects Using Range Images in Eigenspace.	Danijel Skocaj, Ales Leonardis
+2005	3DIM	The Planar: A Mobile VR Tool with Pragmatic Pose Estimation for Generation and Manipulation of 3D Data in Industrial Environments.	Ralph Schnfelder, Joachim Baur, Frank Spenling
+2005	3DIM	From Range Data to Animated Anatomy-Based Faces: A Model Adaptation Method.	Yu Zhang, Terence Sim, Chew Lim Tan
+2001	3DIM	View Planning with a Registration Constraint.	William R. Scott, Gerhard Roth, Jean-Franois Rivest
+2001	3DIM	Reconstructing Urban 3D Model Using Vehicle-Borne Laser Range Scanners.	Huijing Zhao, Ryosuke Shibasaki
+2005	3DIM	Discrete Pose Space Estimation to Improve ICP-Based Tracking.	Limin Shang, Piotr Jasiobedzki, Michael A. Greenspan
+2003	3DIM	3D Head Pose Estimation with Optical Flow and Depth Constraints.	Youding Zhu, Kikuo Fujimura
+2005	3DIM	Efficient Photometric Stereo Technique for Three-Dimensional Surfaces with Unknown BRDF.	Li Shen, Takashi Machida, Haruo Takemura
+2001	3DIM	Extract and Display Moving Object in All Direction by Using Stereo Omnidirectional System(SOS).	Daisuke Shimada, Hideki Tanahashi, Kunihito Kato, Kazuhiko Yamamoto
+2007	3DIM	Image-based Model Completion.	Alan Brunton, Stefanie Wuhrer, Chang Shu
+1997	3DIM	Estimation of 3-D Pose and Shape from a Monocular Image Sequence and Realtime Human Tracking.	Y. Shirai
+2003	3DIM	Digital Preservation of Ancient Cuneiform Tablets Using 3D-Scanning.	Subodh Kumar, Dean Snyder, Donald Duncan, Jonathan D. Cohen, Jerry Cooper
+2005	3DIM	Program Committee.	
+2007	3DIM	A Sampling Criterion for Optimizing a Surface Light Field.	Philippe Lambert, Jean-Daniel Deschnes, Patrick Hbert
+2007	3DIM	A Tensor Algebraic Approach to Image Synthesis, Analysis and Recognition.	M. Alex O. Vasilescu, Demetri Terzopoulos
+2007	3DIM	Multi-View Edge-based Stereo by Incorporating Spatial Coherence.	Gang Li, Yakup Genc, Steven W. Zucker
+2007	3DIM	Robust 2D-3D alignment based on geometrical consistency.	Kenji Hara, Yuuki Kabashima, Yumi Iwashita, Ryo Kurazume, Tsutomu Hasegawa
+2007	3DIM	Construction of Feature Landmark Database Using Omnidirectional Videos and GPS Positions.	Sei Ikeda, Tomokazu Sato, Koichiro Yamaguchi, Naokazu Yokoya
+2007	3DIM	Estimating the Location of a Camera with Respect to a 3D Model.	Gehua Yang, Jacob Becker, Charles V. Stewart
+2007	3DIM	Online Registration of Multi-view Range Images using Geometric and Photometric Feature Tracking.	Soon-Yong Park, Jaewon Baek
+2007	3DIM	A Bayesian Framework for Simultaneous Matting and 3D Reconstruction.	Jean-Yves Guillemaut, Adrian Hilton, Jonathan Starck, Joe Kilner, Oliver Grau
+2007	3DIM	Automatic Pose Estimation for Range Images on the GPU.	Marcel Germann, Michael D. Breitenstein, Hanspeter Pfister, In Kyu Park
+2007	3DIM	Tracking of Human Body Parts using the Multiocular Contracting Curve Density Algorithm.	Markus Hahn, Lars Krger, Christian Whler, Horst-Michael Gross
+2007	3DIM	Silhouette Extraction with Random Pattern Backgrounds for the Volume Intersection Method.	Masahiro Toyoura, Masaaki Iiyama, Koh Kakusho, Michihiko Minoh
+2007	3DIM	Data-Driven Feature-Based 3D Face Synthesis.	Yu Zhang, Shuhong Xu
+2007	3DIM	Automated Reverse Engineering of Free Form Objects Using Morse Theory.	John William Branch, Flavio Prieto, Pierre Boulanger
+2007	3DIM	A Study of Shape Similarity for Temporal Surface Sequences of People.	Peng Huang, Jonathan Starck, Adrian Hilton
+2007	3DIM	Fast Omnidirectional 3D Scene Acquisition with an Array of Stereo Cameras.	Jiajun Zhu, Greg Humphreys, David Koller, Skip Steuart, Rui Wang
+2007	3DIM	Range Image Segmentation for Modeling and Object Detection in Urban Scenes.	Cecilia Chao Chen, Ioannis Stamos
+2007	3DIM	Dual-Mode Deformable Models for Free-Viewpoint Video of Sports Events.	Joe Kilner, Jonathan Starck, Adrian Hilton, Oliver Grau
+2007	3DIM	Modeling and Calibration of Coupled Fish-Eye CCD Camera and Laser Range Scanner for Outdoor Environment Reconstruction.	Xavier Brun, Franois Goulette
+2007	3DIM	Cached k-d tree search for ICP algorithms.	Andreas Nchter, Kai Lingemann, Joachim Hertzberg
+2007	3DIM	Examplar-based Shape from Shading.	Xinyu Huang, Jizhou Gao, Liang Wang, Ruigang Yang
+2007	3DIM	Joint Reconstruction and Registration of a Deformable Planar Surface Observed by a 3D Sensor.	Umberto Castellani, Vincent Gay-Bellile, Adrien Bartoli
+2007	3DIM	Two-frame frequency-based estimation of local motion parallax direction in 3D cluttered scenes.	Vincent Chapdelaine-Couture, Michael S. Langer, Allan Caine, Richard Mann
+2007	3DIM	Dense 3D Reconstruction method using Coplanarities and Metric Constraints for Line Laser Scanning.	Hiroshi Kawasaki, Ryo Furukawa
+2007	3DIM	A Sensor for Simultaneously Capturing Texture and Shape by Projecting Structured Infrared Light.	Kiyotaka Akasaka, Ryusuke Sagawa, Yasushi Yagi
+2007	3DIM	Surface Modelling of Plants from Stereo Images.	Yu Song, Roland Wilson, Rodney Edmondson, Nick R. Parsons
+2007	3DIM	Self-organizing Deformable Model for Mapping 3D Object Model onto Arbitrary Target Surface.	Ken'ichi Morooka, Shun Matsui, Hiroshi Nagahashi
+2007	3DIM	A Comparative Analysis of Depth-Discontinuity and Mixed-Pixel Detection Algorithms.	Pingbo Tang, Daniel Huber, Burcu Akinci
+2007	3DIM	Interactive Scanning of Haptic Textures and Surface Compliance.	Sheldon Andrews, Jochen Lang
+2007	3DIM	Surround Structured Lighting for Full Object Scanning.	Douglas Lanman, Daniel E. Crispell, Gabriel Taubin
+2007	3DIM	Three-dimensional reconstruction using the perpendicularity constraint.	Boubakeur Boufama, Adlane Habed
+2007	3DIM	Predetermination of ICP Registration Errors And Its Application to View Planning.	Kok-Lim Low, Anselmo Lastra
+2007	3DIM	Light stripe triangulation for multiple of moving rigid objects.	Takuya Funatomi, Masaaki Iiyama, Koh Kakusho, Michihiko Minoh
+2007	3DIM	Generalized MPU Implicits Using Belief Propagation.	Yi-Ling Chen, Shang-Hong Lai, Tung-Ying Lee
+2007	3DIM	3D Challenges and a Non-In-Depth Overview of Recent Progress.	Luc J. Van Gool, Bastian Leibe, Pascal Mller, Maarten Vergauwen, Thibaut Weise
+2007	3DIM	Outlier Robust ICP for Minimizing Fractional RMSD.	Jeff M. Phillips, Ran Liu, Carlo Tomasi
+2007	3DIM	Surface Reconstruction from Point Clouds by Transforming the Medial Scaffold.	Ming-Ching Chang, Frederic F. Leymarie, Benjamin B. Kimia
+2007	3DIM	Super-Resolution Stereo- and Multi-View Synthesis from Monocular Video Sequences.	Sebastian Knorr, Matthias Kunter, Thomas Sikora
+2007	3DIM	Orientation of Image Sequences in a Point-based Environment Model.	Jan Bhm
+2007	3DIM	3D laser measurement system for large scale architectures using multiple mobile robots.	Ryo Kurazume, Yukihiro Tobata, Yumi Iwashita, Tsutomu Hasegawa
+2007	3DIM	Deformable Registration of Textured Range Images by Using Texture and Shape Features.	Ryusuke Sagawa, Nanaho Osawa, Yasushi Yagi
+2007	3DIM	Shape-merging and interpolation using class estimation for unseen voxels with a GPU-based efficient implementation.	Ryo Furukawa, Tomoya Itano, Akihiko Morisaka, Hiroshi Kawasaki
+2007	3DIM	Real-time full-field 3-D surface-shape measurement using off-the-shelf components and a single processor.	Peirong Jia, Jonathan Kofman, Chad English
+2007	3DIM	Light Transport Analysis for 3D Photography.	Kiriakos N. Kutulakos
+2007	3DIM	A Cable-driven Parallel Mechanism for Capturing Object Appearance from Multiple Viewpoints.	Jean-Daniel Deschnes, Philippe Lambert, Simon Perreault, Nicolas Martel-Brisson, Nathaniel Zoso, Andr Zaccarin, Patrick Hbert, Samuel Bouchard, Clment M. Gosselin
+2007	3DIM	Aerial Lidar Data Classification using AdaBoost.	Suresh K. Lodha, Darren N. Fitzpatrick, David P. Helmbold
+2007	3DIM	Automatic Registration for Model Building using Variable Dimensional Local Shape Descriptors.	Babak Taati, Michel Bondy, Piotr Jasiobedzki, Michael A. Greenspan
+2007	3DIM	Pose Determination By PotentialWell Space Embedding.	Limin Shang, Michael A. Greenspan
+2002	3DPVT	Optimized Compression of Triangle Mesh Geometry Using Prediction Trees.	Boris Kronrod, Craig Gotsman
+2004	3DPVT	Efficient Interactive Rendering of Detailed Models with Hierarchical Levels of Detail.	Ali Lakhia
+2002	3DPVT	Network Protocol for I teraction and Scalable Distributed Visualization.	Jan-Michael Frahm, Jan-Friso Evers-Senne, Reinhard Koch
+2004	3DPVT	Disordered Patterns Projection For 3D Motion Recovering.	Antonio Adn, Fernando Molina, Luis Morena
+2002	3DPVT	Object Classification by Functional Parts.	Guy Froimovich, Ehud Rivlin, Ilan Shimshoni
+2002	3DPVT	Reconstruction of Spherical Representation Models From Multiple Partial Models.	Antonio Adn, Santiago Salamanca, Carlos Cerrada, Pilar Merchn
+2004	3DPVT	Automated Texture Mapping of 3D City Models With Oblique Aerial Imagery.	Christian Frh, Russell Sammon, Avideh Zakhor
+2004	3DPVT	Human Motion: Modeling and Recognition of Actions and Interactions.	Jake K. Aggarwal, Sangho Park
+2002	3DPVT	Data Processing Algorithms for Generating Textured 3D Building Faade Meshes From Laser Scans and Camera Images.	Christian Frh, Avideh Zakhor
+2004	3DPVT	Linear Shift-Invariant Operators for Processing Surface Meshes.	Marc Alexa
+2002	3DPVT	Combining fringe projection method of 3D object monitoring with virtual reality environment: concept and initial results.	Piotr Garbat, Malgorzata Kujawinska
+2004	3DPVT	Seeing into the Past: Creating a 3D Modeling Pipeline for Archaeological Visualization.	Peter K. Allen, Steven Feiner, Alejandro Troccoli, Hrvoje Benko, Edward W. Ishak, Benjamin Smith
+2004	3DPVT	Real Time Visualization of 3D variable in time Object based on Cloud of Points Data Gathered by Coloured Structure Light Projection System.	Piotr Garbat, Marek Wegiel, Malgorzata Kujawinska
+2004	3DPVT	Frequency Domain Registration of Computer Tomography Data.	Marco Andreetto, Guido Maria Cortelazzo, Luca Lucchese
+2004	3DPVT	Recognition of Object Contours from Stereo Images: An Edge Combination Approach.	Margrit Gelautz, Danijela Markovic
+2004	3DPVT	Enhanced Real-time Stereo Using Bilateral Filtering.	Adnan Ansar, Andres Castano, Larry Matthies
+2004	3DPVT	Fast Interpolated Cameras by Combining a GPU based Plane Sweep with a Max-Flow Regularisation Algorithm.	Indra Geys, Thomas P. Koninckx, Luc J. Van Gool
+2004	3DPVT	A Bayesian Framework for 3D Models Retrieval Based on Characteristic Views.	Tarik Filali Ansary, Jean-Philippe Vandeborre, Sad Mahmoudi, Mohamed Daoudi
+2004	3DPVT	3D Model Watermarking for Indexing using the Generalized Radon Transform.	Petros Daras, Dimitrios Zarpalas, Dimitrios Tzovaras, Michael G. Strintzis
+2004	3DPVT	A Structure-from-Motion Method: Use of Motion in Three-Dimensional Reconstruction of Moving Objects from Multiple-View Image Sequences.	Ha Vu Le
+2002	3DPVT	3D Data Acquisition and Elaboration for Classification and Recognition of Objects and People.	Stefano Arrighetti, Stefano Guanziroli, Ennio Ottaviani
+2002	3DPVT	Distributed quantitative evaluation of 3D patient specific arterial models.	Andrea Giachetti, Massimiliano Tuveri, Gianluigi Zanetti
+2002	3DPVT	New Imaging Frontiers: 3D and Mixed Reality.	Eric Badiqu
+2004	3DPVT	Projection Model, 3D Reconstruction and Rigid Motion Estimation from Non-Central Catadioptric Images.	Nuno Gonalves, Helder Arajo
+2004	3DPVT	Scalable and Efficient Coding of 3D Model Extracted from a Video.	Raphale Balter, Patrick Gioia, Luce Morin, Franck Galpin
+2002	3DPVT	Modeling shapes and textures from images: new frontiers.	Luc J. Van Gool, D. Vandemeulen, Gregor A. Kalberer, Tinne Tuytelaars, Alexey Zalesny
+2004	3DPVT	Fusing Multiple Color Images for Texturing Models.	Nobuyuki Bannai, Alexander Agathos, Robert B. Fisher
+2002	3DPVT	Half-Edge Multi-Tessellation: A Compact Representation for Multi-Resolution Tetrahedral Meshes.	Emanuele Danovaro, Leila De Floriani
+2004	3DPVT	A Prototype of Video See-through Mixed Reality Interactive System.	Wen Qi
+2004	3DPVT	Novel Diffractive Optical Elements and Algorithms for Real-Time 3D and Hyperspectral Imaging.	George Barbastathis
+2004	3DPVT	Geometry Processing - A Personal Perspective.	Craig Gotsman
+2002	3DPVT	Optimized Spectral Estimation Methods for Improved Co orimetry with Laser Scanning Systems.	Rjean Baribeau
+2002	3DPVT	Using the Expectation-Maximization Algorithm for Depth Estimation and Segmentation of Multi-view Images.	Nikos Grammalidis, L. Bleris, Michael G. Strintzis
+2004	3DPVT	3D Stereoscopic Image Pairs by Depth-Map Generation.	Sebastiano Battiato, Alessandro Capra, Salvatore Curti, M. La Cascia
+2002	3DPVT	Visualizing Legacy Stratigraphic Data From Archaeological Handbooks.	Damian Green, John Cosmas, Take Itagaki
+2002	3DPVT	Architecture of a 3D - Simulation Environment for Active Vision Systems and Mobile Robots.	Andreas Baudry, Michael Bungenstock, Brbel Mertsching
+2002	3DPVT	Multi-Stereo 3D Object Reconstruction.	Carlos Hernndez Esteban, Francis Schmitt
+2002	3DPVT	The ORIGAMI Project: advanced tools and techniques for high-end mixing and interaction between real and virtual content.	Giovanni Bazzoni, Enrico Bianchi, Oliver Grau, Alec Knox, Reinhard Koch, Fabio Lavagetto, Alex Parkinson, Federico Pedersini, Augusto Sarti, Graham A. Thomas, Stefano Tubaro
+2004	3DPVT	Stereo Image Coder Based on MRF Analysis for Disparity Estimation and Morphological Encoding.	J. N. Ellinas, M. S. Sangriotis
+2002	3DPVT	Remote Machinery Maintenance System with the use of Virtual Reality.	Moez Bellamine, Norihiro Abe, Kazuaki Tanaka, Hirokazu Taki
+2004	3DPVT	Point Samples for Efficient 3D Processing and Content Creation.	Markus H. Gross
+2002	3DPVT	Improvement of Metric Accuracy of Digital 3D Models through Digital Photogrammetry. A Case Study: Donatello's Maddalena.	J.-Angelo Beraldin, Gabriele Guidi, S. Ciofi, Carlo Atzeni
+2002	3DPVT	How can we exploit typical architectural structures to improve model recovery?	Petko Faber, Bob Fisher
+2006	3DPVT	An Analysis of Errors in Feature-Preserving Mesh Simplification Based on Edge Contraction.	Hongtao Xu, Timothy S. Newman
+2002	3DPVT	IBR-based compression for remote visualization.	Riccardo Bernardini, Guido M. Cortelazzo, Giampaolo Tormen
+2002	3DPVT	Analysis of Secondary Structure Elements of Proteins Using Indexing Techniques.	Concettina Guerra, Stefano Lonardi, Giuseppe Zanotti
+2004	3DPVT	Real-Time, Accurate Depth of Field using Anisotropic Diffusion and Programmable Graphics Cards.	Marcelo Bertalmo, Pere Fort, Daniel Snchez-Crespo
+2004	3DPVT	Dynamically Optimised 3D (Virtual Reality) Data Transmission for Mobile Devices.	Markus Feit, Andreas Christ
+2006	3DPVT	Learning Illumination Models While Tracking.	Yilei Xu, Amit K. Roy Chowdhury
+2004	3DPVT	VENUS Subsurface Ionosphere Radar Sounder: VENSIS.	D. Biccari, D. Calabrese, D. Gurnett, R. Huff, L. Marinangeli, R. Jordan, E. Nielsen, G. G. Ori, G. Picardi, J. Plaut, F. Provvedi, R. Seu, E. Zampolini
+2002	3DPVT	Human Action Recognition By Sequence of Movelet Codewords.	Xiaolin Feng, Pietro Perona
+2004	3DPVT	Fast and Robust Bore Detection in Range Image Data for Industrial Automation.	Georg Biegelbauer, Markus Vincze
+2004	3DPVT	Helmholtz Stereopsis on Rough and Strongly Textured Surfaces.	Jean-Yves Guillemaut, Ondrej Drbohlav, Radim Sra, John Illingworth
+2002	3DPVT	Ellipsoid decomposition of 3D-model.	Stephan Bischoff, Leif Kobbelt
+2002	3DPVT	Construction of Large-Scale Virtual Environment by Fusing Range Data, Texture Images, and Airborne Altimetry Data.	Conny Riani Gunadi, Hiroyuki Shimizu, Kazuya Kodama, Kiyoharu Aizawa
+2004	3DPVT	Accurate 3D Acquisition of Freely Moving Objects.	Franois Blais, Michel Picard, Guy Godin
+2004	3DPVT	Using Omnidirectional Structure from Motion for Registration of Range Images of Minimal Overlap.	Dinkar Gupta, Ankita Kumar, Kostas Daniilidis
+2004	3DPVT	A Statistical Method for Robust 3D Surface Reconstruction from Sparse Data.	Volker Blanz, Albert Mehl, Thomas Vetter, Hans-Peter Seidel
+2004	3DPVT	Enhanced Vector Quantization for Data Reduction and Filtering.	Stefano Ferrari, Iuri Frosio, Vincenzo Piuri, N. Alberto Borghese
+2006	3DPVT	ShapeLab: A Unified Framework for 2D & 3D Shape Retrieval.	Jiantao Pu, Karthik Ramani
+2004	3DPVT	Online Surface Reconstruction from Unorganized 3D-Points for the DLR Hand-Guided Scanner System.	Tim Bodenmller, Gerd Hirzinger
+2004	3DPVT	Robust Structure from Motion under Weak Perspective.	Levente Hajder, Dmitry Chetverikov, Istvn Vajk
+2004	3DPVT	GPU-Assisted Z-Field Simplification.	Alexander Bogomjakov, Craig Gotsman
+2002	3DPVT	Estimating the Principal Curvatures and the Darboux Frame from Real 3D Range Data.	Eyal Hameiri, Ilan Shimshoni
+2002	3DPVT	Tracking Densely Moving Markers.	N. Alberto Borghese, Paolo Rigiroli
+2002	3DPVT	Using Principal Curvatures and Darboux Frame to Recover 3D Geometric Primitives from Range Images.	Eyal Hameiri, Ilan Shimshoni
+2002	3DPVT	3D Shape Estimation Based on Density Driven Model Fitting.	Eugene Borovikov, Larry S. Davis
+2004	3DPVT	Multiple View Reconstruction of People.	Adrian Hilton, Jonathan Starck
+2004	3DPVT	Blind Watermarking of 3D Shapes using Localized Constraints.	Adrian G. Bors
+2002	3DPVT	Tele-3D - Developing a Handheld Scanner Using Structured Light Projection.	Joo Filipe Ferreira, Jorge Lobo 0002, Jorge Dias
+2004	3DPVT	Acquisition, Modelling and Rendering of Very Large Urban Environments.	G. Bostrm, M. Fiocco, D. Puig, A. Rossini, Joo G. M. Gonalves, Vtor Sequeira
+2002	3DPVT	From 3D Shape Capture to Animated Models.	Adrian Hilton, Jonathan Starck, Gordon Collins
+2002	3DPVT	Neuroanatomical Imaging: Constrained 3D Reconstruction Using Variational Implicit Techniques.	Jean-Marie Bouteiller, Michel Baudry
+2002	3DPVT	Real-Time Speech-Driven 3D Face Animation.	Pengyu Hong, Zhen Wen, Thomas S. Huang, Heung-Yeung Shum
+2004	3DPVT	Some Unusual Ways of Visually Sensing 3D Shapes.	Vladimir Brajovic
+2004	3DPVT	User-Controlled Simplification of Polygonal Models.	Muhammad Hussain, Yoshihiro Okada, Koichi Niijima
+2004	3DPVT	Non-Rigid Range-Scan Alignment Using Thin-Plate Splines.	Benedict J. Brown, Szymon Rusinkiewicz
+2002	3DPVT	Shape Distortion Analysis of the Shape-from-Shading Algorithm Using Jacobi Iterative Method.	Osamu Ikeda
+2004	3DPVT	Metrological Analysis of a Procedure for the Automatic 3D Modeling of Dental Plaster Casts.	Nicola Brusco, Simone Carmignato, Marco Andreetto, Guido Maria Cortelazzo
+2002	3DPVT	Mathematical Aspects of Shape Reconstruction from an Image Sequence.	Atsushi Imiya, Kazuhiko Kawamoto
+2002	3DPVT	Spherical Diffusion for 3D Surface Smoothing.	Thomas Blow
+2002	3DPVT	Coding with ASCII: compact, yet text-based 3D content.	Martin Isenburg, Jack Snoeyink
+2004	3DPVT	Realistic Models of Children Heads from 3D-MRI Segmentation and Tetrahedral Mesh Construction.	Jasmine Burguet, Najib Gadi, Isabelle Bloch
+2004	3DPVT	Theoretical Accuracy Analysis of N-Ocular Vision Systems for Scene Reconstruction, Motion Estimation, and Positioning.	Pezhman Firoozfam, Shahriar Negahdaripour
+2004	3DPVT	Local Approximate 3D Matching of Proteins in Viral Cryo-EM Density Maps.	Stefan Burkhardt, Kimmo Fredriksson, Tuomas Ojamies, Janne Ravantti, Esko Ukkonen
+2002	3DPVT	Stochastic Mesh-Based Multiview Reconstruction.	John Isidoro, Stan Sclaroff
+2004	3DPVT	An Experimental Comparison of Feature-Based 3D Retrieval Methods.	Benjamin Bustos, Daniel A. Keim, Dietmar Saupe, Tobias Schreck, Dejan V. Vranic
+2004	3DPVT	Neural Mesh Ensembles.	Ioannis P. Ivrissimtzis, Yunjin Lee, Seungyong Lee, Won-Ki Jeong, Hans-Peter Seidel
+2002	3DPVT	Weaver, an automatic texture builder.	Marco Callieri, Paolo Cignoni, Claudio Rocchini, Roberto Scopigno
+2004	3DPVT	From the Lab to the Silver Screen: Computer Vision and the Art of Special Effects.	Andrew W. Fitzgibbon
+2004	3DPVT	RoboScan: An Automatic System for Accurate and Unattended 3D Scanning.	Marco Callieri, Andrea Fasano, Gaetano Impoco, Paolo Cignoni, Roberto Scopigno, G. Parrini, Giuseppe Biagini
+2002	3DPVT	Computational Experiments with Area-Based Stereo for Image-Based Rendering.	Ebroul Izquierdo
+2002	3DPVT	Optimal and Near - Optimal Solutions for 3D Structure Comparisons.	Alberto Caprara, Giuseppe Lancia
+2004	3DPVT	Photo-Consistency Based Registration of an Uncalibrated Image Pair to a 3D Surface Model Using Genetic Algorithm.	Zsolt Jank, Dmitry Chetverikov
+2002	3DPVT	Multiresolution Approach to Three-Dimensional Stereo Vision.	Guy Caspary, Yehoshua Y. Zeevi
+2002	3DPVT	An Approach to Using Image-Based Techniques across Unreliable Peer-to-Peer Networks.	Emmanuel Jay, Paul F. Lister, Martin White
+2004	3DPVT	Acquiring Height Maps of Faces from a Single Image.	Mario Casteln, Edwin R. Hancock
+2006	3DPVT	Towards Urban 3D Reconstruction from Video.	Amir Akbarzadeh, Jan-Michael Frahm, Philippos Mordohai, Brian Clipp, Chris Engels, David Gallup, Paul Merrell, M. Phelps, Sudipta N. Sinha, B. Talton, Liang Wang, Qingxiong Yang, Henrik Stewnius, Ruigang Yang, Greg Welch, Herman Towles, David Nistr, Marc Pollefeys
+2002	3DPVT	Improving Environment Modelling by Edge Occlusion Surface Completion.	Umberto Castellani, Salvatore Livatino, Robert B. Fisher
+2002	3DPVT	Visual Data Navigators "Collaboratories".	Mikael Jern, S. Palmberg, M. Ranlf
+2004	3DPVT	View Dependence of 3D Recovery from Folded Pictures and Warped 3D Faces.	J. Patrick Cavanagh, Michael von Grnau, Lee Zimmerman
+2002	3DPVT	Variational Multiframe Stereo in the Presence of Specular Reflections.	Hailin Jin, Anthony J. Yezzi, Stefano Soatto
+2002	3DPVT	A Depth Map Representation for Real-Time Transmission and View-Based Rendering of a Dynamic 3D Scene.	Bing-Bing Chai, Sriram Sethuraman, Harpreet S. Sawhney
+2002	3DPVT	Probabilistic 3D Data Fusion for Adaptive Resolution Surface Generation.	Andrew E. Johnson, Roberto Manduchi
+2004	3DPVT	3D Shape Registration using Regularized Medial Scaffolds.	Ming-Ching Chang, Frederic F. Leymarie, Benjamin B. Kimia
+2002	3DPVT	A Multi-Resolution Scheme ICP Algorithm for Fast Shape Registration.	Timothe Jost, Heinz Hgli
+2002	3DPVT	Super High Resolution 3D Imaging and Efficient Visualization.	L. Irene Cheng, Anup Basu
+2004	3DPVT	Applying Mesh Conformation on Shape Analysis with Missing Data.	Xiangyang Ju, Zhili Mao, J. Paul Siebert, Nigel J. B. McFarlane, Jiahua Wu, Robin D. Tillett
+2004	3DPVT	Adaptive Online Transmission of 3D TexMesh Using Scale-Space Analysis.	L. Irene Cheng, Pierre Boulanger
+2002	3DPVT	Wavelet Coding of Structured Geometry Data Considering Rate-Distortion Properties.	Tetsu Kajita, Hiroyuki Kaneko, Koichi Fukuda, Akira Kawanaka
+2004	3DPVT	Reliability and Judging Fatigue Reduction in 3D Perceptual Quality Estimation.	L. Irene Cheng, Anup Basu
+2002	3DPVT	Content-Based Image Retrieval from Large Medical Databases.	Avi Kak, Christina Pavlopoulou
+2004	3DPVT	Markerless Human Motion Transfer.	German K. M. Cheung, Simon Baker, Jessica K. Hodgins, Takeo Kanade
+2004	3DPVT	Topology and Geometry of Unorganized Point Clouds.	George Kamberov, Gerda Kamberova
+2002	3DPVT	A Content-Based Retrieval System with a Customizeable 3D Output Visualizer.	Gianluigi Ciocca, Raimondo Schettini
+2002	3DPVT	Octree-based Fusion of Shape from Silhouette and Shape from Structured Light.	Martin Kampel, Srdan Tosovic, Robert Sablatnig
+2002	3DPVT	Uncalibrated 3 metric reconstruction and flattened texture acquisition from a single view of a surface of revolution.	Carlo Colombo, Alberto Del Bimbo, Federico Pernici
+2002	3DPVT	Inpainting from Multiple Views.	Sung Ha Kang, Tony F. Chan, Stefano Soatto
+2004	3DPVT	Face Recognition from 3D Data using Iterative Closest Point Algorithm and Gaussian Mixture Models.	Jamie Cook, Vinod Chandran, Sridha Sridharan, Clinton Fookes
+2004	3DPVT	Entire Model Acquisition System using Handheld 3D Digitizer.	Hiroshi Kawasaki, Ryo Furukawa
+2002	3DPVT	3D Effect Generation from Monocular View.	Salvatore Curti, Daniele Sirtori, Filippo Vella
+2004	3DPVT	Synthetic Image of Multiresolution Sketch Leads to New Features.	Georgii Khachaturov, Rafael Moncayo-Muos
+2004	3DPVT	Hierarchical 3D Surface Reconstruction based on Radial Basis Functions.	Paola Dalmasso, Roberto Nerino
+2004	3DPVT	Shape Matching using the 3D Radon Transform.	Petros Daras, Dimitrios Zarpalas, Dimitrios Tzovaras, Michael G. Strintzis
+2002	3DPVT	Archiving Technology for Plant Inspection Images Captured by Mobile Active Cameras - 4D Visible Memory.	Nobuyuki Kita, Yasuyo Kita, Hai-quan Yang
+2002	3DPVT	Filling Holes in Complex Surfaces using Volumetric Diffusion.	James Davis, Stephen R. Marschner, Matt Garr, Marc Levoy
+2004	3DPVT	Robust Concealment for Erroneous Block Bursts in Stereoscopic Images.	Sebastian Knorr, Carsten Clemens, Matthias Kunter, Thomas Sikora
+2002	3DPVT	Fast Landmark-Based Registration via Deterministic and Efficient Processing, Some Preliminary Results.	Fred W. DePiero
+2002	3DPVT	Texture at the Terminator.	Jan J. Koenderink, Sylvia C. Pont
+2004	3DPVT	Using 3D-Bresenham for Resampling Structured Grids.	Leonid I. Dimitrov, Milos Srmek
+2004	3DPVT	Interactive Walkthroughs using "Morphable 3D-Mosaics".	Nikos Komodakis, George Pagonis, George Tziritas
+2004	3DPVT	Color, Fusion, and Stereopsis.	A. Dobbins
+2004	3DPVT	A Graph Cut based Adaptive Structured Light Approach for Real-Time Range Acquisition.	Thomas P. Koninckx, Indra Geys, Tobias Jaeggli, Luc J. Van Gool
+2002	3DPVT	3D Volume Extraction and Mesh Generation Using Energy Minimization Techniques.	A. Doi, S. Fujiwara, K. Matsuda, M. Kameda
+2004	3DPVT	Multi-Spectral Stereo Image Matching using Mutual Information.	Clinton Fookes, Anthony J. Maeder, Sridha Sridharan, Jamie Cook
+2002	3DPVT	3D Object Modelling in Mobile Robot Environment Using B-Spline Surfaces.	Pawel Drapikowski, Tomasz Nowakowski
+2002	3DPVT	Automated Multi-view 3D Image Acquisition in Human Genome Research.	Michal Kozubek, Petr Matula, Heinz Eipel, Michael Hausmann
+2004	3DPVT	Pictorial Techniques and Intrinsic Images.	Frdo Durand
+2002	3DPVT	High-Resolution Cytometry Network Project: Towards Remote a d Distributed Acquisition, Processing and Visualisation of 3D Image Data in Human Genome Research.	Michal Kozubek, Petr Matula, Pavel Matula, Petr Mejzlk
+2002	3DPVT	Towards Automatic Modeling of Monuments and Towers.	Sabry F. El-Hakim, J.-Angelo Beraldin, Jean-Franois Lapointe
+2004	3DPVT	Feature Based Registration of Range Images for Mapping of Natural Outdoor Feature Based Registration of Range Images for Mapping of Natural Outdoor.	Pekka Forsman, Aarne Halme
+2002	3DPVT	Multiresolution Distance Volumes for Progressive Surface Compression.	Daniel E. Laney, Martin Bertram, Mark A. Duchaineau, Nelson L. Max
+2004	3DPVT	Progressive Compression of Volumetric Subdivision Meshes.	Daniel E. Laney, Valerio Pascucci
+2002	3DPVT	Robust identification and matching of fiducial points for the reconstruction of 3D human faces from raw video sequences.	Raffaella Lanzarotti, N. Alberto Borghese, Paola Campadelli
+2002	3DPVT	Effects of Joystick Mapping and Field-of-View on Human Performance in Virtual Walkthroughs.	Jean-Franois Lapointe
+2002	3DPVT	Applications of 3D Medical Imaging in Orthopaedic Surgery: Introducing the Hip-Op System.	Riccardo Lattanzi, Marco Viceconti, Marco Petrone, Paolo Quadrani, Cinzia Zannoni
+2002	3DPVT	A Real-time Realization of Geometrical Valid View Synthesis for Tele-conferencing with Viewpoint Adaptation.	Bang Jun Lei, Emile A. Hendriks
+2004	3DPVT	Reconstruction of Euclidean Planes from Voxels.	Truong Kieu Linh, Atsushi Imiya
+2004	3DPVT	Thickness Histogram and Statistical Harmonic Representation for 3D Model Retrieval.	Yi Liu, Jiantao Pu, Hongbin Zha, Weibin Liu, Yusuke Uehara
+2002	3DPVT	Motion-induced error correction in ultrasound imaging.	David Lloret, Joan Serrat, Antonio M. Lpez, Juan Jos Villanueva
+2004	3DPVT	3D Image Sensing for Bit Plane Method of Progressive Transmission.	D. Loganathan, K. M. Mehata
+2004	3DPVT	Small CPU Times and Fast Interactivity in Sonar Seabottom Surveys.	Robert E. Loke, J. M. Hans du Buf
+2002	3DPVT	Visualizing I/O Predictability.	Alison Luo, Ahmed Amer, Scott Speidel, Darrell D. E. Long, Alex Pang
+2004	3DPVT	3D Performance Capture for Facial Animation.	Donald MacVicar, Stuart Ford, Ewan Borland, Robert Rixon, John W. Patterson, W. Paul Cockshott
+2004	3DPVT	On Robustness and Localization Accuracy of Optical Flow Computation from Color Imagery.	Hossein Madjidi, Shahriar Negahdaripour
+2004	3DPVT	Data-Driven Approaches to Digital Human Modeling.	Nadia Magnenat-Thalmann, Hyewon Seo
+2004	3DPVT	Spacetime-Coherent Geometry Reconstruction from Multiple Video Streams.	Marcus A. Magnor, Bastian Goldlcke
+2002	3DPVT	3WPS : A 3D Web-based Process Visualization Framework.	Delfina Malandrino, Gennaro Meo, Giuseppina Palmieri, Vittorio Scarano
+2002	3DPVT	A Gesture Recognition System Using 3D Data.	Sotiris Malassiotis, Niki Aifanti, Michael G. Strintzis
+2002	3DPVT	Concentric Strips: Algorithms and Architecture for the Compression/Decompression of Triangle Meshes.	Paula N. Malln, Montserrat Bo, Margarita Amor, Javier D. Bruguera
+2002	3DPVT	Description of Simple Method in 3D Reconstruction in Medical Imaging.	Cdric Marchessoux, Nol Richard, Christine Fernandez
+2004	3DPVT	Encoding Volumetric Grids For Streaming Isosurface Extraction.	Ajith Mascarenhas, Martin Isenburg, Valerio Pascucci, Jack Snoeyink
+2002	3DPVT	Object Shape Modelling from Multiple Range Images by Matching Signed Distance Fields.	Takeshi Masuda
+2004	3DPVT	Filling the Signed Distance Field by Fitting Local Quadrics.	Takeshi Masuda
+2002	3DPVT	Generation, Visualization, and Editing of 3D Video.	Takashi Matsuyama, Takeshi Takai
+2002	3DPVT	Effectivity of Spherical Object Reconstruction Using Star -Shaped Simplex Meshes.	Pavel Matula
+2004	3DPVT	High-Resolution Cytometry Network Project: Client/Server System for 3D Optical Microscope Data Storage and Analysis.	Pavel Matula, Petr Matula, Michal Kozubek, Petr Mejzlk
+2002	3DPVT	A Model (In)Validation Approach to Gait Recognition.	Cecilia Mazzaro, Mario Sznaier, Octavia I. Camps, Stefano Soatto, Alessandro Bissacco
+2002	3DPVT	Edge-Constrained Marching Triangles.	Neil H. McCormick, Robert B. Fisher
+2004	3DPVT	Enhanced Surface Reconstruction from Wide Baseline Images.	Zoltn Megyesi, Dmitry Chetverikov
+2004	3DPVT	An Easy Viewer for Out-of-Core Visualization of Huge Point-Sampled Models.	Fang Meng, Hongbin Zha
+2002	3DPVT	Direct and Robust Voxelization and Polygonization of Free-Form CSG Solids.	Juan Ruiz de Miras, Francisco R. Feito
+2002	3DPVT	Network-based raditional Japanese Crafting Presentation System Using Agent and Virtual Reality Technologies.	Akihiro Miyakawa, Masamitsu Sugimoto, Mikako Hosokawa, Yoshitaka Shibata
+2002	3DPVT	Network-based raditional Japanese Crafting Presentation System Using Agent and Virtual Reality echnologies.	Akihiro Miyakawa, Masamitsu Sugimoto, Mikako Hosokawa, Yoshitaka Shibata
+2002	3DPVT	3D objects visualization for remote interactive medical applications.	Johan Montagnat, Eduardo Davila, Isabelle E. Magnin
+2004	3DPVT	Adaptive Space Carving.	Anselmo Antunes Montenegro, Paulo Cezar Pinto Carvalho, Marcelo Gattass, Luiz Velho
+2004	3DPVT	Dense Multiple View Stereo with General Camera Placement using Tensor Voting.	Philippos Mordohai, Grard G. Medioni
+2002	3DPVT	Fast 3D Model Acquisition from Stereo Images.	Louis-Philippe Morency, Ali Rahimi, Trevor Darrell
+2004	3DPVT	Bayesian Surface Reconstruction.	Nicola Moretto, Ruggero Frezza
+2004	3DPVT	A Non Causal Bayesian Framework for Object Tracking and Occlusion Handling for the Synthesis of Stereoscopic Video.	Konstantinos Moustakas, Dimitrios Tzovaras, Michael G. Strintzis
+2006	3DPVT	Exploring Boundary Concavities in Active Contours and Surfaces.	Julien Mille, Romuald Bon, Pascal Makris, Hubert Cardot
+2004	3DPVT	Segmenting Correlation Stereo Range Images using Surface Elements.	Don Murray, James J. Little
+2004	3DPVT	Viewpoint Consistent Texture Synthesis.	Alexander Neubeck, Alexey Zalesny, Luc J. Van Gool
+2002	3DPVT	A Hierarchy of Cameras for 3D Photography.	Jan Neumann, Cornelia Fermller, Yiannis Aloimonos
+2004	3DPVT	Automatic Passive Recovery of 3D from Images and Video.	David Nistr
+2004	3DPVT	Heterogeneous Deformation Model for 3D Shape and Motion Recovery from Multi-Viewpoint Images.	Shohei Nobuhara, Takashi Matsuyama
+2004	3DPVT	The Influence of Shape on Image Correspondence.	Abhijit S. Ogale, Yiannis Aloimonos
+2004	3DPVT	Registration of Range Images that Preserves Local Surface Structures and Color.	Ikuko Shimizu Okatani, Akihiro Sugimoto
+2004	3DPVT	Construction of Animal Models and Motion Synthesis in 3D Virtual Environments using Image Sequences.	Costas Panagiotakis, Georgios Tziritas
+2002	3DPVT	The Virtual Boutique: a Synergic Approach to Virtualization, Content-based Management of 3D Information, 3D Data Mining an Virtual Reality for E-commerce.	Eric Paquet, Herna L. Viktor, Shawn Peter
+2004	3DPVT	Specularity Elimination in Range Sensing for Accurate 3D Modeling of Specular Objects.	Johnny Park, Avinash C. Kak
+2002	3DPVT	3D Mesh Wavelet Coding Using Efficient Model-based Bit Allocation.	Frdric Payan, Marc Antonini
+2004	3DPVT	3D Non-Linear Invisible Boundary Detection Filters.	Maria Petrou, Farahnaz Mohanna, Vassili A. Kovalev
+2004	3DPVT	Surface Segmentation Using Geodesic Centroidal Tesselation.	Gabriel Peyr, Laurent D. Cohen
+2004	3DPVT	Detection and Compensation of Image Sequence Jitter Due to an Unstable CCD Camera for Video Tracking of a Moving Target.	M. A. Zerafat Pisheh, A. Sheikhi
+2004	3DPVT	Surface Illuminance Flow.	Sylvia C. Pont, Jan J. Koenderink
+2004	3DPVT	Interactive Modeling from Dense Color and Sparse Depth.	Voicu Popescu, Elisha Sacks, Gleb Bahmutov
+2002	3DPVT	Comparison of 3D Measurement Techniques in Cultural Heritage Application: User Point of View.	Francesca Pozzi
+2004	3DPVT	3D Model Retrieval Based on 2D Slice Similarity Measurements.	Jiantao Pu, Yi Liu, Guyu Xin, Hongbin Zha, Weibin Liu, Yusuke Uehara
+2002	3DPVT	Volume Rendering on the Internet.	Wen Qi, Zhijian Song, Guoqiang Wu
+2004	3DPVT	Surface Normals and Height from Non-Lambertian Image Data.	Hossein Ragheb, Edwin R. Hancock
+2004	3DPVT	Testing Reflectance Models Against Radiance Data.	Hossein Ragheb, Antonio Robles-Kelly, Edwin R. Hancock
+2004	3DPVT	A Unified Approach for Motion Analysis and View Synthesis.	Alex Rav-Acha, Shmuel Peleg
+2004	3DPVT	A Surface Partitioning Spectrum (SPS) for Retrieval and Indexing of 3D CAD Models.	Heather J. Rea, Doug E. R. Clark, Jonathan R. Corney, Nick K. Taylor
+2004	3DPVT	Visualization of Arbitrary-Shaped 3D Scenes on Depth-Limited 3D Displays.	Andr Reder
+2002	3DPVT	ATTEST: Advanced Three-dimensional Television System Technologies.	Andr Redert, Marc Op de Beeck, Christoph Fehn, Wijnand IJsselsteijn, Marc Pollefeys, Luc J. Van Gool, Eyal Ofek, Ian Sexton, Philip Surman
+2002	3DPVT	Accurate and robust marker localization algorithm for camera calibration.	Andr Redert, Emile A. Hendriks, Jan Biemond
+2002	3DPVT	Empirical Calibration Method for Adding Colour to Range Images.	Craig Robertson, Robert B. Fisher
+2004	3DPVT	Estimating the Surface Radiance Function from Single Images.	Antonio Robles-Kelly, Edwin R. Hancock
+2004	3DPVT	Surface Height Recovery Using Heat Flow and Manifold Embedding.	Antonio Robles-Kelly, Edwin R. Hancock
+2002	3DPVT	Audio effects to enhance spatial informition displays.	Davide Rocchesso
+2004	3DPVT	Estimating Curvatures and Their Derivatives on Triangle Meshes.	Szymon Rusinkiewicz
+2002	3DPVT	Colon Centreline Calculation for CT Colonography using Optimised 3D Topological Thinning.	Robert J. T. Sadleir, Paul F. Whelan
+2002	3DPVT	Octree approximation and compression methods.	Hanan Samet, Andrzej Kochut
+2004	3DPVT	Modeling of Free-Form Surfaces and Shape From Shading.	Subhajit Sanyal, Mayank Bansal, Subhashis Banerjee, Prem Kumar Kalra
+2004	3DPVT	Automatic Extraction of Planar Projections from Panoramic Range Images.	Angel Domingo Sappa
+2004	3DPVT	Surface Model Generation from Range Images of Industrial Environments.	Angel Domingo Sappa
+2004	3DPVT	Unsupervised Motion Classification by Means of Efficient Feature Selection and Tracking.	Angel Domingo Sappa, Niki Aifanti, Sotiris Malassiotis, Michael G. Strintzis
+2002	3DPVT	Modeling closed surfaces in a multi-resolution fashion.	Augusto Sarti, Stefano Tubaro
+2002	3DPVT	Compression of Isosurfaces for Structured Volumes with Context Modelling.	Dietmar Saupe, Jens-Peer Kuska
+2002	3DPVT	Second Order Local Analysis for 3D Reconstruction of Specular Surfaces.	Silvio Savarese, Min Chen, Pietro Perona
+2002	3DPVT	Implementation of a Shadow Carving System for Shape Capture.	Silvio Savarese, Holly E. Rushmeier, Fausto Bernardini, Pietro Perona
+2002	3DPVT	3D Reality Modelling: Photo-Realistic 3D Models of Real World Scenes.	Vtor Sequeira, Joo G. M. Gonalves
+2004	3DPVT	A Formulation of Boundary Mesh Segmentation.	Ariel Shamir
+2002	3DPVT	Extraction and Description of 3D (Articulated) Moving Objects.	Karl J. Sharman, Mark S. Nixon, John N. Carter
+2004	3DPVT	Pyramid Coordinates for Morphing and Deformation.	Alla Sheffer, Vladislav Kraevoy
+2004	3DPVT	Unifying Measured Point Sequences of Deforming Objects.	Mikio Shinya
+2002	3DPVT	Surface Reconstruction from Multiple Views using Rational B-Splines and Knot Insertion.	Matheen Siddiqui, Stan Sclaroff
+2002	3DPVT	Efficient algorithm for the computation of 3D Fourier descriptors.	Jan Sijbers, Dirk Van Dyck
+2004	3DPVT	Visual-Hull Reconstruction from Uncalibrated and Unsynchronized Video Streams.	Sudipta N. Sinha, Marc Pollefeys
+2002	3DPVT	Image-Based Photo Hulls.	Gregory G. Slabaugh, Ronald W. Schafer, Mat C. Hans
+2004	3DPVT	Facial View Synthesis from a Single Image using Shape from Shading.	William A. P. Smith, Antonio Robles-Kelly, Edwin R. Hancock
+2004	3DPVT	A Variational Analysis of Shape from Specularities using Sparse Data.	Jan Erik Solem, Henrik Aans, Anders Heyden
+2004	3DPVT	Surface Reconstruction from the Projection of Points, Curves and Contours.	Jan Erik Solem, Fredrik Kahl
+2002	3DPVT	Browsing 3-D spaces with 3-D vision: body-driven navigation through the Internet city.	Flavia Sparacino, Christopher Richard Wren, Ali Azarbayejani, Alex Pentland
+2002	3DPVT	f3d - A File Format and Tools for Storage and Manipulation of Volumetric Data Sets.	Milos Srmek, Leonid I. Dimitrov
+2004	3DPVT	Efficient Model Creation of Large Structures based on Range Segmentation.	Ioannis Stamos, Marius Leordeanu
+2002	3DPVT	PDE-based Multi-view Depth Estimation.	Christoph Strecha, Luc J. Van Gool
+2002	3DPVT	Triangle Mesh-Based Surface Modeling Using Adaptive Smoothing and Implicit Surface Texture Integration.	Yiyong Sun, David L. Page, Joon Ki Paik, Andreas Koschan, Mongi A. Abidi
+2004	3DPVT	Image Matching based on Co-Motion Statistics.	Zoltn Szlvik, Laszlo Havasi, Tams Szirnyi
+2004	3DPVT	Robust 3D Segmentation for Underwater Acoustic Images.	Linmi Tao, Umberto Castellani, Vittorio Murino
+2002	3DPVT	A Tensor Voting Approach for the Hierarchical Segmentation of 3-D Acoustic Images.	Linmi Tao, Vittorio Murino, Grard G. Medioni
+2002	3DPVT	Advances in Mesh Signal Processing and Geometry Compression.	Gabriel Taubin
+2002	3DPVT	3D image sequence acquisition for TV & film production.	Graham A. Thomas, Oliver Grau
+2004	3DPVT	Panoramic Image Transform of Omnidirectional Images Using Discrete Geometry Techniques.	Akihiko Torii, Atsushi Imiya
+2006	3DPVT	Generalized RANSAC Framework for Relaxed Correspondence Problems.	Wei Zhang, Jana Kosecka
+2004	3DPVT	Exploitation of 3D Images for Face Authentication Under Pose and Illumination Variations.	Filareti Tsalakanidou, Sotiris Malassiotis, Michael G. Strintzis
+2002	3DPVT	Archiving 3D Cultural Objects with Surface Point-Wise Database Information.	N. Tsirliganis, George Pavlidis, A. Koutsoudis, D. Papadopoulou, A. Tsompanopoulos, Kostas Stavroglou, Z. Loukou, Christodoulos Chamzas
+2004	3DPVT	A Unified Representation for Interactive 3D Modeling.	Dragan Tubic, Patrick Hbert, Jean-Daniel Deschnes, Denis Laurendeau
+2002	3DPVT	A Volumetric Approach for Interactive 3D Modeling.	Dragan Tubic, Patrick Hbert, Denis Laurendeau
+2004	3DPVT	A Closed-Form Solution for a Two-View Self-Calibration Problem under Fixation.	Toshio Ueshiba, Fumiaki Tomita
+2002	3DPVT	Long-range high-performance time-of-flight-based 3D imaging sensors.	Andreas Ullrich, Nikolaus Studnicka, Johannes Riegl, Simone Orlandini
+2004	3DPVT	3-Dimensional Object Modeling with Mesh Simplification Based Resolution Adjustment.	zgr Ulucay, Sarp Ertrk
+2002	3DPVT	Active Polygon for Object Tracking.	Gozde B. Unal, Hamid Krim, Anthony J. Yezzi
+2002	3DPVT	A Practical Approach for 3D Model Indexing by combining Local and Global Invariants.	Jean-Philippe Vandeborre, Vincent Couillet, Mohamed Daoudi
+2002	3DPVT	Protein folding using inter-residue contacts.	Michele Vendruscolo
+2004	3DPVT	Analysis of Three-Dimensional Motion of an Object Using a Fixed Monocular Camera .	Huynh Quang Huy Viet, Makoto Sato, Hiromi T. Tanaka
+2002	3DPVT	3D Interactive, On-site Visualization of Ancient Olympia.	Vassilios Vlahakis, John Karigiannis, Nikolaos Ioannidis, Manolis Tsotros, Michael Gounaris, Didier Stricker, Patrick Dhne, Lus Almeida
+2002	3DPVT	Design of a Service-Based Framework for Generic 3D Information Visualization.	Xiangchuan Wang, Gerald Jaeschke, Matthias Hemmje
+2002	3DPVT	Posture Recognition nd Segmentation from 3D Human Body Scans.	Naoufel Werghi, Yijun Xiao
+2004	3DPVT	Fan-Meshes: A Geometric Primitive for Point-Based Description of 3D Models and Scenes.	Xiaotian Yan, Fang Meng, Hongbin Zha
+2002	3DPVT	Uncalibrated Narrow Baseline Augmented Reality.	Annie Yao, Andrew Calway
+2002	3DPVT	A Surface Evolution Approach o Probabilistic Space Carving.	Anthony J. Yezzi, Gregory G. Slabaugh, Adrian Broadhurst, Roberto Cipolla, Ronald W. Schafer
+2002	3DPVT	Reconstruction of Three Dimensional Models from Real Images.	Ulas Yilmaz, Adem Yasar Mlayim, Volkan Atalay
+2004	3DPVT	Speech-Driven Face Synthesis from 3D Video.	Ioannis A. Ypsilos, Adrian Hilton, Aseel Turkmani, Philip J. B. Jackson
+2004	3DPVT	Multi-Camera Reconstruction based on Surface Normal Estimation and Best Viewpoint Selection.	Xenophon Zabulis, Kostas Daniilidis
+2002	3DPVT	Rapid Shape Acquisition Using Color Structured Light and Multi-pass Dynamic Programming.	Li Zhang, Brian Curless, Steven M. Seitz
+2002	3DPVT	The Meaning and Limitations of Protein Structure Alignments.	Baohong Zhang, Adam Godzik
+2002	3DPVT	Mosaic Construction from a Sparse Set of Views.	Wei Zhang, Jana Koseck, Fayin Li
+2002	3DPVT	Focal Region-Guided Feature-Based Volume Rendering.	Jianlong Zhou, Manfred Hinz, Klaus D. Tnnies
+2004	3DPVT	3D Modelling and Visualization of the Human Lung.	Tatjana Zrimec, Sata Busayarat
+2004	3DPVT	Hue Flows and Scene Structure.	Steven W. Zucker
+2002	3DPVT	Geometry of Contour-based Correspondence for Stereo.	Steven W. Zucker, Gang Li
+2006	3DPVT	Hierarchical Representation of Virtual Cities for Progressive Transmission over Networks.	Jrme Royan, R. Balter, Christian Bouville
+2006	3DPVT	Image Guided Geometry Inference.	Songhua Xu, Athinodoros S. Georghiades, Holly E. Rushmeier, Julie Dorsey, Leonard McMillan
+2006	3DPVT	Scanline Optimization for Stereo on Graphics Hardware.	Christopher Zach, Mario Sormann, Konrad F. Karner
+2004	3DPVT	A Robust Correlation Measure for Correspondence Estimation.	Maria F. Trujillo, Ebroul Izquierdo
+2006	3DPVT	Scale Selection for the Analysis of Point-Sampled Curves.	Ranjith Unnikrishnan, Jean-Franois Lalonde, Nicolas Vandapel, Martial Hebert
+2004	3DPVT	3D Reconstruction of Natural Scenes with View-Adaptive Multi-Texturing.	Karsten Mller, Aljoscha Smolic, Philipp Merkle, Bernhard Kaspar, Peter Eisert, Thomas Wiegand
+2006	3DPVT	Efficient Constraint Evaluation Algorithms for Hierarchical Next-Best-View Planning.	Kok-Lim Low, Anselmo Lastra
+2006	3DPVT	3D Face Recognition with Region Committee Voting.	Timothy C. Faltemier, Kevin W. Bowyer, Patrick J. Flynn
+2006	3DPVT	Towards On-Line Digital Doubles.	Andreas Griesser, Nico Cornelis, Luc J. Van Gool
+2006	3DPVT	High-Quality Real-Time Stereo Using Adaptive Cost Aggregation and Dynamic Programming.	Liang Wang, Miao Liao, Minglun Gong, Ruigang Yang, David Nistr
+2006	3DPVT	A Spatio-Temporal Modeling Method for Shape Representation.	Heng Huang, Li Shen, Rong Zhang, Fillia Makedon, Justin D. Pearlman
+2006	3DPVT	Efficient, Precise, and Accurate Utilization of the Uniqueness Constraint in Multi-View Stereo.	Xenophon Zabulis, Georgios Kordelas
+2006	3DPVT	Orientation of Fragments of Rotationally Symmetrical 3D-Shapes for Archaeological Documentation.	Hubert Mara, Robert Sablatnig
+2006	3DPVT	Point Containment in Discrete Arbitrary Dimension.	Luciano Silva
+2006	3DPVT	VisTRE: A Visualization Tool to Evaluate Errors in Terrain Representation.	Christopher G. Healey, Jack Snoeyink
+2006	3DPVT	Exploiting 3D Spatial Continuity for Robust Automatic Horizon Matching across Faults.	Fitsum Admasu, Klaus D. Tnnies
+2006	3DPVT	A Range Camera Collecting Multi-Spectral Texture for Architecture Applications.	Nicola Brusco, S. Capeleto, M. Fedel, A. Paviotti, E. Zanella, L. Poletto, Guido M. Cortelazzo, G. Tondello
+2006	3DPVT	Qualitative Characterization of Deforming Surfaces.	T. C. Lukins, R. B. Fisher
+2006	3DPVT	Constraint Integration for Multiview Pose Estimation of Humans with Self-Occlusions.	Abhinav Gupta, Anurag Mittal, Larry S. Davis
+2006	3DPVT	Structured Light Based Reconstruction under Local Spatial Coherence Assumption.	Hao Li, Raphael Straub, Hartmut Prautzsch
+2006	3DPVT	Recognition of Free-Form Objects in Complex Scenes Using DGI-BS Models.	Pilar Merchn, Antonio Adn, Santiago Salamanca
+2006	3DPVT	Visual Hull Construction in the Presence of Partial Occlusion.	Li Guan, Sudipta N. Sinha, Jean-Sbastien Franco, Marc Pollefeys
+2006	3DPVT	Aerial LiDAR Data Classification Using Support Vector Machines (SVM).	Suresh K. Lodha, Edward J. Kreps, David P. Helmbold, Darren N. Fitzpatrick
+2006	3DPVT	Resolution Scalable Coding and Region of Interest Access with Three-Dimensional SBHP Algorithm.	Ying Liu, William A. Pearlman
+2006	3DPVT	Estimating a-priori Unknown 3D Axially Symmetric Surfaces from Noisy Measurements of Their Fragments.	Andrew R. Willis, David B. Cooper
+2006	3DPVT	On 3D Retrieval from Photos.	Tarik Filali Ansary, Jean-Philippe Vandeborre, Mohamed Daoudi
+2006	3DPVT	The Reverse Projection Correlation Principle for Depth from Defocus.	Scott McCloskey, Michael S. Langer, Kaleem Siddiqi
+2006	3DPVT	Direct and Indirect 3-D Reconstruction from Opti-Acoustic Stereo Imaging.	Hicham Sekkati, Shahriar Negahdaripour
+2006	3DPVT	Automatic Registration of Multiple Range Images by the Local Log-Polar Range Images.	Takeshi Masuda
+2006	3DPVT	A Modular Scheme for 2D/3D Conversion of TV Broadcast.	Sebastian Knorr, Evren Imre, Burak Ozkalayci, A. Aydin Alatan, Thomas Sikora
+2006	3DPVT	Fast and Efficient Dense Variational Stereo on GPU.	Julien Mairal, Renaud Keriven, Alexandre Chariot
+2006	3DPVT	Automatic 3D Face Detection, Normalization and Recognition.	Ajmal S. Mian, Mohammed Bennamoun, Robyn A. Owens
+2006	3DPVT	Extracting 3D Shape Features in Discrete Scale-Space.	John Novatnack, Ko Nishino, Ali Shokoufandeh
+2006	3DPVT	Philips 3D Solutions: From Content Creation to Visualization.	Andr Redert, Robert-Paul Berretty, Chris Varekamp, Oscar Willemsen, Jos Swillens, Hans Driessen
+2006	3DPVT	Gaze Tracking by Using Factorized Likelihoods Particle Filtering and Stereo Vision.	Erik Pogalin, Andr Redert, Ioannis Patras, Emile A. Hendriks
+2006	3DPVT	Invariant High Level Reeb Graphs of 3D Polygonal Meshes.	Julien Tierny, Jean-Philippe Vandeborre, Mohamed Daoudi
+2006	3DPVT	Recovering Illumination and Texture Using Ratio Images.	Alejandro Troccoli, Peter K. Allen
+2006	3DPVT	A 3D Outdoor Scene Scanner Based on a Night-Vision Range-Gated Active Imaging System.	David Monnin, Armin L. Schneider, Frank Christnacher, Yves Lutz
+2006	3DPVT	Deformable Mesh Model for Complex Multi-Object 3D Motion Estimation from Multi-Viewpoint Video.	Shohei Nobuhara, Takashi Matsuyama
+2006	3DPVT	Computing the Camera Motion Direction from Many Images.	John Oliensis
+2006	3DPVT	Minimum Spanning Tree Pose Estimation.	Kevin L. Steele, Parris K. Egbert
+2006	3DPVT	Multiview 3D Tracking with an Incrementally Constructed 3D Model.	Karel Zimmermann, Toms Svoboda, Jiri Matas
+2006	3DPVT	Hemispherical Harmonic Surface Description and Applications to Medical Image Analysis.	Heng Huang, Lei Zhang 0002, Dimitris Samaras, Li Shen, Rong Zhang, Fillia Makedon, Justin D. Pearlman
+2006	3DPVT	Belief Propagation for Panorama Generation.	Alan Brunton, Chang Shu
+2006	3DPVT	Reflectance Modeling for Layered Dielectrics with Rough Surface Boundaries.	Hossein Ragheb, Edwin R. Hancock
+2006	3DPVT	Multi-View Multi-Exposure Stereo.	Alejandro Troccoli, Sing Bing Kang, Steven M. Seitz
+2006	3DPVT	Synthesis of 3D Model of a Magnetic Field-Influenced Body from a Single Image.	Cuilan Wang, Timothy S. Newman, Dennis L. Gallagher
+2006	3DPVT	A Factorization Based Self-Calibration for Radially Symmetric Cameras.	Srikumar Ramalingam, Peter F. Sturm, Edmond Boyer
+2006	3DPVT	3D Content-Based Search Based on 3D Krawtchouk Moments.	Athanasios Mademlis, Apostolos Axenopoulos, Petros Daras, Dimitrios Tzovaras, Michael G. Strintzis
+2006	3DPVT	A CSC Based Classification Method for CT Bone Images.	Patrick Sturm, Lutz Priese, Haojun Wang
+2006	3DPVT	Illumination Insensitive Model-Based 3D Object Tracking and Texture Refinement.	Hua Yang, Greg Welch, Marc Pollefeys
+2006	3DPVT	Object Centered Stereo: Displacement Map Estimation Using Texture and Shading.	Neil Birkbeck, Dana Cobzas, Martin Jgersand
+2006	3DPVT	Flatness and Orientation Signature for Modeling and Matching 3D Objects.	H. B. Darbandi, M. R. Ito, J. Little
+2006	3DPVT	Large-Scale Modeling of Parametric Surfaces Using Spherical Harmonics.	Li Shen, Moo K. Chung
+2006	3DPVT	Graph Cut Based Multiple View Segmentation for 3D Reconstruction.	Mario Sormann, Christopher Zach, Konrad F. Karner
+2006	3DPVT	Depth Images: Representations and Real-Time Rendering.	Pooja Verlani, Aditi Goswami, P. J. Narayanan, Shekhar Dwivedi, Sashi Kumar Penta
+2006	3DPVT	How Far Can We Go with Local Optimization in Real-Time Stereo Matching.	Liang Wang, Mingwei Gong, Minglun Gong, Ruigang Yang
+2006	3DPVT	A Bayesian Approach to Building Footprint Extraction from Aerial LIDAR Data.	Oliver Wang, Suresh K. Lodha, David P. Helmbold
+2006	3DPVT	A System for Reconstructing Integrated Texture Maps for Large Structures.	Chen Xu, Athinodoros S. Georghiades, Holly E. Rushmeier, Julie Dorsey
+2006	3DPVT	Motion Editing in 3D Video Database.	Jianfeng Xu, Toshihiko Yamasaki, Kiyoharu Aizawa
+2006	3DPVT	The ASDMCon Project: The Challenge of Detecting Defects on Construction Sites.	Kui Yue, Daniel Huber, Burcu Akinci, Ramesh Krishnamurti
+2006	3DPVT	High-Performance Multi-View Reconstruction.	Christopher Zach, Mario Sormann, Konrad F. Karner
+2006	3DPVT	Multiple Camera Calibration Using Robust Perspective Factorization.	Andrei Zaharescu, Radu Horaud, Rmi Ronfard, Loc Lefort
+2006	3DPVT	Angle Independent Bundle Adjustment Refinement.	Jeffrey Zhang, Daniel G. Aliaga, Mireille Boutin, Robert Insley
+2006	3DPVT	Image Based Localization in Urban Environments.	Wei Zhang, Jana Kosecka
+2006	3DPVT	EKF-Based Recursive Dual Estimation of Structure & Motion from Stereo Data.	Hongsheng Zhang, Shahriar Negahdaripour
+2006	3DPVT	Carving from Ray-Tracing Constraints: IRT-Carving.	Marco Andreetto, Silvio Savarese, Pietro Perona
+2006	3DPVT	Spherical Catadioptric Arrays: Construction, Multi-View Geometry, and Calibration.	Douglas Lanman, Daniel E. Crispell, Megan Wachs, Gabriel Taubin
+2006	3DPVT	Fast Safe Spline Surrogates for Large Point Clouds.	Ashish Myles, Jrg Peters
+2006	3DPVT	Global Depth from Epipolar Volumes--A General Framework for Reconstructing Non-Lambertian Surfaces.	Timo Stich, Art Tevs, Marcus A. Magnor
+2006	3DPVT	3D Skeleton-Based Body Pose Recovery.	Clment Mnier, Edmond Boyer, Bruno Raffin
+2006	3DPVT	Light Source Calibration for IBR and BTF Acquisition Setups.	Alexander Neubeck, Alexey Zalesny, Luc J. Van Gool
+2006	3DPVT	Contour-Based Object Detection in Range Images.	Stefan Stiene, Kai Lingemann, Andreas Nchter, Joachim Hertzberg
+2006	3DPVT	Revealing Significant Medial Structure in Polyhedral Meshes.	Svetlana Stolpner, Kaleem Siddiqi
+2006	3DPVT	Dynamic 3D Urban Scene Modeling Using Multiple Pushbroom Mosaics.	Hao Tang, Zhigang Zhu, George Wolberg
+2006	3DPVT	Beyond Silhouettes: Surface Reconstruction Using Multi-Flash Photography.	Daniel E. Crispell, Douglas Lanman, Peter G. Sibley, Yong Zhao, Gabriel Taubin
+2006	3DPVT	Statistical Inference of Biological Structure and Point Spread Functions in 3D Microscopy.	Joseph Schlecht, Kobus Barnard, Barry Pryor
+2006	3DPVT	Multi-Chart Geometry Video: A Compact Representation for 3D Animations.	Khaled Mamou, Titus B. Zaharia, Franoise J. Prteux
+2006	3DPVT	Shape Analysis and Spatio-Temporal Tracking of Mesoscale Eddies in Miami Isopycnic Coordinate Ocean Model.	Veena Moolani, Ramprasad Balasubramanian, Li Shen, Amit Tandon
+2006	3DPVT	Linking Feature Lines on 3D Triangle Meshes with Artificial Potential Fields.	David L. Page, Andreas Koschan, Mongi A. Abidi
+2006	3DPVT	3D Modeling Using Planar Segments and Mesh Elements.	Ioannis Stamos, Gene Yu, George Wolberg, Siavash Zokai
+2006	3DPVT	Isoradius Contours: New Representations and Techniques for 3D Face Registration and Matching.	Nick Pears, Thomas Heseltine
+2006	3DPVT	Histogram Matching for Camera Pose Neighbor Selection.	Kevin L. Steele, Parris K. Egbert, Bryan S. Morse
+2006	3DPVT	A Structured Light Range Imaging System Using a Moving Correlation Code.	Frank J. Pipitone, Ralph Hartley
+2006	3DPVT	Anatomically-Aware, Automatic, and Fast Registration of 3D Ear Impression Models.	Alexander Zouhar, Tong Fang, Gozde B. Unal, Gregory G. Slabaugh, Hui Xie, Fred McBagonluri
+2006	3DPVT	Shape Measure for Identifying Perceptually Informative Parts of 3D Objects.	Sreenivas R. Sukumar, David Page, Andrei V. Gribok, Andreas Koschan, Mongi A. Abidi
+2006	3DPVT	A Probabilistic Method for Aligning and Merging Range Images with Anisotropic Error Distribution.	Ryusuke Sagawa, Nanaho Osawa, Yasushi Yagi
+2006	3DPVT	Line-Based Structure from Motion for Urban Environments.	Grant Schindler, Panchapagesan Krishnamurthy, Frank Dellaert
+2006	3DPVT	Large-Scale Urban Modeling by Combining Ground Level Panoramic and Aerial Imagery.	Lu Wang, Suya You, Ulrich Neumann
+2006	3DPVT	An Automatic 3D Ear Recognition System.	Ping Yan, Kevin W. Bowyer
+2006	3DPVT	Visual Shapes of Silhouette Sets.	Jean-Sbastien Franco, Marc Lapierre, Edmond Boyer
+2006	3DPVT	Low Altitude Wind Simulation over Mount Saint Helens Using NASA SRTM Digital Terrain Model.	Manuel Garcia, Pierre Boulanger
+2006	3DPVT	An Efficient Error-Bounded General Camera Model.	Voicu Popescu, Jordan Dauble, Chunhui Mei, Elisha Sacks
+2006	3DPVT	Motion Parallax without Motion Compensation in 3D Cluttered Scenes.	Michael S. Langer, Vincent Chapdelaine-Couture, Richard Mann, S. Roy
+2006	3DPVT	Retrieval of Colored 3D Models.	Guido M. Cortelazzo, Nicola Orio
+2006	3DPVT	An Improved 3D Human Face Reconstruction Approach Based on Cubic Splines Models.	Boulbaba Ben Amor, Mohsen Ardabilian, Liming Chen
+2006	3DPVT	Automatic Locating of Anthropometric Landmarks on 3D Human Models.	Zouhour Ben Azouz, Chang Shu, Anja Mantel
+2006	3DPVT	Multimodal 3D Shape Recovery from Texture, Silhouette and Shadow Information.	Luca Ballan, Guido Maria Cortelazzo
+2006	3DPVT	Progressive Compression of Normal Vectors.	Aaron Bass, Ken Been
+2006	3DPVT	RDTC Optimized Streaming for Remote Browsing in Image-Based Scene Representations.	Ingo Bauermann, Yang Peng, Eckehard G. Steinbach
+2006	3DPVT	Efficient Sparse 3D Reconstruction by Space Sweeping.	Joachim Bauer, Christopher Zach, Horst Bischof
+2006	3DPVT	3D from Line Segments in Two Poorly-Textured, Uncalibrated Images.	Herbert Bay, Andreas Ess, Alexander Neubeck, Luc J. Van Gool
+2006	3DPVT	Two Stage View Planning for Large-Scale Site Modeling.	Paul Blaer, Peter K. Allen
+2006	3DPVT	Automatic Hole-Filling of Triangular Meshes Using Local Radial Basis Function.	John Branch, Flavio Prieto, Pierre Boulanger
+2006	3DPVT	Distortion-Sensitive Synthesis of Texture and Geometry in Interactive 3D Visualization.	Nicola Brusco, Pietro Zanuttigh, David Taubman, Guido Maria Cortelazzo
+2006	3DPVT	Object Modeling with Guaranteed Fulfillment of Geometric Constraints.	Da-Chuan Cheng, Xiaoyi Jiang
+2006	3DPVT	A Perceptually Driven Model for Transmission of Arbitrary 3D Models over Unreliable Networks.	Irene Cheng, Lihang Ying, Anup Basu
+2006	3DPVT	Range Image Registration Based on Circular Features.	Cecilia Chao Chen, Ioannis Stamos
+2006	3DPVT	Conics-Based Homography Estimation from Invariant Points and Pole-Polar Relationships.	Christos Conomis
+2006	3DPVT	3D City Modeling Using Cognitive Loops.	Nico Cornelis, Bastian Leibe, Kurt Cornelis, Luc J. Van Gool
+2006	3DPVT	A Mobile Augmented Reality System with Distributed Tracking.	Jan-Friso Evers-Senne, Ingo Schiller, A. Petersen, Reinhard Koch
+2006	3DPVT	Interactive Modeling with Automatic Online Compression.	Jean-Daniel Deschnes, Philippe Lambert, Patrick Hbert
+2006	3DPVT	A Probabilistic Notion of Correspondence and the Epipolar Constraint.	Justin Domke, Yiannis Aloimonos
+2006	3DPVT	A High-Resolution and High Accuracy Real-Time 3D Sensor Based on Structured Light.	Frank Forster
+2006	3DPVT	A Blind Source Separation Approach to Structure from Motion.	Jeff Fortuna, Aleix M. Martnez
+2006	3DPVT	Hierarchical PCA Decomposition of Point Clouds.	Jan Fransens, Frank Van Reeth
+2006	3DPVT	Self-Calibration of Multiple Laser Planes for 3D Scene Reconstruction.	Ryo Furukawa, Hiroshi Kawasaki
+2006	3DPVT	Computational Anatomy to Assess Longitudinal Trajectory of Brain Growth.	Guido Gerig, Brad Davis, Peter Lorenzen, Shun Xu, Matthieu Jomier, Joseph Piven, Sarang C. Joshi
+2006	3DPVT	The Recursive Multi-Frame Planar Parallax Algorithm.	Christopher Geyer, Todd Templeton, Marci Meingast, Shankar Sastry
+2006	3DPVT	Geometry Refinement of 3D Surfaces Using Kriging.	Brad Grinstead, Andreas Koschan, Mongi A. Abidi
+2006	3DPVT	Metrics and Optimization Techniques for Registration of Color to Laser Range Scans.	Chad Hantak, Anselmo Lastra
+2006	3DPVT	Region-Based Motion Analysis and 3D Reconstruction for a Translational Video Sequence.	Xiaodong Huang, Eric Dubois
+2006	3DPVT	Integrating LiDAR, Aerial Image and Ground Images for Complete Urban Building Modeling.	Jinhui Hu, Suya You, Ulrich Neumann
+2006	3DPVT	Vanishing Hull.	Jinhui Hu, Suya You, Ulrich Neumann
+2006	3DPVT	Building a 3D Virtual Museum of Native American Baskets.	Volkan Isler, Bradford Wilson, Ruzena Bajcsy
+2006	3DPVT	Perturbation Estimation of the Subspaces for Structure from Motion with Noisy and Missing Data.	Hongjun Jia, Jeff Fortuna, Aleix M. Martnez
+2006	3DPVT	An Immersive Free-Viewpoint Video System Using Multiple Outer/Inner Cameras.	Hansung Kim, Itaru Kitahara, Ryuuki Sakamoto, Kiyoshi Kogure
+2006	3DPVT	Reference Stream Selection for Multiple Depth Stream Encoding.	Sang-Uok Kum, Ketan Mayer-Patel
+2006	3DPVT	Fast Level Set Multi-View Stereo on Graphics Hardware.	Patrick Labatut, Renaud Keriven, Jean-Philippe Pons
+2006	3DPVT	Reconstructing a 3D Line from a Single Catadioptric Image.	Douglas Lanman, Megan Wachs, Gabriel Taubin, Fernando Cukierman
+2006	3DPVT	Simplified Belief Propagation for Multiple View Reconstruction.	E. Scott Larsen, Philippos Mordohai, Marc Pollefeys, Henry Fuchs
+2006	3DPVT	Compression of Human Motion Data Sequences.	Guodong Liu, Leonard McMillan
+2006	3DPVT	Transforming Least Squares to Weighted Least Squares for Accurate Range Image Registration.	Yonghuai Liu, Hong Zhou, Xuan Su, Mingxin Ni, Robert J. Lloyd
+2006	3DPVT	Virtual View Specification and Synthesis in Free Viewpoint Television Application.	Wenfeng Li, Jin Zhou, Baoxin Li, M. Ibrahim Sezan
+2006	3DPVT	3D Reconstruction by Gluing Pair-Wise Euclidean Reconstructions, or "How to Achieve a Good Reconstruction from Bad Images".	Daniel Martinec, Toms Pajdla
+2006	3DPVT	Expression Compensation for Face Recognition Using a Polar Geodesic Representation.	Iordanis Mpiperis, Sotiris Malassiotis, Michael G. Strintzis
+2006	3DPVT	Rao-Blackwellized Importance Sampling of Camera Parameters from Simple User Input with Visibility Preprocessing in Line Space.	Kevin Quennesson, Frank Dellaert
+2007	ACIS-ICIS	Understanding Consumer Search Activity and Online Purchase Intensions for Improving the Product Recommendation Search.	Wen-Shan Lin, Ming-Fong Chen, Yan-Yan Chen
+2005	ACIS-ICIS	The Design of a Virtual Prototyping Based on ARMulator.	Young-Ran Lee, Sang-Young Cho, Jeong-Bae Lee
+2005	ACIS-ICIS	Enhancing Transparency and Adaptability of Dynamically Changing Execution Environments for Mobile Agents.	JinHo Ahn, ChaYoung Kim
+2005	ACIS-ICIS	Genetic Algorithm Implementation in Python.	Wonjae Lee, Hak-Young Kim
+2005	ACIS-ICIS	Taguchi-Based Metrics for Software Quality.	Kiumi Akingbehin
+2005	ACIS-ICIS	Mining for Context Recognition in Document Filtering and Classification.	Rey-Long Liu
+2007	ACIS-ICIS	Approximate Element Computational Time for Domain Decomposition in Parallel Finite Element Code.	Thuy T. Le
+2005	ACIS-ICIS	Use of Honeynets in Computer Security Education.	Shiva Azadegan, Vanessa McKenna
+2007	ACIS-ICIS	Towards a Table Driven XML QoS Aware Transmission Framework.	Alex Ng
+2005	ACIS-ICIS	Equivalence of Transforming Non-Linear DACG to Linear Concept Tree.	Wenyi Bi, Junping Sun
+2005	ACIS-ICIS	A Shortest-Path Network Problem Using an Annealed Ant System Algorithm.	Shao-Han Liu, Jzau-Sheng Lin, Zi-Sheng Lin
+2005	ACIS-ICIS	Concurrency Control of Spatial Join on Spatial Database.	Jeang-Kuo Chen
+2005	ACIS-ICIS	A Generic Software Framework for the Software System Achitecture Design and Implementation of Handset Devices.	Po-Chang Liu, Ming-Jyh Tsai, Deng-Jyi Chen
+2005	ACIS-ICIS	A Review Approach to Detecting Structural Consistency Violations in Programs.	Yuting Chen, Shaoying Liu, Fumiko Nagoya
+2007	ACIS-ICIS	Combining Local and Global History Hashing in Perceptron Branch Prediction.	C. Y. Ho, Anthony Shi-Sheung Fong
+2007	ACIS-ICIS	3D Graphics Performance Scaling and Workload Decomposition and Analysis.	Fadi N. Sibai
+2005	ACIS-ICIS	A Distributed Platform for Archiving and Retrieving RSS Feeds.	David Chmielewski, Gongzhu Hu
+2005	ACIS-ICIS	Intelligent Airbag Deployment Algorithm Design and Implemented by DSP Chip.	Yi-Jen Mon
+2007	ACIS-ICIS	Chip Design of LPC-cepstrum for Speech Recognition.	Gin-Der Wu, Zhen-Wei Zhu
+2005	ACIS-ICIS	Design and Implementation of UML Based Mobile Integrated Management System.	Seong-Man Choi, Chang-Mog Lee, Cheol-Jung Yoo, Ok-Bae Chang
+2005	ACIS-ICIS	A Conceptual Architecture for the Uniform Identification of Objects.	Syed Shariyar Murtaza, Choong Seon Hong
+2005	ACIS-ICIS	An Approach to Extension of UML 2.0 for Representing Variabilities.	You-Hee Choi, Gyu-Sang Shin, Youngjong Yang, Changsoon Park
+2005	ACIS-ICIS	A General Scalable Parallelizing of Strassen's Algorithm for Matrix Multiplication on Distributed Memory Computers.	Duc Kien Nguyen, Ivan Lavalle, Marc Bui, Quoc Trung Ha
+2005	ACIS-ICIS	Mining Frequent Pattern Using Item-Transformation Method.	Tsai-Pin Chu, Fan Wu, Shih-Wen Chiang
+2005	ACIS-ICIS	Palmprint Identification Algorithm Using Hu Invariant Moments and Otsu Binarization.	Jin Soo Noh, Kang Hyeon Rhee
+2005	ACIS-ICIS	Two Approaches for the Improvement in Testability of Communication Protocols.	Anthony Chung, Tao Huang
+2005	ACIS-ICIS	Matchmaking Algorithms to Improve Dynamic Service Matching in Ubiquitous Environments.	Kyu Min Lee, Kee-Hyun Choi, Seung-Phil Her, Dong Ryeol Shin
+2005	ACIS-ICIS	PRBAC: An Extended Role Based Access Control for Privacy Preserving Data Mining.	Anour F. A. Dafa-Alla, Eun Hee Kim, Keun Ho Ryu, Yong Jun Heo
+2005	ACIS-ICIS	A Reflective Practice of Automated and Manual Code Reviews for a Studio Project.	Jun-Suk Oh, Ho-Jin Choi
+2007	ACIS-ICIS	Providing Reliable Web Services through Active Replication.	Xinfeng Ye
+2005	ACIS-ICIS	Software Engineering - Components, Interfaces, Behaviors.	Walter Dosch
+2005	ACIS-ICIS	Protein Knowledge Extension Based on Web Database.	J. Park, D. Hwang
+2005	ACIS-ICIS	Reengineering Legacy Source Code to Model Driven Architecture.	K. Gowthaman, Khurram Mustafa, R. A. Khan
+2005	ACIS-ICIS	An Efficient Workcase Classification Method and Tool in Workflow Mining.	Min-Jae Park, Kwang-Hoon Kim, Chang-Min Kim
+2005	ACIS-ICIS	Research on Fast Block Participation Mode Selection Algorithm in H.264.	Jianjun Guo, Kui Dai, Yun Cheng, Zhiying Wang
+2005	ACIS-ICIS	Data Broadcasting Software Architecture supporting Real-Time Caching and Monitoring in Interactive TV.	Dong-Hwan Park, Tai-Yeon Ku, Kyeong-Deok Moon
+2005	ACIS-ICIS	Rank-Based Image Transformation for Entropy Coding Efficiently.	Deuk-Su Han, Myung-Jae Lee, Kang-Soo You, Euee S. Jang, Hoon-Sung Kwak
+2005	ACIS-ICIS	The Design and Implementation of Asset Management System on the NGIS.	Choon Seo Park, Jung Keun Kim, Su-Jung Mun, Yu-Hyeon Bak, Hag-Young Kim
+2005	ACIS-ICIS	Efficient Mobility Management for Multimedia Service in Wireless IP Networks.	Sang-Bum Han, Heyi-Sook Suh, Keun-Ho Lee, Chong-Sun Hwang
+2005	ACIS-ICIS	A Framework of Context-Awareness for Ubiquitous Computing Middlewares.	Hyunjung Park, Jeehyong Lee
+2005	ACIS-ICIS	Impact of Image Organizations on Multimedia Document Retrieval.	Nazmul Haque, Morshed U. Chowdhury, Syed Mahbubur Rahman
+2005	ACIS-ICIS	Development of Incident Detection Model Using Neuro-Fuzzy Algorithm.	Seung-Heon Lee, Jin-Woo Choi, Nam-Kwan Hong, Murlikrishna Viswanathan, Young-Kyu Yang
+2007	ACIS-ICIS	Massive Data Delivery in Unstructured Peer-to-Peer Networks with Network Coding.	Shui Yu, Zhongwen Li
+2005	ACIS-ICIS	A Model for Application Integration Using Web Services.	Ashok K. Harikumar, Roger Y. Lee, Hae Sool Yang, Haeng-Kon Kim, Byeongdo Kang
+2007	ACIS-ICIS	Integrated Sensing and Diagnosis -- The next step in Real Time Patient Health Care.	Iqbal Gondal, Mudasser Iqbal, Megan Woods, Muhammad Shoaib B. Sehgal
+2005	ACIS-ICIS	An Effective Cache Overlapping Storage Structure for SMT Processors.	Liqiang He, Zhiyong Liu
+2007	ACIS-ICIS	Cell Phone System for Tour & Information Guide.	Nariaki Kato, Naohiro Ishii
+2005	ACIS-ICIS	On the Benefits of Industrial Network: A New Approach with Market Survey and Fuzzy Statistical Analysis.	Shu-Meei Ho, Berlin Wu
+2005	ACIS-ICIS	Interactions and Cooperation between Machines as a Society of Agents.	S. Poonphon, Yong-Soo Kim, Chulsoo Lee, R. Sadananda
+2005	ACIS-ICIS	An Adaptive Full Parallel Interference Canceller with Imperfect Channel Estimation for CDMA Systems.	Ying-Fa Huang, Jyh-Horng Wen
+2005	ACIS-ICIS	Incorporating Semantics-Based Search and Policy-Based Access Control Mechanism in Context Service Delivery.	Maria Riaz, Saad Liaquat Kiani, Sungyoung Lee, Young-Koo Lee
+2005	ACIS-ICIS	A Call Admission Control Scheme for Heterogeneous Service Considering Fairness in Wireless Networks.	YoungHa Hwang, SungKee Noh
+2005	ACIS-ICIS	Mock Objects Framework for TDD in the Network Environment.	Ho-Yeon Ryu, Byeong-Kil Sohn, Jae-Heung Park
+2005	ACIS-ICIS	A Novel Vertical Handoff Strategy for Integrated IEEE802.11 WLAN/CDMA Networks.	Kyung-Soo Jang, Jang-Sub Kim, Ho-Jin Shin, Dong Ryeol Shin
+2005	ACIS-ICIS	A Performance Analysis Model of PC-Based Software Router Supporting IPv6-IPv4 Translation for Residential Gateway.	Ssang-Hee Seo, In-Yeup Kong
+2005	ACIS-ICIS	Using Code Division Technique to Improve the Performance of Ad Hoc Wireless Network.	Wei-Lun Jeng, Tung-Shih Su, Wen-Shyong Hsieh
+2005	ACIS-ICIS	Data Protection of Multimedia Contents Using Scalable Digital Watermarking.	JungHee Seo, HungBog Park
+2005	ACIS-ICIS	Study on Address Allocation in Ad-Hoc Networks.	Insu Jeong, Hyunjun Choi, Joongsoo Ma
+2005	ACIS-ICIS	A Comprehensive Middleware Architecture for Context-Aware Ubiquitous Computing Systems.	Anjum Shehzad, Hung Quoc Ngo, Sungyoung Lee, Young-Koo Lee
+2005	ACIS-ICIS	Implementation on Event Notification Service over Multimedia Framework.	Kyunghee Ji, Nammee Moon, Jaegon Kim
+2005	ACIS-ICIS	A Vector-Quantizer Based Method of Speaker Normalization.	Ok Keun Shin
+2005	ACIS-ICIS	Security Service Framework for Home Network.	Zhefan Jiang, Sangok Kim, Kanghee Lee, Hyunchul Bae, Sangwook Kim
+2005	ACIS-ICIS	A Development of the Mobile Computing System for Repair and Patrol of Electric Power Facilities.	Jin-Ho Shin, Bong-Jae Yi, Jae-Ju Song, Ju-Young Kang, Jung-Il Lee, Seon-Ku Cho
+2005	ACIS-ICIS	Integration Service for Biological Information Resources Using Agent Service to Web Service Gateway.	Hoon Jin, In-Cheol Kim
+2007	ACIS-ICIS	Intelligent Access Control Mechanism for Ubiquitous Applications.	Tae-Hum Lim, Sang-Uk Shin
+2005	ACIS-ICIS	A Reflective Case Study of Software Process Improvement for a Small-Scale Project.	Jung-Hee Jo, Ho-Jin Choi
+2005	ACIS-ICIS	Video Event Understanding through Building Knowledge Domain.	Dan Song, Haitao Liu, Miyoung Cho, PanKoo Kim
+2005	ACIS-ICIS	Access Control Model for Secure XML Documents.	Sun-Moon Jo, Young-Kook Kim, Hoon-Joon Kouh, Weon-Hee Yoo
+2005	ACIS-ICIS	Business Process Improvement Using ebXML.	Yeong-Tae Song, Sribara Narasimhadevara, Yanggon Kim
+2005	ACIS-ICIS	Design and Implementation of QoS Measurement and Network Diagnosing Framework for IP Multicast in Advanced Collaborative Environment.	Jinyong Jo, Woojin Seok, JaiSeung Kwak, Okhwan Byeon
+2005	ACIS-ICIS	Natural Image Compression Based on Modified SPIHT.	Jae-Ju Song, Bong-Jae Yi, Jin-Ho Shin, Ju-Young Kang, Jung-Il Lee, Seon-Ku Cho
+2005	ACIS-ICIS	An Efficient Connectivity Compression for Triangular Meshes.	Bin Shyan Jong, Wen Hao Yang, Juin-Ling Tseng, Tsong Wuu Lin
+2005	ACIS-ICIS	A Development of the Automatic Digitizing System for Power Distribution Facility Images.	Jae-Ju Song, Bong-Jae Yi, Jin-Ho Shin, Ju-Young Kang, Jung-Il Lee, Seon-Ku Cho
+2005	ACIS-ICIS	Acquiring Dominant Compound Terms to Build Korean Domain Knowledge Bases.	Hanmin Jung, HeeKwan Koo, Byeong-Hee Lee, Won-Kyung Sung
+2005	ACIS-ICIS	HW/SW Codesigned Implementation of IEEE 802.16 TDMA MAC for the Subscriber Station.	Nak Woon Sung
+2005	ACIS-ICIS	Context Awareness in Large Scale Ubiquitous Environments with a Service Oriented Distributed Middleware Approach.	Saad Liaquat Kiani, Maria Riaz, Sungyoung Lee, Young-Koo Lee
+2005	ACIS-ICIS	An Effective Multicast Communication Based on Locality in Mobile IPv6 Networks.	Sulyun Sung, Soonho Chu, Yongtae Shin
+2005	ACIS-ICIS	Performance Estimations of Clustered Workflow Architectures.	Kwang-Hoon Kim, Hyung-Jin Ahn, Chang-Min Kim
+2005	ACIS-ICIS	MAMIP - Interoperation Mechanism of Ad Hoc Network and IP Network.	Sulyun Sung, Yuhwa Seo, Soonho Chu, Yongtae Shin
+2005	ACIS-ICIS	An Evaluation of Process Performance for a Small-Team Project - A Case Study.	So-Young Kim, Ho-Jin Choi
+2005	ACIS-ICIS	LQ-Routing Protocol for Mobile Ad-Hoc Networks.	Tang Tao, Shigeaki Tagashira, Satoshi Fujita
+2005	ACIS-ICIS	Performance Analysis on Mobility of Ad-Hoc Network for Inter-Vehicle Communication.	Jaehyun Kim, Woojin Han, Woohyuk Choi, Yunil Hwang, Taehwan Kim, Joowook Jang, Jaeyong Um, JunChae Lim
+2005	ACIS-ICIS	Modeling Uncertainty in Context-Aware Computing.	Binh An Truong, Young-Koo Lee, Sungyoung Lee
+2005	ACIS-ICIS	Use of SCTP for IP Handover Support.	Dong Phil Kim, Jong-Shik Ha, Sang-Tae Kim, Seok Joo Koh
+2005	ACIS-ICIS	Wavelet Transform Based Digital Watermarking for Image Authentication.	Min-Jen Tsai, Hsiao-Ying Hung
+2005	ACIS-ICIS	Design of Translator for Stack-Based Codes from 3-Address Codes in CTOC.	Young-Kook Kim, Sun-Moon Jo, Weon-Hee Yoo
+2005	ACIS-ICIS	AuToCrawler: An Integrated System for Automatic Topical Crawler.	Jyh-Jong Tsay, Chen-Yang Shih, Bo-Liang Wu
+2005	ACIS-ICIS	Kernel Based Intrusion Detection System.	Byung-Joo Kim, Il Kon Kim
+2005	ACIS-ICIS	Performance Analysis of Audio Streaming in Secure Wireless Access Network.	Binod Vaidya, Jongwoo Kim, Jae-Young Pyun, Jong-An Park, Seung Jo Han
+2005	ACIS-ICIS	RGSN Model for Database Integration.	Jeong-Mi Kim, JuHum Kwon, Doo-Kwon Baik
+2005	ACIS-ICIS	Knowledge-Based Compliance Management Systems - Methodology and Implementation.	Murlikrishna Viswanathan, Young-Gyu Yang, Taeg Keun Whangbo, Nak-Bin Kim, B. Garner
+2005	ACIS-ICIS	Design and Implementation of Policy Decision Point in Policy-Based Network.	Geonlyang Kim, Jinoh Kim, Jungchan Na
+2005	ACIS-ICIS	Proactive Health Care Underpinned by Embedded and Mobile Technologies.	Hwang-Cheng Wang, Jia-Chi Lin, Shiang-Ren Yang, Ping Chang, Jun-Yan Chen, Yu-Ren Guo
+2005	ACIS-ICIS	On Employing Ontology to e-Learning.	Tai-Jong Kim, Min-Cheol Kim, Gyung-Leen Park
+2005	ACIS-ICIS	Multibiometrics Based on Palmprint and Handgeometry.	Xiao-Yong Wei, Dan Xu, Chong-Wah Ngo
+2005	ACIS-ICIS	A Study on Secure Group Transmission in Group Environment.	Baehyun Kim, Hoon Ko, Intae Ryoo
+2005	ACIS-ICIS	Message from the Conference Chairs.	
+2007	ACIS-ICIS	Cross-layer Resource Control to Improve TCP Performance over Wireless Network.	Ming Li
+2005	ACIS-ICIS	An Effective Real Time Update Rule for Improving Performances both the Classification and Regression Problems in Kernel Methods.	Eun-Mi Kim, Bae-Ho Lee
+2005	ACIS-ICIS	Message from the Program Chairs.	
+2007	ACIS-ICIS	Collaborative File Editor Using Repository in a Box.	Gongzhu Hu, Ivan Milenkovic
+2005	ACIS-ICIS	Design and Implementation of Forced Unmount.	Dong-Wook Kim, Eun-Ji Lim, Gyu-Il Cha, Sung-In Jung
+2005	ACIS-ICIS	Realizing the Open-Closed Principle.	Chong-wei Xu, Jose Hughes
+2007	ACIS-ICIS	An Integrated Technique for Video Watermarking.	Chien-Chuan Ko, Bo-Zhi Yang
+2005	ACIS-ICIS	Service Discovery Using FIPA-Compliant AP to Support Scalability in Ubiquitous Environments.	Hyung-Jun Kim, Kyu Min Lee, Kee-Hyun Choi, Dong Ryeol Shin
+2005	ACIS-ICIS	Extending OBDD Graphs for Composite Event Matching in Content-Based Pub/Sub Systems.	Gang Xu, Wei Xu, Tao Huang
+2005	ACIS-ICIS	Streaming Player Support Protocol Adaptation and Independent Operating System.	Sangok Kim, Kanghee Lee, Zhefan Jiang, Hyunchul Bae, Sangwook Kim
+2005	ACIS-ICIS	Comparison of Shape-Based and Stroke-Based Methods for Segmenting Handwritten Chinese Characters.	Jian Yang, Han Zhang, Mark Dencler, Chao Lu
+2005	ACIS-ICIS	Development of Embedded Software with Component Integration Based on ABCD Architectures.	Haeng-Kon Kim, Roger Y. Lee, Hae Sool Yang
+2005	ACIS-ICIS	DCT-Based Image Compression Using Wavelet-Based Algorithm with Efficient Deblocking Filter.	Wen-Chien Yen, Shen-Chuan Tai
+2005	ACIS-ICIS	Multiuser CDMA Parameters Estimation Using Sigma Point Particle Filter.	Jang-Sub Kim, Ho-Jin Shin, Dong Ryeol Shin
+2005	ACIS-ICIS	Visualizing Hierarchical Information Using a New Focus+Context Method.	Hee Yong Yoo, Hee Jin Yoo
+2005	ACIS-ICIS	A Process-Driven e-Learning Content Organization Model.	Kwang-Hoon Kim, Hyuk-Jae Yoo, Hak-Sung Kim
+2005	ACIS-ICIS	Measuring Personal Information Competency for Organizational Computing.	Chui Young Yoon
+2005	ACIS-ICIS	Use of Image Processing to Collect the Time Data of NC Machining.	Keyhoon Ko, Bo Hyun Kim, Byoung Kyu Choi
+2005	ACIS-ICIS	Performance Improvement of Cluster System by Server Status Information.	Chunkyun Youn
+2005	ACIS-ICIS	Robust Audio Watermarking in Wavelet Domain Using Pseudorandom Sequences.	Chin-Su Ko, Ki-Young Kim, Rim-Wo Hwang, YoungSeop Kim, Sang-Bum Rhee
+2005	ACIS-ICIS	A Method for Classification of Electricity Demands Using Load Profile Data.	In Hyeob Yu, Jin Ki Lee, Jong Min Ko, Sun Ic Kim
+2005	ACIS-ICIS	Design of HDTS System for Locating Logical Errors in Java Programs.	Hoon-Joon Kouh, Sun-Moon Jo, Weon-Hee Yoo
+2007	ACIS-ICIS	Improving Interactive Experience of Thin Client Computing by Reducing Data Spikes.	Yang Sun, Teng-Tiow Tay
+2005	ACIS-ICIS	Device-Independent Markup Language.	Tai-Yeon Ku, Dong-Hwan Park, Kyeong-Deok Moon
+2007	ACIS-ICIS	Bezier Curve-Based Character Descriptor Considering Shape Information.	Ferdous Ahmed Sohel, Gour C. Karmakar, Laurence S. Dooley
+2005	ACIS-ICIS	Digital Image Filter Design Using Evolvable Hardware.	P. Nirmal Kumar, S. Suresh, J. Raja Paul Perinbam
+2007	ACIS-ICIS	Real-time Linear Projection Speed Sign Detection System in Low Light Conditions.	Tam Phuong Cao, Darrell M. Elton, John Devlin
+2005	ACIS-ICIS	A Metalevel Component-Based Framework for Distributed Computing Applications.	Andy S. Y. Lai, A. J. Beaumont
+2007	ACIS-ICIS	A New Cooperative Communication MAC Strategy for Wireless Ad Hoc Networks.	Li Yi, Ji Hong
+2005	ACIS-ICIS	ebXML Test Framework on Dually Coupled Asynchronous MSH.	Youngkon Lee
+2007	ACIS-ICIS	Portfolio Management of Option-Based Investment in Technology Research and Development.	Jirawute Choungsirakulwit, Daricha Sutivong
+2005	ACIS-ICIS	Multi-Granularity Locks for XML Repetitive.	Eunujung Lee
+2007	ACIS-ICIS	Information Technology Project Management Curriculum Practice.	Grace W. Rumantir
+2005	ACIS-ICIS	Development of Quality Evaluation Metrics for BPM (Business Process Management) System.	YeongSeok Lee, JungHyun Bae, Seokkoo Shin
+2007	ACIS-ICIS	Robust-Optimal Control of a Nonlinear Two Degree-of-Freedom Helicopter.	Gwo-Ruey Yu
+2007	ACIS-ICIS	Image Watermarking Using Structure Based Wavelet Tree Quantization.	Gin-Der Wu, Pang-Hsuan Huang
+2005	ACIS-ICIS	Experience of Combining Qualitative and Quantitative Analysis Methods for Evaluating Software Architecture.	Younbok Lee, Ho-Jin Choi
+2005	ACIS-ICIS	Implementation of Prefix Delegation Mechanism Using DHCPv6 Protocol.	JooChul Lee, Hyoung-Jun Kim
+2007	ACIS-ICIS	Challenges and Solutions in Process Automation in Tertiary Education Institutes: An Australian Case Study.	Jeewani Anupama Ginige, Athula Ginige
+2005	ACIS-ICIS	Automatic Generation of XForms Code Using DTD.	Eunujung Lee, Tae-Hoon Kim
+2007	ACIS-ICIS	A Hybrid Simulated Annealing with Kempe Chain Neighborhood for the University Timetabling Problem.	Mauritsius Tuga, Regina Berretta, Alexandre Mendes
+2005	ACIS-ICIS	Generation of 3D Facial Expressions Using 2D Facial Image.	Hyun Cheol Lee, Eun Seok Kim, Gi Taek Hur, Hee Young Choi
+2007	ACIS-ICIS	Defining Functional Requirements for a Lightweight GNSS Support Protocol (LGSP).	Mike Tyson, Carlo Kopp
+2005	ACIS-ICIS	Enhanced Distributed Streaming System Based on RTP/RTSP in Resurgent Ability.	Jooyoen Lee, Junghak Kim, Shinho Kim, Changku Lim, Jaeil Jung
+2007	ACIS-ICIS	A Neuro-Fuzzy Model for Motion Cognition.	Mohamed Shaarawy, Mohamed Belal, Ehab ElGindy
+2005	ACIS-ICIS	Performance Evaluation Technique of the RTSP Based Streaming Server.	Yong-Ju Lee, Ok-Gee Min, Hag-Young Kim
+2007	ACIS-ICIS	Hybrid Multi-Feature Indexing for Music Data Retrieval.	Yu-lung Lo, Chun-Hsiung Wang
+2007	ACIS-ICIS	Validation process and component analysis in semantic mediation.	Raymond Wu
+2005	ACIS-ICIS	Oriental Color Ink Rendering for Landscape.	Ki-Jung Lee, Taeg Keun Whangbo, Young-Kyu Yang
+2007	ACIS-ICIS	Using Metrics for Estimating Maintainability of Web Applications: An Empirical Study.	Heung Seok Chae, Tae Yeon Kim, Woo-Sung Jung, Joon-Sang Lee
+2005	ACIS-ICIS	Bundle Authentication and Authorization Using XML Security in the OSGi Service Platform.	Hee-Young Lim, Young-Gab Kim, Chang-Joo Moon, Doo-Kwon Baik
+2007	ACIS-ICIS	Accent Classification Using Support Vector Machines.	Carol Pedersen, Joachim Diederich
+2005	ACIS-ICIS	Design of Healthcare System for Disabled Person Using Eye Blinking.	Hyotaek Lim, Vinay Kumar Singh
+2007	ACIS-ICIS	Applying Concurrent Versioning to Serverless Mobile Device Synchronisation.	Henry Larkin
+2005	ACIS-ICIS	Semantic Web Enabled VHE for 3rd Generation Telecommunications.	Songtao Lin, Junliang Chen
+2007	ACIS-ICIS	A New Approach for Image Thresholding under Uneven Lighting Conditions.	Yao-Hong Tsai
+2005	ACIS-ICIS	Dependable Public Wireless LANs without Hardware Support.	Jenn-Wei Lin, Ming-Feng Yang
+2005	ACIS-ICIS	Bounds on the Multi-Client Incremental Computing.	Cho-Chin Lin, Hao-Yun Yin
+2007	ACIS-ICIS	Model of a Semantic Web Search Engine for Multimedia Content Retrieval.	Mohan Ponnada, Nalin Sharda
+2007	ACIS-ICIS	New Methods for Transparent and Accurate Echo Hiding By Using the Original Audio Cepstral Content.	Yousof Erfani, Mohammad Shahram Moin, Mehdi Parviz
+2007	ACIS-ICIS	A Critique of Mobility Models for Wireless Network Simulation.	Babak Pazand, Chris McDonald
+2007	ACIS-ICIS	Intrusion Detection via Fuzzy-Genetic Algorithm Combination with Evolutionary Algorithms.	Abolfazl Toroghi Haghighat, Mostafa Esmaeili, Amin Saremi, V. R. Mousavi
+2008	ACIS-ICIS	A Novel Image Text Extraction Method Based on K-Means Clustering.	Yan Song, Anan Liu, Lin Pang, Shouxun Lin, Yongdong Zhang, Sheng Tang
+2007	ACIS-ICIS	Technology Management, Data management, Improved outcomes, Efficiency and Software limitation influencing the use of wireless technology for healthcare in Pakistan.	Abdul Hafeez-Baig, Shelly Grist, Raj Gururajan
+2007	ACIS-ICIS	Hybrid Genetic Algorithm for Solving Job-Shop Scheduling Problem.	S. M. Kamrul Hasan, Ruhul A. Sarker, David Cornforth
+2007	ACIS-ICIS	Statistical Analysis of Impulse Noise Model for Color Image Restoration.	Mieng Quoc Phu, Peter E. Tischer, Hon Ren Wu
+2007	ACIS-ICIS	A Genetic Robot Path Planner with Fuzzy Logic Adaptation.	Mahmoud Tarokh
+2007	ACIS-ICIS	Learning in Market-based Resource Allocation.	Eduardo Rodrigues Gomes, Ryszard Kowalczyk
+2007	ACIS-ICIS	Frameworks of Integration Repository for Software Process Improvement using SOA.	Eun-Ju Park, Haeng-Kon Kim, Roger Y. Lee
+2007	ACIS-ICIS	SEFAP: An Email System for Anti-Phishing.	Qiong Ren, Yi Mu, Willy Susilo
+2007	ACIS-ICIS	Minimum Message Length Clustering of Spatially-Correlated Data with Varying Inter-Class Penalties.	Gerhard Visser, David L. Dowe
+2007	ACIS-ICIS	Fast Scene Change Detection Based Histogram.	Morshed U. Chowdhury, Rezwanur Rahman, Joydip Saha, S. M. Raiyan Kabir
+2007	ACIS-ICIS	A new approach to detecting memory access errors in C programs.	Dae Wan Cho, Hyeon Soo Kim, Seunguk Oh
+2007	ACIS-ICIS	A Smart Proxy for a Next Generation Web Services Transaction.	Sunam Pradhan, Arkady B. Zaslavsky
+2007	ACIS-ICIS	2D Barcodes as Watermarks in Image Authentication.	Prashan Premaratne, Farzad Safaei
+2007	ACIS-ICIS	Self Adjusted Security Architecture for Mobile Ad Hoc Networks (MANETs).	Atef Z. Ghalwash, Aliaa A. A. Youssif, Sherif M. Hashad, Robin Doss
+2007	ACIS-ICIS	A Fuzzy-Based Approach for Partner Selection in Multi-Agent Systems.	Fenghui Ren, Minjie Zhang, Quan Bai
+2007	ACIS-ICIS	Dynamic Feature Selection for Spam Filtering Using Support Vector Machine.	Md. Rafiqul Islam, Wanlei Zhou, Morshed U. Chowdhury
+2007	ACIS-ICIS	A Low Cost Interactive Distance Learning Solution.	Faisal Sana, Shakeel Ahmed Khoja
+2007	ACIS-ICIS	Bad-Smell Metrics for Aspect-Oriented Software.	Komsan Srivisut, Pornsiri Muenchaisri
+2007	ACIS-ICIS	Internet Communities and Open innovation: an Information System Design Methodology.	Roula Michaelides, Dennis F. Kehoe
+2007	ACIS-ICIS	Voice Activity Detection Based on GM(1, 1) Model.	Cheng-Hsiung Hsieh, Ting-Yu Feng, Ren-Hsien Huang
