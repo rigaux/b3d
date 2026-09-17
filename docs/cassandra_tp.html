@@ -245,112 +245,6 @@ un index ou utiliser <code class="docutils literal notranslate"><span class="pre
 <li><p>Nombre de lignes retournées par la requête précédente</p></li>
 </ol>
 </div></blockquote>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<ol class="arabic">
-<li><div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">Restaurant</span><span class="p">;</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Sous <code class="docutils literal notranslate"><span class="pre">cqlsh</span></code>, faire Ctrl+C pour annuler l’affichage de toutes les lignes</p>
-</div>
-<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">Restaurant</span> <span class="k">LIMIT</span> <span class="mi">10</span><span class="p">;</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Il est possible de ne montrer que 10 tuples</p>
-</div>
-</li>
-<li><div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">Name</span> <span class="k">FROM</span> <span class="n">Restaurant</span><span class="p">;</span>
-</pre></div>
-</div>
-</li>
-<li><div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Borough</span> <span class="k">FROM</span> <span class="n">Restaurant</span> <span class="k">WHERE</span> <span class="n">id</span><span class="o">=</span><span class="mi">41569764</span><span class="p">;</span>
-</pre></div>
-</div>
-</li>
-<li><div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">InspectionDate</span><span class="p">,</span> <span class="n">Grade</span> <span class="k">FROM</span> <span class="n">Inspection</span> <span class="k">WHERE</span> <span class="n">idRestaurant</span><span class="o">=</span><span class="mi">41569764</span> <span class="p">;</span>
-</pre></div>
-</div>
-</li>
-<li><div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">Name</span> <span class="k">FROM</span> <span class="n">Restaurant</span> <span class="k">WHERE</span> <span class="n">cuisineType</span> <span class="o">=</span> <span class="s1">&#39;French&#39;</span> <span class="p">;</span>
-</pre></div>
-</div>
-</li>
-<li><div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">Name</span> <span class="k">FROM</span> <span class="n">Restaurant</span> <span class="k">WHERE</span> <span class="n">borough</span><span class="o">=</span><span class="s1">&#39;BROOKLYN&#39;</span> <span class="p">;</span>
-</pre></div>
-</div>
-</li>
-</ol>
-<blockquote>
-<div><p>L’erreur suivante apparaît :</p>
-<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="n">Error</span> <span class="k">from</span> <span class="n">server</span><span class="p">:</span> <span class="n">code</span><span class="o">=</span><span class="mi">2200</span> <span class="p">[</span><span class="n">Invalid</span> <span class="n">query</span><span class="p">]</span> <span class="n">message</span><span class="o">=</span><span class="ss">&quot;Cannot execute this query</span>
-<span class="ss"> as it might involve data filtering and thus may have unpredictable performance.</span>
-<span class="ss"> If you want to execute this query despite the performance unpredictability,</span>
-<span class="ss">  use ALLOW FILTERING&quot;</span>
-</pre></div>
-</div>
-<p>Il suffit d’ajouter <em>ALLOW FILTERING</em> à la fin de la requête pour pouvoir l’exécuter.
-La requête précédente fonctionnait grâce à l’index qui
-a été créé sur <code class="docutils literal notranslate"><span class="pre">cuisineType</span></code> et qui permet d’exécuter cette requête simplement.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Attention, dans le cadre de notre TP, cette requête est peu coûteuse.
-Ce n’est pas toujours le cas.</p>
-</div>
-<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">Name</span> <span class="k">FROM</span> <span class="n">Restaurant</span> <span class="k">WHERE</span> <span class="n">borough</span><span class="o">=</span><span class="s1">&#39;BROOKLYN&#39;</span> <span class="n">ALLOW</span> <span class="n">FILTERING</span> <span class="p">;</span>
-</pre></div>
-</div>
-</div></blockquote>
-<ol class="arabic" start="7">
-<li><div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">Grade</span><span class="p">,</span> <span class="n">Score</span> <span class="k">FROM</span> <span class="n">Inspection</span> <span class="k">WHERE</span> <span class="n">idRestaurant</span><span class="o">=</span><span class="mi">41569764</span> <span class="k">AND</span> <span class="n">score</span> <span class="o">&gt;=</span> <span class="mi">10</span> <span class="p">;</span>
-</pre></div>
-</div>
-</li>
-</ol>
-<blockquote>
-<div><p>Du fait de la présence de 2 critères dans la requête, dont un est indexé,
-Cassandra ne peut prédire la taille du résultat et envoi un message d’alerte :</p>
-<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="n">InvalidRequest</span><span class="p">:</span> <span class="n">code</span><span class="o">=</span><span class="mi">2200</span> <span class="p">[</span><span class="n">Invalid</span> <span class="n">query</span><span class="p">]</span> <span class="n">message</span><span class="o">=</span>
-   <span class="ss">&quot;Cannot execute this query as it might involve data filtering and thus may have</span>
-<span class="ss">   unpredictable performance. If you want to execute this query despite the</span>
-<span class="ss">   performance unpredictability, use ALLOW FILTERING&quot;</span>
-</pre></div>
-</div>
-<p>Il suffit d’ajouter <em>ALLOW FILTERING</em> à la fin de la requête pour pouvoir l’exécuter.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Attention, dans le cadre de notre TP, cette requête est peu coûteuse. Ce n’est
-pas toujours le cas.</p>
-</div>
-<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">Grade</span><span class="p">,</span> <span class="n">Score</span> <span class="k">FROM</span> <span class="n">Inspection</span> <span class="k">WHERE</span> <span class="n">idRestaurant</span><span class="o">=</span><span class="mi">41569764</span>
-<span class="k">AND</span> <span class="n">score</span> <span class="o">&gt;=</span> <span class="mi">10</span> <span class="n">ALLOW</span> <span class="n">FILTERING</span> <span class="p">;</span>
-</pre></div>
-</div>
-</div></blockquote>
-<ol class="arabic" start="8">
-<li><div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">Grade</span> <span class="k">FROM</span> <span class="n">Inspection</span> <span class="k">WHERE</span> <span class="n">score</span> <span class="o">&gt;</span> <span class="mi">30</span> <span class="k">AND</span> <span class="n">Grade</span> <span class="o">&gt;</span> <span class="s1">&#39;&#39;</span> <span class="n">ALLOW</span> <span class="n">FILTERING</span> <span class="p">;</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>L’opération « != » n’existe pas en CQL, ni la valeur “nulle”. De fait,
-la valeur nulle pour un nombre est 0, et “” pour un texte.
-Ainsi, pour filtrer la valeur nulle, il faut faire « &gt; “” ».</p>
-</div>
-</li>
-<li><div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">Inspection</span> <span class="k">WHERE</span> <span class="n">score</span> <span class="o">&gt;</span> <span class="mi">30</span> <span class="k">AND</span> <span class="n">Grade</span> <span class="o">&gt;</span> <span class="s1">&#39;&#39;</span> <span class="n">ALLOW</span> <span class="n">FILTERING</span> <span class="p">;</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>L’opération affiche le résultat. Toutefois, des messages sont affichés pour montrer que de nombreuses lignes sont parcourues lors du traitement. Un message pour chaque “bucket” stocké dans la base Cassandra.</p>
-</div>
-</li>
-</ol>
-</div>
 </section>
 <section id="cql-avance">
 <h4>CQL Avancé<a class="headerlink" href="#cql-avance" title="Lien permanent vers ce titre">¶</a></h4>
@@ -369,66 +263,6 @@ identifier quel index a été utilisé.</p></li>
 possible en CQL?</p></li>
 </ol>
 </div></blockquote>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<ol class="arabic simple">
-<li><p>Il faut pour cela créer un index sur “status” :</p></li>
-</ol>
-<blockquote>
-<div><div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">CREATE</span> <span class="k">INDEX</span> <span class="n">Restaurant_borough</span> <span class="k">ON</span> <span class="n">Restaurant</span> <span class="p">(</span> <span class="n">borough</span> <span class="p">)</span> <span class="p">;</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Attention à ne pas exécuter la requête trop tôt après la
-création de l’index, le résultat ne sera pas cohérent (message d’erreur).
-Après quelques secondes la requête peut s’exécuter.</p>
-</div>
-</div></blockquote>
-<ol class="arabic" start="2">
-<li><div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">Name</span> <span class="k">FROM</span> <span class="n">Restaurant</span> <span class="k">WHERE</span> <span class="n">borough</span> <span class="o">=</span> <span class="s1">&#39;BROOKLYN&#39;</span>
-<span class="k">AND</span> <span class="n">cuisinType</span> <span class="o">=</span> <span class="s1">&#39;French&#39;</span> <span class="n">ALLOW</span> <span class="n">FILTERING</span> <span class="p">;</span>
-</pre></div>
-</div>
-</li>
-</ol>
-<blockquote>
-<div><div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Les deux indexes ne peuvent être utilisés conjointement,
-il faut donc filtrer normalement.</p>
-</div>
-</div></blockquote>
-<ol class="arabic simple" start="3">
-<li><p>En utilisant la commande <em>TRACING ON</em>, nous pouvons constater l’ensemble
-de la <em>trace</em> de la requête (ou log d’exécution). Parmi toute la trace,
-la ligne suivante est disponible au début :</p></li>
-</ol>
-<blockquote>
-<div><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Index mean cardinalities are fk_restaurant_cuisine:1,restaurant_borough:1.
-Scanning with fk_restaurant_cuisine.
-</pre></div>
-</div>
-<p>Cela nous permet de voir que l’index <em>fk_restaurant_cuisine</em> a été utilisé en priorité.</p>
-</div></blockquote>
-<ol class="arabic simple" start="4">
-<li><p>Naturellement, nous voudrions faire cela :</p></li>
-</ol>
-<blockquote>
-<div><div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">Name</span> <span class="k">FROM</span> <span class="n">Restaurant</span><span class="p">,</span> <span class="n">Inspection</span>
-<span class="k">WHERE</span> <span class="n">id</span> <span class="o">=</span> <span class="n">idRestaurant</span> <span class="k">and</span> <span class="n">Grade</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">;</span>
-</pre></div>
-</div>
-<p>ou</p>
-<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">Name</span> <span class="k">FROM</span> <span class="n">Restaurant</span>
-<span class="k">WHERE</span> <span class="n">id</span> <span class="k">IN</span> <span class="p">(</span><span class="k">SELECT</span> <span class="n">idRestaurant</span> <span class="k">FROM</span> <span class="n">Inspection</span> <span class="k">WHERE</span> <span class="n">Grade</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">);</span>
-</pre></div>
-</div>
-<p>Sauf qu’il n’est pas possible de faire de jointures en CQL.
-Le langage ne donnera aucune possibilité à cette requête.
-Nous allons étudier la solution par la suite.</p>
-</div></blockquote>
-</div>
 </section>
 </section>
 </section>
@@ -495,89 +329,14 @@ des documents attendus est le suivant</p>
 </div>
 <p>Vous trouverez dons notre jeu de données un fichier
 <code class="docutils literal notranslate"><span class="pre">InspectionRestaurant.json</span></code> à importer.</p>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<ol class="arabic simple">
-<li><p>On peut  imbriquer les restaurants dans les inspections
-ou l’inverse. On va illustrer la première solution.
-Commençons par créer un type <code class="docutils literal notranslate"><span class="pre">Restaurant</span></code>.</p></li>
-</ol>
-<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">CREATE</span> <span class="k">TYPE</span> <span class="n">Restaurant</span> <span class="p">(</span>
-    <span class="n">Name</span> <span class="nb">VARCHAR</span><span class="p">,</span> <span class="n">borough</span> <span class="nb">VARCHAR</span><span class="p">,</span> <span class="n">BuildingNum</span> <span class="nb">VARCHAR</span><span class="p">,</span> <span class="n">Street</span> <span class="nb">VARCHAR</span><span class="p">,</span>
-   <span class="n">ZipCode</span> <span class="nb">INT</span><span class="p">,</span> <span class="n">Phone</span> <span class="nb">VARCHAR</span><span class="p">,</span> <span class="n">CuisineType</span> <span class="nb">VARCHAR</span><span class="p">);</span>
-
-        <span class="n">Puis</span> <span class="n">la</span> <span class="k">table</span> <span class="n">avec</span> <span class="n">le</span> <span class="n">restaurant</span> <span class="n">imbriqué</span><span class="p">.</span>
-
-        <span class="p">..</span> <span class="n">code</span><span class="o">-</span><span class="n">block</span><span class="p">::</span> <span class="k">sql</span>
-
-<span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">InspectionRestaurant</span> <span class="p">(</span>
-   <span class="n">idRestaurant</span> <span class="nb">INT</span><span class="p">,</span> <span class="n">InspectionDate</span> <span class="nb">date</span><span class="p">,</span> <span class="n">ViolationCode</span> <span class="nb">VARCHAR</span><span class="p">,</span>
-   <span class="n">ViolationDescription</span> <span class="nb">VARCHAR</span><span class="p">,</span> <span class="n">CriticalFlag</span> <span class="nb">VARCHAR</span><span class="p">,</span> <span class="n">Score</span> <span class="nb">INT</span><span class="p">,</span>
-   <span class="n">GRADE</span> <span class="nb">VARCHAR</span><span class="p">,</span> <span class="n">Restaurant</span> <span class="n">frozen</span><span class="o">&lt;</span><span class="n">Restaurant</span><span class="o">&gt;</span><span class="p">,</span>
-  <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span> <span class="n">idRestaurant</span><span class="p">,</span> <span class="n">InspectionDate</span> <span class="p">)</span>
- <span class="p">)</span> <span class="p">;</span>
-</pre></div>
-</div>
-</div>
 </li>
-<li><p>Insérer le document-exemple ci-dessus  dans la table pour vérifier que tout va bien.</p>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<p>Voici un exemple.</p>
-<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">InspectionRestaurant</span> <span class="n">JSON</span> <span class="s1">&#39; {&quot;idRestaurant&quot;:40373938,</span>
-<span class="s1">   &quot;restaurant&quot;: {&quot;name&quot;:&quot;IHOP&quot;, &quot;borough&quot;:&quot;BRONX&quot;, &quot;buildingnum&quot;:&quot;5655&quot;,</span>
-<span class="s1">                  &quot;street&quot;:&quot;BROADWAY&quot;, &quot;zipcode&quot;:&quot;10463&quot;,</span>
-<span class="s1">                  &quot;phone&quot;:&quot;7185494565&quot;, &quot;cuisineType&quot;:&quot;American&quot;},</span>
-<span class="s1">  &quot;inspectionDate&quot;:&quot;2016-08-16&quot;,</span>
-<span class="s1">  &quot;violationCode&quot;:&quot;04L&quot;,</span>
-<span class="s1">  &quot;violationDescription&quot;: &quot;On voit des souris!.&quot;,</span>
-<span class="s1">  &quot;criticalFlag&quot;: &quot;Critical&quot;,</span>
-<span class="s1">  &quot;score&quot;:15,</span>
-<span class="s1">  &quot;grade&quot;:&quot;A&quot;}&#39;</span><span class="p">;</span>
-</pre></div>
-</div>
-</div>
-</li>
+<li><p>Insérer le document-exemple ci-dessus  dans la table pour vérifier que tout va bien.</p></li>
 <li><p>Faire l’import avec l’utilitaire d’insertion de documents JSON.</p></li>
 <li><p>Créer un index sur le <em>Grade</em> de la table <strong>InspectionRestaurant</strong>,
-puis trouver les restaurants ayant reçu le grade “A” au moins une fois.</p>
-<blockquote>
-<div><div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">create</span> <span class="k">index</span> <span class="n">InspectionRestaurant_grade</span> <span class="k">ON</span> <span class="n">InspectionRestaurant</span> <span class="p">(</span> <span class="n">Grade</span> <span class="p">)</span> <span class="p">;</span>
-
-<span class="k">select</span> <span class="n">Restaurant</span> <span class="k">from</span> <span class="n">InspectionRestaurant</span> <span class="k">where</span> <span class="n">grade</span> <span class="o">=</span> <span class="s1">&#39;A&#39;</span><span class="p">;</span>
-</pre></div>
-</div>
-</div>
-</div></blockquote>
-<p>Malheureusement, les <em>types</em> imbriqués, <em>map</em>, <em>set</em> et <em>list</em> ne peuvent être
-dissociés dans la clause <em>SELECT</em>. Il faut donc projeter l’ensemble des informations
-du restaurant. On pourra constater que le nom du restaurant apparaît autant de fois
-qu’il y a d’inspections. Ce qui rend cette requête un peu
-moins efficace car elle demande d’interroger plus de ressources. Aucun <code class="docutils literal notranslate"><span class="pre">distinct</span></code> ne
-peut être exécuté en dehors de la clé primaire. Bref, ce n’est pas vraiment satisfaisant.</p>
-</li>
+puis trouver les restaurants ayant reçu le grade “A” au moins une fois.</p></li>
 <li><p>Recréez la table, mais cette fois sans index, en utilisant
 la clé primaire pour permettre la recherche sur le grade. Insérez le
-document-exemple et vérifiez que la requête s’exécute sans <code class="docutils literal notranslate"><span class="pre">allow</span> <span class="pre">filtering</span></code>.</p>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<blockquote>
-<div><p>On supprime la table puis on la recrée.</p>
-<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">InspectionRestaurant</span> <span class="p">(</span>
-   <span class="n">idRestaurant</span> <span class="nb">INT</span><span class="p">,</span> <span class="n">InspectionDate</span> <span class="nb">date</span><span class="p">,</span> <span class="n">ViolationCode</span> <span class="nb">VARCHAR</span><span class="p">,</span>
-   <span class="n">ViolationDescription</span> <span class="nb">VARCHAR</span><span class="p">,</span> <span class="n">CriticalFlag</span> <span class="nb">VARCHAR</span><span class="p">,</span> <span class="n">Score</span> <span class="nb">INT</span><span class="p">,</span>
-   <span class="n">Grade</span> <span class="nb">VARCHAR</span><span class="p">,</span> <span class="n">Restaurant</span> <span class="n">frozen</span><span class="o">&lt;</span><span class="n">Restaurant</span><span class="o">&gt;</span><span class="p">,</span>
-  <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span> <span class="n">Grade</span><span class="p">,</span> <span class="n">InspectionDate</span> <span class="p">)</span>
- <span class="p">)</span> <span class="p">;</span>
-</pre></div>
-</div>
-</div></blockquote>
-<p>Plus besoin de créer un index. Mais la table n’est utile que pour
-une seule requête: ce n’est pas terrible non plus….</p>
-</div>
-</li>
+document-exemple et vérifiez que la requête s’exécute sans <code class="docutils literal notranslate"><span class="pre">allow</span> <span class="pre">filtering</span></code>.</p></li>
 </ol>
 </div></blockquote>
 </section>

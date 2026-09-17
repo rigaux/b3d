@@ -101,27 +101,12 @@ devriez obtenir le format suivant.</p>
           <span class="p">(</span><span class="n">Kill</span> <span class="n">Bill</span><span class="p">),(</span><span class="n">The</span> <span class="n">Matrix</span> <span class="n">Revolutions</span><span class="p">)})</span>
 </pre></div>
 </div>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">moviesUSA</span> <span class="o">=</span> <span class="nx">filter</span> <span class="nx">movies</span> <span class="nx">BY</span> <span class="nx">country</span><span class="o">==</span><span class="s1">&#39;US&#39;</span><span class="p">;</span>
-<span class="nx">mUSA_group</span> <span class="o">=</span> <span class="nx">group</span> <span class="nx">moviesUSA</span> <span class="nx">by</span> <span class="nx">year</span><span class="p">;</span>
-<span class="nx">mUSA_annee</span> <span class="o">=</span> <span class="nx">foreach</span> <span class="nx">mUSA_group</span> <span class="nx">generate</span> <span class="nx">group</span><span class="p">,</span> <span class="nx">moviesUSA</span><span class="p">.</span><span class="nx">title</span><span class="p">;</span>
-</pre></div>
-</div>
-</div>
 </li>
 <li><p>Créez une collection <code class="docutils literal notranslate"><span class="pre">mUSA_director</span></code> groupant les films américains par metteur en scène. Vous
 devriez obtenir des documents du type suivant:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">((</span><span class="n">artist</span><span class="p">:</span><span class="mi">181</span><span class="p">,</span><span class="n">Coppola</span><span class="p">,</span><span class="n">Francis</span> <span class="n">Ford</span><span class="p">,</span><span class="mi">1940</span><span class="p">),</span>
     <span class="p">{(</span><span class="n">Le</span> <span class="n">parrain</span> <span class="n">III</span><span class="p">),(</span><span class="n">Le</span> <span class="n">parrain</span> <span class="n">II</span><span class="p">),(</span><span class="n">Le</span> <span class="n">parrain</span><span class="p">)})</span>
 </pre></div>
-</div>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">mUSA_group2</span> <span class="o">=</span> <span class="nx">group</span> <span class="nx">moviesUSA</span> <span class="nx">by</span> <span class="nx">director</span><span class="p">;</span>
-<span class="nx">mUSA_director</span> <span class="o">=</span> <span class="nx">foreach</span> <span class="nx">mUSA_group2</span> <span class="nx">generate</span> <span class="nx">group</span><span class="p">,</span> <span class="nx">moviesUSA</span><span class="p">.</span><span class="nx">title</span><span class="p">;</span>
-</pre></div>
-</div>
 </div>
 </li>
 <li><p>Créez une collection <code class="docutils literal notranslate"><span class="pre">mUSA_acteurs</span></code> contenant des triplets (idFilm,  idActeur, role). Chaque
@@ -133,12 +118,6 @@ obtenir par exemple:</p>
 </pre></div>
 </div>
 <p>Aide: il  faut « aplatir » la collection <code class="docutils literal notranslate"><span class="pre">actors</span></code> imbriquée dans chaque film.</p>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">mUSA_actors</span> <span class="o">=</span> <span class="nx">foreach</span> <span class="nx">movies</span> <span class="nx">generate</span> <span class="nx">id</span><span class="p">,</span> <span class="nx">flatten</span><span class="p">(</span><span class="nx">actors</span><span class="p">);</span>
-</pre></div>
-</div>
-</div>
 </li>
 <li><p>Maintenant, créez une collection <code class="docutils literal notranslate"><span class="pre">moviesActors</span></code> associant l’identifiant
 du film à la description complète de l’acteur. Ce qui devrait donner par exemple:</p>
@@ -147,12 +126,6 @@ du film à la description complète de l’acteur. Ce qui devrait donner par exe
 </div>
 <p>Aide: c’est une jointure bien sûr. Consultez le schéma de <code class="docutils literal notranslate"><span class="pre">mUSA_actors</span></code>
 pour connaître le nom des  colonnes.</p>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">moviesActors</span> <span class="o">=</span> <span class="nx">join</span> <span class="nx">mUSA_actors</span> <span class="nx">by</span> <span class="nx">actors</span><span class="o">::</span><span class="nx">id</span><span class="p">,</span> <span class="nx">artists</span> <span class="nx">by</span> <span class="nx">id</span><span class="p">;</span>
-</pre></div>
-</div>
-</div>
 </li>
 <li><p>Et pour finir, créez une collection <code class="docutils literal notranslate"><span class="pre">fullMovies</span></code> associant la description complète
 du film à la description complète de tous les acteurs.</p>
@@ -164,20 +137,6 @@ entre <code class="docutils literal notranslate"><span class="pre">moviesUSA</sp
            <span class="p">(</span><span class="n">movie</span><span class="p">:</span><span class="mi">33</span><span class="p">,</span><span class="n">artist</span><span class="p">:</span><span class="mi">89</span><span class="p">,</span><span class="n">Lila</span> <span class="n">Crane</span><span class="p">,</span><span class="n">artist</span><span class="p">:</span><span class="mi">89</span><span class="p">,</span><span class="n">Miles</span><span class="p">,</span><span class="n">Vera</span><span class="p">,</span><span class="mi">1929</span><span class="p">),</span>
            <span class="p">(</span><span class="n">movie</span><span class="p">:</span><span class="mi">33</span><span class="p">,</span><span class="n">artist</span><span class="p">:</span><span class="mi">88</span><span class="p">,</span><span class="n">Bates</span><span class="p">,</span><span class="n">artist</span><span class="p">:</span><span class="mi">88</span><span class="p">,</span><span class="n">Perkins</span><span class="p">,</span><span class="n">Anthony</span><span class="p">,</span><span class="mi">1932</span><span class="p">)})</span>
 </pre></div>
-</div>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<blockquote>
-<div><p>Avec <code class="docutils literal notranslate"><span class="pre">join</span></code>:</p>
-<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">joinMovies</span> <span class="o">=</span> <span class="nx">join</span> <span class="nx">movies</span> <span class="nx">by</span> <span class="nx">id</span><span class="p">,</span> <span class="nx">moviesActors</span> <span class="nx">by</span> <span class="nx">mUSA_actors</span><span class="o">::</span><span class="nx">id</span><span class="p">;</span>
-<span class="nx">fullMovies</span> <span class="o">=</span> <span class="nx">group</span> <span class="nx">joinMovies</span> <span class="nx">by</span> <span class="nx">movies</span><span class="o">::</span><span class="nx">id</span><span class="p">;</span>
-</pre></div>
-</div>
-</div></blockquote>
-<p>Avec <code class="docutils literal notranslate"><span class="pre">cogroup</span></code>:</p>
-<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">fullMovies2</span> <span class="o">=</span> <span class="nx">cogroup</span> <span class="nx">moviesUSA</span> <span class="nx">by</span> <span class="nx">id</span><span class="p">,</span> <span class="nx">moviesActors</span> <span class="nx">by</span> <span class="nx">mUSA_actors</span><span class="o">::</span><span class="nx">id</span><span class="p">;</span>
-</pre></div>
-</div>
 </div>
 </li>
 <li><p>Créer une collection <code class="docutils literal notranslate"><span class="pre">ActeursRealisateurs</span></code> donnant pour  chaque artiste la liste des films où il/elle a joué
@@ -192,14 +151,6 @@ d’afficher l’identifiant de l’artiste, ce qui donnerait:</p>
       <span class="p">{(</span><span class="n">movie</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span><span class="n">Blade</span> <span class="n">Runner</span><span class="p">,</span><span class="n">artist</span><span class="p">:</span><span class="mi">24</span><span class="p">,</span><span class="n">Deckard</span><span class="p">),</span>
        <span class="p">(</span><span class="n">movie</span><span class="p">:</span><span class="mi">34</span><span class="p">,</span><span class="n">Le</span> <span class="n">retour</span> <span class="n">du</span> <span class="n">Jedi</span><span class="p">,</span><span class="n">artist</span><span class="p">:</span><span class="mi">24</span><span class="p">,</span><span class="n">Han</span> <span class="n">Solo</span><span class="p">)})</span>
 </pre></div>
-</div>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">acteurs</span> <span class="o">=</span> <span class="nx">foreach</span> <span class="nx">movies</span> <span class="nx">generate</span> <span class="nx">id</span><span class="p">,</span> <span class="nx">title</span><span class="p">,</span> <span class="nx">flatten</span><span class="p">(</span><span class="nx">actors</span><span class="p">);</span>
-<span class="nx">IdActeursRealisateurs</span> <span class="o">=</span> <span class="nx">cogroup</span> <span class="nx">movies</span> <span class="nx">by</span> <span class="nx">director</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span> <span class="nx">acteurs</span> <span class="nx">by</span> <span class="nx">actors</span><span class="o">::</span><span class="nx">id</span><span class="p">;</span>
-<span class="nx">ActeursRealisateurs</span> <span class="o">=</span> <span class="nx">join</span> <span class="nx">artists</span> <span class="nx">by</span> <span class="nx">id</span><span class="p">,</span> <span class="nx">IdActeursRealisateurs</span> <span class="nx">by</span> <span class="nx">group</span><span class="p">;</span>
-</pre></div>
-</div>
 </div>
 </li>
 </ol>
@@ -411,17 +362,9 @@ utilisateur dans la même heure (ci-dessus, <code class="docutils literal notran
 <div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">hour_frequency2</span> <span class="o">=</span> <span class="nx">FOREACH</span> <span class="nx">hour_frequency1</span> <span class="nx">GENERATE</span> <span class="nx">flatten</span><span class="p">(</span><span class="nx">$0</span><span class="p">),</span> <span class="nx">COUNT</span><span class="p">(</span><span class="nx">$1</span><span class="p">)</span> <span class="nx">as</span> <span class="nx">count</span><span class="p">;</span>
 </pre></div>
 </div>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<p>hf = filter hour_frequency2 by ngram==”demi”; dump hf;</p>
-</div>
 <p>On regroupe par n-gram :</p>
 <div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">uniq_frequency1</span> <span class="o">=</span> <span class="nx">GROUP</span> <span class="nx">hour_frequency2</span> <span class="nx">BY</span> <span class="nx">group</span><span class="o">::</span><span class="nx">ngram</span><span class="p">;</span>
 </pre></div>
-</div>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<p>uf = filter uniq_frequency1 by group==”demi”; dump uf;</p>
 </div>
 </section>
 <section id="heures-anormales-pour-un-mot">
@@ -479,11 +422,6 @@ plot <span class="s2">&quot;demi/part-r-00000&quot;</span> using <span class="m"
 essayer de comparer, par exemple, les utilisations de n-grams à 00h et à 12h
 (indices : vous n’aurez pas besoin de ScoreGenerator et il faudra utiliser un
 join).</p>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<p>La solution se trouve dans le fichier
-<code class="docutils literal notranslate"><span class="pre">pigdir/tutorial/scripts/script1-local.pig</span></code>.</p>
-</div>
 </section>
 </section>
 </section>

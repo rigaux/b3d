@@ -1485,20 +1485,6 @@ pour une recherche.</p>
 en fonction de la taille du tirage ?</p></li>
 </ul>
 </div></blockquote>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<ul class="simple">
-<li><p>Précision: 50 / 60</p></li>
-<li><p>Rappel: 50 / 80</p></li>
-<li><p>Ramener tous les documents</p></li>
-<li><p>La précision est soit 1, soit 0.</p></li>
-<li><p>Avec un tirage aléatoire, la relation entre espérance du rappel (plus précisément de
-l’espérance du rappel) et
-nombre de résultats est monotone croissante. La proportion pertinents / non pertinents
-reste constante en espérance. Evidemment, plus l’échantillon est restreint, plus
-cette hypothèse se fragilise, avec donc une variance qui augmente.</p></li>
-</ul>
-</div>
 </div>
 <div class="admonition-exercice-ex-s1-2-precision-et-rappel-reflechissons admonition" id="ex-s1-2">
 <p class="admonition-title">Exercice <a class="reference internal" href="#ex-s1-2">Ex-S1-2</a>: précision et rappel, réfléchissons.</p>
@@ -1512,14 +1498,6 @@ quel est la précision et le rappel dans les cas suivants:</p>
 20 que renvoie le système, je n’en retrouve que 10 parmi ceux attendus.</p></li>
 </ul>
 </div></blockquote>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<ul class="simple">
-<li><p>p = 1/20, r = 1/1 = 1</p></li>
-<li><p>p = 20/20 = 1 ; r = 20/100 = 0.2</p></li>
-<li><p>p = 10/20 = 0.5 ; r = 10/30 = 1/3</p></li>
-</ul>
-</div>
 </div>
 <div class="admonition-exercice-ex-s1-3-proposons-une-autre-mesure admonition" id="ex-s1-3">
 <p class="admonition-title">Exercice <a class="reference internal" href="#ex-s1-3">Ex-S1-3</a>: proposons une autre mesure</p>
@@ -1537,13 +1515,6 @@ partie des documents sont pertinents, quelle que soit la recherche.</p>
 <li><p>Quelle méthode simple et stupide donnerait une exactitude proche de la perfection?</p></li>
 </ul>
 </div></blockquote>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<ul class="simple">
-<li><p>L’exactitude tend vers 1</p></li>
-<li><p>Il suffit de renvoyer un résultat vide, quelle que soit la requête.</p></li>
-</ul>
-</div>
 </div>
 <div class="admonition-exercice-ex-s1-4-matrice-d-incidence admonition" id="ex-s1-4">
 <p class="admonition-title">Exercice <a class="reference internal" href="#ex-s1-4">Ex-S1-4</a>: matrice d’incidence</p>
@@ -1594,48 +1565,10 @@ pour les recherches suivantes, et en déduire le classsement:</p>
 </ul>
 </div></blockquote>
 </div>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<p>Les vecteurs des documents</p>
-<blockquote>
-<div><ul class="simple">
-<li><p><span class="math notranslate nohighlight">\(v(A) = [1, 0, 1, 0, 0]\)</span></p></li>
-<li><p><span class="math notranslate nohighlight">\(v(B) = [0, 1, 1, 0, 0]\)</span></p></li>
-<li><p><span class="math notranslate nohighlight">\(v(C) = [1, 1, 1, 0, 0]\)</span></p></li>
-<li><p><span class="math notranslate nohighlight">\(v(D) = [1, 1, 0, 1, 1]\)</span></p></li>
-</ul>
-</div></blockquote>
-<p>Les vecteurs des requêtes</p>
-<blockquote>
-<div><ul class="simple">
-<li><p><span class="math notranslate nohighlight">\(v(q_1) = [1, 0, 0, 1, 0]\)</span></p></li>
-<li><p><span class="math notranslate nohighlight">\(v(q_2) = [1, 1, 0, 0, 0]\)</span></p></li>
-<li><p><span class="math notranslate nohighlight">\(v(q_3) = [0, 0, 1, 0, 0]\)</span></p></li>
-<li><p><span class="math notranslate nohighlight">\(v(q_4) = [1, 0, 0, 0, 1]\)</span></p></li>
-</ul>
-</div></blockquote>
-<p>En ce qui concerne les requêtes:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p><span class="math notranslate nohighlight">\(E(q_1, A) = \sqrt{2}; E(q_1, B) = \sqrt{4}; E(q_1, C) = \sqrt{3}; E(q_1, D) = \sqrt{2}\)</span>.  A et D sont les plus pertinents,
-suivi de C  et enfin B. Notez que A de contient pas le mot « pré ». Pourquoi
-obtient-il le même score que D?</p></li>
-<li><p><span class="math notranslate nohighlight">\(E(q_2, A) = \sqrt{2}; E(q_2, B) = \sqrt{2}; E(q_2, C) = \sqrt{1}; E(q_2, D) = \sqrt{2}\)</span>.</p></li>
-<li><p><span class="math notranslate nohighlight">\(E(q_3, A) = \sqrt{1}; E(q_3, B) = \sqrt{1}; E(q_3, C) = \sqrt{2}; E(q_3, D) = \sqrt{5}\)</span>.</p></li>
-<li><p><span class="math notranslate nohighlight">\(E(q_4, A) = \sqrt{2}; E(q_4, B) = \sqrt{4}; E(q_4, C) = \sqrt{3}; E(q_4, D) = \sqrt{2}\)</span>. C’est
-donc D qui l’emporte, mais à égalité avec A, ce ne correspond pas vraiment à l’intuition.</p></li>
-</ul>
-</div></blockquote>
-</div>
 <div class="admonition-exercice-ex-s3-2-a-propos-de-la-fonction-de-distance admonition" id="ex-s3-2">
 <span id="ftsdistanceapp"></span><p class="admonition-title">Exercice <a class="reference internal" href="#ex-s3-2">Ex-S3-2</a>:  à propos de la fonction de distance</p>
 <p>Supposons que l’on prenne comme distance non pas la distance Euclidienne mais le carré
 de cette distance. Est-ce que cela change le classement? Qu’est-ce que cela vous inspire?</p>
-</div>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<p>On peut effectuer un calcul <em>simplifié</em> de la distance, tant que l’ordre est respecté. Ce
-qui nous intéresse en fait, ce n’est pas le score proprement dit, mais l’ordre des scores.</p>
 </div>
 <div class="admonition-exercice-ex-s3-3-critique-de-la-distance-euclidienne admonition" id="ex-s3-3">
 <span id="ftsbaddistance"></span><p class="admonition-title">Exercice <a class="reference internal" href="#ex-s3-3">Ex-S3-3</a>:  critique de la distance Euclidienne</p>
@@ -1652,15 +1585,6 @@ qu’il est assez facile de mettre en évidence.</p>
 <p>Conclusion? Le classement obtenu sera-t-il satisfaisant? Trouvez un cas où un document est bien classé
 même s’il ne contient pas le mot-clé !</p>
 </div>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<p>Distance de <span class="math notranslate nohighlight">\(\sqrt{100}=10\)</span> dans le premier cas; de <span class="math notranslate nohighlight">\(\sqrt{100}\)</span> dans le second également. Ils seront classés au même niveau,
-ce qui ne va pas du tout!</p>
-<p>Un document avec 50 termes sera mieux classé
-que n’importe quel document de 100 termes contenant ou non le mot-clé. Cela nous met sur
-la piste de ce qui ne va pas: la mesure que nous utilisons est fortement dépendante de la
-taille du document, au détriment de sa pertinence.</p>
-</div>
 <div class="admonition-exercice-ex-s3-4-critique-de-l-hypothese-d-uniformite-des-termes admonition" id="ex-s3-4">
 <span id="ftsuniform"></span><p class="admonition-title">Exercice <a class="reference internal" href="#ex-s3-4">Ex-S3-4</a>:  critique de l’hypothèse d’uniformité des termes</p>
 <p>Enfin, dans notre approche très simplifiée, tous les termes ont la même importance. Calculez
@@ -1672,19 +1596,6 @@ le classement pour la requête:</p>
 </div></blockquote>
 <p>et tentez d’expliquer le résultat. Est-il satisfaisant? Quel est le biais (pensez au raisonnement
 sur la longueur du document dans l’exercice précédent).</p>
-</div>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<blockquote>
-<div><p>Vecteur de la requête: <span class="math notranslate nohighlight">\(v(q_5) =  [0, 0, 1, 0, 1]]\)</span></p>
-<p>Calcul des classements:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p><span class="math notranslate nohighlight">\(E(q_5, A) = \sqrt{2}; E(q_5, B) = \sqrt{2}; E(q_5, C) = \sqrt{3}; E(q_2, D) = \sqrt{4}\)</span>.</p></li>
-</ul>
-</div></blockquote>
-</div></blockquote>
-<p>Tous les documents sont mieux classés que D, alors que « gueule » est un terme plus discriminant.</p>
 </div>
 <div class="admonition-exercice-ex-s4-1-a-propos-de-la-requete admonition" id="ex-s4-1">
 <p class="admonition-title">Exercice <a class="reference internal" href="#ex-s4-1">Ex-S4-1</a>: à propos de la requête</p>
@@ -1716,70 +1627,6 @@ terme, le nombre de termes pour chaque document,  et le tf pour chaque cellule.<
 </ul>
 </div></blockquote>
 </div>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<p>Fréquence des termes par document (tf).</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>Document A: loup (1), bergerie (1)</p></li>
-<li><p>Document B: mouton (1), bergerie (1)</p></li>
-<li><p>Document C: loup (2), mouton (1), bergerie (1)</p></li>
-<li><p>Document D: loup (1), mouton (2), pré (1), gueule (1)</p></li>
-</ul>
-</div></blockquote>
-<p>Fréquence inverse des termes dans les documents (idf): loup  (4/3),
-mouton (4/3), bergerie (4/3), pré (4), gueule (4).</p>
-<span id="loups2"></span><table class="colwidths-given docutils align-default" id="id13">
-<caption><span class="caption-number">Tableau 11 </span><span class="caption-text">La matrice d’incidence</span><a class="headerlink" href="#id13" title="Lien permanent vers ce tableau">¶</a></caption>
-<colgroup>
-<col style="width: 23%" />
-<col style="width: 15%" />
-<col style="width: 15%" />
-<col style="width: 15%" />
-<col style="width: 15%" />
-<col style="width: 15%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"></th>
-<th class="head"><p>loup (4/3)</p></th>
-<th class="head"><p>mouton (4/3)</p></th>
-<th class="head"><p>bergerie (4/3)</p></th>
-<th class="head"><p>pré (4)</p></th>
-<th class="head"><p>gueule (4)</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>A</p></td>
-<td><p>1</p></td>
-<td><p>0</p></td>
-<td><p>1</p></td>
-<td><p>0</p></td>
-<td><p>0</p></td>
-</tr>
-<tr class="row-odd"><td><p>B</p></td>
-<td><p>0</p></td>
-<td><p>1</p></td>
-<td><p>1</p></td>
-<td><p>0</p></td>
-<td><p>0</p></td>
-</tr>
-<tr class="row-even"><td><p>C</p></td>
-<td><p>2</p></td>
-<td><p>1</p></td>
-<td><p>1</p></td>
-<td><p>0</p></td>
-<td><p>0</p></td>
-</tr>
-<tr class="row-odd"><td><p>D</p></td>
-<td><p>1</p></td>
-<td><p>2</p></td>
-<td><p>0</p></td>
-<td><p>1</p></td>
-<td><p>1</p></td>
-</tr>
-</tbody>
-</table>
-</div>
 <div class="admonition-exercice-ex-s4-4-interrogeons-et-classons admonition" id="ex-s4-4">
 <p class="admonition-title">Exercice <a class="reference internal" href="#ex-s4-4">Ex-S4-4</a>: interrogeons et classons</p>
 <p>Reprendre les requêtes suivantes:</p>
@@ -1794,94 +1641,7 @@ mouton (4/3), bergerie (4/3), pré (4), gueule (4).</p>
 <p>et calculer le classement avec la distance cosinus, en ne prenant en compte
 que le vecteur des tf.</p>
 <blockquote>
-<div><div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<blockquote>
-<div><ol class="arabic simple">
-<li><p>Les normes:</p>
-<ul class="simple">
-<li><p>A: <span class="math notranslate nohighlight">\(\sqrt{1+ 1} = \sqrt{2}\)</span></p></li>
-<li><p>B: <span class="math notranslate nohighlight">\(\sqrt{1 + 1} = \sqrt{2}\)</span></p></li>
-<li><p>C: <span class="math notranslate nohighlight">\(\sqrt{2^2 + 1 +  1} = \sqrt{6}\)</span></p></li>
-<li><p>D: <span class="math notranslate nohighlight">\(\sqrt{2^2 + 1 +  1 + 1} = \sqrt{7}\)</span></p></li>
-</ul>
-</li>
-</ol>
-</div></blockquote>
-<ol class="arabic">
-<li><p>Classement (on ne normalise pas la requête car cela n’influe pas sur le classement,
-et du coup on a des cosinus supérieurs à 1):</p>
-<blockquote>
-<div><ul>
-<li><p>loup et pré:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>A: <span class="math notranslate nohighlight">\(\frac{1 + 0 + 0 + 0 +0}{\sqrt{2}} = 0,707\)</span></p></li>
-<li><p>B: <span class="math notranslate nohighlight">\(\frac{0}{\sqrt{2}} = 0\)</span></p></li>
-<li><p>C: <span class="math notranslate nohighlight">\(\frac{2 + 0 + 0 + 0 +0}{\sqrt{6}} = 0,816\)</span></p></li>
-<li><p>D: <span class="math notranslate nohighlight">\(\frac{1 + 0 + 0 + 1 +0}{\sqrt{7}} = 0,755\)</span></p></li>
-</ul>
-</div></blockquote>
-<p>Seul D contient les deux termes, <em>mais</em> il
-en contient aussi beaucoup d’autres. Il est donc
-dominé par C, qui parle fortement de loup mais par
-de pré, et contient (un peu) moins de termes.
-A est bien classé, même s’il ne contient
-pas « pré », car (intuitivement)à il parle de « loup »
-de manière forte, ne contenant que très peu de termes.</p>
-</li>
-<li><dl>
-<dt>loup et mouton:</dt><dd><blockquote>
-<div><ul class="simple">
-<li><p>A: <span class="math notranslate nohighlight">\(\frac{1 + 0 + 0 + 0 +0}{\sqrt{2}} = 0,707\)</span></p></li>
-<li><p>B: <span class="math notranslate nohighlight">\(\frac{0 + 1 + 0 + 0 +0}{\sqrt{2}} = 0,707\)</span></p></li>
-<li><p>C: <span class="math notranslate nohighlight">\(\frac{2 + 1 + 0 + 0 +0}{\sqrt{6}} = 1,22\)</span></p></li>
-<li><p>D: <span class="math notranslate nohighlight">\(\frac{1 + 2 + 0 + 0 +0}{\sqrt{7}} = 1,13\)</span></p></li>
-</ul>
-</div></blockquote>
-<p>C et D sont à peu près à égalité, comme on peut le
-prévoir intuitivement: ils parlent des deux
-termes  de manière un peu déséquilibrée,
-par rapport à la requête. C l’emporte car sa norme est
-plus petite, il est donc plus « concentré » sur
-les termes de la requête.</p>
-</dd>
-</dl>
-</li>
-</ul>
-<blockquote>
-<div><ul>
-<li><dl class="simple">
-<dt>bergerie:</dt><dd><ul class="simple">
-<li><p>A: <span class="math notranslate nohighlight">\(\frac{1}{\sqrt{2}}  = 0,707\)</span></p></li>
-<li><p>B: <span class="math notranslate nohighlight">\(\frac{1}{\sqrt{2}}  = 0,707\)</span></p></li>
-<li><p>C: <span class="math notranslate nohighlight">\(\frac{1}{\sqrt{6}} = 0,4\)</span></p></li>
-<li><p>D: <span class="math notranslate nohighlight">\(\frac{0}{\sqrt{7}}\)</span></p></li>
-</ul>
-</dd>
-</dl>
-<p>A et B arrivent à égalité: il parlent tous les deux
-une fois de bergerie, et contiennent exactement
-un autre terme.</p>
-</li>
-<li><dl class="simple">
-<dt>gueule du loup:</dt><dd><ul class="simple">
-<li><p>A: <span class="math notranslate nohighlight">\(\frac{1 + 0 + 0 + 0 +0}{\sqrt{2}} = 0,707\)</span></p></li>
-<li><p>B: <span class="math notranslate nohighlight">\(\frac{0}{\sqrt{2}} = 0\)</span></p></li>
-<li><p>C: <span class="math notranslate nohighlight">\(\frac{2 + 0 + 0 + 0 +0}{\sqrt{6}} = 0,816\)</span></p></li>
-<li><p>D: <span class="math notranslate nohighlight">\(\frac{1 + 0 + 0 + 0 +1}{\sqrt{7}} = 0,75\)</span></p></li>
-</ul>
-</dd>
-</dl>
-<p>Même analyse que pour la première requête</p>
-</li>
-</ul>
-</div></blockquote>
-</div></blockquote>
-</li>
-</ol>
-</div>
-</div></blockquote>
+<div></div></blockquote>
 </div>
 <div class="admonition-exercice-ex-s4-5-comparons-les-loups-et-les-moutons admonition" id="ex-s4-5">
 <p class="admonition-title">Exercice <a class="reference internal" href="#ex-s4-5">Ex-S4-5</a>: comparons les loups et les moutons</p>
@@ -1937,187 +1697,6 @@ Donnez la matrice d’incidence avec l’idf de chaque terme, et le tf de chaque
 du terme “œuf”, est-elle réprésentative du contenu des recettes?</p></li>
 </ul>
 </div></blockquote>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<ol class="arabic">
-<li><p>Matrice d’incidence</p>
-<p>Crème apparaît dans 2 documents sur 3, idf=3/2;  sucre dans 3 sur 3 (idf=1),
-œuf dans 1 sur 3 (idf=3) comme gélatine. On obtient:</p>
-</li>
-</ol>
-<blockquote>
-<div><table class="colwidths-given docutils align-default">
-<colgroup>
-<col style="width: 25%" />
-<col style="width: 25%" />
-<col style="width: 25%" />
-<col style="width: 25%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"></th>
-<th class="head"><p>pc</p></th>
-<th class="head"><p>cb</p></th>
-<th class="head"><p>mc</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>crème (3/2)</p></td>
-<td><p>2</p></td>
-<td><p>1</p></td>
-<td><p>0</p></td>
-</tr>
-<tr class="row-odd"><td><p>sucre (1)</p></td>
-<td><p>1</p></td>
-<td><p>2</p></td>
-<td><p>1</p></td>
-</tr>
-<tr class="row-even"><td><p>œuf (3)</p></td>
-<td><p>0</p></td>
-<td><p>1</p></td>
-<td><p>0</p></td>
-</tr>
-<tr class="row-odd"><td><p>gélatine (3)</p></td>
-<td><p>1</p></td>
-<td><p>0</p></td>
-<td><p>0</p></td>
-</tr>
-</tbody>
-</table>
-</div></blockquote>
-<ol class="arabic">
-<li><p>Les normes:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>pc: <span class="math notranslate nohighlight">\(\sqrt{2^2 + 1+ 1} = \sqrt{6}\)</span></p></li>
-<li><p>cb: <span class="math notranslate nohighlight">\(\sqrt{1 + 2^2 + 1} = \sqrt{6}\)</span></p></li>
-<li><p>mc: <span class="math notranslate nohighlight">\(\sqrt{1} = 1\)</span></p></li>
-</ul>
-</div></blockquote>
-</li>
-<li><p>Classement (on ne normalise pas la requête car cela n’influe pas sur le classement,
-et du coup on a des cosinus supérieurs à 1):</p>
-<blockquote>
-<div><ul>
-<li><p>crème et sucre:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>pc: <span class="math notranslate nohighlight">\(\frac{2+ 1}{\sqrt{6}}\)</span></p></li>
-<li><p>cb: <span class="math notranslate nohighlight">\(\frac{1 + 2}{\sqrt{6}}\)</span></p></li>
-<li><p>mc: <span class="math notranslate nohighlight">\(\frac{1}{1}\)</span></p></li>
-</ul>
-</div></blockquote>
-</li>
-<li><p>crème et œuf:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>pc: <span class="math notranslate nohighlight">\(\frac{2}{\sqrt{6}}\)</span></p></li>
-<li><p>cb: <span class="math notranslate nohighlight">\(\frac{1 + 1}{\sqrt{6}}\)</span></p></li>
-<li><p>mc: <span class="math notranslate nohighlight">\(\frac{0}{1}\)</span></p></li>
-</ul>
-</div></blockquote>
-</li>
-<li><p>œuf et gélatine:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>pc: <span class="math notranslate nohighlight">\(\frac{1}{\sqrt{6}}\)</span></p></li>
-<li><p>cb: <span class="math notranslate nohighlight">\(\frac{1}{\sqrt{6}}\)</span></p></li>
-<li><p>mc: <span class="math notranslate nohighlight">\(\frac{0}{1}\)</span></p></li>
-</ul>
-</div></blockquote>
-</li>
-</ul>
-</div></blockquote>
-</li>
-<li><p>Etudions maintenant l’impact de l’idf. En prenant le logarithme, on obtient:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p><span class="math notranslate nohighlight">\(idf(\text{crème}) = log(1.5) = 0,176\)</span></p></li>
-<li><p><span class="math notranslate nohighlight">\(idf(\text{sucre}) = log(1) = 0\)</span></p></li>
-<li><p><span class="math notranslate nohighlight">\(idf(\text{œuf}) = log(3) = 0,477\)</span></p></li>
-<li><p><span class="math notranslate nohighlight">\(idf(\text{gélatine}) = log(3) = 0,477\)</span></p></li>
-</ul>
-</div></blockquote>
-<p>On remarque que l’IDF de “sucre” vaut zéro, ce qui revient à dire que ce terme
-ne sert à rien dans une requête. Cela reflête le fait que “sucre” apparaît
-dans <em>tous</em> les documents et que son pouvoir de discrimination est nul.</p>
-<p>Ce qui nous donne la matrice des tf.idf suivante:</p>
-<table class="colwidths-given docutils align-default">
-<colgroup>
-<col style="width: 25%" />
-<col style="width: 25%" />
-<col style="width: 25%" />
-<col style="width: 25%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"></th>
-<th class="head"><p>pc</p></th>
-<th class="head"><p>cb</p></th>
-<th class="head"><p>mc</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>crème</p></td>
-<td><p>0,352</p></td>
-<td><p>0,176</p></td>
-<td><p>0</p></td>
-</tr>
-<tr class="row-odd"><td><p>sucre</p></td>
-<td><p>0</p></td>
-<td><p>0</p></td>
-<td><p>0</p></td>
-</tr>
-<tr class="row-even"><td><p>œuf</p></td>
-<td><p>0</p></td>
-<td><p>0,477</p></td>
-<td><p>0</p></td>
-</tr>
-<tr class="row-odd"><td><p>gélatine</p></td>
-<td><p>0,477</p></td>
-<td><p>0</p></td>
-<td><p>0</p></td>
-</tr>
-</tbody>
-</table>
-<p>Un inconvénient immédiat apparaît: le document <code class="docutils literal notranslate"><span class="pre">mc</span></code> a tous ses coefficients
-à zéro et n’apparaîtra dans aucun résultat, même pour les requêtes sur le sucre.
-Pour pallier ce défaut, on peut prendre pour l’idf non pas le log mais <span class="math notranslate nohighlight">\(1+log\)</span>.
-Celà fait partie des très nombreux petits réglages qui font la qualité d’un moteur de recherche.</p>
-<p>Les normes des vecteurs:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>pc: <span class="math notranslate nohighlight">\(\sqrt{0,352^2 +  0,477^2} = 0,593\)</span></p></li>
-<li><p>cb: <span class="math notranslate nohighlight">\(\sqrt{0,176^2 + 0,477^2} = 0,508\)</span></p></li>
-</ul>
-</div></blockquote>
-<p>La requête « œuf et gélatine » est représentée par le vecteur (0,477, 0,477). La similarité
-cosinus (toujours en ignorant la norme de la requête qui est constante et ne change
-pas le classement)  est donc:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>pc: <span class="math notranslate nohighlight">\(\frac{0,477^2}{0,593}\)</span></p></li>
-<li><p>cb: <span class="math notranslate nohighlight">\(\frac{0,477^2}{0,508}\)</span></p></li>
-</ul>
-</div></blockquote>
-<p>C’est donc la crème brulée qui l’emporte. Pourquoi? Parce que le terme
-« œuf » commun entre la requête et le document est prépondérant dans la représentation
-vectorielle de ce dernier.
-En prenant en compte l’idf, il semble en effet que le document <code class="docutils literal notranslate"><span class="pre">cb</span></code> parle essentiellement
-d’œuf, alors que le document <code class="docutils literal notranslate"><span class="pre">pc</span></code> parle à peu près à parts égales d’œuf et de crème.
-Le document le plus spécifiquement liée à la requête vient donc en premier.</p>
-<p>La pauvre mousse au chocolat n’apparaît pas dans le résultat,
-alors qu’il faut vraiment des œufs pour la préparer.</p>
-</li>
-<li><p>Interprétation: clairement, il faut des œufs dans la mousse au chocolat, mais le mot “œuf”
-lui-même n’apparaît pas, ce qui fausse les résultats. Le tf est à 0 pour le document mc,
-et l’idf de “œuf” est surévalué (parce que le nombre de documents lui-même est
-ridiculement petit).</p>
-<p>Notre moteur de recherche souffre donc des limitations d’une approche purement lexicale
-basée uniquement sur le tf.idf. Il mérite donc des améliorations, la plus séduiasante
-étant la consrtruction de réseaux de termes de type <em>word to vec</em> pour tenter d’identifier
-les concepts à apparier, plutôt que les termes.</p>
-</li>
-</ol>
-</div>
 </div>
 <div class="admonition-exercice-ex-s4-7-et-si-on-calculait-autrement admonition" id="ex-s4-7">
 <p class="admonition-title">Exercice <a class="reference internal" href="#ex-s4-7">Ex-S4-7</a>: et si on calculait autrement?</p>
@@ -2144,41 +1723,6 @@ de la similarité cosinus et identique au classement par ordre croissant de
 la distance Euclidienne! (Aide: montrez que la distance augmente quand le cosinus
 diminue. Un peu de Pythagore peut aider).</p>
 </div></blockquote>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<p>Notons que: OBC et CBA sont deux triangles rectangles, par définition
-du cosinus comme projection orthogonale. Par ailleurs, on ne considère pour les calculs
-de similarité que les points situés dans le quadrant des coordonnées positives, et le cosinus
-est donc une valeur positive entre 0 et 1.</p>
-<p>Enfin, on sait que A et B sont sur le cercle trigonométrique. Donc:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p><span class="math notranslate nohighlight">\(|| OB || = 1\)</span></p></li>
-<li><p><span class="math notranslate nohighlight">\(||OA || = 1 = ||OC || + || CA ||\)</span></p></li>
-</ul>
-</div></blockquote>
-<p>C’est parti pour Pythagore, comme au collège. Nous avons:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p><span class="math notranslate nohighlight">\(|| AB ||^2 = || BC ||^2 + ||AC ||^2\)</span></p></li>
-<li><p><span class="math notranslate nohighlight">\(|| OB ||^2 = 1 = || OC ||^2 + ||BC ||^2\)</span>, et donc <span class="math notranslate nohighlight">\(||BC ||^2 = 1 - || OC ||^2\)</span></p></li>
-</ul>
-</div></blockquote>
-<p>Ce qui nous donne:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p><span class="math notranslate nohighlight">\(|| AB ||^2 = 1 - || OC ||^2 + ||AC ||^2  = 1 - || OC ||^2 + (1- ||OC ||)^2\)</span></p></li>
-<li><p><span class="math notranslate nohighlight">\(|| AB ||^2 = 2  (1 - || OC ||)\)</span></p></li>
-</ul>
-</div></blockquote>
-<p>AB est la distance euclidienne, OC la distance cosinus comprise entre 0 et 1.
-L’une augmente (de 0 à <span class="math notranslate nohighlight">\(\sqrt{2}\)</span>) quand l’autre diminue (de 1 à 0). C.Q.F.D.</p>
-<p>La distance cosinus est plus efficace à  calculer car il suffit de considérer
-les indices des deux vecteurs pour lesquels les coordonnéess
-sont toutes les deux non nulles, alors
-que pour la distance euclidienne on doit prendre en compte ceux pour lesquelles
-<em>au moins</em> une des coordonnées est non nulle.</p>
-</div>
 </div>
 </section>
 </section>

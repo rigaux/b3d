@@ -1266,20 +1266,6 @@ transmettre à vos clients.</p></li>
 résumant les tailles et performance de vos composants, le coût d’exploitation, etc.
 Vous aurez un coût unitaire par vidéo, et en fonction du nombre de clients, vous
 pouvez même déterminer un tarif (merci de rémunérer les auteurs).</p>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<p>Un million de vidéos, cela fait 500 millions de MOs, soit 500 000 GOs, soit 500 TOs. Commençons
-par ne pas prendre en compte la réplication. Je regarde, par exemple, chez Gandi
-(<a class="reference external" href="https://www.gandi.net/hebergement/serveur/prix">https://www.gandi.net/hebergement/serveur/prix</a>).</p>
-<p>Je peux configurer un serveur avec 8 cores, 16 GOs de RAM et trois disques de 1 TO chacun,
-pour 335 Euros/mois.</p>
-<p>Hum pour mes 500 TOs il me faut 170 serveurs, soit 57 KE/mois !! C’est un peu moins
-cher si je mets 4 voire 5 disques par serveur, mais là je risque la congestion. À étudier
-avec un ingénieur système/réseau expert.</p>
-<p>Conclusion: ça me revient environ 6 cts/vidéo pour l’infrastructure.</p>
-<p>Si on veut un taux de réplication de 2 (c’est le minimum, 3 c’est mieux), il faut
-doubler les chiffres.</p>
-</div>
 </div>
 <div class="admonition-exercice-ex-s1-2-combien-de-pannes admonition" id="ex-s1-2">
 <p class="admonition-title">Exercice <a class="reference internal" href="#ex-s1-2">Ex-S1-2</a>: combien de pannes?</p>
@@ -1295,18 +1281,6 @@ que je doive appliquer un <em>failover</em>.</p></li>
 </div></blockquote>
 <p>Estimez le nombre moyen de disques perdus par an, de redémarrages de serveur par an/mois/jour, de
 pannes de réseau par mois/jour.</p>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<p>Sans réplication, j’ai plus de 500 disques de 1 TO. J’en ai donc en moyenne 20 disques par an qui vont se planter.
-Avec réplication 2, cela donne 40 disques par an. Je peux recourir à des disques de 2 ou 3 TO.
-J’aurai moins de pannes, mais plus de travail pour la reprise (qui consiste à créer une nouvelle réplication).</p>
-<p>Sans réplication, j’ai en moyenne 170*3=510 redémarrage serveur par an, soit nettement plus d’un par jour.
-Avec réplication 2, j’ai trois redémarrages de serveur par jour.</p>
-<p>Pour le réseau: considérons que j’ai 4 baies (40 serveurs par baie), sans réplication. J’ai 12 coupures
-réseau par mois, 2 fois plus avec une réplication 2.</p>
-<p>Conclusion: tous les jours j’ai des pannes de plusieurs types: disque défaillant, coupure réseau,
-serveur qui redémarre. Il me faut une politique de <em>failover</em> robuste.</p>
-</div>
 </div>
 <div class="admonition-exercice-ex-s1-3-quelques-calculs admonition" id="ex-s1-3">
 <p class="admonition-title">Exercice <a class="reference internal" href="#ex-s1-3">Ex-S1-3</a>: quelques calculs</p>
@@ -1325,17 +1299,6 @@ faudra-t-il pour avoir testé toutes mes vidéos?</p></li>
 <li><p>J’arrive à optimiser mon traitement: 2 millisecondes par MO. Quelle solution me reste-t-il?</p></li>
 </ul>
 </div></blockquote>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<ul class="simple">
-<li><p>Parcourir un disque de 1 TO, ça prend plus de deux heures. Si on a un
-processeur multi-core, on peut lire les disques d’un même serveur en parallèle.</p></li>
-<li><p>J’ai 1 000 000 MOs par disque à traiter …. Ca fait 11 jours. Bienvenu dans le Big Data</p></li>
-<li><p>Il faut traiter 100 MO/s, donc  100 KO par milliseconde, 1 MO par centièmes/sec.</p></li>
-<li><p>Doubler le nombre de serveurs, utiliser 500 GOs sur chaque serveur. On peut combiner ça
-avec la réplication.</p></li>
-</ul>
-</div>
 </div>
 <div class="admonition-exercice-ex-s1-4-et-avec-le-reseau admonition" id="ex-s1-4">
 <p class="admonition-title">Exercice <a class="reference internal" href="#ex-s1-4">Ex-S1-4</a>: et avec le réseau?</p>
@@ -1343,44 +1306,12 @@ avec la réplication.</p></li>
 occupe en moyenne 100 octets. Calculer le temps
 de transfert, en supposant (1) que toutes les machines sont dans une même baie, avec un débit de 1 Gbits/s et (2)
 qu’elles sont dans des baies distinctes, avec un débit moyen de 200 Mbits/s.</p>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<p>Il faut donc transférer 1 million de paires (id, signature), soit 100 millions
-d’octets, un petit peu moins d’un Gigabit. Le temps de tranfert va de moins
-d’une seconde dans une baie, à quelques secondes en cas de baies distinctes.</p>
-<p>Notez bien que les <em>mappers</em> envoient directement au <em>reducers</em>, sans passer par
-le maître. La modicité du temps de transfert par le réseau est due au fait que les
-paires intermédiaires sont petites, beaucoup plus petites que les documents initiaux.
-C’est la clé d’une bonne performance, et en tout cas  de la scalabilité des traitements
-de type MapReduce.</p>
-</div>
 </div>
 <div class="admonition-exercice-ex-mapred-1-un-grep-en-mapreduce admonition" id="ex-mapred-1">
 <p class="admonition-title">Exercice <a class="reference internal" href="#ex-mapred-1">Ex-mapred-1</a>: un <code class="docutils literal notranslate"><span class="pre">grep</span></code>, en MapReduce</p>
 <p>On veut scanner des millards de fichiers et afficher tous ceux qui contiennent
 une chaîne de caractères <em>c</em>. Donnez la solution en MapReduce, en utilisant
 le formalisme de votre choix (de préférence un pseudo-code un peu structuré quand même).</p>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<p>Pas bien compliqué. Map: on charge les fichiers un par un (ou ligne par ligne s’ils sont
-vraiment très gros), on cherche <em>c</em> et si on la trouve on émet le nom
-du fichier et un indicateur quelconque. Soit, en code:</p>
-<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="c1">// Le pattern est supposé connu dans le contexte d&#39;exécution</span>
-<span class="kd">function</span> <span class="nx">MapGrep</span> <span class="p">(</span><span class="nx">fichier</span><span class="p">)</span> <span class="p">{</span>
-  <span class="k">if</span> <span class="p">(</span><span class="nx">contains</span><span class="p">(</span><span class="nx">fichier</span><span class="p">,</span> <span class="nx">pattern</span><span class="p">)</span> <span class="p">{</span>
-       <span class="nx">emit</span><span class="p">(</span><span class="nx">fichier</span><span class="p">.</span><span class="nx">nom</span><span class="p">,</span> <span class="mf">1</span><span class="p">);</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>Reduce: on émet le nom
-du fichier, éventellement avec le nombre d’occurrences trouvées de <em>c</em>.
-Par exemple:</p>
-<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">function</span> <span class="nx">ReduceGrep</span> <span class="p">(</span><span class="nx">nomFichier</span><span class="p">,</span> <span class="p">[</span><span class="nx">nb</span><span class="p">])</span> <span class="p">{</span>
-  <span class="k">return</span> <span class="p">(</span><span class="nx">nomFichier</span><span class="p">,</span> <span class="nx">sum</span><span class="p">(</span><span class="nx">nb</span><span class="p">));</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</div>
 </div>
 <div class="admonition-exercice-ex-mapred-2-un-rollup-en-mapreduce admonition" id="ex-mapred-2">
 <p class="admonition-title">Exercice <a class="reference internal" href="#ex-mapred-2">Ex-mapred-2</a>: un <code class="docutils literal notranslate"><span class="pre">rollup</span></code>, en MapReduce</p>
@@ -1402,26 +1333,6 @@ des documents de la forme (idTicket, idClient, idProduit, catégorie, date, prix
 Comment obtenir en MapReduce le total des ventes à une date <em>d</em>, pour le niveau N2?
 On fait donc une agrégation de <code class="docutils literal notranslate"><span class="pre">Tickets</span></code> au niveau supérieur de la
 taxonomie.</p>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<p>Il nous faut donc une fonction <em>parent(n)</em> qui renvoie le parent d’un nœud
-<em>n</em> dans la taxonomie. On pourrait généraliser avec une fonction <em>ancêtre (n, niveau)</em>
-qui renvoie l’ancêtre à un niveau donné.</p>
-<p>Cela acquis, il suffit d’appliquer la fonction <em>parent(n)</em> à chaque ticket
-pour pouvoir faire le regroupement voulu. La clé de regroupement est une
-paire constituée d’une date et du parent. Soit:</p>
-<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">function</span> <span class="nx">MapRollup</span> <span class="p">(</span><span class="nx">ticket</span><span class="p">)</span> <span class="p">{</span>
-       <span class="nx">emit</span><span class="p">({</span><span class="nx">ticket</span><span class="p">.</span><span class="nx">date</span><span class="p">,</span> <span class="nx">parent</span><span class="p">(</span><span class="nx">ticket</span><span class="p">.</span><span class="nx">categorie</span><span class="p">)},</span> <span class="nx">ticket</span><span class="p">.</span><span class="nx">prix</span><span class="p">);</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>Reduce: direct.</p>
-<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">function</span> <span class="nx">ReduceRollup</span> <span class="p">({</span><span class="nx">date</span><span class="p">,</span> <span class="nx">categ</span><span class="p">},</span> <span class="p">[</span><span class="nx">prix</span><span class="p">])</span> <span class="p">{</span>
-  <span class="k">return</span> <span class="p">({</span><span class="nx">date</span><span class="p">,</span> <span class="nx">categ</span><span class="p">},</span> <span class="nx">sum</span><span class="p">(</span><span class="nx">prix</span><span class="p">));</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</div>
 </div>
 <div class="admonition-exercice-ex-mapred-3-algebre-lineaire-distribuee admonition" id="ex-mapred-3">
 <p class="admonition-title">Exercice <a class="reference internal" href="#ex-mapred-3">Ex-mapred-3</a>:  algèbre linéaire distribuée</p>
@@ -1469,50 +1380,6 @@ entre <span class="math notranslate nohighlight">\(V\)</span> et les lignes <spa
 </ul>
 </div></blockquote>
 </div></blockquote>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<p>Il y a donc <span class="math notranslate nohighlight">\(N=150 \times 10^{9}\)</span> liens à placer dans la matrice, chaque lien étant
-représenté par un document de 16 octets. Soit  <span class="math notranslate nohighlight">\(N=2400 \times 10^{9}\)</span> octets,
-ou 2,4 TO.</p>
-<p>Avec trois copies de chaque lien, on arrive à 7,2 TO. Il faut donc au moins 4 serveurs
-pour pouvoir stocker la matrice (répliquée) sur disque.</p>
-<p>Le vecteur <span class="math notranslate nohighlight">\(V\)</span> ne tient plus en mémoire RAM pour une seule machine. Il faut
-donc le découper en <span class="math notranslate nohighlight">\(f\)</span> fragments de manière à ce que chaque fragment contenant
-<span class="math notranslate nohighlight">\(\frac{N}{f}\)</span> coordonnées tienne
-en RAM (on suppose qu’on a assez de machines, ce qui semble raisonnable). On a donc
-les fragments <span class="math notranslate nohighlight">\(V_1[0, \frac{N}{f}[\)</span>, <span class="math notranslate nohighlight">\(V_2[\frac{N}{f}, 2 \times \frac{N}{f}[\)</span>, etc.</p>
-<p>Chaque fonction de MAP accède à l’un des fragments  <span class="math notranslate nohighlight">\(V_i[(i-1) \times \frac{N}{f}, i \times \frac{N}{f}]\)</span>
-du vecteur. Cette fonction peut donc se contenter
-d’accéder à la partie de la matrice qui doit être combinée à ce fragment: il s’agit
-évidemment des colonnes <span class="math notranslate nohighlight">\([(i-1) \times \frac{N}{f}, i \times \frac{N}{f}[\)</span>. On va donc
-partitionner la matrice en <span class="math notranslate nohighlight">\(f\)</span> fragments, <em>verticalement</em>.</p>
-<figure class="align-center" id="id18">
-<span id="partition-matrice"></span><a class="reference internal image-reference" href="_images/partition-matrice.png"><img alt="_images/partition-matrice.png" src="_images/partition-matrice.png" style="width: 50%;" /></a>
-<figcaption>
-<p><span class="caption-number">Fig. 65 </span><span class="caption-text">Partition verticale de la matrice</span><a class="headerlink" href="#id18" title="Lien permanent vers cette image">¶</a></p>
-</figcaption>
-</figure>
-<p>La <a class="reference internal" href="#partition-matrice"><span class="std std-numref">Fig. 65</span></a> montre le partitionnement du vecteur et celui de la matrice.
-Le calcul MapReduce est alors <em>exactement</em> le même que celui déjà vu pour un calcul dans
-le cas où le vecteur tient en mémoire. La seule différence est qu’il s’applique
-aux fragments à apparier de la matrice et du vecteur.</p>
-<p>La <a class="reference internal" href="#mr-execution-matrice"><span class="std std-numref">Fig. 66</span></a> illustre le calcul distribué avec un partitionnement minimal
-en deux fragments. Pour simplifier un peu la figure, on
-montre le calcul au niveau des lignes et pas des cellules élémentaires.
-Un premier serveur multiplie les deux premières colonnes de la matrice
-avec les deux premières coordonnées du vecteur. Le second serveur effectue le calcul complémentaire.</p>
-<figure class="align-center" id="id19">
-<span id="mr-execution-matrice"></span><a class="reference internal image-reference" href="_images/mr-execution-matrice.png"><img alt="_images/mr-execution-matrice.png" src="_images/mr-execution-matrice.png" style="width: 80%;" /></a>
-<figcaption>
-<p><span class="caption-number">Fig. 66 </span><span class="caption-text">Illustration du calcul distribué</span><a class="headerlink" href="#id19" title="Lien permanent vers cette image">¶</a></p>
-</figcaption>
-</figure>
-<p>On a utilisé deux <em>reducers</em>, avec une distribution (<em>shuffle</em>) qui envoie tous
-les résultats intermédiaires des lignes 1 et 3 vers le premier <em>reducer</em>, et ceux
-des lignes 2 et 4 vers le second.</p>
-<p>Pour finir, le calcul de la similarité cosinus est obtenu en combinant un premier calcul
-des normes des vecteurs, suivi du produit avec le vecteur du document-cible.</p>
-</div>
 </div>
 </section>
 </section>

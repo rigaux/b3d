@@ -1462,20 +1462,6 @@ votre panier.</p></li>
 Que s’est-t-il passé?</p></li>
 </ul>
 </div></blockquote>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<p>Réponses:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>Le produit a été mis dans le panier sur un nœud <em>N</em>, puis la lecture
-du panier s’est effectuée sur un autre nœud <em>M</em>, avant synchronisation.</p></li>
-<li><p>La synchronisation s’est finie, au moins sur le nœud de lecture.</p></li>
-<li><p>Comme pour la première question, la version du panier qui apparaît
-est celle où le produit a été ajouté. On peut supposer que le système
-privilégie l’achat à la suppression…</p></li>
-</ul>
-</div></blockquote>
-</div>
 </div>
 <div class="admonition-exercice-ex-rep-2-le-probleme-des-deux-armees admonition" id="ex-rep-2">
 <p class="admonition-title">Exercice <a class="reference internal" href="#ex-rep-2">Ex-rep-2</a>: le problème des deux armées</p>
@@ -1508,26 +1494,6 @@ même information.</p></li>
 d’un procole: démontrez cette intuition!</p></li>
 </ul>
 </div></blockquote>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<p>B décide d’attaquer le 14 à 6h du matin: il envoie un message à R. Mais tant que R
-n’a pas confirmé, B ne sait pas si le message est bien arrivé.</p>
-<p>De son côté, si R reçoit le message, il peut envoyer une confirmation, mais il
-ne sera jamais sûr qu’elle est bien arrivée. La sagesse lui demande de ne
-pas attaquer le 14 à 6h du matin. Et ainsi de suite, car il faudrait que B confirme
-avoir reçu la confirmation, etc.</p>
-<p>Un peu plus formellement: supposons qu’il existe un protocole avec une chaîne
-de messages <span class="math notranslate nohighlight">\(m_1 \cdots m_k\)</span> telle que les deux généraux sont sûrs de partager
-la décision d’attaquer le jour J à l’heure H. Supposons que <span class="math notranslate nohighlight">\(m_k\)</span>
-ait été envoyé de R à B (l’hypothèse complémentaire mène au même résultat)
-et que ce message <span class="math notranslate nohighlight">\(m_k\)</span>  ne soit pas arrivé. Pour R, cela ne change rien, et
-il va donc décider d’attaquer. Comme le protocole est supposé correct, un consensus
-doit exister à cette étape <span class="math notranslate nohighlight">\(m_{k-1}\)</span> et B est censé décider attaquer également.
-(Si ce n’était pas le cas, on aurait trouvé une séquence de messages <span class="math notranslate nohighlight">\(m_1 \cdots m_{k-1}\)</span>
-produite par le protocole menant à un non-consensus).</p>
-<p>On peut donc supprimer le dernier message sans affecter le résultat. Les messages
-ne servent donc à rien: on est dans la situation initiale où les généraux ne peuvent décider.</p>
-</div>
 </div>
 <div class="admonition-exercice-ex-rep-3-le-probleme-des-epoux-trompes admonition" id="ex-rep-3">
 <p class="admonition-title">Exercice <a class="reference internal" href="#ex-rep-3">Ex-rep-3</a>: le problème des époux trompés</p>
@@ -1546,21 +1512,6 @@ est préférable). Un peu d’aide: commencer à raisonner dans le cas où il y 
 dans le royaume. Il reste ensuite à construire un raisonnement incrémental.</p>
 <p>Question subsidiaire: le discours de la reine ne semble contenir aucune information. En quoi
 joue-t-il le rôle déclencheur?</p>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<p>Réponses:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>Un seul époux infidèle: l’amazone concernée est la seule à ne pas connaître
-de cas infidélité; elle déduit donc du discours de la reine que c’est elle qui est
-concernée et elle tue son époux.</p></li>
-<li><p><em>k</em> époux infidèles: chacune des <em>k</em> amazones trompées connaît <em>k-1</em>
-cas d’infidélité. Or le jour <span class="math notranslate nohighlight">\(k-1\)</span>, personne n’est tué.
-Le <span class="math notranslate nohighlight">\(k\)</span> ième jour, chacune en déduit qu’elle est concernée et tue
-son époux.</p></li>
-</ul>
-</div></blockquote>
-</div>
 </div>
 <div class="admonition-exercice-ex-rep-4-une-autre-approche-pour-la-coherence-forte admonition" id="ex-rep-4">
 <p class="admonition-title">Exercice <a class="reference internal" href="#ex-rep-4">Ex-rep-4</a>: une autre approche pour la cohérence forte</p>
@@ -1568,12 +1519,6 @@ son époux.</p></li>
 <em>R</em> versions que l’on récupère, on choisit celle qui apparaît en majorité.</p>
 <p>Montrer que la règle <em>R +W &gt; RF</em> ne garantit plus la cohérence. Prendre par exemple
 RF=5, W=R=3 et donner un contre-exemple.</p>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<p>Facile: on écrit la dernière version sur les trois premiers nœuds N1, N2 et N3,
-puis on lit sur N3, N4 et N5: la version ancienne sur N4 et N5 est en majorité
-et c’est elle qui est choisie.</p>
-</div>
 </div>
 <div class="admonition-exercice-ex-rep-5-allons-plus-loin-avec-elastic-search admonition" id="ex-rep-5">
 <p class="admonition-title">Exercice <a class="reference internal" href="#ex-rep-5">Ex-rep-5</a>: allons plus loin avec Elastic Search</p>
@@ -1638,39 +1583,6 @@ d’une transaction TPC.</p></li>
 </ul>
 </dd>
 </dl>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<dl class="simple">
-<dt>Réponses:</dt><dd><ul class="simple">
-<li><p>Chaque nœud est capable d’assurer des transactions ACID, sur support persistant
-avec un fichier journal. De plus on fait l’hypothèse de la stabilité de la
-topologie: aucun nœud ne disparaît définitivement, et tous finissent par répondre
-à toute requête. Ce sont des hypothèses fortes….</p></li>
-<li><p>Le <em>one phase commit</em> est très fragile: il suffit qu’un participant échoue
-à effectuer sa transaction locale et soit obligé d’effectuer un <em>rollback</em>. Si
-tous les autres ont validé, la contrainte de durabilité rend la situation
-irrémédiablement fautive.</p></li>
-<li><p>Après la première phase, chaque participant s’est déclaré prêt à effectuer
-soit un commit, soit un rollback de la transaction, et il maintient
-toutes les ressources verrouillées en attente de la décision du coordinateur.
-Notez que même en cas de panne d’un paticipant, suivi d’un redémarrage,
-la capacité d’effectuer commit ou rollback est préservée grâce au <em>log</em>.</p></li>
-<li><p>Voir les hypothèses: contrairement au cas des 2 armées, on suppose que tous
-les messages finissent par arriver. Le coordinateur va donc toujours envoyer
-une confirmation, et les participants toujours finir par envoyer un acquittement.</p></li>
-<li><p>Le TPC entraîne un blocage des ressources nécessaires sur chaque participant
-pendant toute la durée de la transaction. Si le réseau fonctionne tout va bien.
-En cas de panne du coordinateur et de défaillance (supposée temporaire) du réseau
-ça peut durer longtemps.</p></li>
-</ul>
-</dd>
-</dl>
-<p>Aux dernières nouvelles (2020) aucun système NoSQL ne propose des transactions ACID
-distribuées, et ce ne sont pas des systèmes transactionnels au sens fort du terme.
-La fiabilité est en fait plutôt assurée par la réplication que par des protocoles
-algorithmiques compliqués. On pourrait dire (abruptement) qu’on préfère payer du stockage
-que de la complexité (et du temps de calcul).</p>
-</div>
 </div>
 </section>
 </section>

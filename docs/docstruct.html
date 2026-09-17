@@ -550,47 +550,6 @@ un schéma et engendrer une base de films avec quelques millions
 de documents. Pour notre base <code class="docutils literal notranslate"><span class="pre">movies</span></code>, vous pouvez récupérer le
 <a class="reference external" href="http://b3d.bdpedia.fr/files/movies.jsch">schéma JSON des documents</a>.
 (Suggestion: allez jeter un œil à <a class="reference external" href="http://www.jsonschema.net/">http://www.jsonschema.net/</a>).</p>
-<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-    <span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;$schema&quot;</span><span class="o">:</span> <span class="s2">&quot;http://json-schema.org/draft-03/schema&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;properties&quot;</span><span class="o">:</span><span class="p">{</span>
-         <span class="s2">&quot;_id&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="s2">&quot;string&quot;</span><span class="p">,</span> <span class="s2">&quot;ipsum&quot;</span><span class="o">:</span> <span class="s2">&quot;id&quot;</span><span class="p">},</span>
-         <span class="s2">&quot;actors&quot;</span><span class="o">:</span> <span class="p">{</span>
-                 <span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="s2">&quot;array&quot;</span><span class="p">,</span>
-                 <span class="s2">&quot;items&quot;</span><span class="o">:</span>
-                         <span class="p">{</span>
-                                 <span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
-                                 <span class="s2">&quot;required&quot;</span><span class="o">:</span><span class="kc">false</span><span class="p">,</span>
-                                  <span class="s2">&quot;minItems&quot;</span><span class="o">:</span> <span class="mf">2</span><span class="p">,</span>
-                  <span class="s2">&quot;maxItems&quot;</span><span class="o">:</span> <span class="mf">6</span><span class="p">,</span>
-                                 <span class="s2">&quot;properties&quot;</span><span class="o">:</span><span class="p">{</span>
-                                         <span class="s2">&quot;_id&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="s2">&quot;string&quot;</span><span class="p">,</span> <span class="s2">&quot;ipsum&quot;</span><span class="o">:</span> <span class="s2">&quot;id&quot;</span><span class="p">},</span>
-                                         <span class="s2">&quot;birth_date&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="s2">&quot;string&quot;</span><span class="p">,</span> <span class="s2">&quot;format&quot;</span><span class="o">:</span> <span class="s2">&quot;date&quot;</span><span class="p">},</span>
-                                         <span class="s2">&quot;first_name&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="s2">&quot;string&quot;</span><span class="p">,</span> <span class="s2">&quot;ipsum&quot;</span><span class="o">:</span> <span class="s2">&quot;fname&quot;</span><span class="p">},</span>
-                                         <span class="s2">&quot;last_name&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="s2">&quot;string&quot;</span><span class="p">,</span> <span class="s2">&quot;ipsum&quot;</span><span class="o">:</span> <span class="s2">&quot;fname&quot;</span><span class="p">},</span>
-                                         <span class="s2">&quot;role&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="s2">&quot;string&quot;</span><span class="p">}</span>
-                                 <span class="p">}</span>
-                         <span class="p">}</span>
-         <span class="p">},</span>
-         <span class="s2">&quot;genre&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
-                  <span class="s2">&quot;enum&quot;</span><span class="o">:</span> <span class="p">[</span> <span class="s2">&quot;Drame&quot;</span><span class="p">,</span> <span class="s2">&quot;Comédie&quot;</span><span class="p">,</span> <span class="s2">&quot;Action&quot;</span><span class="p">,</span> <span class="s2">&quot;Guerre&quot;</span><span class="p">,</span> <span class="s2">&quot;Science-Fiction&quot;</span><span class="p">]},</span>
-         <span class="s2">&quot;summary&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="s2">&quot;string&quot;</span><span class="p">,</span> <span class="s2">&quot;required&quot;</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
-         <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="s2">&quot;string&quot;</span><span class="p">},</span>
-         <span class="s2">&quot;year&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="s2">&quot;integer&quot;</span><span class="p">},</span>
-         <span class="s2">&quot;country&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="s2">&quot;string&quot;</span><span class="p">,</span>  <span class="s2">&quot;enum&quot;</span><span class="o">:</span> <span class="p">[</span> <span class="s2">&quot;USA&quot;</span><span class="p">,</span> <span class="s2">&quot;FR&quot;</span><span class="p">,</span> <span class="s2">&quot;IT&quot;</span><span class="p">]},</span>
-         <span class="s2">&quot;director&quot;</span><span class="o">:</span> <span class="p">{</span>
-                 <span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
-                 <span class="s2">&quot;properties&quot;</span><span class="o">:</span><span class="p">{</span>
-                         <span class="s2">&quot;_id&quot;</span><span class="o">:</span><span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="s2">&quot;string&quot;</span><span class="p">},</span>
-                         <span class="s2">&quot;birth_date&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="s2">&quot;string&quot;</span><span class="p">},</span>
-                         <span class="s2">&quot;first_name&quot;</span><span class="o">:</span>  <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="s2">&quot;string&quot;</span><span class="p">,</span> <span class="s2">&quot;ipsum&quot;</span><span class="o">:</span> <span class="s2">&quot;fname&quot;</span><span class="p">},</span>
-                         <span class="s2">&quot;last_name&quot;</span><span class="o">:</span><span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="s2">&quot;string&quot;</span><span class="p">,</span> <span class="s2">&quot;ipsum&quot;</span><span class="o">:</span> <span class="s2">&quot;fname&quot;</span><span class="p">}</span>
-                 <span class="p">}</span>
-         <span class="p">}</span>
-    <span class="p">}</span>
-   <span class="p">}</span>
-</pre></div>
-</div>
 </div>
 </section>
 </section>
@@ -1451,23 +1410,6 @@ de l’absence de norme et de schéma</p></li>
 <div class="admonition-exercice-ex-s2-1-document-graphe admonition" id="ex-s2-1">
 <p class="admonition-title">Exercice <a class="reference internal" href="#ex-s2-1">Ex-S2-1</a>: document = graphe</p>
 <p>Représenter sous forme de graphe le film complet « Pulp Fiction » donné précédemment.</p>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<p>La <a class="reference internal" href="#pulpfiction-graph"><span class="std std-numref">Fig. 17</span></a> montre la forme arborescente dans la variante où
-les étiquettes sont sur les arêtes. Les sous-graphes pour Bruce
-Willis et Quentin Tarantino (en tant qu’acteur) ne sont pas développés.</p>
-<figure class="align-center" id="id8">
-<span id="pulpfiction-graph"></span><a class="reference internal image-reference" href="_images/pulpfiction-graph.png"><img alt="_images/pulpfiction-graph.png" src="_images/pulpfiction-graph.png" style="width: 100%;" /></a>
-<figcaption>
-<p><span class="caption-number">Fig. 17 </span><span class="caption-text">Représentation arborescente du film Pulp Fiction</span><a class="headerlink" href="#id8" title="Lien permanent vers cette image">¶</a></p>
-</figcaption>
-</figure>
-<p>La représentation avec les étiquettes  sur les arêtes correspond à l’encodage JSON.
-XML s’appuie sur une représentation plus compliquée dans laquelle
-les étiquettes sont des nœuds intermédiaires. Cette différence explique en grande partie
-l’abandon de XML comme langage de modélisation de données. Les sous-graphes pour Bruce
-Willis et Quentin Tarantino (en tant qu’acteur) ne sont pas développés.</p>
-</div>
 </div>
 <div class="admonition-exercice-ex-s2-2-privilegions-les-artistes admonition" id="ex-s2-2">
 <p class="admonition-title">Exercice <a class="reference internal" href="#ex-s2-2">Ex-S2-2</a>: Privilégions les artistes</p>
@@ -1475,48 +1417,6 @@ Willis et Quentin Tarantino (en tant qu’acteur) ne sont pas développés.</p>
 donner un document structuré donnant toutes les informations disponibles
 sur Quentin Tarantino. On veut donc
 représenter un document centré sur les artistes et pas sur les films.</p>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<p>Voici une représentation possible. Cette fois c’est la représentation
-des films qui est redondante.</p>
-<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-  <span class="s2">&quot;_id&quot;</span><span class="o">:</span> <span class="s2">&quot;37&quot;</span><span class="p">,</span>
-   <span class="s2">&quot;first_name&quot;</span><span class="o">:</span> <span class="s2">&quot;Quentin&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;last_name&quot;</span><span class="o">:</span> <span class="s2">&quot;Tarantino&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;films_dirigés&quot;</span> <span class="o">:</span> <span class="p">[</span>
-    <span class="p">{</span>
-     <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;Pulp fiction&quot;</span><span class="p">,</span>
-     <span class="s2">&quot;year&quot;</span><span class="o">:</span> <span class="s2">&quot;1994&quot;</span><span class="p">,</span>
-     <span class="s2">&quot;actors&quot;</span><span class="o">:</span> <span class="p">[</span>
-         <span class="p">{</span><span class="s2">&quot;artist:11&quot;</span><span class="p">,</span> <span class="s2">&quot;role&quot;</span><span class="o">:</span> <span class="s2">&quot;Vincent Vega&quot;</span> <span class="p">},</span>
-         <span class="p">{</span><span class="s2">&quot;artist:27&quot;</span><span class="p">,</span> <span class="s2">&quot;role&quot;</span><span class="o">:</span> <span class="s2">&quot;Butch Coolidge&quot;</span><span class="p">}</span>
-       <span class="p">]</span>
-     <span class="p">},</span>
-    <span class="p">{</span>
-     <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;Jacky Brown&quot;</span><span class="p">,</span>
-     <span class="p">...</span>
-    <span class="p">},</span>
-     <span class="p">...</span>
-   <span class="p">],</span>
-  <span class="s2">&quot;films_joués&quot;</span><span class="o">:</span> <span class="p">[</span>
-    <span class="p">{</span>
-     <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;Pulp fiction&quot;</span><span class="p">,</span>
-     <span class="p">...</span>
-    <span class="p">},</span>
-    <span class="p">{</span>
-     <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;Reservoir Dogs&quot;</span><span class="p">,</span>
-     <span class="p">...</span>
-     <span class="p">},</span>
-     <span class="p">...</span>
-  <span class="p">]</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>Cette représentation convient pour des tâches d’analyse, en considérant qu’un
-document est créé une fois pour toutes et jamais modifié. Mais elle est inexploitable
-pour une base dans laquelle on effectue des mises à jour fréquentes (bases dites « transactionnelles »)
-à cause de la difficulté à préserver la cohérence des données.</p>
-</div>
 </div>
 <div class="admonition-exercice-ex-s2-3-comprendre-la-notion-de-document-structure admonition" id="ex-s2-3">
 <p class="admonition-title">Exercice <a class="reference internal" href="#ex-s2-3">Ex-S2-3</a>: Comprendre la notion de document structuré</p>
@@ -1585,41 +1485,6 @@ pour analyser le comportement de vos utilisateurs).</p>
 <li><p>en privilégiant l’accès par les pages visitées.</p></li>
 </ul>
 </div></blockquote>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<p>Voici une représentation possible, centrée utilisateurs.</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
-<span class="p">{</span>
-  <span class="nt">&quot;_id&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;s@cnam.fr&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;nom&quot;</span><span class="p">:</span> <span class="s2">&quot;Serge&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;visites&quot;</span> <span class="p">:</span> <span class="p">[</span>
-    <span class="p">{</span>
-      <span class="nt">&quot;page&quot;</span><span class="p">:</span> <span class="s2">&quot;http://cnam.fr/A&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;nbVisites&quot;</span><span class="p">:</span> <span class="mi">2</span>
-    <span class="p">},</span>
-    <span class="p">{</span>
-      <span class="nt">&quot;page&quot;</span><span class="p">:</span> <span class="s2">&quot;http://cnam.fr/B&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;nbVisites&quot;</span><span class="p">:</span> <span class="mi">1</span>
-    <span class="p">}</span>
-   <span class="p">]</span>
- <span class="p">},</span>
- <span class="p">{</span>
-  <span class="nt">&quot;_id&quot;</span><span class="p">:</span> <span class="s2">&quot;2&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;b@cnam.fr&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;nom&quot;</span><span class="p">:</span> <span class="s2">&quot;Benoît&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;visites&quot;</span> <span class="p">:</span> <span class="p">[</span>
-    <span class="p">{</span>
-      <span class="nt">&quot;page&quot;</span><span class="p">:</span> <span class="s2">&quot;http://cnam.fr/A&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;nbVisites&quot;</span><span class="p">:</span> <span class="mi">2</span>
-    <span class="p">}</span>
-   <span class="p">]</span>
-  <span class="p">}</span>
- <span class="p">]</span>
-</pre></div>
-</div>
-<p>La représentation centrée sur les pages s’en déduit aisément.</p>
-</div>
 </div>
 <div class="admonition-exercice-ex-s2-4-extrait-de-l-examen-du-16-juin-2016 admonition" id="ex-s2-4">
 <p class="admonition-title">Exercice <a class="reference internal" href="#ex-s2-4">Ex-S2-4</a>: extrait de l’examen du 16 juin 2016</p>
@@ -1651,117 +1516,6 @@ par chacuns.</p>
 reconstituez le schéma de cette base et indiquez le contenu des tables correspondant
 aux documents ci-dessus.</p></li>
 </ul>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<p>Il s’agit d’une sorte de rétro-ingéniere à partir de documents structurés
-dont la forme aparaît extrêmement régulière. On trouve, dans chaque document,
-une description de personnes (étudiants) au premier niveau, avec un ensemble
-imbriqué (le tableau de UEs).</p>
-<p>Ces documents devraient vous rappeler quelque chose: les films et les acteurs, avec
-les rôles joués par les acteurs.  Ici, on a des étudiants (premier type d’entité),
-des UEs (deuxième type d’entité) et une association entre les deux: les étudiants
-sont inscrits à des UEs, et obtiennent une note. Le petit exemple donné montre bien
-qu’un étudiant peut suivre plusieurs UEs, et inversement, on remarque qu’une
-même UE (la 27) est suivie par plusieurs étudiants.</p>
-<p>Conclusion: il s’agit d’une classique assocation plusieurs-à-plusieurs,
-qui se représente en relationnel avec 3 tables: <code class="docutils literal notranslate"><span class="pre">Etudiant</span></code>, <code class="docutils literal notranslate"><span class="pre">UE</span></code>
-et <code class="docutils literal notranslate"><span class="pre">Inscription</span></code>. Remarquez bien que la note ne peut être placée ni dans la table
-<code class="docutils literal notranslate"><span class="pre">Etudiant</span></code> ni dans la table <code class="docutils literal notranslate"><span class="pre">UE</span></code>, mais seulement dans la table <code class="docutils literal notranslate"><span class="pre">Inscription</span></code>.</p>
-<table class="docutils align-default" id="id11">
-<caption><span class="caption-number">Tableau 6 </span><span class="caption-text">Table des étudiants</span><a class="headerlink" href="#id11" title="Lien permanent vers ce tableau">¶</a></caption>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>id</p></th>
-<th class="head"><p>nom</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>978</p></td>
-<td><p>Jean Dujardin</p></td>
-</tr>
-<tr class="row-odd"><td><p>476</p></td>
-<td><p>Vanessa Paradis</p></td>
-</tr>
-</tbody>
-</table>
-<table class="docutils align-default" id="id12">
-<caption><span class="caption-number">Tableau 7 </span><span class="caption-text">Table des UEs</span><a class="headerlink" href="#id12" title="Lien permanent vers ce tableau">¶</a></caption>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>id</p></th>
-<th class="head"><p>titre</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>11</p></td>
-<td><p>Java</p></td>
-</tr>
-<tr class="row-odd"><td><p>13</p></td>
-<td><p>Méthodologie</p></td>
-</tr>
-<tr class="row-even"><td><p>27</p></td>
-<td><p>Bases de données</p></td>
-</tr>
-<tr class="row-odd"><td><p>37</p></td>
-<td><p>Réseaux</p></td>
-</tr>
-<tr class="row-even"><td><p>76</p></td>
-<td><p>Conduite de projets</p></td>
-</tr>
-</tbody>
-</table>
-<p>Il nous faut finalement une table des inscriptions.</p>
-<table class="docutils align-default" id="id13">
-<caption><span class="caption-number">Tableau 8 </span><span class="caption-text">Table des inscriptions</span><a class="headerlink" href="#id13" title="Lien permanent vers ce tableau">¶</a></caption>
-<colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>idEtudiant</p></th>
-<th class="head"><p>idUE</p></th>
-<th class="head"><p>note</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>978</p></td>
-<td><p>11</p></td>
-<td><p>12</p></td>
-</tr>
-<tr class="row-odd"><td><p>978</p></td>
-<td><p>27</p></td>
-<td><p>17</p></td>
-</tr>
-<tr class="row-even"><td><p>978</p></td>
-<td><p>37</p></td>
-<td><p>14</p></td>
-</tr>
-<tr class="row-odd"><td><p>476</p></td>
-<td><p>13</p></td>
-<td><p>17</p></td>
-</tr>
-<tr class="row-even"><td><p>476</p></td>
-<td><p>27</p></td>
-<td><p>10</p></td>
-</tr>
-<tr class="row-odd"><td><p>476</p></td>
-<td><p>76</p></td>
-<td><p>11</p></td>
-</tr>
-</tbody>
-</table>
-<p>Et voilà. La représentation relationnelle est entièrement à plat, ce qui a l’avantage
-de donner une vision parfaitement symétrique, non centrée sur une entité particulière.
-L’inconvénient est la distribution des données dans plusieurs tables: il faut faire
-des jointures.</p>
-</div>
 <ul>
 <li><p>Proposez une autre représentation  des mêmes données, centrée cette fois,
 non plus sur les étudiants, mais sur les UEs.</p>
@@ -1770,47 +1524,6 @@ celles qui sont proches de la racine de l’arbre. En centrant sur les UEs,
 on obtient le même contenu, mais avec une représentation très différente.</p>
 </li>
 </ul>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-  <span class="s2">&quot;_id&quot;</span><span class="o">:</span> <span class="s2">&quot;ue:11&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;titre&quot;</span><span class="o">:</span> <span class="s2">&quot;Java&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;etudiants&quot;</span><span class="o">:</span> <span class="p">[</span>
-                <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="mf">978</span><span class="p">,</span> <span class="s2">&quot;nom&quot;</span><span class="o">:</span> <span class="s2">&quot;Jean Dujardin&quot;</span><span class="p">,</span> <span class="s2">&quot;note&quot;</span><span class="o">:</span> <span class="mf">12</span><span class="p">}</span>
-               <span class="p">]</span>
-<span class="p">}</span>
-<span class="p">{</span>
-  <span class="s2">&quot;_id&quot;</span><span class="o">:</span> <span class="s2">&quot;ue:13&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;titre&quot;</span><span class="o">:</span> <span class="s2">&quot;Méthodologie&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;etudiants&quot;</span><span class="o">:</span> <span class="p">[</span>
-          <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="mf">476</span><span class="p">,</span> <span class="s2">&quot;nom&quot;</span><span class="o">:</span> <span class="s2">&quot;Vanessa Paradis&quot;</span><span class="p">,</span> <span class="s2">&quot;note&quot;</span><span class="o">:</span> <span class="mf">17</span><span class="p">}</span>
-         <span class="p">]</span>
-<span class="p">}</span>
-<span class="p">{</span>
-  <span class="s2">&quot;_id&quot;</span><span class="o">:</span> <span class="s2">&quot;ue:27&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;titre&quot;</span><span class="o">:</span> <span class="s2">&quot;Java&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;etudiants&quot;</span><span class="o">:</span> <span class="p">[</span>
-         <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="mf">978</span><span class="p">,</span> <span class="s2">&quot;nom&quot;</span><span class="o">:</span> <span class="s2">&quot;Jean Dujardin&quot;</span><span class="p">,</span> <span class="s2">&quot;note&quot;</span><span class="o">:</span> <span class="mf">17</span><span class="p">},</span>
-         <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="mf">476</span><span class="p">,</span> <span class="s2">&quot;nom&quot;</span><span class="o">:</span> <span class="s2">&quot;Vanessa Paradis&quot;</span><span class="p">,</span> <span class="s2">&quot;note&quot;</span><span class="o">:</span> <span class="mf">10</span><span class="p">}</span>
-     <span class="p">]</span>
-<span class="p">}</span>
-<span class="p">{</span>
-  <span class="s2">&quot;_id&quot;</span><span class="o">:</span> <span class="s2">&quot;ue:37&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;titre&quot;</span><span class="o">:</span> <span class="s2">&quot;Réseaux&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;etudiants&quot;</span><span class="o">:</span> <span class="p">[</span>
-         <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="mf">978</span><span class="p">,</span> <span class="s2">&quot;nom&quot;</span><span class="o">:</span> <span class="s2">&quot;Jean Dujardin&quot;</span><span class="p">,</span> <span class="s2">&quot;note&quot;</span><span class="o">:</span> <span class="mf">14</span><span class="p">}</span>
-       <span class="p">]</span>
-<span class="p">}</span>
-<span class="p">{</span>
-   <span class="s2">&quot;_id&quot;</span><span class="o">:</span> <span class="s2">&quot;ue:76&quot;</span><span class="p">,</span>
-   <span class="s2">&quot;titre&quot;</span><span class="o">:</span> <span class="s2">&quot;Conduite projet&quot;</span><span class="p">,</span>
-   <span class="s2">&quot;etudiants&quot;</span><span class="o">:</span> <span class="p">[</span>
-          <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="mf">476</span><span class="p">,</span> <span class="s2">&quot;nom&quot;</span><span class="o">:</span> <span class="s2">&quot;Vanessa Paradis&quot;</span><span class="p">,</span> <span class="s2">&quot;note&quot;</span><span class="o">:</span> <span class="mf">11</span><span class="p">}</span>
-        <span class="p">]</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</div>
 </div></blockquote>
 </div>
 <div class="admonition-exercice-ex-s5-5-passer-du-relationnel-aux-documents-complexes admonition" id="ex-s5-5">
@@ -1833,55 +1546,6 @@ activités mais pas les séjours.</p></li>
 une validation avec le schéma.</p></li>
 </ul>
 </div></blockquote>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<p>Voici un document JSON représentant un logement. Notez que l’on pourrait aussi ajouter
-la liste des séjours (ça devient rapidement laborieux).</p>
-<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-   <span class="s2">&quot;code&quot;</span><span class="o">:</span><span class="s2">&quot;pi&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;nom&quot;</span><span class="o">:</span><span class="s2">&quot; U Pinzutu&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;capacité&quot;</span><span class="o">:</span><span class="mf">10</span><span class="p">,</span>
-    <span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="s2">&quot;Gîte&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;lieu&quot;</span><span class="o">:</span><span class="s2">&quot;Corse&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;activités&quot;</span><span class="o">:</span><span class="p">[</span>
-        <span class="p">{</span>
-        <span class="s2">&quot;codeActivité&quot;</span><span class="o">:</span><span class="s2">&quot;Voile&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;description&quot;</span><span class="o">:</span><span class="s2">&quot;Pratique du dériveur et du catamaran&quot;</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-        <span class="s2">&quot;codeActivité&quot;</span><span class="o">:</span><span class="s2">&quot;Plongée&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;description&quot;</span><span class="o">:</span><span class="s2">&quot;Baptèmes et préparation des brevets&quot;</span>
-        <span class="p">}</span>
-    <span class="p">]</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>Le schéma pour ce type de document est le suivant (on peut ajouter toutes sortes de contraintes,
-descriptions, etc.)</p>
-<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-   <span class="s2">&quot;bsonType&quot;</span><span class="o">:</span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;required&quot;</span><span class="o">:</span><span class="p">[</span><span class="s2">&quot;code&quot;</span><span class="p">,</span><span class="s2">&quot;nom&quot;</span><span class="p">,</span><span class="s2">&quot;capacité&quot;</span><span class="p">,</span><span class="s2">&quot;lieu&quot;</span><span class="p">],</span>
-    <span class="s2">&quot;properties&quot;</span><span class="o">:</span><span class="p">{</span>
-        <span class="s2">&quot;code&quot;</span><span class="o">:</span><span class="p">{</span> <span class="s2">&quot;bsonType&quot;</span><span class="o">:</span><span class="s2">&quot;string&quot;</span><span class="p">},</span>
-        <span class="s2">&quot;nom&quot;</span><span class="o">:</span><span class="p">{</span><span class="s2">&quot;bsonType&quot;</span><span class="o">:</span><span class="s2">&quot;string&quot;</span><span class="p">},</span>
-        <span class="s2">&quot;capacité&quot;</span><span class="o">:</span><span class="p">{</span><span class="s2">&quot;bsonType&quot;</span><span class="o">:</span><span class="s2">&quot;int&quot;</span><span class="p">},</span>
-        <span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="o">:</span><span class="p">[</span><span class="s2">&quot;Gîte&quot;</span><span class="p">,</span><span class="s2">&quot;Hôtel&quot;</span><span class="p">,</span><span class="s2">&quot;Auberge&quot;</span><span class="p">]},</span>
-        <span class="s2">&quot;lieu&quot;</span><span class="o">:</span><span class="p">{</span> <span class="s2">&quot;bsonType&quot;</span><span class="o">:</span><span class="s2">&quot;string&quot;</span><span class="p">},</span>
-         <span class="s2">&quot;activités&quot;</span><span class="o">:</span> <span class="p">{</span>
-            <span class="s2">&quot;bsonType&quot;</span><span class="o">:</span><span class="s2">&quot;array&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;items&quot;</span><span class="o">:</span> <span class="p">{</span>
-                <span class="s2">&quot;bsontype&quot;</span><span class="o">:</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;required&quot;</span><span class="o">:</span><span class="p">[</span> <span class="s2">&quot;codeActivité&quot;</span><span class="p">],</span>
-                <span class="s2">&quot;properties&quot;</span><span class="o">:</span><span class="p">{</span>
-                    <span class="s2">&quot;codeActivité&quot;</span><span class="o">:</span><span class="p">{</span><span class="s2">&quot;bsonType&quot;</span><span class="o">:</span><span class="s2">&quot;string&quot;</span><span class="p">}</span>
-                <span class="p">}</span>
-            <span class="p">}</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</div>
 </div></blockquote>
 </div>
 <section id="pour-aller-plus-loin-optionnel">
@@ -1909,48 +1573,6 @@ sur le métro parisien. Voici deux fichiers JSON:</p>
 <p>Proposez un modèle Cassandra, créez la ou les table(s) nécessaires, essayez
 d’insérer quelques données, voire toutes les données (ce qui suppose d’écrire un petit
 programme pour les mettre au bon format).</p>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>CREATE KEYSPACE IF NOT EXISTS Metros
- WITH REPLICATION = { &#39;class&#39; : &#39;SimpleStrategy&#39;, &#39;replication_factor&#39;: 3 };
-</pre></div>
-</div>
-<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">create</span> <span class="k">table</span> <span class="n">lines</span><span class="p">(</span><span class="n">color</span> <span class="nb">text</span><span class="p">,</span> <span class="n">name</span> <span class="nb">text</span><span class="p">,</span> <span class="nb">number</span> <span class="nb">text</span><span class="p">,</span>
-                 <span class="n">route_name</span> <span class="nb">text</span><span class="p">,</span> <span class="k">primary</span> <span class="k">key</span><span class="p">(</span><span class="n">color</span><span class="p">));</span>
-
-<span class="k">create</span> <span class="k">type</span> <span class="n">line</span><span class="p">(</span><span class="n">line</span> <span class="nb">text</span><span class="p">,</span> <span class="k">position</span> <span class="nb">int</span><span class="p">);</span>
-
-<span class="k">create</span> <span class="k">table</span> <span class="n">stops</span><span class="p">(</span>
-         <span class="n">description</span> <span class="nb">text</span><span class="p">,</span>
-         <span class="n">latitude</span> <span class="nb">float</span><span class="p">,</span>
-         <span class="n">lines</span> <span class="k">set</span><span class="o">&lt;</span><span class="n">frozen</span><span class="o">&lt;</span><span class="n">line</span><span class="o">&gt;&gt;</span><span class="p">,</span>
-         <span class="n">longitude</span> <span class="nb">float</span><span class="p">,</span>
-         <span class="n">name</span> <span class="nb">text</span><span class="p">,</span>
-         <span class="k">primary</span> <span class="k">key</span><span class="p">(</span><span class="n">description</span><span class="p">)</span>
-    <span class="p">);</span>
-</pre></div>
-</div>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>insert into lines JSON &#39;
-      {
-        &quot;color&quot;: &quot;#F58F53&quot;,
-        &quot;name&quot;: &quot;Tramway 3A&quot;,
-        &quot;number&quot;: &quot;3A&quot;,
-        &quot;route_name&quot;: &quot;PONT GARIGLIANO - HOP G.POMPIDOU &lt;-&gt; PORTE DE VINCENNES&quot;
-      }&#39;;
-
-
-  insert into stops json &#39;
-    {
-    &quot;description&quot;: &quot;Jean Jaurès (23 boulevard) - 92012&quot;,
-    &quot;latitude&quot;: 48.84228,
-    &quot;lines&quot;: [{&quot;line&quot;: &quot;ligne-10&quot;, &quot;position&quot;: 2}],
-               &quot;longitude&quot;: 2.238863,
-                &quot;name&quot;: &quot;Boulogne-Jean-Jaurès&quot;
-      }
-&#39;;
-</pre></div>
-</div>
-</div>
 </div>
 </section>
 </section>

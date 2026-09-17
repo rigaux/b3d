@@ -813,13 +813,6 @@ pour chaque URL).</p>
 vers une page quelconque au lieu de suivre les liens sortants.</p></li>
 </ol>
 </div></blockquote>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<div class="highlight-scala notranslate"><div class="highlight"><pre><span></span><span class="n">matrix</span><span class="o">.</span><span class="n">cache</span><span class="o">()</span>
-<span class="n">ranks</span> <span class="o">=</span> <span class="n">contribs</span><span class="o">.</span><span class="n">reduceByKey</span><span class="o">(</span><span class="k">_</span> <span class="o">+</span> <span class="k">_</span><span class="o">).</span><span class="n">mapValues</span><span class="o">(</span><span class="mf">0.15</span> <span class="o">+</span> <span class="mf">0.85</span> <span class="o">*</span> <span class="k">_</span><span class="o">)</span>
-</pre></div>
-</div>
-</div>
 </div>
 </section>
 </section>
@@ -1117,79 +1110,6 @@ devez prendre en considération deux critères: amélioration des performances e
 diminution du temps de reprise sur panne.</p></li>
 </ul>
 </div></blockquote>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<ul>
-<li><p>Pour chaque document (une page web),  il faut
-extraire la liste des liens <em>sortants</em> (donc, dans le cas du HTML,
-toutes les balises <code class="docutils literal notranslate"><span class="pre">&lt;a</span> <span class="pre">href='lien'</span> <span class="pre">.../&gt;</span></code>. Il s’agit typiquement d’une
-opération de <em>Map</em>, sans <em>Reduce</em>! La clé d’émission est l’URL de la page analysée,
-la valeur est la liste des URL sortantes.</p>
-<p>Possibilité plus paresseure: on émet chaque lien au fur et à mesure de leur
-rencontre, et on ajoute après le <em>Map</em> une opération de regroupement par clé. Cela semble cependant
-un peu idiot de disperser les liens pour les regrouper ensuite. Dans tous les cas
-on obtient un RDD <code class="docutils literal notranslate"><span class="pre">Matrix</span></code> avec tous les vecteurs de la matrice PageRank. Chaque
-unité d’information (chaque « document ») dans ce RDD est donc de la forme</p>
-<div class="math notranslate nohighlight">
-\[(u, V_u[u_i, u_j, \cdots])\]</div>
-<p>où chaque <span class="math notranslate nohighlight">\(u^x\)</span> est un lien sortant de :math:u`. NB: on ne représente
-pas une matrice avec des 0 et des 1, à l’échelle du Web ce serait</p>
-</li>
-<li><p>Deuxième étape: on dispose de la matrice. Il faut
-évaluer la probabilité d’aboutir à une page <span class="math notranslate nohighlight">\(u'\)</span>.
-Initialement, on suppose que l’on part de n’importe que page <span class="math notranslate nohighlight">\(u\)</span> et on simule un processus
-aléatoire de déplacement qui nous donne la probablité d’arriver
-à <span class="math notranslate nohighlight">\(u'\)</span>.  À chaque étape <span class="math notranslate nohighlight">\(i\)</span>, ces probabilités sont représentés par un RDD dit
-« des rangs »,  <span class="math notranslate nohighlight">\(Rank_i\)</span>, dont chaque
-unité d’information (chaque « document ») est de la forme</p>
-<div class="math notranslate nohighlight">
-\[(u, p_u)\]</div>
-<p>Où <span class="math notranslate nohighlight">\(p_u\)</span> est la probablité d’être arrivé en <span class="math notranslate nohighlight">\(u\)</span>. Initialement cette probabilité
-dans <span class="math notranslate nohighlight">\(Rank_0\)</span> est égale à 1: on suppose que l’on part de <span class="math notranslate nohighlight">\(u\)</span>.</p>
-<p>Effectuons une <strong>jointure</strong> (sur l’URL)
-entre <code class="docutils literal notranslate"><span class="pre">Matrix</span></code> et <code class="docutils literal notranslate"><span class="pre">Rank</span></code>. On obtient, pour chaque URL <code class="docutils literal notranslate"><span class="pre">u</span></code>, des unités
-d’information de la forme</p>
-<div class="math notranslate nohighlight">
-\[(u, V_u[u_i, u_j, \cdots, u_k, \dots], p_u)\]</div>
-<p>On effectue alors un calcul simulant le choix aléatoire et équiprobable de suivre
-un des liens sortants de <code class="docutils literal notranslate"><span class="pre">u</span></code>. La probabilité de suivre chacun des  liens sortants
-est <span class="math notranslate nohighlight">\(p_u / |V_u|\)</span>. On doit donc produire:</p>
-<div class="math notranslate nohighlight">
-\[\begin{split}(u_i, p_u / |V_u|) \\
-(u_j, p_u / |V_u|)\\
-  \cdots\\
-(u_k, p_u / |V_u|)\\\end{split}\]</div>
-<p>Chacune de ces paires <span class="math notranslate nohighlight">\((u', p^{u'}_u)\)</span>
-est la probabilité <span class="math notranslate nohighlight">\(p^{u'}_u\)</span> d’arriver sur l’URL <em>en provenance de u</em>. Il reste
-à cumuler toutes ces probabilités pour toutes les provenances possibles. <strong>Ces paires
-sont produites par une opération de Map</strong>.</p>
-<p>Et finalement il faut obtenir la probabilité de se retrouver sur
-un lien <code class="docutils literal notranslate"><span class="pre">u'</span></code> en cumulant les probabilités d’arriver sur <code class="docutils literal notranslate"><span class="pre">u'</span></code> en provenance
-de toutes les  URLs <code class="docutils literal notranslate"><span class="pre">u</span></code> dont <code class="docutils literal notranslate"><span class="pre">u'</span></code> est un lien sortant. <strong>C’est une opération
-de Reduce</strong> (ou de regroupement par clé, ce qui revient au même).</p>
-<p>Il faut itérer un certain nombre de fois (10 ou 20 fois). À chaque itération
-on obtient les rangs dans nouveau RDD qui sert d’entrée à la prochaine itération.</p>
-<p>En résumé, à chaque étape <em>i</em>:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>On effectue la jointure entre <code class="docutils literal notranslate"><span class="pre">Matrix</span></code> et <span class="math notranslate nohighlight">\(Rank_i\)</span></p></li>
-<li><p>On applique un <em>Map</em> qui émet des paires <span class="math notranslate nohighlight">\((u', p^{u'}_u)\)</span></p></li>
-<li><p>On applique un <em>Reduce</em> qui regroupe sur la clé <span class="math notranslate nohighlight">\(u'\)</span> et
-cumule les probabilités <span class="math notranslate nohighlight">\(p^{u'}_u\)</span> pour toutes les provenances <span class="math notranslate nohighlight">\(u\)</span></p></li>
-</ul>
-</div></blockquote>
-</li>
-<li><p>Quels RDD marquer comme persistants? Il faut évidemment ne pas
-recalculer <code class="docutils literal notranslate"><span class="pre">Matrix</span></code> à chaque itération, et le conserver en RAM pour ne
-pas dégrader les calculs.</p>
-<p>Si on fait beaucoup d’itérations, il faut envisager la situation en cas de panne:
-sans persistance intermédiaire il faudra recommencer les calculs à zéro. On peut
-donc rendre pesistants les RDD stockant les calculs intermédiaires, au moins quelques-uns
-(1 sur 5?).</p>
-<p><a class="reference external" href="https://github.com/abbas-taher/pagerank-example-spark2.0-deep-dive">https://github.com/abbas-taher/pagerank-example-spark2.0-deep-dive</a></p>
-</li>
-</ul>
-</div>
 </div></blockquote>
 </div>
 <div class="admonition-exercice-ex-spark-2-qu-est-il-arrive-a-cql admonition" id="ex-spark-2">
@@ -1207,14 +1127,6 @@ du connecteur.</p></li>
 transmises à CQL?</p></li>
 </ul>
 </div></blockquote>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<p>L’inconvénient majeur est que l’on va effectuer un transfert entre Cassandra et Spark
-de données qui vont ensuite être immédiatement filtrées. Il serait bien préférable
-d’effectuer ce filtre dès l’origine avec une requête CQL.</p>
-<p>La fonction « pushdown » a justement pour but de transférer les clauses qui peuvent l’être
-de Spark vers CQL.</p>
-</div>
 </div>
 <section id="et-pour-aller-plus-loin">
 <h3>Et pour aller plus loin<a class="headerlink" href="#et-pour-aller-plus-loin" title="Lien permanent vers ce titre">¶</a></h3>

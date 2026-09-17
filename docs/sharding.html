@@ -1708,22 +1708,6 @@ que le gain devient négligeable ou nul (et donc que la scalabilité n’est pas
 <p>Pour approfondir, vous pouvez vous reporter à la documentation ElasticSearch
 <a class="reference external" href="https://www.elastic.co/guide/en/elasticsearch/guide/current/scale.html">https://www.elastic.co/guide/en/elasticsearch/guide/current/scale.html</a>. À lire avec l’esprit
 critique affuté par les leçons du cours NFE204 bien sûr.</p>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<p>Le nombre de réplicas et de fragments primaires est défini dans la configuration. Appelons-les
-<em>R</em> et <em>F</em>. Il y a donc en tout et pour tout <span class="math notranslate nohighlight">\(R*F\)</span> fragments (réplication
-comprise).</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>les lectures peuvent accéder à n’importe quel fragment, donc la distribution des lectures
-s’améliore jusqu’à ce que l’on ait 1 fragment par serveur, soit <span class="math notranslate nohighlight">\(R*F\)</span> serveurs.</p></li>
-<li><p>en revanche les écritures doivent se faire sur les fragments primaires, et
-au-delà de <span class="math notranslate nohighlight">\(F\)</span> serveurs on ne gagne plus rien.</p></li>
-</ul>
-</div></blockquote>
-<p>Il est assez facile d’augmenter le nombre de réplicas, mais pour changer le nombre de fragments
-il faut reconstruire tout l’index.</p>
-</div>
 </div>
 <p>Outre la mise en œuvre de Cassandra en exécutant les commandes données précédemment, voici
 quelques propositions.</p>

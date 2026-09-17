@@ -1217,32 +1217,6 @@ produire du jus d’orange dans chaque atelier? Avantages?
 Inconvénients?</p></li>
 </ul>
 </div></blockquote>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<ul class="simple">
-<li><p>On peut trier à la fin de la transformation, mais ça ne suffit
-pas: il faut également fusionner les listes triées provenant
-d’ateliers de transformation distinct avant l’assemblage. Il
-est beaucoup plus efficace de fusionner des listes triées
-que des listes non triées, donc on peut considérer que c’est
-une option à considérer.</p></li>
-<li><p>Rien ne dit que l’atelier de transformation va produire des fruits
-en sortie, même s’il en a en entrée. Donc ça ne sert à rien de trier
-(sauf cas particulier).</p></li>
-<li><p>On peut avoir plusieurs pressoirs. En fait, en général on
-ne peut pas prévoir le nombre de groupes, et donc
-le nombre de pressoirs. Un même tâche effectue donc
-plusieurs assemblages, en séquence.</p></li>
-<li><p>Oui, on peut toujours se contenter, fonctionnellement, d’un
-seul atelier d’assemblage. Il faut prendre garde à ce que
-ça ne devienne pas un goulot d’étranglement.</p></li>
-<li><p>Dans un contexte de gestion de données, il est impératif
-d’agréger tous les documents d’un même groupe ensemble. Beaucoup
-de calcul statistiques ne sont pas additifs (la somme des
-moyennes et la moyenne des sommes diffèrent) et on ne peut donc
-pas manipuler des agrégations partielles.</p></li>
-</ul>
-</div>
 </div>
 <div class="admonition-exercice-ex-s1-2-commencons-a-parler-informatique admonition" id="ex-s1-2">
 <p class="admonition-title">Exercice <a class="reference internal" href="#ex-s1-2">Ex-S1-2</a>: commençons à parler informatique</p>
@@ -1254,39 +1228,6 @@ vous voulez obtenir (confiture, 4).</p>
 les paires (mot, fréquence)?  Décrivez-le avec des petits dessins si vous voulez.</p>
 <p>NB : ce genre de calcul est à la base de nombreux algorithmes d’analyse, et sert
 par exemple à construire des moteurs de recherche.</p>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<p>Supposons que le format des documents est le suivant</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;texte&quot;</span> <span class="p">:</span> <span class="s2">&quot;Bla farine bla confiture bla sucre bla confiture ...&quot;</span><span class="p">}</span>
-</pre></div>
-</div>
-<p>Il faut découper chaque texte en mots, associés à leur nombre d’occurrences
-dans le texte. Par exemple, (confiture, 2) si le mot apparaît deux fois. L’important
-est de comprendre que le critère de regroupement (l’étiquette) est le mot. Pour chaque
-mot on « émet » la paire (mot, nbOccurrences).</p>
-<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">function</span> <span class="nx">fonctionMap</span> <span class="p">(</span><span class="nx">doc</span><span class="p">)</span>
-<span class="p">{</span>
-  <span class="c1">// On parcourt les mots du texte</span>
-  <span class="k">for</span> <span class="p">(</span><span class="nx">mot</span> <span class="k">in</span> <span class="nx">doc</span><span class="p">.</span><span class="nx">texte</span><span class="p">)</span> <span class="p">{</span>
-     <span class="nx">emit</span> <span class="p">(</span><span class="nx">mot</span><span class="p">,</span> <span class="mf">1</span><span class="p">)</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>À noter: on émet plusieurs paires (clé, valeur) par document, autant qu’il y a de mots
-dans le document. Pour un même mot <em>m</em>, on émettra donc autant de fois <em>(m, 1)</em>
-qu’il y a d’occurrences de <em>m</em>.</p>
-<p>Noter aussi que dans une spécification de haut niveau, on n’a pas besoin d’indiquer
-comment on découpe un texte en mot. Ca se fera au moment de l’implantation.</p>
-<p>La phase d’agrégation se charge de cumuler les
-occurrences d’un même mot sur l’ensemble des documents.</p>
-<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">function</span> <span class="nx">fonctionReduce</span> <span class="p">(</span><span class="nx">mot</span><span class="p">,</span> <span class="nx">occurrences</span><span class="p">)</span>
-<span class="p">{</span>
-   <span class="k">return</span> <span class="p">(</span><span class="nx">mot</span><span class="p">,</span> <span class="nx">count</span> <span class="p">(</span><span class="nx">occurrences</span><span class="p">))</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</div>
 </div>
 <div class="admonition-exercice-ex-s1-3-continuons-l-examen-du-16-juin-2016 admonition" id="ex-s1-3">
 <p class="admonition-title">Exercice <a class="reference internal" href="#ex-s1-3">Ex-S1-3</a>: continuons l’examen du 16 juin 2016</p>
@@ -1313,57 +1254,6 @@ occurrences d’un même mot sur l’ensemble des documents.</p>
 </div>
 <p>Spécifiez le calcul du nombre d’étudiants par UE, en MapReduce,
 en prenant en entrée des documents construits sur le modèle ci-dessus.</p>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<blockquote>
-<div><p>Une fonction de Map produit des paires (clé, valeur). La première
-question à se poser c’est: quelle est la clé que je choisis de produire?
-Rappelons que la clé est une sorte d’étiquette que l’on pose sur
-chaque valeur et qui va permettre de les regrouper.</p>
-<p>Ici, on veut regrouper par UE pour pouvoir compter tous les étudiants inscrits.
-On va donc émettre une paire intermédiaire pour chaque UE mentionnée dans
-un document en entrée. Voici le pseudo-code.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> fonctionMap <span class="o">(</span><span class="nv">$doc</span><span class="o">)</span> <span class="c1"># doc est un document centré étudiant</span>
-<span class="o">{</span>
-  <span class="c1"># On parcourt les UEs du tableau UEs</span>
-  <span class="k">for</span>    <span class="o">[</span><span class="nv">$ue</span> <span class="k">in</span> <span class="nv">$doc</span>.UE<span class="o">]</span> <span class="k">do</span>
-     emit <span class="o">(</span><span class="nv">$ue</span>.id, <span class="nv">$doc</span>.nom<span class="o">)</span>
-  <span class="k">done</span>
- <span class="o">}</span>
-</pre></div>
-</div>
-<p>Quand on traite le premier document de notre exemple, on obtient donc
-trois paires intermédiaires:</p>
-<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;ue:11&quot;</span><span class="p">,</span> <span class="s2">&quot;Jean Dujardin&quot;</span><span class="p">}</span>
-<span class="p">{</span><span class="s2">&quot;ue:27&quot;</span><span class="p">,</span> <span class="s2">&quot;Jean Dujardin&quot;</span><span class="p">}</span>
-<span class="p">{</span><span class="s2">&quot;ue:37&quot;</span><span class="p">,</span> <span class="s2">&quot;Jean Dujardin&quot;</span><span class="p">}</span>
-</pre></div>
-</div>
-<p>Et quand on traite le second document, on obtient:</p>
-<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;ue:13&quot;</span><span class="p">,</span> <span class="s2">&quot;Vanessa Paradis&quot;</span><span class="p">}</span>
-<span class="p">{</span><span class="s2">&quot;ue:27&quot;</span><span class="p">,</span> <span class="s2">&quot;Vanessa Paradis&quot;</span><span class="p">}</span>
-<span class="p">{</span><span class="s2">&quot;ue:76&quot;</span><span class="p">,</span> <span class="s2">&quot;Vanessa Paradis&quot;</span><span class="p">}</span>
-</pre></div>
-</div>
-<p>Toutes ces paires sont alors transmises à « l’atelier d’assemblage » qui
-les regroupe sur la clé. Voici la liste des groupes (un par UE).</p>
-<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;ue:11&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;Jean Dujardin&quot;</span><span class="p">]}</span>
-<span class="p">{</span><span class="s2">&quot;ue:13&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;Vanessa Paradis&quot;</span><span class="p">]}</span>
-<span class="p">{</span><span class="s2">&quot;ue:27&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;Jean Dujardin&quot;</span><span class="p">,</span> <span class="s2">&quot;Vanessa Paradis&quot;</span><span class="p">]}</span>
-<span class="p">{</span><span class="s2">&quot;ue:37&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;Jean Dujardin&quot;</span><span class="p">]}</span>
-<span class="p">{</span><span class="s2">&quot;ue:76&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;Vanessa Paradis&quot;</span><span class="p">]}</span>
-</pre></div>
-</div>
-<p>Il reste à appliquer la fonction de Reduce à chaque groupe.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> fonctionReduce <span class="o">(</span><span class="nv">$clé</span>, <span class="nv">$tableau</span><span class="o">)</span>
-<span class="o">{</span>
-  <span class="k">return</span> <span class="o">(</span><span class="nv">$clé</span>, count<span class="o">(</span><span class="nv">$tableau</span><span class="o">)</span>
-<span class="o">}</span>
-</pre></div>
-</div>
-</div></blockquote>
-<p>Et voilà.</p>
-</div>
 </div></blockquote>
 </div>
 <div class="admonition-exercice-ex-s1-4-algebre-lineaire-distribuee admonition" id="ex-s1-4">
@@ -1402,37 +1292,6 @@ Spécifiez le traitement MapReduce qui implante ce calcul.</p>
 </ul>
 </div></blockquote>
 </div></blockquote>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<blockquote>
-<div><p>On connaît le format des documents. Le critère de regroupement est l’identifiant de la ligne.
-La valeur à émettre est le carré du poids</p>
-<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">function</span> <span class="nx">fonctionMap</span> <span class="p">(</span><span class="nx">doc</span><span class="p">)</span>
-<span class="p">{</span>
-  <span class="nx">emit</span> <span class="p">(</span><span class="nx">doc</span><span class="p">.</span><span class="nx">lig</span><span class="p">,</span> <span class="nx">doc</span><span class="p">.</span><span class="nx">poids</span> <span class="o">*</span> <span class="nx">doc</span><span class="p">.</span><span class="nx">poids</span><span class="p">)</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>La fonction de Reduce recevra donc les carrés des poids d’une même ligne. Il restera
-à les cumuler pour obtenir la norme.</p>
-<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">function</span> <span class="nx">fonctionReduce</span> <span class="p">(</span><span class="nx">lig</span><span class="p">,</span> <span class="nx">listePoids</span><span class="p">)</span>
-<span class="p">{</span>
-   <span class="k">return</span> <span class="p">(</span><span class="nx">lig</span><span class="p">,</span> <span class="nx">sqrt</span> <span class="p">(</span><span class="nx">sum</span> <span class="p">(</span><span class="nx">listePoids</span><span class="p">)))</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</div></blockquote>
-<p>Le produit de la matrice et du vecteur est presque identique.  La fonction de Map multiplie
-chaque poids d’une ligne de la matrice par la coordonnées correspondante du vecteur <span class="math notranslate nohighlight">\(V\)</span>
-(supposé accessible comme variable globale).</p>
-<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">function</span> <span class="nx">fonctionMap</span> <span class="p">(</span><span class="nx">doc</span><span class="p">)</span>
-<span class="p">{</span>
-  <span class="nx">emit</span> <span class="p">(</span><span class="nx">doc</span><span class="p">.</span><span class="nx">lig</span><span class="p">,</span> <span class="nx">doc</span><span class="p">.</span><span class="nx">poids</span> <span class="o">*</span> <span class="nx">V</span><span class="p">[</span><span class="nx">doc</span><span class="p">.</span><span class="nx">col</span><span class="p">])</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>La fonction de Reduce est la même qu’auparavant.</p>
-</div>
 </div>
 <div class="admonition-exercice-ex-s1-5-un-peu-plus-difficile admonition" id="ex-s1-5">
 <p class="admonition-title">Exercice <a class="reference internal" href="#ex-s1-5">Ex-S1-5</a>: un peu plus difficile</p>
@@ -1456,16 +1315,6 @@ ne compte pas: (z, y, x) est considéré comme une occurrence.</p>
 <p>Comment faire ce calcul en MapReduce?</p>
 <p>NB: le résultat est appelé <em>support</em> de (x,y,z), et c’est une mesure utilisée, entre autres,
 dans la découverte de règles d’association.</p>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<p>Pour chaque publication, on prend la liste des auteurs, et on en extrait
-toutes les combinaisons possibles de 3 auteurs distincts. S’il y a 5 auteurs par
-exemple, il y a <span class="math notranslate nohighlight">\((5 \times 4 \times 3) / (3 \times 2)\)</span> combinaisons possibles (révisez votre
-combinatoire si nécessaire).</p>
-<p>Pour chaque combinaison <em>C</em>, il faut émettre la paire (<em>C</em>, 1). Le regroupement se fera
-sur la combinaison, et la somme des 1 donnera le nombre d’occurrences sur l’ensemble
-de la collection. Encore une fois, c’est le choix de la clé qui est essentiel.</p>
-</div>
 </div>
 <div class="admonition-exercice-ex-s1-6-classons-les-fruits admonition" id="ex-s1-6">
 <p class="admonition-title">Exercice <a class="reference internal" href="#ex-s1-6">Ex-S1-6</a>: classons les fruits</p>
@@ -1476,13 +1325,6 @@ test qualité en leur donnant 0 ou 1 pour les critères suivants (trop mûr, tâ
 <p>NB: ce genre d’indicateur permet de construire des classeurs pour reconnaitre automatiquement l’espèce d’un fruit
 (enfin, pour produire un indicateur de probabilité d’appartenance à une espèce à une classe, avec choix
 de la classe la plus probable).</p>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<p>Pour chaque fruit, on émet (espèce, 1) ou (espèce, 0) selon que le fruit est trop mûr ou pas.
-Ensuite, la phase d’agrégation regroupe les paires pour la même espèce,
-et on calcule la fraction du nombre de 1 sur le nombre total du groupe.</p>
-<p>Si on a trois critères, on émet (espèce, [i, j, k]) en généralisant le principe.</p>
-</div>
 </div>
 </section>
 </section>

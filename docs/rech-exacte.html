@@ -1078,185 +1078,19 @@ les données sont dans un champ imbriqué <code class="docutils literal notransl
 </pre></div>
 </div>
 <p>Maintenant, proposez des requêtes pour les besoins d’information suivants.</p>
-<ul>
+<ul class="simple">
 <li><p>Films “Star Wars” dont le réalisateur (directors) est “George Lucas” (requête
-booléenne)</p>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<blockquote>
-<div><p>Dans toutes les solutions vous pouvez ajouter un champ <code class="docutils literal notranslate"><span class="pre">fields</span></code>
-pour n’afficher que quelques données.</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-  <span class="nt">&quot;query&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="nt">&quot;bool&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="nt">&quot;must&quot;</span><span class="p">:</span> <span class="p">[</span>
-        <span class="p">{</span>
-          <span class="nt">&quot;match&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="nt">&quot;fields.title&quot;</span><span class="p">:</span> <span class="s2">&quot;Star Wars&quot;</span>
-          <span class="p">}</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-          <span class="nt">&quot;match&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="nt">&quot;fields.directors&quot;</span><span class="p">:</span> <span class="s2">&quot;George Lucas&quot;</span>
-          <span class="p">}</span>
-        <span class="p">}</span>
-      <span class="p">]</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</div></blockquote>
-<p>Pour une recherche exacte on utilise <code class="docutils literal notranslate"><span class="pre">match_phrase</span></code>:</p>
-<blockquote>
-<div><div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-  <span class="nt">&quot;query&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="nt">&quot;bool&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="nt">&quot;should&quot;</span><span class="p">:</span> <span class="p">[</span>
-        <span class="p">{</span>
-          <span class="nt">&quot;match_phrase&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="nt">&quot;fields.title&quot;</span><span class="p">:</span> <span class="s2">&quot;Star Wars&quot;</span>
-          <span class="p">}</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-          <span class="nt">&quot;match&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="nt">&quot;fields.directors&quot;</span><span class="p">:</span> <span class="s2">&quot;George Lucas&quot;</span>
-          <span class="p">}</span>
-        <span class="p">}</span>
-      <span class="p">]</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</div></blockquote>
-<p>ou de manière très compacte: <code class="docutils literal notranslate"><span class="pre">_search?q=fields.title:Star+Wars</span> <span class="pre">directors:George+Lucas</span></code></p>
-</div>
-</li>
-<li><p>Films dans lesquels “Harrison Ford” a joué</p>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<blockquote>
-<div><div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-  <span class="nt">&quot;query&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="nt">&quot;match&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="nt">&quot;fields.actors&quot;</span><span class="p">:</span> <span class="s2">&quot;Harrison Ford&quot;</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</div></blockquote>
-<p>ou  <code class="docutils literal notranslate"><span class="pre">_search?q=fields.actors:Harrison+Ford</span></code></p>
-</div>
-</li>
+booléenne)</p></li>
+<li><p>Films dans lesquels “Harrison Ford” a joué</p></li>
 <li><p>Films dans lesquels “Harrison Ford” a joué dont le résumé (plot) contient
-“Jones”.</p>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;query&quot;</span><span class="p">:{</span>
-  <span class="nt">&quot;bool&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="nt">&quot;must&quot;</span><span class="p">:</span> <span class="p">[</span>
-      <span class="p">{</span> <span class="nt">&quot;match&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="nt">&quot;fields.actors&quot;</span><span class="p">:</span> <span class="s2">&quot;Harrison Ford&quot;</span> <span class="p">}},</span>
-      <span class="p">{</span> <span class="nt">&quot;match&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="nt">&quot;fields.plot&quot;</span><span class="p">:</span> <span class="s2">&quot;Jones&quot;</span> <span class="p">}}</span>
-    <span class="p">]</span>
-<span class="p">}}}</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">_search?q=fields.actors=Harrison+Ford</span> <span class="pre">fields.plot:Jones</span></code></p>
-</div>
-</li>
+“Jones”.</p></li>
 <li><p>Films dans lesquels “Harrison Ford” a joué dont le résumé (plot) contient
-“Jones” mais sans le mot “Nazis”</p>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;query&quot;</span><span class="p">:{</span>
-  <span class="nt">&quot;bool&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="nt">&quot;must&quot;</span><span class="p">:</span> <span class="p">[</span>
-      <span class="p">{</span> <span class="nt">&quot;match&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="nt">&quot;fields.actors&quot;</span><span class="p">:</span> <span class="s2">&quot;Harrison Ford&quot;</span> <span class="p">}},</span>
-      <span class="p">{</span> <span class="nt">&quot;match&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="nt">&quot;fields.plot&quot;</span><span class="p">:</span> <span class="s2">&quot;Jones&quot;</span> <span class="p">}}</span>
-    <span class="p">],</span>
-    <span class="nt">&quot;must_not&quot;</span> <span class="p">:</span> <span class="p">{</span> <span class="nt">&quot;match&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="nt">&quot;fields.plot&quot;</span><span class="p">:</span><span class="s2">&quot;Nazis&quot;</span><span class="p">}}</span>
-<span class="p">}}}</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">_search?q=actors=Harrison+Ford</span> <span class="pre">plot:Jones</span> <span class="pre">-plot:Nazis</span></code></p>
-</div>
-</li>
+“Jones” mais sans le mot “Nazis”</p></li>
 <li><p>Films de “James Cameron” dont le rang devrait être inférieur à 1000 (boolean +
-range query).</p>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;query&quot;</span><span class="p">:{</span>
-  <span class="nt">&quot;bool&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="nt">&quot;must&quot;</span><span class="p">:</span> <span class="p">[</span>
-      <span class="p">{</span> <span class="nt">&quot;match&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="nt">&quot;fields.directors&quot;</span><span class="p">:</span> <span class="s2">&quot;James Cameron&quot;</span> <span class="p">}},</span>
-      <span class="p">{</span> <span class="nt">&quot;range&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="nt">&quot;fields.rank&quot;</span><span class="p">:</span> <span class="p">{</span><span class="nt">&quot;lt&quot;</span><span class="p">:</span><span class="mi">1000</span> <span class="p">}}}</span>
-    <span class="p">]</span>
-<span class="p">}}}</span>
-</pre></div>
-</div>
-</div>
-</li>
+range query).</p></li>
 <li><p>Films de “Quentin Tarantino” dont la note (rating) doit être supérieure à 5,
-sans être un film d’action ni un drame.</p>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-  <span class="nt">&quot;query&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="nt">&quot;bool&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="nt">&quot;must&quot;</span><span class="p">:</span> <span class="p">[</span>
-        <span class="p">{</span>
-          <span class="nt">&quot;match_phrase&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="nt">&quot;fields.directors&quot;</span><span class="p">:</span> <span class="s2">&quot;Quentin Tarantino&quot;</span>
-          <span class="p">}</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-          <span class="nt">&quot;range&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="nt">&quot;fields.rating&quot;</span><span class="p">:</span> <span class="p">{</span>
-              <span class="nt">&quot;gte&quot;</span><span class="p">:</span> <span class="mi">5</span>
-            <span class="p">}</span>
-          <span class="p">}</span>
-        <span class="p">}</span>
-      <span class="p">],</span>
-      <span class="nt">&quot;must_not&quot;</span><span class="p">:</span> <span class="p">[</span>
-        <span class="p">{</span>
-          <span class="nt">&quot;match&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="nt">&quot;fields.genres&quot;</span><span class="p">:</span> <span class="s2">&quot;Action&quot;</span>
-          <span class="p">}</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-          <span class="nt">&quot;match&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="nt">&quot;fields.genres&quot;</span><span class="p">:</span> <span class="s2">&quot;Drama&quot;</span>
-          <span class="p">}</span>
-        <span class="p">}</span>
-      <span class="p">]</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</div>
-</li>
-<li><p>Films de “J.J. Abrams” sortis (released) entre 2010 et 2015</p>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-  <span class="nt">&quot;query&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="nt">&quot;bool&quot;</span><span class="p">:{</span>
-      <span class="nt">&quot;must&quot;</span><span class="p">:</span> <span class="p">{</span><span class="nt">&quot;match&quot;</span><span class="p">:</span> <span class="p">{</span><span class="nt">&quot;fields.directors&quot;</span><span class="p">:</span> <span class="s2">&quot;J.J. Abrams&quot;</span><span class="p">}},</span>
-      <span class="nt">&quot;filter&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="nt">&quot;range&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="nt">&quot;fields.release_date&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="nt">&quot;from&quot;</span><span class="p">:</span> <span class="s2">&quot;2010-01-01&quot;</span><span class="p">,</span> <span class="nt">&quot;to&quot;</span><span class="p">:</span> <span class="s2">&quot;2015-12-31&quot;</span><span class="p">}</span>
-        <span class="p">}</span>
-      <span class="p">}</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</div>
-</li>
+sans être un film d’action ni un drame.</p></li>
+<li><p>Films de “J.J. Abrams” sortis (released) entre 2010 et 2015</p></li>
 </ul>
 <p>Proposez maintenant les requêtes d’agrégation permettant d’obtenir les statistiques
 suivantes.</p>
@@ -1266,119 +1100,17 @@ suivantes.</p>
 faites que si vous êtes très motivés pour maîtriser ElasticSearch. La
 solution sera publiée.</p>
 </div>
-<ul>
-<li><p>Donner la note (rating) moyenne des films.</p>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;size&quot;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span>
-<span class="nt">&quot;aggs&quot;</span> <span class="p">:</span> <span class="p">{</span>
-    <span class="nt">&quot;note_moyenne&quot;</span> <span class="p">:</span> <span class="p">{</span>
-      <span class="nt">&quot;avg&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="nt">&quot;field&quot;</span> <span class="p">:</span> <span class="s2">&quot;fields.rating&quot;</span><span class="p">}</span>
-    <span class="p">}}}</span>
-</pre></div>
-</div>
-</div>
-</li>
-<li><p>Donner la note (rating) moyenne, et le rang moyen des films de George Lucas.</p>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;size&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,,</span>
-  <span class="nt">&quot;query&quot;</span> <span class="p">:{</span>
-    <span class="nt">&quot;match&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="nt">&quot;fields.directors&quot;</span><span class="p">:</span> <span class="p">{</span><span class="nt">&quot;query&quot;</span><span class="p">:</span> <span class="s2">&quot;George Lucas&quot;</span><span class="p">,</span> <span class="nt">&quot;operator&quot;</span><span class="p">:</span> <span class="s2">&quot;and&quot;</span><span class="p">}}</span>
-  <span class="p">}</span>
- <span class="p">,</span><span class="nt">&quot;aggs&quot;</span> <span class="p">:</span> <span class="p">{</span>
-    <span class="nt">&quot;note_moyenne&quot;</span> <span class="p">:</span> <span class="p">{</span>
-      <span class="nt">&quot;avg&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="nt">&quot;field&quot;</span> <span class="p">:</span> <span class="s2">&quot;fields.rating&quot;</span><span class="p">}</span>
-    <span class="p">},</span>
-    <span class="nt">&quot;rang_moyen&quot;</span> <span class="p">:</span> <span class="p">{</span>
-      <span class="nt">&quot;avg&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="nt">&quot;field&quot;</span> <span class="p">:</span> <span class="s2">&quot;fields.rank&quot;</span><span class="p">}</span>
-    <span class="p">}</span>
-<span class="p">}}</span>
-</pre></div>
-</div>
-</div>
-</li>
+<ul class="simple">
+<li><p>Donner la note (rating) moyenne des films.</p></li>
+<li><p>Donner la note (rating) moyenne, et le rang moyen des films de George Lucas.</p></li>
 <li><p>Donnez la note (rating) moyenne des films par année. Attention, il y a ici une
 imbrication d’agrégats (on obtient par exemple 456 films en 2013 avec un
-<em>rating</em> moyen de 5.97).</p>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;size&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-<span class="nt">&quot;aggs&quot;</span> <span class="p">:</span> <span class="p">{</span>
-    <span class="nt">&quot;group_year&quot;</span> <span class="p">:</span> <span class="p">{</span>
-      <span class="nt">&quot;terms&quot;</span> <span class="p">:</span> <span class="p">{</span>
-        <span class="nt">&quot;field&quot;</span> <span class="p">:</span> <span class="s2">&quot;fields.year&quot;</span>
-      <span class="p">},</span>
-      <span class="nt">&quot;aggs&quot;</span> <span class="p">:</span> <span class="p">{</span>
-        <span class="nt">&quot;note_moyenne&quot;</span> <span class="p">:</span> <span class="p">{</span>
-          <span class="nt">&quot;avg&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="nt">&quot;field&quot;</span> <span class="p">:</span> <span class="s2">&quot;fields.rating&quot;</span><span class="p">}</span>
-        <span class="p">}}</span>
-    <span class="p">}}}</span>
-</pre></div>
-</div>
-</div>
-</li>
-<li><p>Donner la note (rating) minimum, maximum et moyenne des films par année.</p>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;size&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-<span class="nt">&quot;aggs&quot;</span> <span class="p">:</span> <span class="p">{</span>
-    <span class="nt">&quot;group_year&quot;</span> <span class="p">:</span> <span class="p">{</span>
-      <span class="nt">&quot;terms&quot;</span> <span class="p">:</span> <span class="p">{</span>
-        <span class="nt">&quot;field&quot;</span> <span class="p">:</span> <span class="s2">&quot;fields.year&quot;</span>
-      <span class="p">},</span>
-      <span class="nt">&quot;aggs&quot;</span> <span class="p">:</span> <span class="p">{</span>
-        <span class="nt">&quot;note_moyenne&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="nt">&quot;avg&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="nt">&quot;field&quot;</span> <span class="p">:</span> <span class="s2">&quot;fields.rating&quot;</span><span class="p">}},</span>
-        <span class="nt">&quot;note_min&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="nt">&quot;min&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="nt">&quot;field&quot;</span> <span class="p">:</span> <span class="s2">&quot;fields.rating&quot;</span><span class="p">}},</span>
-        <span class="nt">&quot;note_max&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="nt">&quot;max&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="nt">&quot;field&quot;</span> <span class="p">:</span> <span class="s2">&quot;fields.rating&quot;</span><span class="p">}}</span>
-      <span class="p">}</span>
-    <span class="p">}}}</span>
-</pre></div>
-</div>
-</div>
-</li>
+<em>rating</em> moyen de 5.97).</p></li>
+<li><p>Donner la note (rating) minimum, maximum et moyenne des films par année.</p></li>
 <li><p>Donner le rang (rank) moyen des films par année et trier par ordre
-décroissant.</p>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;size&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-<span class="nt">&quot;aggs&quot;</span> <span class="p">:</span> <span class="p">{</span>
-    <span class="nt">&quot;group_year&quot;</span> <span class="p">:</span> <span class="p">{</span>
-      <span class="nt">&quot;terms&quot;</span> <span class="p">:</span> <span class="p">{</span>
-        <span class="nt">&quot;field&quot;</span> <span class="p">:</span> <span class="s2">&quot;fields.year&quot;</span><span class="p">,</span>
-        <span class="nt">&quot;order&quot;</span> <span class="p">:</span> <span class="p">{</span> <span class="nt">&quot;rating_moyen&quot;</span> <span class="p">:</span> <span class="s2">&quot;desc&quot;</span> <span class="p">}</span>
-      <span class="p">},</span>
-      <span class="nt">&quot;aggs&quot;</span> <span class="p">:</span> <span class="p">{</span>
-        <span class="nt">&quot;rating_moyen&quot;</span> <span class="p">:</span> <span class="p">{</span>
-          <span class="nt">&quot;avg&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="nt">&quot;field&quot;</span> <span class="p">:</span> <span class="s2">&quot;fields.rating&quot;</span><span class="p">}</span>
-      <span class="p">}}</span>
-<span class="p">}}}</span>
-</pre></div>
-</div>
-</div>
-</li>
+décroissant.</p></li>
 <li><p>Compter le nombre de films par tranche de note (0-1.9, 2-3.9, 4-5.9…).
-Indice : <code class="docutils literal notranslate"><span class="pre">group_range</span></code>.</p>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;size&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-<span class="nt">&quot;aggs&quot;</span> <span class="p">:</span> <span class="p">{</span>
-    <span class="nt">&quot;group_range&quot;</span> <span class="p">:</span> <span class="p">{</span>
-      <span class="nt">&quot;range&quot;</span> <span class="p">:</span> <span class="p">{</span>
-        <span class="nt">&quot;field&quot;</span> <span class="p">:</span> <span class="s2">&quot;fields.rating&quot;</span><span class="p">,</span>
-        <span class="nt">&quot;ranges&quot;</span> <span class="p">:</span> <span class="p">[</span>
-          <span class="p">{</span><span class="nt">&quot;to&quot;</span> <span class="p">:</span> <span class="mf">1.9</span><span class="p">},</span>
-          <span class="p">{</span><span class="nt">&quot;from&quot;</span> <span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="nt">&quot;to&quot;</span> <span class="p">:</span> <span class="mf">3.9</span><span class="p">},</span>
-          <span class="p">{</span><span class="nt">&quot;from&quot;</span> <span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="nt">&quot;to&quot;</span> <span class="p">:</span> <span class="mf">5.9</span><span class="p">},</span>
-          <span class="p">{</span><span class="nt">&quot;from&quot;</span> <span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="nt">&quot;to&quot;</span> <span class="p">:</span> <span class="mf">7.9</span><span class="p">},</span>
-          <span class="p">{</span><span class="nt">&quot;from&quot;</span> <span class="p">:</span> <span class="mi">8</span><span class="p">}</span>
-        <span class="p">]</span>
-      <span class="p">}</span>
-    <span class="p">}}}</span>
-</pre></div>
-</div>
-</div>
-</li>
+Indice : <code class="docutils literal notranslate"><span class="pre">group_range</span></code>.</p></li>
 </ul>
 </section>
 </section>
@@ -1676,30 +1408,6 @@ l’opérateur de comparaison <code class="docutils literal notranslate"><span c
 Pas sûr que ce soit possible sans recourir à une auto-jointure, côté client…</p></li>
 </ul>
 </div></blockquote>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">db.movies.find({},</span> <span class="pre">{&quot;title&quot;:</span> <span class="pre">1})</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">db.movies.find({&quot;year&quot;:</span> <span class="pre">{$gt:</span> <span class="pre">&quot;2000&quot;}},</span> <span class="pre">{&quot;title&quot;:</span> <span class="pre">1,</span> <span class="pre">&quot;year&quot;:</span> <span class="pre">1})</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">db.movies.find({&quot;title&quot;:</span> <span class="pre">&quot;Spider-Man&quot;},</span> <span class="pre">{&quot;summary&quot;:</span> <span class="pre">1})</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">db.movies.find({&quot;title&quot;:</span> <span class="pre">&quot;Gladiator&quot;},</span> <span class="pre">{&quot;director&quot;:</span> <span class="pre">1})</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">db.movies.find({&quot;actors.last_name&quot;:</span> <span class="pre">&quot;Dunst&quot;},</span> <span class="pre">{&quot;title&quot;:</span> <span class="pre">1})</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">db.movies.find({&quot;summary&quot;:</span> <span class="pre">{$exists:</span> <span class="pre">true}},</span> <span class="pre">{&quot;title&quot;:</span> <span class="pre">1})</span></code></p>
-<blockquote>
-<div><p>NB: cette fonction regarde si le champ existe, pas s’il est vide ou non.
-Dans la base, il existe des films avec un résumé ayant pour valeur null. Afin
-de ne récupérer que les films ayant réellement un résumé, on peut ajouter <code class="docutils literal notranslate"><span class="pre">$ne:null</span></code></p>
-<blockquote>
-<div><p><code class="docutils literal notranslate"><span class="pre">db.movies.find({&quot;summary&quot;:</span> <span class="pre">{$exists:</span> <span class="pre">true,</span> <span class="pre">$ne:null}},</span> <span class="pre">{&quot;title&quot;:</span> <span class="pre">1})</span></code></p>
-</div></blockquote>
-<p>donne les films dont le champ résumé existe et dont la valeur du champ est différente de null.</p>
-</div></blockquote>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">db.movies.find({&quot;genre&quot;:</span> <span class="pre">{$nin:</span> <span class="pre">[&quot;Drame&quot;,</span> <span class="pre">&quot;Comédie&quot;]}},</span> <span class="pre">{&quot;title&quot;:</span> <span class="pre">1,</span> <span class="pre">&quot;genre&quot;:</span> <span class="pre">1})</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">db.movies.find({},</span> <span class="pre">{&quot;title&quot;:</span> <span class="pre">1,</span> <span class="pre">&quot;actors.first_name&quot;:</span> <span class="pre">1,</span> <span class="pre">&quot;actors.last_name&quot;:</span> <span class="pre">1})</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">db.movies.find({&quot;actors.last_name&quot;:</span> <span class="pre">&quot;Eastwood&quot;,</span> <span class="pre">&quot;director.last_name&quot;:</span> <span class="pre">{$ne:</span> <span class="pre">&quot;Eastwood&quot;}},</span> <span class="pre">{&quot;title&quot;:</span> <span class="pre">1})</span></code></p></li>
-</ul>
-</div>
 </section>
 </section>
 </section>

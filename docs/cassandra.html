@@ -1050,78 +1050,6 @@ répertoire donné.</p>
 et donnez les requêtes CQL correspondantes.</p>
 <p>Question complémentaire,: comment faire pour obtenir les
 révisions d’un répertoire?</p>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<p>Les répertoires forment une structure d’arbre, donc
-un graphe. Pas idéal avec Cassandra.</p>
-<p>Voici une proposition. Il existe d’autres
-solutions car tout dépend des besoins et
-des volumétries anticipées.</p>
-<p>La
-table suivante intègre les enfants et parents.</p>
-<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span> <span class="k">create</span> <span class="k">table</span> <span class="n">Directory_by_revision</span>
-     <span class="p">(</span><span class="n">revision_id</span> <span class="n">uuid</span><span class="p">,</span>
-      <span class="n">directory_id</span> <span class="n">uuid</span><span class="p">,</span>
-      <span class="n">children</span> <span class="n">list</span><span class="o">&lt;</span><span class="n">uuid</span><span class="o">&gt;</span><span class="p">,</span>
-      <span class="n">parent_id</span> <span class="n">uuid</span><span class="p">,</span>
-      <span class="k">primary</span> <span class="k">key</span> <span class="p">(</span><span class="n">revision_id</span><span class="p">,</span> <span class="n">directory_id</span><span class="p">)</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-<p>On peut naviguer vers les parent ou vers les
-enfants, mais avec une requête à chaque fois. Il faut
-de plus supposer qu’il n’y a pas trop d’enfants
-(sous-répertoires) sinon il faut s’en remettre
-à la table des entrées ci-dessous en considérant
-qu’un sous-répertoire est une entrée d’un type particulier.</p>
-<p>Maintenant, connaissant une <em>directory</em> pour une
-révision donnée, je modélise
-les entrées.</p>
-<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">create</span> <span class="k">table</span> <span class="n">Entry_by_dir</span>
-     <span class="p">(</span><span class="n">revision_id</span> <span class="n">uuid</span><span class="p">,</span>
-        <span class="n">directory_id</span> <span class="n">uuid</span><span class="p">,</span>
-        <span class="n">entry_id</span> <span class="n">uuid</span><span class="p">,</span>
-        <span class="n">name</span> <span class="nb">varchar</span><span class="p">,</span>
-        <span class="n">access_rights</span> <span class="nb">varchar</span><span class="p">,</span>
-        <span class="k">primary</span> <span class="k">key</span> <span class="p">(</span> <span class="p">(</span><span class="n">revision_id</span><span class="p">,</span> <span class="n">directory_id</span><span class="p">),</span> <span class="n">entry_id</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Remarquez la clé de partitionnement composite. Toutes
-les entrées d’un même répertoire seront sur le même serveur,
-<em>mais</em> les répertoires d’une même révision pourront
-être sur des serveurs différents.
-Notez également qu’il y a sans doute trop d’entrées (fichiers) par répertoire
-pour les représenter par une liste imbriquée</p>
-<p>On peut alors obtennir toutes les entrées d’une <em>directory</em>
-(pour une révision donnée).</p>
-<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">select</span> <span class="n">name</span> <span class="k">from</span> <span class="n">Entry_by_dir</span>
-<span class="k">where</span> <span class="n">revision_id</span> <span class="o">=</span> <span class="s1">&#39;a986678&#39;</span>
-<span class="k">and</span> <span class="n">directory_id</span> <span class="o">=</span> <span class="s1">&#39;xyz&#39;</span>
-</pre></div>
-</div>
-<p>On peut trouver une entrée dont le nom est <code class="docutils literal notranslate"><span class="pre">README.md</span></code> à
-condition de le faire dans un répertoire spécifique.</p>
-<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">select</span> <span class="n">content_ref</span> <span class="k">from</span> <span class="n">Entry_by_dir</span>
-<span class="k">where</span> <span class="n">revision_id</span> <span class="o">=</span> <span class="s1">&#39;a986678&#39;</span>
-<span class="k">and</span> <span class="n">directory_id</span> <span class="o">=</span> <span class="s1">&#39;xyz&#39;</span>
-<span class="k">and</span> <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;README.md&#39;</span>
-</pre></div>
-</div>
-<p>À l’inverse si je veux avoir la liste des révisions
-d’une <em>directory</em> , je dois inverser la clé.</p>
-<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">create</span> <span class="k">table</span> <span class="n">Revision_by_directory</span>
-     <span class="p">(</span><span class="n">directory_id</span> <span class="n">uuid</span><span class="p">,</span>
-      <span class="n">revision_id</span> <span class="n">uuid</span><span class="p">,</span>
-      <span class="n">children</span> <span class="n">list</span><span class="o">&lt;</span><span class="n">uuid</span><span class="o">&gt;</span><span class="p">,</span>
-        <span class="k">primary</span> <span class="k">key</span> <span class="p">(</span><span class="n">revision_id</span><span class="p">,</span><span class="n">directory_id</span><span class="p">)</span>
-        <span class="p">)</span>
-</pre></div>
-</div>
-<p>On a une forte redondance si on veut les deux… Cette
-situation peut être gérée en créant
-<code class="docutils literal notranslate"><span class="pre">Revision_by_directory</span></code> comme une <em>vue matérialisée</em>
-(étude complémentaire à mener si cela vous  intéresse).</p>
-</div>
 </div>
 <div class="admonition-exercice-ex-s3-2-deduplication admonition" id="ex-s3-2">
 <p class="admonition-title">Exercice <a class="reference internal" href="#ex-s3-2">Ex-S3-2</a>: déduplication</p>
@@ -1132,36 +1060,6 @@ souvent pas d’une révision à l’autre (et même d’une branche
 à l’autre). Comment éviter de dupliquer un contenu en
 le partageant entre des révisions et des branches?
 Proposez une approche avec Cassandra.</p>
-<div class="admonition-correction admonition">
-<p class="admonition-title">Correction</p>
-<p>Si on veut éviter la duplication des contenus,
-il faut les stocker avec leur identifiant
-propre, sans les placer en fonction d’une branche
-ou d’une révision</p>
-<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span> <span class="k">create</span> <span class="k">table</span> <span class="n">Content</span>
-     <span class="p">(</span><span class="n">content_id</span> <span class="n">uuid</span><span class="p">,</span>
-      <span class="n">raw_content</span> <span class="n">bits</span><span class="p">,</span>
-      <span class="k">primary</span> <span class="k">key</span> <span class="p">(</span><span class="n">content_id</span><span class="p">)</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-<p>Dans ce cas, on modifie la table des entrées pour
-référencer le contenu.</p>
-<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">create</span> <span class="k">table</span> <span class="n">Entry_by_dir</span>
-     <span class="p">(</span><span class="n">revision_id</span> <span class="n">uuid</span><span class="p">,</span>
-        <span class="n">directory_id</span> <span class="n">uuid</span><span class="p">,</span>
-        <span class="n">entry_id</span> <span class="n">uuid</span><span class="p">,</span>
-        <span class="n">name</span> <span class="nb">varchar</span><span class="p">,</span>
-        <span class="n">access_rights</span> <span class="nb">varchar</span><span class="p">,</span>
-        <span class="n">content_id</span> <span class="n">uuid</span><span class="p">,</span>
-        <span class="k">primary</span> <span class="k">key</span> <span class="p">(</span> <span class="p">(</span><span class="n">revision_id</span><span class="p">,</span> <span class="n">directory_id</span><span class="p">),</span> <span class="n">entry_id</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>On voit tout de suite le problème: en essayant d’éviter une
-déduplication on s’est condamné à effectuer <em>une</em> requête
-pour <em>chaque</em> contenu, ce qui risque d’être insupportable.
-Tout dépend du fait qu’on doive ou non accéder souvent aux contenus.</p>
-</div>
 </div>
 <div class="admonition-exercice-mep-s2-3-sujet-d-etude-les-vues-materialisees admonition" id="mep-s2-3">
 <p class="admonition-title">Exercice <a class="reference internal" href="#mep-s2-3">MEP-S2-3</a>: sujet d’étude, les vues matérialisées</p>
