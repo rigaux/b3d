@@ -50,8 +50,8 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
-    'Sphinx_ext.eqt',
-    'Sphinx_ext.questions',
+#    'Sphinx_ext.eqt',
+#    'Sphinx_ext.questions',
     'Sphinx_ext.iframe'
 ]
 
@@ -134,7 +134,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Bases de données documentaires et distribuées'
-copyright = u'2014-2025, Nicolas Travers, Raphaël Fournier S\'niehotta et Philippe Rigaux'
+copyright = u'2014-2026, Nicolas Travers, Raphaël Fournier S\'niehotta et Philippe Rigaux'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

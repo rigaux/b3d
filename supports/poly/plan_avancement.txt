@@ -7,35 +7,29 @@ Des visios sont planifiées pour répondre aux questions, étudier
 la solution des exercices et corriger les devoirs. Elles seront planifiées 
 le mardi soir à 18h30.
 
-30 septembre : visio de présentation du cours
+24 septembre : visio de présentation du cours
 
 PREMIERE PARTIE
 
-7 octobre: fin du chapitre sur Docker
-
-21 octobre: fin du chapitre modélisation de documents structurés
-
-26 octobre: remise du premier devoir
-
-28 octobre: visio et correction des exercices du premier chapitre
+3 octobre: fin du chapitre sur Docker
+16 octobre: fin du chapitre modélisation de documents structurés
+23 octobre: remise du premier devoir
+27 octobre: visio et correction des exercices du premier chapitre
 
 SECONDE PARTIE
-31 octobre: fin du chapitre sur la recherche exacte
 
-7 novembre: fin du chapitre sur Cassandra
-
-14 novembre: fin du chapitre sur la recherche approchée
-
-18 novembre: remise du second devoir
-
-18 novembre: visio sur la recherche exacte et approchée, exercices
+30 octobre: fin du chapitre sur la recherche exacte
+6 novembre: fin du chapitre sur Cassandra
+13 novembre: fin du chapitre sur la recherche approchée
+17 novembre: remise du second devoir
+17 novembre: visio sur la recherche exacte et approchée, exercices
 
 TROISIEME PARTIE
 
-9 décembre: fin du chapitre sur le traitement pas lot
-9 décembre: visio sur le traitement par lot
-19 décembre: remise du troisième devoir
+4 décembre: fin du chapitre sur le traitement pas lot
+8 décembre: visio sur le traitement par lot
+18 décembre: remise du troisième devoir
 
 QUATRIEME DEVOIR
-9 janvier: fin du chapitre sur le partitionnement
-13 janvier: visio sur les systèmes distribués
+8 janvier: fin du chapitre sur le partitionnement
+12 janvier: visio sur les systèmes distribués
