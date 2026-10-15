@@ -1,1 +1,0 @@
-Etude sur le Système NoSql CouchDB
