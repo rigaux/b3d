@@ -50,8 +50,8 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
-#    'Sphinx_ext.eqt',
-#    'Sphinx_ext.questions',
+    'Sphinx_ext.eqt',
+    'Sphinx_ext.questions',
     'Sphinx_ext.iframe'
 ]
 
@@ -92,7 +92,7 @@ def setup(app):
     app.add_config_value('annales23', '', True)
     app.add_config_value('annales24', '', True)
 	
-docstruct = 'private'
+docstruct = 'public'
 cassandra = 'private'
 cassandratp = 'private'
 rielastic = 'private'
