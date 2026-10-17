@@ -1718,7 +1718,7 @@ Exercices
               }
               {
                 "_id": "ue:27",
-                "titre": "Java",
+                "titre": "Bases de données",
                 "etudiants": [
                        {"id": 978, "nom": "Jean Dujardin", "note": 17},
                        {"id": 476, "nom": "Vanessa Paradis", "note": 10}
