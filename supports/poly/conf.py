@@ -93,19 +93,20 @@ def setup(app):
     app.add_config_value('annales24', '', True)
 	
 docstruct = 'public'
-cassandra = 'private'
-cassandratp = 'private'
-rielastic = 'private'
-mongoquery = 'private'
-mongomapreduce = 'private'
+cassandra = 'public'
+cassandratp = 'public'
+rielastic = 'public'
+mongoquery = 'public'
 
-mongodbtp = 'private'
-mongodbtp2 = 'private'
-introri = 'private'
-rankingS1 = 'private'
-rankingS2 = 'private'
-rankingS3 = 'private'
-ritp = 'private'
+mongomapreduce = 'public'
+
+mongodbtp = 'public'
+mongodbtp2 = 'public'
+introri = 'public'
+rankingS1 = 'public'
+rankingS2 = 'public'
+rankingS3 = 'public'
+ritp = 'public'
 
 mrbasic = 'private'
 cloud1 = 'private'
